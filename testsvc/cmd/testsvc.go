@@ -37,9 +37,6 @@ func main() {
 	var svc testsvc.Service
 	{
 		svc = implementation.NewService(logger)
-		// Add service middleware here
-		// Logging middleware
-		//svc = middleware.LoggingMiddleware(logger)(svc)
 	}
 
 	var h http.Handler

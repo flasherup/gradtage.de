@@ -8,6 +8,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 )
 
@@ -19,6 +20,8 @@ func NewHTTPTransport(s Service, logger log.Logger,) http.Handler {
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 	}
+
+	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 
 	r.Methods("POST").Path("/").Handler(kithttp.NewServer(
 		e.LogEndpoint,
