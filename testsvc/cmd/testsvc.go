@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/flasherup/gradtage.de/monitor"
-	"github.com/flasherup/gradtage.de/monitor/implementation"
+	"github.com/flasherup/gradtage.de/testsvc"
+	"github.com/flasherup/gradtage.de/testsvc/implementation"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net/http"
@@ -25,7 +25,7 @@ func main() {
 		logger = log.NewSyncLogger(logger)
 		logger = level.NewFilter(logger, level.AllowDebug())
 		logger = log.With(logger,
-			"svc", "monitor",
+			"svc", "testsvc",
 			"ts", log.DefaultTimestampUTC,
 			"caller", log.DefaultCaller,
 		)
@@ -34,7 +34,7 @@ func main() {
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
-	var svc monitor.Service
+	var svc testsvc.Service
 	{
 		svc = implementation.NewService(logger)
 		// Add service middleware here
@@ -44,7 +44,7 @@ func main() {
 
 	var h http.Handler
 	{
-		h = monitor.NewHTTPTransport(svc,logger)
+		h = testsvc.NewHTTPTransport(svc,logger)
 	}
 
 	errs := make(chan error)

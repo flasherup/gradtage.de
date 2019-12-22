@@ -1,7 +1,7 @@
-package monitor
+package testsvc
 
 import (
-"context"
+	"context"
 	"errors"
 )
 
@@ -12,5 +12,5 @@ var (
 )
 
 type Service interface {
-	Log(context.Context, string) error
+	Text(context.Context, string) (string, int)
 }

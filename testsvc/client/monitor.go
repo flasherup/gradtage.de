@@ -2,9 +2,7 @@ package client
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	"github.com/flasherup/gradtage.de/monitor"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -23,10 +21,10 @@ func NewMonitorClient(url string) *MonitorClient {
 }
 
 func (mc *MonitorClient) Log(s string) (err error) {
-	lr := monitor.LogRequest{Log:s}
+	//lr := testsvc.LogRequest{Log: s}
 
 	bt := new(bytes.Buffer)
-	json.NewEncoder(bt).Encode(lr)
+	//json.NewEncoder(bt).Encode(lr)
 
 	req, err := http.NewRequest("POST", mc.url + "/log/", bt)
 	if err != nil {

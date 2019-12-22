@@ -1,4 +1,4 @@
-package monitor
+package testsvc
 
 import (
 	"context"
@@ -12,14 +12,14 @@ type Endpoints struct {
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		LogEndpoint:   MakeLogEndpoint(s),
+		LogEndpoint:   MakeTestEndpoint(s),
 	}
 }
 
-func MakeLogEndpoint(s Service) endpoint.Endpoint {
+func MakeTestEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(LogRequest)
-		err := s.Log(ctx, req.Log)
-		return LogResponse{err}, nil
+		req := request.(TestRequest)
+		text,count := s.Text(ctx, req.Text)
+		return TestResponse{text, count}, nil
 	}
 }
