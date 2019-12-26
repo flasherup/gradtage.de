@@ -14,7 +14,7 @@ import (
 
 func NewHTTPTransport(s Service, logger log.Logger,) http.Handler {
 	r := mux.NewRouter()
-	r.Use(commonMiddleware)
+	//r.Use(commonMiddleware)
 	e := MakeServerEndpoints(s)
 
 	options := []httptransport.ServerOption{

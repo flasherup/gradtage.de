@@ -3,6 +3,7 @@ package implementation
 import (
 	"context"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -28,6 +29,8 @@ func NewService(logger log.Logger) *TestService {
 func (ts *TestService) Text(cxt context.Context, text string) (string,int) {
 	ts.prom.Inc()
 	ts.count++
+	level.Info(ts.logger).Log("msg", "Text request", "text", text, "count", ts.count)
+
 	return text, ts.count
 }
 
