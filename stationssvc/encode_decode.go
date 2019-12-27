@@ -10,7 +10,7 @@ func EncodeGetStationsResponse(_ context.Context, r interface{}) (interface{}, e
 	encStations := toGRPCMap(res.Stations)
 	return &grpc.GetStationsResponse {
 		Sts: encStations,
-		Err: res.Err.Error(),
+		Err: errorToString(res.Err),
 	}, nil
 }
 
@@ -24,7 +24,7 @@ func EncodeGetAllStationsResponse(_ context.Context, r interface{}) (interface{}
 	encStations := toGRPCMap(res.Stations)
 	return &grpc.GetAllStationsResponse {
 		Sts: encStations,
-		Err: res.Err.Error(),
+		Err: errorToString(res.Err),
 	}, nil
 }
 
@@ -35,7 +35,7 @@ func DecodeGeAllStationsRequest(_ context.Context, r interface{}) (interface{}, 
 func EncodeAddStationsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(AddStationsResponse)
 	return &grpc.AddStationsResponse {
-		Err: res.Err.Error(),
+		Err: errorToString(res.Err),
 	}, nil
 }
 
@@ -63,6 +63,14 @@ func toGRPCMap(src map[string]Station) map[string]*grpc.Station {
 		}
 	}
 	return res
+}
+
+func errorToString(err error) string{
+	if err == nil {
+		return "nil"
+	}
+
+	return err.Error()
 }
 
 

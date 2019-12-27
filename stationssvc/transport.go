@@ -29,7 +29,7 @@ func (s *GRPCServer) GetAllStations(ctx context.Context, req *grpc.GetAllStation
 }
 
 func (s *GRPCServer) AddStations(ctx context.Context, req *grpc.AddStationsRequest) (*grpc.AddStationsResponse, error) {
-	_, resp, err := s.getAllStations.ServeGRPC(ctx, req)
+	_, resp, err := s.addStations.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}

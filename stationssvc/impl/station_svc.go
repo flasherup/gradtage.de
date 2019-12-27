@@ -12,7 +12,9 @@ type StationsSVC struct {
 }
 
 func NewStationsSVC(logger log.Logger) *StationsSVC {
-	return &StationsSVC{}
+	return &StationsSVC{
+		logger:logger,
+	}
 }
 
 func (ss StationsSVC) GetStations(ctx context.Context, ids []string) (sts map[string]stationssvc.Station, err error) {

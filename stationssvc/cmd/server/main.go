@@ -21,11 +21,14 @@ func main() {
 		logger = log.NewSyncLogger(logger)
 		logger = level.NewFilter(logger, level.AllowDebug())
 		logger = log.With(logger,
-			"svc", "testsvc",
+			"svc", "stationssvc",
 			"ts", log.DefaultTimestampUTC,
 			"caller", log.DefaultCaller,
 		)
 	}
+
+	level.Info(logger).Log("msg", "service started")
+	defer level.Info(logger).Log("msg", "service ended")
 
 	ctx := context.Background()
 	stationsService := impl.NewStationsSVC(logger)
@@ -45,7 +48,7 @@ func main() {
 			AddStationsEndpoint: stationssvc.MakeAddStationsEndpoint(stationsService),
 		}))
 
-		fmt.Println("gRPC listen on 9090")
+		level.Info(logger).Log("transport", "HTTP", "addr", ":9090")
 		errors <- gRPCServer.Serve(listener)
 	}()
 

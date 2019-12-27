@@ -32,7 +32,7 @@ func MakeGetStationsEndpoint(s Service) endpoint.Endpoint {
 func MakeGetAllStationsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		sts, err := s.GetAllStations(ctx)
-		return GetStationsResponse{sts, err}, nil
+		return GetAllStationsResponse{sts, err}, nil
 	}
 }
 
