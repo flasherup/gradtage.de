@@ -1,0 +1,88 @@
+package impl
+
+import (
+	"context"
+	"fmt"
+	"github.com/flasherup/gradtage.de/stationssvc"
+	"github.com/flasherup/gradtage.de/stationssvc/impl/database"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+	ktprom "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
+)
+
+type StationsSVC struct {
+	logger  	log.Logger
+	db 			database.Postgres
+	counter 	*ktprom.Gauge
+}
+
+func NewStationsSVC(logger log.Logger, db *database.Postgres) (*StationsSVC, error) {
+	err := db.CreateTable()
+	if err != nil {
+		return nil, err
+	}
+
+	options := prometheus.Opts{
+		Name: "stations_count_total",
+		Help: "The total number oh stations",
+	}
+	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
+	st := StationsSVC{
+		logger: logger,
+		db:		*db,
+		counter: guage,
+	}
+	st.updateStationsMetrics()
+	return &st,nil
+}
+
+func (ss StationsSVC) GetStations(ctx context.Context, ids []string) (sts map[string]stationssvc.Station, err error) {
+	level.Info(ss.logger).Log("msg", "GetStations", "ids", fmt.Sprintf("%+q",ids))
+	stations, err := ss.db.GetStations(ids)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "GetStations error", "err", err)
+		return nil,err
+	}
+	sts = make(map[string]stationssvc.Station)
+	for _,v := range stations {
+		sts[v.ID] = v
+	}
+	return
+}
+
+func (ss StationsSVC) GetAllStations(ctx context.Context) (sts map[string]stationssvc.Station, err error){
+	level.Info(ss.logger).Log("msg", "GetAllStations")
+	stations, err := ss.db.GetAllStations()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "GetAllStations error", "err", err)
+		return nil,err
+	}
+	sts = make(map[string]stationssvc.Station)
+	for _,v := range stations {
+		sts[v.ID] = v
+	}
+	return
+}
+
+func (ss *StationsSVC) AddStations(ctx context.Context, sts []stationssvc.Station) (err error) {
+	level.Info(ss.logger).Log("msg", "AddStations")
+	err = ss.db.AddStations(sts)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "AddStations error", "err", err)
+	}
+	ss.updateStationsMetrics()
+	return
+}
+
+func (ss *StationsSVC)updateStationsMetrics() {
+	count, err :=  ss.db.GetCount()
+	if err == nil {
+		g := ss.counter.With("stations")
+		g.Add(float64(count))
+		level.Info(ss.logger).Log("msg", "Stations count updated", "count", count)
+
+	} else {
+		level.Error(ss.logger).Log("msg", "Stations count update error", "err", err)
+	}
+}

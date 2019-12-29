@@ -3,7 +3,11 @@ package stationssvc
 import (
 	"context"
 	"github.com/flasherup/gradtage.de/stationssvc/grpc"
+	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"net/http"
 )
 
 type GRPCServer struct {
@@ -56,4 +60,10 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.StationSVCServer 
 			EncodeAddStationsResponse,
 		),
 	}
+}
+
+func NewMetricsTransport(s Service, logger log.Logger,) http.Handler {
+	r := mux.NewRouter()
+	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
+	return r
 }
