@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrInconsistentIDs = errors.New("inconsistent IDs")
+	ErrInconsistentIDs = errors.New("inconsistent ID")
 	ErrAlreadyExists   = errors.New("already exists")
 	ErrNotFound        = errors.New("not found")
 )
