@@ -75,7 +75,7 @@ func toGRPCTemps(sts []hourlysvc.Temperature) []*grpc.Temperature {
 	for i,v := range sts {
 		res[i] = &grpc.Temperature{
 			Date:			v.Date,
-			Temperature:	v.Temperature,
+			Temperature:	float32(v.Temperature),
 		}
 	}
 
