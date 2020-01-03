@@ -3,7 +3,6 @@ package impl
 
 import (
 	"context"
-	"fmt"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl/parser"
@@ -37,7 +36,7 @@ func NewHrlAggregatorSVC(logger log.Logger, stations stationssvc.Client, hourly 
 		counter: guage,
 		src: *src,
 	}
-	startFetchProcess(&st);
+	go startFetchProcess(&st)
 	return &st,nil
 }
 
@@ -60,7 +59,6 @@ func startFetchProcess(ss *HourlyAggregatorSVC) {
 
 
 func (has HourlyAggregatorSVC)processUpdate() {
-	fmt.Println("process update")
 	sts := has.stations.GetAllStations()
 	if sts.Err != "nil" {
 		level.Error(has.logger).Log("msg", "GetStations error", "err", sts.Err)

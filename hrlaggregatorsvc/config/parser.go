@@ -15,9 +15,15 @@ type SourcesConfig struct {
 	CheckwxKey		string	`yaml:"checkwxKey"`
 }
 
+type Clients struct {
+	StationsAddr string `yaml:"stations_addr"`
+	HourlyAddr string `yaml:"hourly_addr"`
+}
+
 type StationsConfig struct {
 	Server   ServerConfig	`yaml:"server"`
-	Sources SourcesConfig	`yaml:"sources"`
+	Sources  SourcesConfig	`yaml:"sources"`
+	Clients  Clients		`yaml:"clients"`
 }
 
 func LoadConfig(path string) (config *StationsConfig, err error) {

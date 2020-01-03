@@ -45,8 +45,8 @@ func main() {
 	}
 
 
-	hourlyService := hourly.NewHourlySCVClient("82.165.18.228:8103",logger)
-	stationsService := stations.NewStationsSCVClient("82.165.18.228:8102",logger)
+	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
+	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 	dataSrc := source.NewCheckWX(conf.Sources.CheckwxKey, logger)
 
 	level.Info(logger).Log("msg", "service started")
