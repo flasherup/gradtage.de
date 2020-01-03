@@ -9,19 +9,19 @@ import (
 	googlerpc "google.golang.org/grpc"
 )
 
-type HourlySVCClient struct{
+type DailySVCClient struct{
 	logger     log.Logger
 	host string
 }
 
-func NewHourlySCVClient(host string, logger log.Logger) *HourlySVCClient {
-	return &HourlySVCClient{
+func NewDailySCVClient(host string, logger log.Logger) *DailySVCClient {
+	return &DailySVCClient{
 		logger:logger,
 		host: host,
 	}
 }
 
-func (scc HourlySVCClient) GetPeriod(id string, start string, end string) *grpc.GetPeriodResponse {
+func (scc DailySVCClient) GetPeriod(id string, start string, end string) *grpc.GetPeriodResponse {
 	conn := scc.openConn()
 	defer conn.Close()
 
@@ -34,7 +34,7 @@ func (scc HourlySVCClient) GetPeriod(id string, start string, end string) *grpc.
 	return res
 }
 
-func (scc HourlySVCClient) PushPeriod(id string, temps []dailysvc.Temperature) *grpc.PushPeriodResponse {
+func (scc DailySVCClient) PushPeriod(id string, temps []dailysvc.Temperature) *grpc.PushPeriodResponse {
 	conn := scc.openConn()
 	defer conn.Close()
 
@@ -48,7 +48,7 @@ func (scc HourlySVCClient) PushPeriod(id string, temps []dailysvc.Temperature) *
 	return res
 }
 
-func (scc HourlySVCClient) GetUpdateDate(ids []string) *grpc.GetUpdateDateResponse {
+func (scc DailySVCClient) GetUpdateDate(ids []string) *grpc.GetUpdateDateResponse {
 	conn := scc.openConn()
 	defer conn.Close()
 
@@ -62,7 +62,7 @@ func (scc HourlySVCClient) GetUpdateDate(ids []string) *grpc.GetUpdateDateRespon
 }
 
 
-func (scc HourlySVCClient) openConn() *googlerpc.ClientConn {
+func (scc DailySVCClient) openConn() *googlerpc.ClientConn {
 	cc, err := googlerpc.Dial(scc.host, googlerpc.WithInsecure())
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to start gRPC connection", "err", err)
@@ -75,7 +75,7 @@ func toGRPCTemps(sts []dailysvc.Temperature) []*grpc.Temperature {
 	for i,v := range sts {
 		res[i] = &grpc.Temperature{
 			Date:			v.Date,
-			Temperature:	v.Temperature,
+			Temperature:	float32(v.Temperature),
 		}
 	}
 

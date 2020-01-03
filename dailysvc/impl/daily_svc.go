@@ -11,19 +11,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type HourlySVC struct {
+type DailySVC struct {
 	logger  	log.Logger
 	db 			database.HourlyDB
 	counter 	*ktprom.Gauge
 }
 
-func NewHourlySVC(logger log.Logger, db database.HourlyDB) (*HourlySVC, error) {
+func NewDailySVC(logger log.Logger, db database.HourlyDB) (*DailySVC, error) {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
 	}
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
-	st := HourlySVC{
+	st := DailySVC{
 		logger: logger,
 		db:		db,
 		counter: guage,
@@ -31,7 +31,7 @@ func NewHourlySVC(logger log.Logger, db database.HourlyDB) (*HourlySVC, error) {
 	return &st,nil
 }
 
-func (ss HourlySVC) GetPeriod(ctx context.Context, id string, start string, end string) (temps []dailysvc.Temperature, err error) {
+func (ss DailySVC) GetPeriod(ctx context.Context, id string, start string, end string) (temps []dailysvc.Temperature, err error) {
 	level.Info(ss.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("%s: %s-%s",id, start, end))
 	temps, err = ss.db.GetPeriod(id, start, end)
 	if err != nil {
@@ -40,7 +40,7 @@ func (ss HourlySVC) GetPeriod(ctx context.Context, id string, start string, end 
 	return temps,err
 }
 
-func (ss HourlySVC) PushPeriod(ctx context.Context, id string, temps []dailysvc.Temperature) (err error){
+func (ss DailySVC) PushPeriod(ctx context.Context, id string, temps []dailysvc.Temperature) (err error){
 	level.Info(ss.logger).Log("msg", "PushPeriod", "stId", id)
 	err = ss.db.CreateTable(id)
 	if err != nil {
@@ -54,7 +54,7 @@ func (ss HourlySVC) PushPeriod(ctx context.Context, id string, temps []dailysvc.
 	return err
 }
 
-func (ss *HourlySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
+func (ss *DailySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
 	level.Info(ss.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
 	dates = make(map[string]string)
 	for _,v := range ids {

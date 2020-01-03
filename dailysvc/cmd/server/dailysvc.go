@@ -56,7 +56,7 @@ func main() {
 
 
 	ctx := context.Background()
-	hourlyService, err := impl.NewHourlySVC(logger, db)
+	hourlyService, err := impl.NewDailySVC(logger, db)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return

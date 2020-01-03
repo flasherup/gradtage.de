@@ -7,7 +7,7 @@ import (
 
 type Temperature struct {
 	Date 		string `json:"date"`
-	Temperature	float32 `json:"temperature"`
+	Temperature	float64 `json:"temperature"`
 
 }
 

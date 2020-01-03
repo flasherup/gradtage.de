@@ -53,7 +53,7 @@ func toGRPCTemps(src []Temperature) []*grpc.Temperature {
 	for i,v := range src {
 		res[i] = &grpc.Temperature {
 			Date: 			v.Date,
-			Temperature: 	v.Temperature,
+			Temperature: 	float32(v.Temperature),
 		}
 	}
 	return res
@@ -64,7 +64,7 @@ func toServiceTemps(src []*grpc.Temperature) []Temperature {
 	for i,v := range src {
 		res[i] =  Temperature{
 			Date:			v.Date,
-			Temperature:	v.Temperature,
+			Temperature:	float64(v.Temperature),
 		}
 	}
 	return res

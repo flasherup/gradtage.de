@@ -20,7 +20,7 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewHourlySCVClient("82.165.18.228:8103",logger)
+	client := impl.NewDailySCVClient("82.165.18.228:8103",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
