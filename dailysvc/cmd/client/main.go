@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/impl"
+	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
-	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 )
 
 func main() {

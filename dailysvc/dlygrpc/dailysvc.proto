@@ -1,0 +1,76 @@
+syntax = "proto3";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+package dlygrpc;
+
+message Temperature {
+    string date = 1;
+    float  temperature = 2;
+}
+
+message GetPeriodRequest {
+    string id      = 1;
+    string start    = 2;
+    string end      = 3;
+}
+
+message GetPeriodResponse {
+    repeated Temperature temps = 1;
+    string err = 2;
+}
+
+message PushPeriodRequest {
+    string id      = 1;
+    repeated Temperature temps = 2;
+}
+
+message PushPeriodResponse {
+    string err = 1;
+}
+
+message GetUpdateDateRequest {
+    repeated string ids = 1 [(gogoproto.nullable) = false];
+}
+
+message GetUpdateDateResponse {
+    map<string,string> dates = 1;
+    string err = 2;
+}
+
+message UpdateAvgForYearRequest {
+    string id      = 1;
+}
+
+message UpdateAvgForYearResponse {
+    string err = 1;
+}
+
+message UpdateAvgForDOYRequest {
+    string id      = 1;
+    int32  doy     = 2;
+}
+
+message UpdateAvgForDOYResponse {
+    string err = 1;
+}
+
+message GetAvgRequest {
+    string id      = 1;
+}
+
+message GetAvgResponse {
+    repeated Temperature temps = 1;
+    string err = 2;
+}
+
+
+service DailySVC {
+    rpc GetPeriod(GetPeriodRequest)                 returns (GetPeriodResponse) {}
+    rpc PushPeriod(PushPeriodRequest)               returns (PushPeriodResponse) {}
+    rpc GetUpdateDate(GetUpdateDateRequest)         returns (GetUpdateDateResponse) {}
+    rpc UpdateAvgForYear(UpdateAvgForYearRequest)   returns (UpdateAvgForYearResponse) {}
+    rpc UpdateAvgForDOY(UpdateAvgForDOYRequest)     returns (UpdateAvgForDOYResponse) {}
+    rpc GetAvg(GetAvgRequest)                       returns (GetAvgResponse) {}
+}
+
+

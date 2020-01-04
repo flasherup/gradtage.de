@@ -2,7 +2,7 @@ package dailysvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/dailysvc/grpc"
+	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
 	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
@@ -20,57 +20,57 @@ type GRPCServer struct {
 
 }
 
-func (s *GRPCServer) GetPeriod(ctx context.Context, req *grpc.GetPeriodRequest) (*grpc.GetPeriodResponse, error) {
+func (s *GRPCServer) GetPeriod(ctx context.Context, req *dlygrpc.GetPeriodRequest) (*dlygrpc.GetPeriodResponse, error) {
 	_, resp, err := s.getPeriod.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetPeriodResponse), nil
+	return resp.(*dlygrpc.GetPeriodResponse), nil
 }
 
-func (s *GRPCServer) PushPeriod(ctx context.Context, req *grpc.PushPeriodRequest) (*grpc.PushPeriodResponse, error) {
+func (s *GRPCServer) PushPeriod(ctx context.Context, req *dlygrpc.PushPeriodRequest) (*dlygrpc.PushPeriodResponse, error) {
 	_, resp, err := s.pushPeriod.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.PushPeriodResponse), nil
+	return resp.(*dlygrpc.PushPeriodResponse), nil
 }
 
-func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *grpc.GetUpdateDateRequest) (*grpc.GetUpdateDateResponse, error) {
+func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *dlygrpc.GetUpdateDateRequest) (*dlygrpc.GetUpdateDateResponse, error) {
 	_, resp, err := s.getUpdateDate.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetUpdateDateResponse), nil
+	return resp.(*dlygrpc.GetUpdateDateResponse), nil
 }
 
-func (s *GRPCServer) UpdateAvgForYear(ctx context.Context, req *grpc.UpdateAvgForYearRequest) (*grpc.UpdateAvgForYearResponse, error) {
+func (s *GRPCServer) UpdateAvgForYear(ctx context.Context, req *dlygrpc.UpdateAvgForYearRequest) (*dlygrpc.UpdateAvgForYearResponse, error) {
 	_, resp, err := s.updateAvgForYear.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.UpdateAvgForYearResponse), nil
+	return resp.(*dlygrpc.UpdateAvgForYearResponse), nil
 }
 
-func (s *GRPCServer) UpdateAvgForDOY(ctx context.Context, req *grpc.UpdateAvgForDOYRequest) (*grpc.UpdateAvgForDOYResponse, error) {
+func (s *GRPCServer) UpdateAvgForDOY(ctx context.Context, req *dlygrpc.UpdateAvgForDOYRequest) (*dlygrpc.UpdateAvgForDOYResponse, error) {
 	_, resp, err := s.updateAvgForDOY.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.UpdateAvgForDOYResponse), nil
+	return resp.(*dlygrpc.UpdateAvgForDOYResponse), nil
 }
 
-func (s *GRPCServer) GetAvg(ctx context.Context, req *grpc.GetAvgRequest) (*grpc.GetAvgResponse, error) {
+func (s *GRPCServer) GetAvg(ctx context.Context, req *dlygrpc.GetAvgRequest) (*dlygrpc.GetAvgResponse, error) {
 	_, resp, err := s.getAvg.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetAvgResponse), nil
+	return resp.(*dlygrpc.GetAvgResponse), nil
 }
 
 
 
-func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.DailySVCServer {
+func NewGRPCServer(_ context.Context, endpoint Endpoints) dlygrpc.DailySVCServer {
 	server := GRPCServer{
 		getPeriod: gt.NewServer(
 			endpoint.GetPeriodEndpoint,

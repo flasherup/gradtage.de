@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/config"
-	"github.com/flasherup/gradtage.de/dailysvc/grpc"
+	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
 	"github.com/flasherup/gradtage.de/dailysvc/impl"
 	"github.com/flasherup/gradtage.de/dailysvc/impl/average"
 	"github.com/flasherup/gradtage.de/dailysvc/impl/database"
@@ -74,7 +74,7 @@ func main() {
 		}
 
 		gRPCServer := googlerpc.NewServer()
-		grpc.RegisterDailySVCServer(gRPCServer, dailysvc.NewGRPCServer(ctx, dailysvc.Endpoints {
+		dlygrpc.RegisterDailySVCServer(gRPCServer, dailysvc.NewGRPCServer(ctx, dailysvc.Endpoints {
 			GetPeriodEndpoint:    		dailysvc.MakeGetPeriodEndpoint(hourlyService),
 			PushPeriodEndpoint: 		dailysvc.MakePushPeriodEndpoint(hourlyService),
 			GetUpdateDateEndpoint: 		dailysvc.MakeGetUpdateDateEndpoint(hourlyService),

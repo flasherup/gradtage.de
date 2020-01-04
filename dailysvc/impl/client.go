@@ -2,8 +2,9 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"github.com/flasherup/gradtage.de/dailysvc"
-	"github.com/flasherup/gradtage.de/dailysvc/grpc"
+	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	googlerpc "google.golang.org/grpc"
@@ -21,83 +22,89 @@ func NewDailySCVClient(host string, logger log.Logger) *DailySVCClient {
 	}
 }
 
-func (scc DailySVCClient) GetPeriod(id string, start string, end string) *grpc.GetPeriodResponse {
+func (scc DailySVCClient) GetPeriod(id string, start string, end string) (resp *dlygrpc.GetPeriodResponse, err error)   {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewDailySVCClient(conn)
-	res, err := client.GetPeriod(context.Background(), &grpc.GetPeriodRequest{ Id:id, Start:start, End:end })
+	client := dlygrpc.NewDailySVCClient(conn)
+	resp, err = client.GetPeriod(context.Background(), &dlygrpc.GetPeriodRequest{ Id: id, Start:start, End:end })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get period", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
-func (scc DailySVCClient) PushPeriod(id string, temps []dailysvc.Temperature) *grpc.PushPeriodResponse {
+func (scc DailySVCClient) PushPeriod(id string, temps []dailysvc.Temperature) (resp *dlygrpc.PushPeriodResponse, err error)  {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewDailySVCClient(conn)
+	client := dlygrpc.NewDailySVCClient(conn)
 	tGRPC := toGRPCTemps(temps)
-	res, err := client.PushPeriod(context.Background(), &grpc.PushPeriodRequest{Id:id, Temps:tGRPC})
+	resp, err = client.PushPeriod(context.Background(), &dlygrpc.PushPeriodRequest{Id: id, Temps:tGRPC})
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to push period", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
-func (scc DailySVCClient) GetUpdateDate(ids []string) *grpc.GetUpdateDateResponse {
+func (scc DailySVCClient) GetUpdateDate(ids []string) (resp *dlygrpc.GetUpdateDateResponse, err error)  {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewDailySVCClient(conn)
-	res, err := client.GetUpdateDate(context.Background(), &grpc.GetUpdateDateRequest{ Ids:ids })
+	client := dlygrpc.NewDailySVCClient(conn)
+	resp, err = client.GetUpdateDate(context.Background(), &dlygrpc.GetUpdateDateRequest{ Ids: ids })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get update date", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
-func (scc DailySVCClient) UpdateAvgForYear(id string) *grpc.UpdateAvgForYearResponse {
+func (scc DailySVCClient) UpdateAvgForYear(id string) (resp *dlygrpc.UpdateAvgForYearResponse, err error)  {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewDailySVCClient(conn)
-	res, err := client.UpdateAvgForYear(context.Background(), &grpc.UpdateAvgForYearRequest{ Id:id })
+	client := dlygrpc.NewDailySVCClient(conn)
+	resp, err = client.UpdateAvgForYear(context.Background(), &dlygrpc.UpdateAvgForYearRequest{ Id: id })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to update averages for year", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
-func (scc DailySVCClient) UpdateAvgForDOY(id string, doy int) *grpc.UpdateAvgForDOYResponse {
+func (scc DailySVCClient) UpdateAvgForDOY(id string, doy int) (resp *dlygrpc.UpdateAvgForDOYResponse, err error)  {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewDailySVCClient(conn)
-	res, err := client.UpdateAvgForDOY(context.Background(), &grpc.UpdateAvgForDOYRequest{ Id:id, Doy:int32(doy) })
+	client := dlygrpc.NewDailySVCClient(conn)
+	resp, err = client.UpdateAvgForDOY(context.Background(), &dlygrpc.UpdateAvgForDOYRequest{ Id: id, Doy:int32(doy) })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to update averages for DOY", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
-func (scc DailySVCClient) GetAvg(id string) *grpc.GetAvgResponse {
+func (scc DailySVCClient) GetAvg(id string) (resp *dlygrpc.GetAvgResponse, err error) {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewDailySVCClient(conn)
-	res, err := client.GetAvg(context.Background(), &grpc.GetAvgRequest{ Id:id })
+	client := dlygrpc.NewDailySVCClient(conn)
+	resp, err = client.GetAvg(context.Background(), &dlygrpc.GetAvgRequest{ Id: id })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get average", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
 func (scc DailySVCClient) openConn() *googlerpc.ClientConn {
@@ -108,10 +115,10 @@ func (scc DailySVCClient) openConn() *googlerpc.ClientConn {
 	return cc
 }
 
-func toGRPCTemps(sts []dailysvc.Temperature) []*grpc.Temperature {
-	res := make([]*grpc.Temperature, len(sts))
+func toGRPCTemps(sts []dailysvc.Temperature) []*dlygrpc.Temperature {
+	res := make([]*dlygrpc.Temperature, len(sts))
 	for i,v := range sts {
-		res[i] = &grpc.Temperature{
+		res[i] = &dlygrpc.Temperature{
 			Date:			v.Date,
 			Temperature:	float32(v.Temperature),
 		}

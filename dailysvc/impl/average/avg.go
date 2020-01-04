@@ -2,6 +2,7 @@ package average
 
 import (
 	"errors"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/impl/database"
 	"github.com/go-kit/kit/log"
@@ -13,7 +14,7 @@ import (
 
 const averagePrefix = "_avg"
 const hoursInYear = 8760
-const layout = "2006-01-02T15:00:00.000000Z"
+
 
 type Average struct {
 	logger  	log.Logger
@@ -41,7 +42,7 @@ func (avg Average)CalculateAndSaveYearlyAverage(stId string) error{
 	}
 
 	for i:=1; i<=366; i++ {
-			temp, err := avg.db.GetDOYPeriod(stId, i, start.Format(layout), tn.Format(layout))
+			temp, err := avg.db.GetDOYPeriod(stId, i, start.Format(common.TimeLayout), tn.Format(common.TimeLayout))
 			if err != nil {
 				level.Error(avg.logger).Log("msg", "CalculateAndSaveYearlyAverage error", "err", err)
 				continue
@@ -67,7 +68,7 @@ func (avg Average)CalculateAndSaveDOYAverage(stId string, doy int) error{
 
 	tn := time.Now()
 	start := tn.Add(-time.Hour * hoursInYear * 10)
-	temp, err := avg.db.GetDOYPeriod(stId, doy, start.Format(layout), tn.Format(layout))
+	temp, err := avg.db.GetDOYPeriod(stId, doy, start.Format(common.TimeLayout), tn.Format(common.TimeLayout))
 	if err != nil {
 		level.Error(avg.logger).Log("msg", "CalculateAndSaveYearlyAverage error", "err", err)
 		return err
@@ -84,12 +85,12 @@ func (avg Average)CalculateAndSaveDOYAverage(stId string, doy int) error{
 }
 
 func ToAverageDate( src string) (string, error) {
-	d, err := time.Parse(layout, src)
+	d, err := time.Parse(common.TimeLayout, src)
 	if err != nil {
 		return src, err
 	}
 	date := time.Date(3000, d.Month(), d.Day(), 0, 0, 0, 0, d.Location() )
-	return date.Format(layout),nil
+	return date.Format(common.TimeLayout),nil
 }
 
 func (avg Average)GetAll(name string) (temps []dailysvc.Temperature, err error ) {
