@@ -25,17 +25,16 @@ func main() {
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	presp:= client.PushPeriod("KBOS", period())
-	if presp.Err != "nil" {
-		level.Error(logger).Log("msg", "PushPeriod Error", "err", presp.Err)
+	_, err := client.PushPeriod("KBOS", period())
+	if err != nil {
+		level.Error(logger).Log("msg", "PushPeriod Error", "err", err)
 
 	}
 
 	//Just for test
-	period := client.GetPeriod("KBOS", "2019-12-29T01:00:00", "2019-12-29T15:00:00")
-	if period.Err != "nil" {
-		level.Error(logger).Log("msg", "GetPeriod Error", "err", period.Err)
-
+	period, err := client.GetPeriod("KBOS", "2019-12-29T01:00:00", "2019-12-29T15:00:00")
+	if err != nil {
+		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
 	} else {
 		for _,v := range period.Temps {
 			level.Info(logger).Log("msg", "sts", "id", "KBOS", "date:", v.Date, "temp:", v.Temperature)
@@ -44,10 +43,9 @@ func main() {
 
 
 
-	dates := client.GetUpdateDate([]string{"KBOS"})
-	if dates.Err != "nil" {
+	dates, err := client.GetUpdateDate([]string{"KBOS"})
+	if err != nil {
 		level.Error(logger).Log("msg", "Get Update Dates Error", "err", dates.Err)
-
 	} else {
 		for k,v := range dates.Dates {
 			level.Info(logger).Log("msg", "Update Date ", "id", k, "date:", v)

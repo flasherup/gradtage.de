@@ -2,8 +2,9 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/hourlysvc/grpc"
+	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	googlerpc "google.golang.org/grpc"
@@ -21,44 +22,48 @@ func NewHourlySCVClient(host string, logger log.Logger) *HourlySVCClient {
 	}
 }
 
-func (scc HourlySVCClient) GetPeriod(id string, start string, end string) *grpc.GetPeriodResponse {
+func (scc HourlySVCClient) GetPeriod(id string, start string, end string) (resp *hrlgrpc.GetPeriodResponse, err error) {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewHourlySVCClient(conn)
-	res, err := client.GetPeriod(context.Background(), &grpc.GetPeriodRequest{ Id:id, Start:start, End:end })
+	client := hrlgrpc.NewHourlySVCClient(conn)
+	resp, err = client.GetPeriod(context.Background(), &hrlgrpc.GetPeriodRequest{ Id: id, Start:start, End:end })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get period", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+
+	return resp, err
 }
 
-func (scc HourlySVCClient) PushPeriod(id string, temps []hourlysvc.Temperature) *grpc.PushPeriodResponse {
+func (scc HourlySVCClient) PushPeriod(id string, temps []hourlysvc.Temperature) (resp *hrlgrpc.PushPeriodResponse, err error) {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewHourlySVCClient(conn)
+	client := hrlgrpc.NewHourlySVCClient(conn)
 	tGRPC := toGRPCTemps(temps)
-	res, err := client.PushPeriod(context.Background(), &grpc.PushPeriodRequest{Id:id, Temps:tGRPC})
+	resp, err = client.PushPeriod(context.Background(), &hrlgrpc.PushPeriodRequest{Id: id, Temps:tGRPC})
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to push period", "err", err)
-
+	}else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
-func (scc HourlySVCClient) GetUpdateDate(ids []string) *grpc.GetUpdateDateResponse {
+func (scc HourlySVCClient) GetUpdateDate(ids []string) (resp *hrlgrpc.GetUpdateDateResponse, err error) {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := grpc.NewHourlySVCClient(conn)
-	res, err := client.GetUpdateDate(context.Background(), &grpc.GetUpdateDateRequest{ Ids:ids })
+	client := hrlgrpc.NewHourlySVCClient(conn)
+	resp, err = client.GetUpdateDate(context.Background(), &hrlgrpc.GetUpdateDateRequest{ Ids: ids })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get update date", "err", err)
-
+	} else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
 	}
-	return res
+	return resp, err
 }
 
 
@@ -70,10 +75,10 @@ func (scc HourlySVCClient) openConn() *googlerpc.ClientConn {
 	return cc
 }
 
-func toGRPCTemps(sts []hourlysvc.Temperature) []*grpc.Temperature {
-	res := make([]*grpc.Temperature, len(sts))
+func toGRPCTemps(sts []hourlysvc.Temperature) []*hrlgrpc.Temperature {
+	res := make([]*hrlgrpc.Temperature, len(sts))
 	for i,v := range sts {
-		res[i] = &grpc.Temperature{
+		res[i] = &hrlgrpc.Temperature{
 			Date:			v.Date,
 			Temperature:	float32(v.Temperature),
 		}

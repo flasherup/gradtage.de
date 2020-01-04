@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/hourlysvc/config"
-	"github.com/flasherup/gradtage.de/hourlysvc/grpc"
+	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
 	"github.com/flasherup/gradtage.de/hourlysvc/impl"
 	"github.com/flasherup/gradtage.de/hourlysvc/impl/database"
 	"github.com/go-kit/kit/log"
@@ -71,7 +71,7 @@ func main() {
 		}
 
 		gRPCServer := googlerpc.NewServer()
-		grpc.RegisterHourlySVCServer(gRPCServer, hourlysvc.NewGRPCServer(ctx, hourlysvc.Endpoints {
+		hrlgrpc.RegisterHourlySVCServer(gRPCServer, hourlysvc.NewGRPCServer(ctx, hourlysvc.Endpoints {
 			GetPeriodEndpoint:    	hourlysvc.MakeGetPeriodEndpoint(hourlyService),
 			PushPeriodEndpoint: 	hourlysvc.MakePushPeriodEndpoint(hourlyService),
 			GetUpdateDateEndpoint: 	hourlysvc.MakeGetUpdateDateEndpoint(hourlyService),

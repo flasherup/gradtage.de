@@ -2,7 +2,7 @@ package hourlysvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/hourlysvc/grpc"
+	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
 	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
@@ -16,33 +16,33 @@ type GRPCServer struct {
 	getUpdateDate   gt.Handler
 }
 
-func (s *GRPCServer) GetPeriod(ctx context.Context, req *grpc.GetPeriodRequest) (*grpc.GetPeriodResponse, error) {
+func (s *GRPCServer) GetPeriod(ctx context.Context, req *hrlgrpc.GetPeriodRequest) (*hrlgrpc.GetPeriodResponse, error) {
 	_, resp, err := s.getPeriod.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetPeriodResponse), nil
+	return resp.(*hrlgrpc.GetPeriodResponse), nil
 }
 
-func (s *GRPCServer) PushPeriod(ctx context.Context, req *grpc.PushPeriodRequest) (*grpc.PushPeriodResponse, error) {
+func (s *GRPCServer) PushPeriod(ctx context.Context, req *hrlgrpc.PushPeriodRequest) (*hrlgrpc.PushPeriodResponse, error) {
 	_, resp, err := s.pushPeriod.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.PushPeriodResponse), nil
+	return resp.(*hrlgrpc.PushPeriodResponse), nil
 }
 
-func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *grpc.GetUpdateDateRequest) (*grpc.GetUpdateDateResponse, error) {
+func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *hrlgrpc.GetUpdateDateRequest) (*hrlgrpc.GetUpdateDateResponse, error) {
 	_, resp, err := s.getUpdateDate.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetUpdateDateResponse), nil
+	return resp.(*hrlgrpc.GetUpdateDateResponse), nil
 }
 
 
 
-func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.HourlySVCServer {
+func NewGRPCServer(_ context.Context, endpoint Endpoints) hrlgrpc.HourlySVCServer {
 	server := GRPCServer{
 		getPeriod: gt.NewServer(
 			endpoint.GetPeriodEndpoint,
