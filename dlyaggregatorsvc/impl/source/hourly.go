@@ -2,16 +2,18 @@ package source
 
 import (
 	"fmt"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/impl/parser"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"math"
 	"time"
 )
 
-const veryFirstTime = "2000-01-02T01:00:00.000000000Z "
+const veryFirstTime = "2000-01-02T01:04:05.070000000Z "
 
 type Hourly struct {
 	hrlService 	hourlysvc.Client
@@ -54,10 +56,14 @@ func (h Hourly) FetchTemperature(ch chan *parser.StationDaily, ids []string) {
 
 		if date, ok := huorlyUpdates.Dates[v]; ok {
 			hrlUpdate = date
+		} else {
+			level.Warn(h.logger).Log("msg", "Daily update warning", "warn", "Station is not presented in hourly db", "station", v)
 		}
 
 		if date, ok := dailyUpdates.Dates[v]; ok {
 			dlyUpdate = date
+		} else {
+			level.Warn(h.logger).Log("msg", "Daily update warning", "warn", "Station is not presented in daily db", "station", v)
 		}
 
 		go h.fetchStation(v, ch, dlyUpdate, hrlUpdate)
@@ -91,9 +97,9 @@ func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature) []dailysvc.Temperature 
 	dayCount := 0
 	sum := 0.0
 	for _,v := range src {
-		current, err =  time.Parse(veryFirstTime, v.Date)
+		current, err =  time.Parse(common.TimeLayout, v.Date)
 		if err != nil {
-
+			level.Error(h.logger).Log("msg", "Hourly to daily error", "err", err)
 		}
 		if day != current.Day() {
 			if dayCount < 20 {
@@ -103,7 +109,7 @@ func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature) []dailysvc.Temperature 
 			} else {
 				date := time.Date(latest.Year(), latest.Month(), latest.Day(), 0, 0, 0, 0, latest.Location() )
 				ave := sum/float64(dayCount)
-				res = append(res, dailysvc.Temperature{Date:date.Format(veryFirstTime), Temperature:ave})
+				res = append(res, dailysvc.Temperature{Date:date.Format(common.TimeLayout), Temperature:math.Round(ave*10)/10 })
 			}
 			dayCount = 0
 			sum = 0.0

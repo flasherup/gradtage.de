@@ -29,7 +29,7 @@ func (cwx CheckWX) FetchTemperature(ch chan *parser.StationData, ids []string) {
 
 
 func (cwx CheckWX)fetchStation(id string, ch chan *parser.StationData) {
-	url := "https://api.checkwx.com/metar/" + id + "/decoded"
+	url := "https://apisvc.checkwx.com/metar/" + id + "/decoded"
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}

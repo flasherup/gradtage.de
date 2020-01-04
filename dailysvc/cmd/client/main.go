@@ -16,19 +16,20 @@ func main() {
 		logger = log.NewSyncLogger(logger)
 		logger = level.NewFilter(logger, level.AllowDebug())
 		logger = log.With(logger,
-			"svc", "hourlysvcc",
+			"svc", "dailysvcc",
 			"ts", log.DefaultTimestampUTC,
 			"caller", log.DefaultCaller,
 		)
 	}
+	//client := impl.NewDailySCVClient("localhost:8104",logger)
 	client := impl.NewDailySCVClient("82.165.18.228:8104",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	presp:= client.PushPeriod("KBOS", period())
-	if presp.Err != "nil" {
-		level.Error(logger).Log("msg", "PushPeriod Error", "err", presp.Err)
+	_, err := client.PushPeriod("KBOS", period())
+	if err != nil {
+		level.Error(logger).Log("msg", "PushPeriod Error", "err", err)
 
 	}
 
@@ -57,28 +58,28 @@ func main() {
 
 	stations := stations.NewStationsSCVClient("82.165.18.228:8102",logger)
 
-	sts := stations.GetAllStations()
-	if sts.Err != "nil" {
-		level.Error(logger).Log("msg", "Get stations err Error", "err", sts.Err)
+	sts, err := stations.GetAllStations()
+	if err != nil {
+		level.Error(logger).Log("msg", "Get stations err Error", "err", err)
 	} else {
 		for k := range sts.Sts {
-			resp := client.UpdateAvgForYear(k)
-			if resp.Err != "nil" {
-				level.Error(logger).Log("msg", "UpdateAvgForYear Error", "err", resp.Err)
+			_, err := client.UpdateAvgForYear(k)
+			if err != nil {
+				level.Error(logger).Log("msg", "UpdateAvgForYear Error", "err", err)
 			}
 		}
 	}
 
-	respDOY := client.UpdateAvgForDOY("KBOS", 1)
-	if respDOY.Err != "nil" {
-		level.Error(logger).Log("msg", "UpdateAvgForDOY Error", "err", respDOY.Err)
+	_, err = client.UpdateAvgForDOY("KBOS", 1)
+	if err != nil {
+		level.Error(logger).Log("msg", "UpdateAvgForDOY Error", "err", err)
 	}
 
 
 
-	respAvg := client.GetAvg("KBOS")
-	if respAvg.Err != "nil" {
-		level.Error(logger).Log("msg", "GetAvg Error", "err", respAvg.Err)
+	respAvg, err := client.GetAvg("KBOS")
+	if err != nil {
+		level.Error(logger).Log("msg", "GetAvg Error", "err", err)
 	} else {
 		for _,v := range respAvg.Temps {
 			level.Info(logger).Log("msg", "sts", "id", "KBOS", "date:", v.Date, "temp:", v.Temperature)
