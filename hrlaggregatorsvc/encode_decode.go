@@ -2,14 +2,14 @@ package hrlaggregatorsvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/grpc"
+	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/hagrpc"
 )
 
 
 func EncodeGetStatusResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetStatusResponse)
 	encStatus := toGRPCStatus(res.Status)
-	return &grpc.GetStatusResponse {
+	return &hagrpc.GetStatusResponse {
 		Status: encStatus,
 		Err: errorToString(res.Err),
 	}, nil
@@ -20,10 +20,10 @@ func DecodeGetStatusRequest(_ context.Context, r interface{}) (interface{}, erro
 }
 
 
-func toGRPCStatus(src []Status) []*grpc.Status {
-	res := make([]*grpc.Status, len(src))
+func toGRPCStatus(src []Status) []*hagrpc.Status {
+	res := make([]*hagrpc.Status, len(src))
 	for i,v := range src {
-		res[i] = &grpc.Status {
+		res[i] = &hagrpc.Status {
 			Station: 		v.Station,
 			Update: 		v.Update,
 			Temperature: 	v.Temperature,

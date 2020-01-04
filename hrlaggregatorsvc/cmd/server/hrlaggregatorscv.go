@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/config"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/grpc"
+	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/hagrpc"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl/source"
 	"github.com/go-kit/kit/log"
@@ -70,7 +70,7 @@ func main() {
 		}
 
 		gRPCServer := googlerpc.NewServer()
-		grpc.RegisterHrlAggregatorSVCServer(gRPCServer, hrlaggregatorsvc.NewGRPCServer(ctx, hrlaggregatorsvc.Endpoints {
+		hagrpc.RegisterHrlAggregatorSVCServer(gRPCServer, hrlaggregatorsvc.NewGRPCServer(ctx, hrlaggregatorsvc.Endpoints {
 			GetStatusEndpoint:    hrlaggregatorsvc.MakeGetStatusEndpoint(hourlyAggregatorService),
 		}))
 

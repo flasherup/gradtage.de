@@ -2,7 +2,7 @@ package hrlaggregatorsvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/grpc"
+	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/hagrpc"
 	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
@@ -14,17 +14,17 @@ type GRPCServer struct {
 	getStatus    	gt.Handler
 }
 
-func (s *GRPCServer) GetStatus(ctx context.Context, req *grpc.GetStatusRequest) (*grpc.GetStatusResponse, error) {
+func (s *GRPCServer) GetStatus(ctx context.Context, req *hagrpc.GetStatusRequest) (*hagrpc.GetStatusResponse, error) {
 	_, resp, err := s.getStatus.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetStatusResponse), nil
+	return resp.(*hagrpc.GetStatusResponse), nil
 }
 
 
 
-func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.HrlAggregatorSVCServer {
+func NewGRPCServer(_ context.Context, endpoint Endpoints) hagrpc.HrlAggregatorSVCServer {
 	server := GRPCServer{
 		getStatus: gt.NewServer(
 			endpoint.GetStatusEndpoint,

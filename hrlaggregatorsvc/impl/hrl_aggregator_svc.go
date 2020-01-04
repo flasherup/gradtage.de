@@ -59,9 +59,9 @@ func startFetchProcess(ss *HourlyAggregatorSVC) {
 
 
 func (has HourlyAggregatorSVC)processUpdate() {
-	sts := has.stations.GetAllStations()
-	if sts.Err != "nil" {
-		level.Error(has.logger).Log("msg", "GetStations error", "err", sts.Err)
+	sts, err := has.stations.GetAllStations()
+	if err != nil {
+		level.Error(has.logger).Log("msg", "GetStations error", "err", err)
 		return
 	}
 
@@ -79,9 +79,9 @@ func (has HourlyAggregatorSVC)processUpdate() {
 	for range ids {
 		st := <-ch
 		if st != nil {
-			resp := has.hourly.PushPeriod(st.ICAO, []hourlysvc.Temperature{stationToTemperature(st)})
-			if resp.Err != "nil" {
-				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", resp.Err)
+			_, err := has.hourly.PushPeriod(st.ICAO, []hourlysvc.Temperature{stationToTemperature(st)})
+			if err != nil {
+				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", err)
 			} else {
 				count++
 			}

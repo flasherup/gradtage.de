@@ -1,8 +1,9 @@
 package hrlaggregatorsvc
 
-import "github.com/flasherup/gradtage.de/hourlysvc/grpc"
+import (
+	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/hagrpc"
+)
 
 type Client interface {
-	GetStatus() *grpc.GetPeriodResponse
-
+	GetStatus() (resp *hagrpc.GetStatusResponse, err error)
 }

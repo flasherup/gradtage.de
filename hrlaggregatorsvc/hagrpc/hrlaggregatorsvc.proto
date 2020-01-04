@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package hagrpc;
+
+message Status {
+    string station      = 1;
+    string update       = 2;
+    float  temperature  = 3;
+}
+
+message GetStatusRequest {
+}
+
+message GetStatusResponse {
+    repeated Status status = 1;
+    string err = 2;
+}
+
+
+service HrlAggregatorSVC {
+    rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {}
+}
+
+
