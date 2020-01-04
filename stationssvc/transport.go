@@ -2,7 +2,7 @@ package stationssvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/stationssvc/grpc"
+	"github.com/flasherup/gradtage.de/stationssvc/stsgrpc"
 	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
@@ -16,33 +16,33 @@ type GRPCServer struct {
 	addStations    	gt.Handler
 }
 
-func (s *GRPCServer) GetStations(ctx context.Context, req *grpc.GetStationsRequest) (*grpc.GetStationsResponse, error) {
+func (s *GRPCServer) GetStations(ctx context.Context, req *stsgrpc.GetStationsRequest) (*stsgrpc.GetStationsResponse, error) {
 	_, resp, err := s.getStations.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetStationsResponse), nil
+	return resp.(*stsgrpc.GetStationsResponse), nil
 }
 
-func (s *GRPCServer) GetAllStations(ctx context.Context, req *grpc.GetAllStationsRequest) (*grpc.GetAllStationsResponse, error) {
+func (s *GRPCServer) GetAllStations(ctx context.Context, req *stsgrpc.GetAllStationsRequest) (*stsgrpc.GetAllStationsResponse, error) {
 	_, resp, err := s.getAllStations.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetAllStationsResponse), nil
+	return resp.(*stsgrpc.GetAllStationsResponse), nil
 }
 
-func (s *GRPCServer) AddStations(ctx context.Context, req *grpc.AddStationsRequest) (*grpc.AddStationsResponse, error) {
+func (s *GRPCServer) AddStations(ctx context.Context, req *stsgrpc.AddStationsRequest) (*stsgrpc.AddStationsResponse, error) {
 	_, resp, err := s.addStations.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.AddStationsResponse), nil
+	return resp.(*stsgrpc.AddStationsResponse), nil
 }
 
 
 
-func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.StationSVCServer {
+func NewGRPCServer(_ context.Context, endpoint Endpoints) stsgrpc.StationSVCServer {
 	return &GRPCServer{
 		getStations: gt.NewServer(
 			endpoint.GetStationsEndpoint,

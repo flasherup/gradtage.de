@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/stationssvc/config"
-	"github.com/flasherup/gradtage.de/stationssvc/grpc"
+	"github.com/flasherup/gradtage.de/stationssvc/stsgrpc"
 	"github.com/flasherup/gradtage.de/stationssvc/impl"
 	"github.com/flasherup/gradtage.de/stationssvc/impl/database"
 	"github.com/go-kit/kit/log"
@@ -71,7 +71,7 @@ func main() {
 		}
 
 		gRPCServer := googlerpc.NewServer()
-		grpc.RegisterStationSVCServer(gRPCServer, stationssvc.NewGRPCServer(ctx, stationssvc.Endpoints {
+		stsgrpc.RegisterStationSVCServer(gRPCServer, stationssvc.NewGRPCServer(ctx, stationssvc.Endpoints {
 			GetStationsEndpoint:    stationssvc.MakeGetStationsEndpoint(stationsService),
 			GetAllStationsEndpoint: stationssvc.MakeGetAllStationsEndpoint(stationsService),
 			AddStationsEndpoint: stationssvc.MakeAddStationsEndpoint(stationsService),

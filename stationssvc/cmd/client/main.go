@@ -28,10 +28,16 @@ func main() {
 	client.AddStations(stations())
 	//Just for test
 	client.GetStations([]string{"KBOS"})
-	sts := client.GetAllStations()
-	for k,v := range sts.Sts {
-		level.Info(logger).Log("msg", "sts", "ID", k,  " Name", v.Name,  "Timezone", v.Timezone)
+	sts, err := client.GetAllStations()
+	if err != nil {
+		level.Error(logger).Log("msg", "GetStations error", "err", err)
+
+	} else {
+		for k,v := range sts.Sts {
+			level.Info(logger).Log("msg", "sts", "ID", k,  " Name", v.Name,  "Timezone", v.Timezone)
+		}
 	}
+
 }
 
 func stations() []stationssvc.Station {

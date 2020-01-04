@@ -2,27 +2,27 @@ package stationssvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/stationssvc/grpc"
+	"github.com/flasherup/gradtage.de/stationssvc/stsgrpc"
 )
 
 func EncodeGetStationsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetStationsResponse)
 	encStations := toGRPCMap(res.Stations)
-	return &grpc.GetStationsResponse {
+	return &stsgrpc.GetStationsResponse {
 		Sts: encStations,
 		Err: errorToString(res.Err),
 	}, nil
 }
 
 func DecodeGetStationsRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*grpc.GetStationsRequest)
+	req := r.(*stsgrpc.GetStationsRequest)
 	return GetStationsRequest{req.Ids}, nil
 }
 
 func EncodeGetAllStationsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetAllStationsResponse)
 	encStations := toGRPCMap(res.Stations)
-	return &grpc.GetAllStationsResponse {
+	return &stsgrpc.GetAllStationsResponse {
 		Sts: encStations,
 		Err: errorToString(res.Err),
 	}, nil
@@ -34,14 +34,14 @@ func DecodeGeAllStationsRequest(_ context.Context, r interface{}) (interface{}, 
 
 func EncodeAddStationsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(AddStationsResponse)
-	return &grpc.AddStationsResponse {
+	return &stsgrpc.AddStationsResponse {
 		Err: errorToString(res.Err),
 	}, nil
 }
 
 
 func DecodeAddStationsRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*grpc.AddStationsRequest)
+	req := r.(*stsgrpc.AddStationsRequest)
 	encStations := make([]Station, len(req.Sts))
 	for i,v := range req.Sts {
 		encStations[i] = Station {
@@ -53,10 +53,10 @@ func DecodeAddStationsRequest(_ context.Context, r interface{}) (interface{}, er
 	return AddStationsRequest{encStations}, nil
 }
 
-func toGRPCMap(src map[string]Station) map[string]*grpc.Station {
-	res := make(map[string]*grpc.Station)
+func toGRPCMap(src map[string]Station) map[string]*stsgrpc.Station {
+	res := make(map[string]*stsgrpc.Station)
 	for k,v := range src {
-		res[k] = &grpc.Station {
+		res[k] = &stsgrpc.Station {
 			Id:v.ID,
 			Name:v.Name,
 			Timezone:v.Timezone,
