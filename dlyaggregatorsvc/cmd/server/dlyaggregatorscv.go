@@ -4,11 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/config"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/grpc"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl"
-	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl/source"
+	"github.com/flasherup/gradtage.de/dlyaggregatorsvc"
+	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/config"
+	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/dagrpc"
+	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/impl"
+	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/impl/source"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net"
@@ -17,6 +17,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
 	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	googlerpc "google.golang.org/grpc"
@@ -31,7 +32,7 @@ func main() {
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 		logger = level.NewFilter(logger, level.AllowDebug())
 		logger = log.With(logger,
-			"svc", "hrlaggregatorssvc",
+			"svc", "dlyaggregatorssvc",
 			"ts", log.DefaultTimestampUTC,
 			"caller", log.Caller(3),
 		)
@@ -46,8 +47,9 @@ func main() {
 
 
 	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
+	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
-	dataSrc := source.NewCheckWX(conf.Sources.CheckwxKey, logger)
+	sourceHourly := source.NewHourly(logger, hourlyService, dailyService)
 
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
@@ -55,7 +57,7 @@ func main() {
 
 
 	ctx := context.Background()
-	hourlyAggregatorService, err := impl.NewHrlAggregatorSVC(logger, stationsService ,hourlyService, dataSrc)
+	dailyAggregatorService, err := impl.NewDlyAggregatorSVC(logger, stationsService, dailyService, sourceHourly)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -70,15 +72,15 @@ func main() {
 		}
 
 		gRPCServer := googlerpc.NewServer()
-		grpc.RegisterHrlAggregatorSVCServer(gRPCServer, hrlaggregatorsvc.NewGRPCServer(ctx, hrlaggregatorsvc.Endpoints {
-			GetStatusEndpoint:    hrlaggregatorsvc.MakeGetStatusEndpoint(hourlyAggregatorService),
+		dagrpc.RegisterDlyAggregatorSVCServer(gRPCServer, dlyaggregatorsvc.NewGRPCServer(ctx, dlyaggregatorsvc.Endpoints {
+			GetStatusEndpoint:    dlyaggregatorsvc.MakeGetStatusEndpoint(dailyAggregatorService),
 		}))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())
 		errors <- gRPCServer.Serve(listener)
 	}()
 
-	metrics := hrlaggregatorsvc.NewMetricsTransport(hourlyAggregatorService,logger)
+	metrics := dlyaggregatorsvc.NewMetricsTransport(dailyAggregatorService,logger)
 
 	go func() {
 		c := make(chan os.Signal)

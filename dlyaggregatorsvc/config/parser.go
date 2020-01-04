@@ -13,6 +13,7 @@ type ServerConfig struct {
 
 type Clients struct {
 	StationsAddr string `yaml:"stations_addr"`
+	HourlyAddr string `yaml:"hourly_addr"`
 	DailyAddr string `yaml:"daily_addr"`
 }
 

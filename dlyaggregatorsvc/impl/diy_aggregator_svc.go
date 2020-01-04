@@ -2,11 +2,11 @@ package impl
 
 import (
 	"context"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/impl/parser"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/impl/source"
-	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -17,25 +17,24 @@ import (
 
 type HourlyAggregatorSVC struct {
 	stations    stationssvc.Client
-	hourly 		hourlysvc.Client
+	src 		*source.Hourly
 	daily 		dailysvc.Client
 	logger  	log.Logger
 	counter 	*ktprom.Gauge
-	src			source.Hourly
 }
 
-func NewHrlAggregatorSVC(logger log.Logger, stations stationssvc.Client, daily dailysvc.Client, src *source.Hourly) (*HourlyAggregatorSVC, error) {
+func NewDlyAggregatorSVC(logger log.Logger, stations stationssvc.Client, daily dailysvc.Client, src *source.Hourly) (*HourlyAggregatorSVC, error) {
 	options := prometheus.Opts{
 		Name: "stations_update_count",
 		Help: "The total number oh stations",
 	}
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
 	st := HourlyAggregatorSVC{
-		stations: stations,
-		daily: 	daily,
-		logger: logger,
-		counter: guage,
-		src: *src,
+		stations: 	stations,
+		daily: 		daily,
+		src:		src,
+		logger: 	logger,
+		counter: 	guage,
 	}
 	go startFetchProcess(&st)
 	return &st,nil
@@ -60,9 +59,9 @@ func startFetchProcess(ss *HourlyAggregatorSVC) {
 
 
 func (has HourlyAggregatorSVC)processUpdate() {
-	sts := has.stations.GetAllStations()
-	if sts.Err != "nil" {
-		level.Error(has.logger).Log("msg", "GetStations error", "err", sts.Err)
+	sts, err := has.stations.GetAllStations()
+	if err != nil {
+		level.Error(has.logger).Log("msg", "GetStations error", "err", err)
 		return
 	}
 
@@ -80,16 +79,40 @@ func (has HourlyAggregatorSVC)processUpdate() {
 	for range ids {
 		st := <-ch
 		if st != nil {
-			resp := has.daily.PushPeriod(st.ID, st.Temps)
-			if resp.Err != "nil" {
-				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", resp.Err)
+			_, err := has.daily.PushPeriod(st.ID, st.Temps)
+			if err != nil {
+				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", err)
 			} else {
+				has.updateAverage(st.ID, st.Temps)
 				count++
 			}
 		}
 	}
 
-	g := has.counter.With("station")
+	g := has.counter.With("stations", "all")
 	g.Set(count)
 	level.Info(has.logger).Log("msg", "Temperature updated", "stations", count)
+}
+
+func (has HourlyAggregatorSVC) updateAverage(id string, temps []dailysvc.Temperature) {
+	for _,v := range temps {
+		doy, err := getDOY(v.Date)
+		if err != nil {
+			level.Error(has.logger).Log("msg", "Average Update Error", "err", err)
+			continue
+		}
+		_, err = has.daily.UpdateAvgForDOY(id, doy)
+		if err != nil {
+			level.Error(has.logger).Log("msg", "Average Update Error", "err", err)
+		}
+	}
+}
+
+func getDOY(date string) (int, error){
+	t, err := time.Parse(common.TimeLayout, date)
+	if err != nil {
+		return 0, nil
+	}
+
+	return t.YearDay(),nil
 }

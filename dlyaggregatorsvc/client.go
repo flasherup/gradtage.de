@@ -1,8 +1,8 @@
 package dlyaggregatorsvc
 
-import "github.com/flasherup/gradtage.de/dlyaggregatorsvc/grpc"
+import "github.com/flasherup/gradtage.de/dlyaggregatorsvc/dagrpc"
 
 type Client interface {
-	GetStatus() *grpc.GetStatusResponse
+	GetStatus() (resp *dagrpc.GetStatusResponse, err error)
 
 }

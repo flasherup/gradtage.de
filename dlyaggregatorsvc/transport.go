@@ -2,7 +2,7 @@ package dlyaggregatorsvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/grpc"
+	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/dagrpc"
 	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
@@ -14,17 +14,17 @@ type GRPCServer struct {
 	getStatus    	gt.Handler
 }
 
-func (s *GRPCServer) GetStatus(ctx context.Context, req *grpc.GetStatusRequest) (*grpc.GetStatusResponse, error) {
+func (s *GRPCServer) GetStatus(ctx context.Context, req *dagrpc.GetStatusRequest) (*dagrpc.GetStatusResponse, error) {
 	_, resp, err := s.getStatus.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpc.GetStatusResponse), nil
+	return resp.(*dagrpc.GetStatusResponse), nil
 }
 
 
 
-func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.DlyAggregatorSVCServer {
+func NewGRPCServer(_ context.Context, endpoint Endpoints) dagrpc.DlyAggregatorSVCServer {
 	server := GRPCServer{
 		getStatus: gt.NewServer(
 			endpoint.GetStatusEndpoint,
