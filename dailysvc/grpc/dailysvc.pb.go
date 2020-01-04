@@ -36,7 +36,7 @@ func (m *Temperature) Reset()         { *m = Temperature{} }
 func (m *Temperature) String() string { return proto.CompactTextString(m) }
 func (*Temperature) ProtoMessage()    {}
 func (*Temperature) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dailysvc_d219c32d03b8d1a3, []int{0}
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{0}
 }
 func (m *Temperature) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Temperature.Unmarshal(m, b)
@@ -83,7 +83,7 @@ func (m *GetPeriodRequest) Reset()         { *m = GetPeriodRequest{} }
 func (m *GetPeriodRequest) String() string { return proto.CompactTextString(m) }
 func (*GetPeriodRequest) ProtoMessage()    {}
 func (*GetPeriodRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dailysvc_d219c32d03b8d1a3, []int{1}
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{1}
 }
 func (m *GetPeriodRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetPeriodRequest.Unmarshal(m, b)
@@ -136,7 +136,7 @@ func (m *GetPeriodResponse) Reset()         { *m = GetPeriodResponse{} }
 func (m *GetPeriodResponse) String() string { return proto.CompactTextString(m) }
 func (*GetPeriodResponse) ProtoMessage()    {}
 func (*GetPeriodResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dailysvc_d219c32d03b8d1a3, []int{2}
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{2}
 }
 func (m *GetPeriodResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetPeriodResponse.Unmarshal(m, b)
@@ -182,7 +182,7 @@ func (m *PushPeriodRequest) Reset()         { *m = PushPeriodRequest{} }
 func (m *PushPeriodRequest) String() string { return proto.CompactTextString(m) }
 func (*PushPeriodRequest) ProtoMessage()    {}
 func (*PushPeriodRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dailysvc_d219c32d03b8d1a3, []int{3}
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{3}
 }
 func (m *PushPeriodRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PushPeriodRequest.Unmarshal(m, b)
@@ -227,7 +227,7 @@ func (m *PushPeriodResponse) Reset()         { *m = PushPeriodResponse{} }
 func (m *PushPeriodResponse) String() string { return proto.CompactTextString(m) }
 func (*PushPeriodResponse) ProtoMessage()    {}
 func (*PushPeriodResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dailysvc_d219c32d03b8d1a3, []int{4}
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{4}
 }
 func (m *PushPeriodResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PushPeriodResponse.Unmarshal(m, b)
@@ -265,7 +265,7 @@ func (m *GetUpdateDateRequest) Reset()         { *m = GetUpdateDateRequest{} }
 func (m *GetUpdateDateRequest) String() string { return proto.CompactTextString(m) }
 func (*GetUpdateDateRequest) ProtoMessage()    {}
 func (*GetUpdateDateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dailysvc_d219c32d03b8d1a3, []int{5}
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{5}
 }
 func (m *GetUpdateDateRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetUpdateDateRequest.Unmarshal(m, b)
@@ -304,7 +304,7 @@ func (m *GetUpdateDateResponse) Reset()         { *m = GetUpdateDateResponse{} }
 func (m *GetUpdateDateResponse) String() string { return proto.CompactTextString(m) }
 func (*GetUpdateDateResponse) ProtoMessage()    {}
 func (*GetUpdateDateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dailysvc_d219c32d03b8d1a3, []int{6}
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{6}
 }
 func (m *GetUpdateDateResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetUpdateDateResponse.Unmarshal(m, b)
@@ -338,6 +338,250 @@ func (m *GetUpdateDateResponse) GetErr() string {
 	return ""
 }
 
+type UpdateAvgForYearRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateAvgForYearRequest) Reset()         { *m = UpdateAvgForYearRequest{} }
+func (m *UpdateAvgForYearRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateAvgForYearRequest) ProtoMessage()    {}
+func (*UpdateAvgForYearRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{7}
+}
+func (m *UpdateAvgForYearRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateAvgForYearRequest.Unmarshal(m, b)
+}
+func (m *UpdateAvgForYearRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateAvgForYearRequest.Marshal(b, m, deterministic)
+}
+func (dst *UpdateAvgForYearRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateAvgForYearRequest.Merge(dst, src)
+}
+func (m *UpdateAvgForYearRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdateAvgForYearRequest.Size(m)
+}
+func (m *UpdateAvgForYearRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateAvgForYearRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateAvgForYearRequest proto.InternalMessageInfo
+
+func (m *UpdateAvgForYearRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+type UpdateAvgForYearResponse struct {
+	Err                  string   `protobuf:"bytes,1,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateAvgForYearResponse) Reset()         { *m = UpdateAvgForYearResponse{} }
+func (m *UpdateAvgForYearResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdateAvgForYearResponse) ProtoMessage()    {}
+func (*UpdateAvgForYearResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{8}
+}
+func (m *UpdateAvgForYearResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateAvgForYearResponse.Unmarshal(m, b)
+}
+func (m *UpdateAvgForYearResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateAvgForYearResponse.Marshal(b, m, deterministic)
+}
+func (dst *UpdateAvgForYearResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateAvgForYearResponse.Merge(dst, src)
+}
+func (m *UpdateAvgForYearResponse) XXX_Size() int {
+	return xxx_messageInfo_UpdateAvgForYearResponse.Size(m)
+}
+func (m *UpdateAvgForYearResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateAvgForYearResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateAvgForYearResponse proto.InternalMessageInfo
+
+func (m *UpdateAvgForYearResponse) GetErr() string {
+	if m != nil {
+		return m.Err
+	}
+	return ""
+}
+
+type UpdateAvgForDOYRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Doy                  int32    `protobuf:"varint,2,opt,name=doy,proto3" json:"doy,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateAvgForDOYRequest) Reset()         { *m = UpdateAvgForDOYRequest{} }
+func (m *UpdateAvgForDOYRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateAvgForDOYRequest) ProtoMessage()    {}
+func (*UpdateAvgForDOYRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{9}
+}
+func (m *UpdateAvgForDOYRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateAvgForDOYRequest.Unmarshal(m, b)
+}
+func (m *UpdateAvgForDOYRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateAvgForDOYRequest.Marshal(b, m, deterministic)
+}
+func (dst *UpdateAvgForDOYRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateAvgForDOYRequest.Merge(dst, src)
+}
+func (m *UpdateAvgForDOYRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdateAvgForDOYRequest.Size(m)
+}
+func (m *UpdateAvgForDOYRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateAvgForDOYRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateAvgForDOYRequest proto.InternalMessageInfo
+
+func (m *UpdateAvgForDOYRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+func (m *UpdateAvgForDOYRequest) GetDoy() int32 {
+	if m != nil {
+		return m.Doy
+	}
+	return 0
+}
+
+type UpdateAvgForDOYResponse struct {
+	Err                  string   `protobuf:"bytes,1,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateAvgForDOYResponse) Reset()         { *m = UpdateAvgForDOYResponse{} }
+func (m *UpdateAvgForDOYResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdateAvgForDOYResponse) ProtoMessage()    {}
+func (*UpdateAvgForDOYResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{10}
+}
+func (m *UpdateAvgForDOYResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateAvgForDOYResponse.Unmarshal(m, b)
+}
+func (m *UpdateAvgForDOYResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateAvgForDOYResponse.Marshal(b, m, deterministic)
+}
+func (dst *UpdateAvgForDOYResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateAvgForDOYResponse.Merge(dst, src)
+}
+func (m *UpdateAvgForDOYResponse) XXX_Size() int {
+	return xxx_messageInfo_UpdateAvgForDOYResponse.Size(m)
+}
+func (m *UpdateAvgForDOYResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateAvgForDOYResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateAvgForDOYResponse proto.InternalMessageInfo
+
+func (m *UpdateAvgForDOYResponse) GetErr() string {
+	if m != nil {
+		return m.Err
+	}
+	return ""
+}
+
+type GetAvgRequest struct {
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetAvgRequest) Reset()         { *m = GetAvgRequest{} }
+func (m *GetAvgRequest) String() string { return proto.CompactTextString(m) }
+func (*GetAvgRequest) ProtoMessage()    {}
+func (*GetAvgRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{11}
+}
+func (m *GetAvgRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAvgRequest.Unmarshal(m, b)
+}
+func (m *GetAvgRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAvgRequest.Marshal(b, m, deterministic)
+}
+func (dst *GetAvgRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAvgRequest.Merge(dst, src)
+}
+func (m *GetAvgRequest) XXX_Size() int {
+	return xxx_messageInfo_GetAvgRequest.Size(m)
+}
+func (m *GetAvgRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAvgRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetAvgRequest proto.InternalMessageInfo
+
+func (m *GetAvgRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
+type GetAvgResponse struct {
+	Temps                []*Temperature `protobuf:"bytes,1,rep,name=temps,proto3" json:"temps,omitempty"`
+	Err                  string         `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
+}
+
+func (m *GetAvgResponse) Reset()         { *m = GetAvgResponse{} }
+func (m *GetAvgResponse) String() string { return proto.CompactTextString(m) }
+func (*GetAvgResponse) ProtoMessage()    {}
+func (*GetAvgResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dailysvc_aca24c4c1948ad0b, []int{12}
+}
+func (m *GetAvgResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetAvgResponse.Unmarshal(m, b)
+}
+func (m *GetAvgResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetAvgResponse.Marshal(b, m, deterministic)
+}
+func (dst *GetAvgResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAvgResponse.Merge(dst, src)
+}
+func (m *GetAvgResponse) XXX_Size() int {
+	return xxx_messageInfo_GetAvgResponse.Size(m)
+}
+func (m *GetAvgResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAvgResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetAvgResponse proto.InternalMessageInfo
+
+func (m *GetAvgResponse) GetTemps() []*Temperature {
+	if m != nil {
+		return m.Temps
+	}
+	return nil
+}
+
+func (m *GetAvgResponse) GetErr() string {
+	if m != nil {
+		return m.Err
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Temperature)(nil), "grpc.Temperature")
 	proto.RegisterType((*GetPeriodRequest)(nil), "grpc.GetPeriodRequest")
@@ -347,6 +591,12 @@ func init() {
 	proto.RegisterType((*GetUpdateDateRequest)(nil), "grpc.GetUpdateDateRequest")
 	proto.RegisterType((*GetUpdateDateResponse)(nil), "grpc.GetUpdateDateResponse")
 	proto.RegisterMapType((map[string]string)(nil), "grpc.GetUpdateDateResponse.DatesEntry")
+	proto.RegisterType((*UpdateAvgForYearRequest)(nil), "grpc.UpdateAvgForYearRequest")
+	proto.RegisterType((*UpdateAvgForYearResponse)(nil), "grpc.UpdateAvgForYearResponse")
+	proto.RegisterType((*UpdateAvgForDOYRequest)(nil), "grpc.UpdateAvgForDOYRequest")
+	proto.RegisterType((*UpdateAvgForDOYResponse)(nil), "grpc.UpdateAvgForDOYResponse")
+	proto.RegisterType((*GetAvgRequest)(nil), "grpc.GetAvgRequest")
+	proto.RegisterType((*GetAvgResponse)(nil), "grpc.GetAvgResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -364,6 +614,9 @@ type DailySVCClient interface {
 	GetPeriod(ctx context.Context, in *GetPeriodRequest, opts ...grpc.CallOption) (*GetPeriodResponse, error)
 	PushPeriod(ctx context.Context, in *PushPeriodRequest, opts ...grpc.CallOption) (*PushPeriodResponse, error)
 	GetUpdateDate(ctx context.Context, in *GetUpdateDateRequest, opts ...grpc.CallOption) (*GetUpdateDateResponse, error)
+	UpdateAvgForYear(ctx context.Context, in *UpdateAvgForYearRequest, opts ...grpc.CallOption) (*UpdateAvgForYearResponse, error)
+	UpdateAvgForDOY(ctx context.Context, in *UpdateAvgForDOYRequest, opts ...grpc.CallOption) (*UpdateAvgForDOYResponse, error)
+	GetAvg(ctx context.Context, in *GetAvgRequest, opts ...grpc.CallOption) (*GetAvgResponse, error)
 }
 
 type dailySVCClient struct {
@@ -401,11 +654,41 @@ func (c *dailySVCClient) GetUpdateDate(ctx context.Context, in *GetUpdateDateReq
 	return out, nil
 }
 
+func (c *dailySVCClient) UpdateAvgForYear(ctx context.Context, in *UpdateAvgForYearRequest, opts ...grpc.CallOption) (*UpdateAvgForYearResponse, error) {
+	out := new(UpdateAvgForYearResponse)
+	err := c.cc.Invoke(ctx, "/grpc.DailySVC/UpdateAvgForYear", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dailySVCClient) UpdateAvgForDOY(ctx context.Context, in *UpdateAvgForDOYRequest, opts ...grpc.CallOption) (*UpdateAvgForDOYResponse, error) {
+	out := new(UpdateAvgForDOYResponse)
+	err := c.cc.Invoke(ctx, "/grpc.DailySVC/UpdateAvgForDOY", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dailySVCClient) GetAvg(ctx context.Context, in *GetAvgRequest, opts ...grpc.CallOption) (*GetAvgResponse, error) {
+	out := new(GetAvgResponse)
+	err := c.cc.Invoke(ctx, "/grpc.DailySVC/GetAvg", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DailySVCServer is the server API for DailySVC service.
 type DailySVCServer interface {
 	GetPeriod(context.Context, *GetPeriodRequest) (*GetPeriodResponse, error)
 	PushPeriod(context.Context, *PushPeriodRequest) (*PushPeriodResponse, error)
 	GetUpdateDate(context.Context, *GetUpdateDateRequest) (*GetUpdateDateResponse, error)
+	UpdateAvgForYear(context.Context, *UpdateAvgForYearRequest) (*UpdateAvgForYearResponse, error)
+	UpdateAvgForDOY(context.Context, *UpdateAvgForDOYRequest) (*UpdateAvgForDOYResponse, error)
+	GetAvg(context.Context, *GetAvgRequest) (*GetAvgResponse, error)
 }
 
 func RegisterDailySVCServer(s *grpc.Server, srv DailySVCServer) {
@@ -466,6 +749,60 @@ func _DailySVC_GetUpdateDate_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DailySVC_UpdateAvgForYear_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAvgForYearRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DailySVCServer).UpdateAvgForYear(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.DailySVC/UpdateAvgForYear",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DailySVCServer).UpdateAvgForYear(ctx, req.(*UpdateAvgForYearRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DailySVC_UpdateAvgForDOY_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAvgForDOYRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DailySVCServer).UpdateAvgForDOY(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.DailySVC/UpdateAvgForDOY",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DailySVCServer).UpdateAvgForDOY(ctx, req.(*UpdateAvgForDOYRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DailySVC_GetAvg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvgRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DailySVCServer).GetAvg(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.DailySVC/GetAvg",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DailySVCServer).GetAvg(ctx, req.(*GetAvgRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _DailySVC_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "grpc.DailySVC",
 	HandlerType: (*DailySVCServer)(nil),
@@ -482,39 +819,59 @@ var _DailySVC_serviceDesc = grpc.ServiceDesc{
 			MethodName: "GetUpdateDate",
 			Handler:    _DailySVC_GetUpdateDate_Handler,
 		},
+		{
+			MethodName: "UpdateAvgForYear",
+			Handler:    _DailySVC_UpdateAvgForYear_Handler,
+		},
+		{
+			MethodName: "UpdateAvgForDOY",
+			Handler:    _DailySVC_UpdateAvgForDOY_Handler,
+		},
+		{
+			MethodName: "GetAvg",
+			Handler:    _DailySVC_GetAvg_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "dailysvc.proto",
 }
 
-func init() { proto.RegisterFile("dailysvc.proto", fileDescriptor_dailysvc_d219c32d03b8d1a3) }
+func init() { proto.RegisterFile("dailysvc.proto", fileDescriptor_dailysvc_aca24c4c1948ad0b) }
 
-var fileDescriptor_dailysvc_d219c32d03b8d1a3 = []byte{
-	// 412 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x53, 0xcb, 0xca, 0xd3, 0x40,
-	0x18, 0xed, 0x24, 0xad, 0x98, 0xaf, 0xf8, 0xf3, 0x77, 0xf8, 0xad, 0x21, 0x2e, 0x0c, 0xb3, 0xa8,
-	0xdd, 0x98, 0x42, 0xdd, 0x14, 0x11, 0x41, 0x5b, 0x29, 0x14, 0x91, 0x12, 0x2f, 0xfb, 0xb4, 0x19,
-	0xd3, 0xd0, 0x4b, 0xe2, 0xcc, 0xa4, 0x90, 0xc7, 0xf1, 0x6d, 0x7c, 0x05, 0x37, 0x3e, 0x8b, 0xcc,
-	0x4c, 0x6e, 0x35, 0xa5, 0xbb, 0xef, 0x7a, 0xce, 0x99, 0xf3, 0x25, 0x70, 0x17, 0x06, 0xf1, 0x21,
-	0xe7, 0xe7, 0xad, 0x97, 0xb2, 0x44, 0x24, 0xb8, 0x1b, 0xb1, 0x74, 0xeb, 0xbc, 0x8a, 0x62, 0xb1,
-	0xcb, 0x36, 0xde, 0x36, 0x39, 0x4e, 0xa2, 0x24, 0x4a, 0x26, 0xaa, 0xb9, 0xc9, 0x7e, 0xa8, 0x4c,
-	0x25, 0x2a, 0xd2, 0x4b, 0x64, 0x0e, 0xfd, 0xaf, 0xf4, 0x98, 0x52, 0x16, 0x88, 0x8c, 0x51, 0x8c,
-	0xa1, 0x1b, 0x06, 0x82, 0xda, 0xc8, 0x45, 0x63, 0xcb, 0x57, 0x31, 0x76, 0xa1, 0x2f, 0xea, 0x11,
-	0xdb, 0x70, 0xd1, 0xd8, 0xf0, 0x9b, 0x25, 0xb2, 0x82, 0xfb, 0x25, 0x15, 0x6b, 0xca, 0xe2, 0x24,
-	0xf4, 0xe9, 0xcf, 0x8c, 0x72, 0x81, 0xef, 0xc0, 0x88, 0xc3, 0x02, 0xc7, 0x88, 0x43, 0xfc, 0x00,
-	0x3d, 0x2e, 0x02, 0x26, 0xd4, 0xbe, 0xe5, 0xeb, 0x04, 0xdf, 0x83, 0x49, 0x4f, 0xa1, 0x6d, 0xaa,
-	0x9a, 0x0c, 0xc9, 0x67, 0x18, 0x34, 0xb0, 0x78, 0x9a, 0x9c, 0x38, 0xc5, 0x2f, 0xa1, 0x27, 0xf9,
-	0xb8, 0x8d, 0x5c, 0x73, 0xdc, 0x9f, 0x0e, 0x3c, 0xf9, 0x54, 0xaf, 0x21, 0xdc, 0xd7, 0x7d, 0x85,
-	0xc7, 0x58, 0xc1, 0x21, 0x43, 0xf2, 0x09, 0x06, 0xeb, 0x8c, 0xef, 0x6e, 0x8b, 0xab, 0xf0, 0x8d,
-	0xdb, 0xf8, 0x64, 0x04, 0xb8, 0x89, 0x56, 0xc8, 0x2b, 0x58, 0x51, 0xcd, 0xea, 0xc1, 0xc3, 0x92,
-	0x8a, 0x6f, 0xa9, 0x34, 0x70, 0x11, 0x08, 0x5a, 0x12, 0x0f, 0xc1, 0x8c, 0x43, 0xfd, 0x0c, 0xeb,
-	0x43, 0xf7, 0xf7, 0xdf, 0x17, 0x1d, 0x5f, 0x16, 0xc8, 0x2f, 0x04, 0x4f, 0xff, 0x5b, 0x28, 0xb0,
-	0xdf, 0x42, 0x4f, 0xd6, 0xca, 0xa7, 0x8f, 0xb4, 0xb4, 0xab, 0xb3, 0x9e, 0x4c, 0xf8, 0xc7, 0x93,
-	0x60, 0xb9, 0xaf, 0x97, 0xda, 0x7e, 0x38, 0x33, 0x80, 0x7a, 0x4c, 0xf6, 0xf7, 0x34, 0x2f, 0x95,
-	0xef, 0x69, 0x2e, 0xef, 0x74, 0x0e, 0x0e, 0x19, 0x2d, 0xef, 0xa4, 0x92, 0x37, 0xc6, 0x0c, 0x4d,
-	0xff, 0x20, 0x78, 0xbc, 0x90, 0x9f, 0xdc, 0x97, 0xef, 0x73, 0xfc, 0x0e, 0xac, 0xea, 0x4c, 0x78,
-	0x58, 0x89, 0xba, 0xb0, 0xd9, 0x79, 0xd6, 0xaa, 0x6b, 0xa1, 0xa4, 0x83, 0xdf, 0x03, 0xd4, 0x46,
-	0xe2, 0x62, 0xb0, 0x75, 0x28, 0xc7, 0x6e, 0x37, 0x2a, 0x88, 0x15, 0x3c, 0xb9, 0xb0, 0x01, 0x3b,
-	0x57, 0xbd, 0xd1, 0x40, 0xcf, 0x6f, 0xf8, 0x46, 0x3a, 0x9b, 0x47, 0xea, 0x6f, 0x78, 0xfd, 0x2f,
-	0x00, 0x00, 0xff, 0xff, 0x26, 0x19, 0xc9, 0xc5, 0x54, 0x03, 0x00, 0x00,
+var fileDescriptor_dailysvc_aca24c4c1948ad0b = []byte{
+	// 538 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x54, 0xdd, 0x6e, 0xd3, 0x30,
+	0x14, 0x6e, 0x92, 0x76, 0xa2, 0xa7, 0xa2, 0xb4, 0xa6, 0x74, 0x51, 0x60, 0xac, 0xf2, 0xc5, 0x28,
+	0x02, 0x32, 0x69, 0x08, 0x69, 0x9a, 0x10, 0x52, 0x59, 0xa1, 0xd2, 0x40, 0x50, 0x65, 0x80, 0xb4,
+	0xcb, 0xb4, 0x31, 0x59, 0xb4, 0xad, 0x2e, 0x8e, 0x53, 0x29, 0x8f, 0xc3, 0x53, 0xf0, 0x0a, 0x3c,
+	0x05, 0xcf, 0x82, 0x6c, 0xe7, 0xaf, 0xcd, 0xd2, 0x9b, 0xdd, 0x9d, 0xdf, 0xef, 0x7c, 0xc7, 0xe7,
+	0x4b, 0xa0, 0xed, 0xb9, 0xc1, 0x75, 0x1c, 0xae, 0xe6, 0xf6, 0x92, 0x51, 0x4e, 0x51, 0xdd, 0x67,
+	0xcb, 0xb9, 0xf5, 0xca, 0x0f, 0xf8, 0x65, 0x34, 0xb3, 0xe7, 0xf4, 0xe6, 0xd0, 0xa7, 0x3e, 0x3d,
+	0x94, 0xc9, 0x59, 0xf4, 0x53, 0x7a, 0xd2, 0x91, 0x96, 0x6a, 0xc2, 0xa7, 0xd0, 0xfa, 0x46, 0x6e,
+	0x96, 0x84, 0xb9, 0x3c, 0x62, 0x04, 0x21, 0xa8, 0x7b, 0x2e, 0x27, 0xa6, 0x36, 0xd0, 0x86, 0x4d,
+	0x47, 0xda, 0x68, 0x00, 0x2d, 0x9e, 0x97, 0x98, 0xfa, 0x40, 0x1b, 0xea, 0x4e, 0x31, 0x84, 0xcf,
+	0xa0, 0x33, 0x21, 0x7c, 0x4a, 0x58, 0x40, 0x3d, 0x87, 0xfc, 0x8a, 0x48, 0xc8, 0x51, 0x1b, 0xf4,
+	0xc0, 0x4b, 0x70, 0xf4, 0xc0, 0x43, 0x3d, 0x68, 0x84, 0xdc, 0x65, 0x5c, 0xf6, 0x37, 0x1d, 0xe5,
+	0xa0, 0x0e, 0x18, 0x64, 0xe1, 0x99, 0x86, 0x8c, 0x09, 0x13, 0x7f, 0x81, 0x6e, 0x01, 0x2b, 0x5c,
+	0xd2, 0x45, 0x48, 0xd0, 0x33, 0x68, 0x88, 0x79, 0xa1, 0xa9, 0x0d, 0x8c, 0x61, 0xeb, 0xa8, 0x6b,
+	0x8b, 0x55, 0xed, 0x02, 0x71, 0x47, 0xe5, 0x25, 0x1e, 0x63, 0xc9, 0x0c, 0x61, 0xe2, 0xcf, 0xd0,
+	0x9d, 0x46, 0xe1, 0xe5, 0x76, 0x72, 0x19, 0xbe, 0xbe, 0x1d, 0x1f, 0x1f, 0x00, 0x2a, 0xa2, 0x25,
+	0xf4, 0x92, 0xa9, 0x5a, 0x3e, 0xd5, 0x86, 0xde, 0x84, 0xf0, 0xef, 0x4b, 0xf1, 0x80, 0x63, 0x97,
+	0x93, 0x74, 0x70, 0x1f, 0x8c, 0xc0, 0x53, 0x6b, 0x34, 0xdf, 0xd7, 0xff, 0xfe, 0xdb, 0xaf, 0x39,
+	0x22, 0x80, 0x7f, 0x6b, 0xf0, 0x68, 0xa3, 0x21, 0xc1, 0x7e, 0x0b, 0x0d, 0x11, 0x4b, 0x57, 0x3f,
+	0x50, 0xd4, 0x6e, 0xad, 0xb5, 0x85, 0x13, 0x7e, 0x58, 0x70, 0x16, 0x3b, 0xaa, 0xa9, 0xfc, 0x1e,
+	0xd6, 0x31, 0x40, 0x5e, 0x26, 0xf2, 0x57, 0x24, 0x4e, 0x99, 0x5f, 0x91, 0x58, 0xdc, 0x69, 0xe5,
+	0x5e, 0x47, 0x24, 0xbd, 0x93, 0x74, 0x4e, 0xf4, 0x63, 0x0d, 0x3f, 0x87, 0x5d, 0x35, 0x73, 0xb4,
+	0xf2, 0x3f, 0x52, 0x76, 0x41, 0x5c, 0x56, 0xf1, 0x9e, 0xf8, 0x25, 0x98, 0xe5, 0xd2, 0xca, 0xc7,
+	0x3a, 0x81, 0x7e, 0xb1, 0x7a, 0xfc, 0xf5, 0xa2, 0xea, 0x4e, 0x1d, 0x30, 0x3c, 0x1a, 0x4b, 0x6a,
+	0x0d, 0x47, 0x98, 0xf8, 0xc5, 0x3a, 0x29, 0xd9, 0x5b, 0x39, 0x68, 0x1f, 0xee, 0x4f, 0x08, 0x1f,
+	0xad, 0xfc, 0x2a, 0xde, 0x9f, 0xa0, 0x9d, 0x16, 0xdc, 0x59, 0x79, 0x47, 0x7f, 0x0c, 0xb8, 0x37,
+	0x16, 0x9f, 0xe8, 0xf9, 0x8f, 0x53, 0xf4, 0x0e, 0x9a, 0x99, 0xac, 0x51, 0x3f, 0x3b, 0xe2, 0x9a,
+	0x2c, 0xad, 0xdd, 0x52, 0x5c, 0xb1, 0xc0, 0x35, 0x34, 0x02, 0xc8, 0x85, 0x87, 0x92, 0xc2, 0x92,
+	0xb0, 0x2d, 0xb3, 0x9c, 0xc8, 0x20, 0xce, 0xe4, 0xf6, 0xb9, 0x6c, 0x90, 0x75, 0xab, 0x96, 0x14,
+	0xd0, 0xe3, 0x2d, 0x3a, 0xc3, 0x35, 0x74, 0x0e, 0x9d, 0xcd, 0x03, 0xa3, 0x3d, 0xd5, 0x52, 0xa1,
+	0x11, 0xeb, 0x69, 0x55, 0x3a, 0x03, 0x9d, 0xc2, 0x83, 0x8d, 0x5b, 0xa2, 0x27, 0xe5, 0xa6, 0x5c,
+	0x1e, 0xd6, 0x5e, 0x45, 0x36, 0x43, 0x7c, 0x03, 0x3b, 0xea, 0x9e, 0xe8, 0x61, 0xb6, 0x4f, 0x7e,
+	0x7e, 0xab, 0xb7, 0x1e, 0x4c, 0xdb, 0x66, 0x3b, 0xf2, 0xdf, 0xf8, 0xfa, 0x7f, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x54, 0xaa, 0xb9, 0x0e, 0x62, 0x05, 0x00, 0x00,
 }

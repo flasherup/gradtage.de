@@ -47,6 +47,46 @@ func DecodeGetUpdateDateRequest(_ context.Context, r interface{}) (interface{}, 
 }
 
 
+func EncodeUpdateAvgForYearResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(UpdateAvgForYearResponse)
+	return &grpc.UpdateAvgForYearResponse {
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeUpdateAvgForYearRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpc.UpdateAvgForYearRequest)
+	return UpdateAvgForYearRequest{req.Id }, nil
+}
+
+
+func EncodeUpdateAvgForDOYResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(UpdateAvgForDOYResponse)
+	return &grpc.UpdateAvgForDOYResponse {
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeUpdateAvgForDOYRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpc.UpdateAvgForDOYRequest)
+	return UpdateAvgForDOYRequest{req.Id, int(req.Doy) }, nil
+}
+
+func EncodeGetAvgResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetAvgResponse)
+	encTemp := toGRPCTemps(res.Temps)
+	return &grpc.GetAvgResponse {
+		Temps: encTemp,
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeGetAvgRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpc.GetAvgRequest)
+	return GetAvgRequest{req.Id}, nil
+}
+
+
 
 func toGRPCTemps(src []Temperature) []*grpc.Temperature {
 	res := make([]*grpc.Temperature, len(src))

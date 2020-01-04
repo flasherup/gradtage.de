@@ -11,9 +11,13 @@ import (
 )
 
 type GRPCServer struct {
-	getPeriod    	gt.Handler
-	pushPeriod  	gt.Handler
-	getUpdateDate   gt.Handler
+	getPeriod    	 gt.Handler
+	pushPeriod  	 gt.Handler
+	getUpdateDate    gt.Handler
+	updateAvgForYear gt.Handler
+	updateAvgForDOY  gt.Handler
+	getAvg			 gt.Handler
+
 }
 
 func (s *GRPCServer) GetPeriod(ctx context.Context, req *grpc.GetPeriodRequest) (*grpc.GetPeriodResponse, error) {
@@ -40,6 +44,30 @@ func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *grpc.GetUpdateDateR
 	return resp.(*grpc.GetUpdateDateResponse), nil
 }
 
+func (s *GRPCServer) UpdateAvgForYear(ctx context.Context, req *grpc.UpdateAvgForYearRequest) (*grpc.UpdateAvgForYearResponse, error) {
+	_, resp, err := s.updateAvgForYear.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpc.UpdateAvgForYearResponse), nil
+}
+
+func (s *GRPCServer) UpdateAvgForDOY(ctx context.Context, req *grpc.UpdateAvgForDOYRequest) (*grpc.UpdateAvgForDOYResponse, error) {
+	_, resp, err := s.updateAvgForDOY.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpc.UpdateAvgForDOYResponse), nil
+}
+
+func (s *GRPCServer) GetAvg(ctx context.Context, req *grpc.GetAvgRequest) (*grpc.GetAvgResponse, error) {
+	_, resp, err := s.getAvg.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpc.GetAvgResponse), nil
+}
+
 
 
 func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.DailySVCServer {
@@ -58,6 +86,21 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpc.DailySVCServer {
 			endpoint.GetUpdateDateEndpoint,
 			DecodeGetUpdateDateRequest,
 			EncodeGetUpdateDateResponse,
+		),
+		updateAvgForYear: gt.NewServer(
+			endpoint.UpdateAvgForYearEndpoint,
+			DecodeUpdateAvgForYearRequest,
+			EncodeUpdateAvgForYearResponse,
+		),
+		updateAvgForDOY: gt.NewServer(
+			endpoint.UpdateAvgForDOYEndpoint,
+			DecodeUpdateAvgForDOYRequest,
+			EncodeUpdateAvgForDOYResponse,
+		),
+		getAvg: gt.NewServer(
+			endpoint.GetAvgEndpoint,
+			DecodeGetAvgRequest,
+			EncodeGetAvgResponse,
 		),
 	}
 	return &server

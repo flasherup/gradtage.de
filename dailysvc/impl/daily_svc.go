@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/flasherup/gradtage.de/dailysvc"
+	"github.com/flasherup/gradtage.de/dailysvc/impl/average"
 	"github.com/flasherup/gradtage.de/dailysvc/impl/database"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -13,11 +14,12 @@ import (
 
 type DailySVC struct {
 	logger  	log.Logger
-	db 			database.HourlyDB
-	counter 	*ktprom.Gauge
+	db 			database.DailyDB
+	avg			*average.Average
+	counter 	ktprom.Gauge
 }
 
-func NewDailySVC(logger log.Logger, db database.HourlyDB) (*DailySVC, error) {
+func NewDailySVC(logger log.Logger, db database.DailyDB, avg *average.Average) (*DailySVC, error) {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
@@ -26,7 +28,8 @@ func NewDailySVC(logger log.Logger, db database.HourlyDB) (*DailySVC, error) {
 	st := DailySVC{
 		logger: logger,
 		db:		db,
-		counter: guage,
+		avg:	avg,
+		counter: *guage,
 	}
 	return &st,nil
 }
@@ -65,6 +68,32 @@ func (ss *DailySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[
 			dates[v] = date
 		}
 	}
-
 	return dates, err
+}
+
+func (ss DailySVC) UpdateAvgForYear(ctx context.Context, id string) (err error) {
+	level.Info(ss.logger).Log("msg", " UpdateAvgForYear", "id", id)
+	err = ss.avg.CalculateAndSaveYearlyAverage(id)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "UpdateAvgForYear error", "err", err)
+	}
+	return err
+}
+
+func (ss DailySVC) UpdateAvgForDOY(ctx context.Context, id string, doy int) (err error) {
+	level.Info(ss.logger).Log("msg", " UpdateAvgForDOY", "id", id, "doy", doy)
+	err = ss.avg.CalculateAndSaveDOYAverage(id, doy)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "UpdateAvgForDOY error", "err", err)
+	}
+	return err
+}
+
+func (ss DailySVC) GetAvg(ctx context.Context, id string) (temps []dailysvc.Temperature, err error) {
+	level.Info(ss.logger).Log("msg", "GetAvg", "id", id)
+	temps, err = ss.avg.GetAll(id)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "GetAvg error", "err", err)
+	}
+	return temps,err
 }

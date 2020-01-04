@@ -6,6 +6,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
+	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewDailySCVClient("82.165.18.228:8103",logger)
+	client := impl.NewDailySCVClient("82.165.18.228:8104",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -32,7 +33,7 @@ func main() {
 	}
 
 	//Just for test
-	period := client.GetPeriod("KBOS", "2019-12-29T01:00:00", "2019-12-29T15:00:00")
+	/*period := client.GetPeriod("KBOS", "2019-12-29T01:00:00", "2019-12-29T15:00:00")
 	if period.Err != "nil" {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", period.Err)
 
@@ -52,7 +53,40 @@ func main() {
 		for k,v := range dates.Dates {
 			level.Info(logger).Log("msg", "Update Date ", "id", k, "date:", v)
 		}
+	}*/
+
+	stations := stations.NewStationsSCVClient("82.165.18.228:8102",logger)
+
+	sts := stations.GetAllStations()
+	if sts.Err != "nil" {
+		level.Error(logger).Log("msg", "Get stations err Error", "err", sts.Err)
+	} else {
+		for k := range sts.Sts {
+			resp := client.UpdateAvgForYear(k)
+			if resp.Err != "nil" {
+				level.Error(logger).Log("msg", "UpdateAvgForYear Error", "err", resp.Err)
+			}
+		}
 	}
+
+	respDOY := client.UpdateAvgForDOY("KBOS", 1)
+	if respDOY.Err != "nil" {
+		level.Error(logger).Log("msg", "UpdateAvgForDOY Error", "err", respDOY.Err)
+	}
+
+
+
+	respAvg := client.GetAvg("KBOS")
+	if respAvg.Err != "nil" {
+		level.Error(logger).Log("msg", "GetAvg Error", "err", respAvg.Err)
+	} else {
+		for _,v := range respAvg.Temps {
+			level.Info(logger).Log("msg", "sts", "id", "KBOS", "date:", v.Date, "temp:", v.Temperature)
+		}
+	}
+
+
+
 }
 
 

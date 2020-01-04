@@ -8,6 +8,7 @@ import (
 	"github.com/flasherup/gradtage.de/dailysvc/config"
 	"github.com/flasherup/gradtage.de/dailysvc/grpc"
 	"github.com/flasherup/gradtage.de/dailysvc/impl"
+	"github.com/flasherup/gradtage.de/dailysvc/impl/average"
 	"github.com/flasherup/gradtage.de/dailysvc/impl/database"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -49,6 +50,8 @@ func main() {
 		return
 	}
 
+	avg := average.NewAverage(logger, *db)
+
 
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
@@ -56,7 +59,7 @@ func main() {
 
 
 	ctx := context.Background()
-	hourlyService, err := impl.NewDailySVC(logger, db)
+	hourlyService, err := impl.NewDailySVC(logger, db, avg)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -72,9 +75,12 @@ func main() {
 
 		gRPCServer := googlerpc.NewServer()
 		grpc.RegisterDailySVCServer(gRPCServer, dailysvc.NewGRPCServer(ctx, dailysvc.Endpoints {
-			GetPeriodEndpoint:    	dailysvc.MakeGetPeriodEndpoint(hourlyService),
-			PushPeriodEndpoint: 	dailysvc.MakePushPeriodEndpoint(hourlyService),
-			GetUpdateDateEndpoint: 	dailysvc.MakeGetUpdateDateEndpoint(hourlyService),
+			GetPeriodEndpoint:    		dailysvc.MakeGetPeriodEndpoint(hourlyService),
+			PushPeriodEndpoint: 		dailysvc.MakePushPeriodEndpoint(hourlyService),
+			GetUpdateDateEndpoint: 		dailysvc.MakeGetUpdateDateEndpoint(hourlyService),
+			UpdateAvgForYearEndpoint: 	dailysvc.MakeUpdateAvgForYearEndpoint(hourlyService),
+			UpdateAvgForDOYEndpoint: 	dailysvc.MakeUpdateAvgForDOYEndpoint(hourlyService),
+			GetAvgEndpoint: 			dailysvc.MakeGetAvgEndpoint(hourlyService),
 		}))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())

@@ -61,6 +61,44 @@ func (scc DailySVCClient) GetUpdateDate(ids []string) *grpc.GetUpdateDateRespons
 	return res
 }
 
+func (scc DailySVCClient) UpdateAvgForYear(id string) *grpc.UpdateAvgForYearResponse {
+	conn := scc.openConn()
+	defer conn.Close()
+
+	client := grpc.NewDailySVCClient(conn)
+	res, err := client.UpdateAvgForYear(context.Background(), &grpc.UpdateAvgForYearRequest{ Id:id })
+	if err != nil {
+		level.Error(scc.logger).Log("msg", "Failed to update averages for year", "err", err)
+
+	}
+	return res
+}
+
+func (scc DailySVCClient) UpdateAvgForDOY(id string, doy int) *grpc.UpdateAvgForDOYResponse {
+	conn := scc.openConn()
+	defer conn.Close()
+
+	client := grpc.NewDailySVCClient(conn)
+	res, err := client.UpdateAvgForDOY(context.Background(), &grpc.UpdateAvgForDOYRequest{ Id:id, Doy:int32(doy) })
+	if err != nil {
+		level.Error(scc.logger).Log("msg", "Failed to update averages for DOY", "err", err)
+
+	}
+	return res
+}
+
+func (scc DailySVCClient) GetAvg(id string) *grpc.GetAvgResponse {
+	conn := scc.openConn()
+	defer conn.Close()
+
+	client := grpc.NewDailySVCClient(conn)
+	res, err := client.GetAvg(context.Background(), &grpc.GetAvgRequest{ Id:id })
+	if err != nil {
+		level.Error(scc.logger).Log("msg", "Failed to get average", "err", err)
+
+	}
+	return res
+}
 
 func (scc DailySVCClient) openConn() *googlerpc.ClientConn {
 	cc, err := googlerpc.Dial(scc.host, googlerpc.WithInsecure())

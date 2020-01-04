@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//HourlyDB main structure
+//DailyDB main structure
 type Postgres struct {
 	db  *sql.DB
 }
@@ -71,6 +71,52 @@ func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []da
 	}
 	defer rows.Close()
 
+
+	for rows.Next() {
+		st,err := parseRow(rows)
+		if err != nil {
+			return temps, err
+		}
+		temps = append(temps, st)
+	}
+	return temps,err
+}
+
+//GetDOYPeriod return DOY rows for period
+func (pg *Postgres) GetDOYPeriod(name string, doy int,  start string, end string) (temps []dailysvc.Temperature, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s " +
+		"WHERE EXTRACT(DOY FROM date) = %d " +
+		"AND date >= '%s' AND date < '%s' " +
+		"ORDER BY date;",
+		name, doy, start, end)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temps,err
+	}
+	defer rows.Close()
+
+
+	for rows.Next() {
+		st,err := parseRow(rows)
+		if err != nil {
+			return temps, err
+		}
+		temps = append(temps, st)
+	}
+	return temps,err
+}
+
+//GetAll return all rows int table @name
+func (pg *Postgres) GetAll(name string) (temps []dailysvc.Temperature, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp ASC;",
+		name)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temps,err
+	}
+	defer rows.Close()
 
 	for rows.Next() {
 		st,err := parseRow(rows)
