@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package altgrpc;
+
+message Alert {
+    string name = 1;
+    string desc = 2;
+    map<string,string> params = 3;
+}
+
+message SendAlertRequest {
+    Alert alert = 1;
+}
+
+message SendAlertResponse {
+    string err = 1;
+}
+
+service AlertSVC {
+    rpc SendAlert(SendAlertRequest) returns (SendAlertResponse) {}
+}
+
+
