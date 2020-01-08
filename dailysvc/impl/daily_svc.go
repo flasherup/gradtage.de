@@ -89,7 +89,7 @@ func (ss DailySVC) UpdateAvgForDOY(ctx context.Context, id string, doy int) (err
 	return err
 }
 
-func (ss DailySVC) GetAvg(ctx context.Context, id string) (temps []dailysvc.Temperature, err error) {
+func (ss DailySVC) GetAvg(ctx context.Context, id string) (temps map[int]dailysvc.Temperature, err error) {
 	level.Info(ss.logger).Log("msg", "GetAvg", "id", id)
 	temps, err = ss.avg.GetAll(id)
 	if err != nil {

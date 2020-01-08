@@ -93,13 +93,22 @@ func ToAverageDate( src string) (string, error) {
 	return date.Format(common.TimeLayout),nil
 }
 
-func (avg Average)GetAll(name string) (temps []dailysvc.Temperature, err error ) {
-	temps, err = avg.db.GetAll(name + averagePrefix)
+func (avg Average)GetAll(name string) (temps map[int]dailysvc.Temperature, err error ) {
+	t, err := avg.db.GetAll(name + averagePrefix)
 	if err != nil {
 		level.Error(avg.logger).Log("msg", "GetAvg error", "err", err)
 		return nil,err
 	}
+	temps = make(map[int]dailysvc.Temperature)
+	for _,v := range t {
+		d, err := time.Parse(common.TimeLayout, v.Date)
+		if err != nil {
+			level.Error(avg.logger).Log("msg", "GetAvg error", "err", err)
+			return nil,err
+		}
 
+		temps[d.YearDay()] = v
+	}
 	return temps,err
 }
 

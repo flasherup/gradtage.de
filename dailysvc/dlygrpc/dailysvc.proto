@@ -59,7 +59,7 @@ message GetAvgRequest {
 }
 
 message GetAvgResponse {
-    repeated Temperature temps = 1;
+    map<int32,Temperature> temps = 1;
     string err = 2;
 }
 

@@ -52,6 +52,6 @@ type GetAvgRequest struct {
 }
 
 type GetAvgResponse struct {
-	Temps []Temperature `json:"temp"`
+	Temps map[int]Temperature `json:"temps"`
 	Err  error `json:"err"`
 }

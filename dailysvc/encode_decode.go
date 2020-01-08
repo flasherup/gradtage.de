@@ -74,7 +74,7 @@ func DecodeUpdateAvgForDOYRequest(_ context.Context, r interface{}) (interface{}
 
 func EncodeGetAvgResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetAvgResponse)
-	encTemp := toGRPCTemps(res.Temps)
+	encTemp := toGRPCMapTemps(res.Temps)
 	return &dlygrpc.GetAvgResponse {
 		Temps: encTemp,
 		Err: errorToString(res.Err),
@@ -105,6 +105,17 @@ func toServiceTemps(src []*dlygrpc.Temperature) []Temperature {
 		res[i] =  Temperature{
 			Date:			v.Date,
 			Temperature:	float64(v.Temperature),
+		}
+	}
+	return res
+}
+
+func toGRPCMapTemps(src map[int]Temperature) map[int32]*dlygrpc.Temperature {
+	res := make(map[int32]*dlygrpc.Temperature)
+	for k,v := range src {
+		res[int32(k)] = &dlygrpc.Temperature{
+			Date: 			v.Date,
+			Temperature: 	float32(v.Temperature),
 		}
 	}
 	return res
