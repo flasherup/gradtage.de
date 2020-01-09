@@ -71,11 +71,8 @@ func main() {
 		}
 
 		gRPCServer := googlerpc.NewServer()
-		hrlgrpc.RegisterHourlySVCServer(gRPCServer, hourlysvc.NewGRPCServer(ctx, hourlysvc.Endpoints {
-			GetPeriodEndpoint:    	hourlysvc.MakeGetPeriodEndpoint(hourlyService),
-			PushPeriodEndpoint: 	hourlysvc.MakePushPeriodEndpoint(hourlyService),
-			GetUpdateDateEndpoint: 	hourlysvc.MakeGetUpdateDateEndpoint(hourlyService),
-		}))
+		endpoints := hourlysvc.MakeServerEndpoints(hourlyService)
+		hrlgrpc.RegisterHourlySVCServer(gRPCServer, hourlysvc.NewGRPCServer(ctx, endpoints))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())
 		errors <- gRPCServer.Serve(listener)

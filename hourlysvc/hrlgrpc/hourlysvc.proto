@@ -37,11 +37,21 @@ message GetUpdateDateResponse {
     string err = 2;
 }
 
+message GetLatestRequest {
+    repeated string ids = 1 [(gogoproto.nullable) = false];
+}
+
+message GetLatestResponse {
+    map<string,Temperature> temps = 1;
+    string err = 2;
+}
+
 
 service HourlySVC {
-    rpc GetPeriod(GetPeriodRequest) returns (GetPeriodResponse) {}
-    rpc PushPeriod(PushPeriodRequest) returns (PushPeriodResponse) {}
+    rpc GetPeriod(GetPeriodRequest)         returns (GetPeriodResponse) {}
+    rpc PushPeriod(PushPeriodRequest)       returns (PushPeriodResponse) {}
     rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
+    rpc GetLatest(GetLatestRequest)     returns (GetLatestResponse) {}
 }
 
 

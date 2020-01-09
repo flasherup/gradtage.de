@@ -69,3 +69,17 @@ func (ss *HourlySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map
 
 	return dates, err
 }
+
+func (ss *HourlySVC) GetLatest(ctx context.Context, ids []string) (temps map[string]hourlysvc.Temperature, err error) {
+	level.Info(ss.logger).Log("msg", "Get Latest", "ids", fmt.Sprintf("%+q:",ids))
+	temps = make(map[string]hourlysvc.Temperature)
+	for _,v := range ids {
+		temp, err := ss.db.GetLatest(v)
+		if err != nil {
+			level.Error(ss.logger).Log("msg", "Get Latest error", "err", err)
+		} else {
+			temps[v] = temp
+		}
+	}
+	return temps, err
+}

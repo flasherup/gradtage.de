@@ -48,6 +48,21 @@ func DecodeGetUpdateDateRequest(_ context.Context, r interface{}) (interface{}, 
 
 
 
+func EncodeGetLatestResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetLatestResponse)
+	return &hrlgrpc.GetLatestResponse {
+		Temps: toGRPCMapTemps(res.Temps),
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeGetLatestRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*hrlgrpc.GetLatestRequest)
+	return GetLatestRequest{req.Ids}, nil
+}
+
+
+
 func toGRPCTemps(src []Temperature) []*hrlgrpc.Temperature {
 	res := make([]*hrlgrpc.Temperature, len(src))
 	for i,v := range src {
@@ -63,6 +78,28 @@ func toServiceTemps(src []*hrlgrpc.Temperature) []Temperature {
 	res := make([]Temperature , len(src))
 	for i,v := range src {
 		res[i] =  Temperature{
+			Date:			v.Date,
+			Temperature:	float64(v.Temperature),
+		}
+	}
+	return res
+}
+
+func toGRPCMapTemps(src map[string]Temperature) map[string]*hrlgrpc.Temperature {
+	res := make(map[string]*hrlgrpc.Temperature)
+	for k,v := range src {
+		res[k] =  &hrlgrpc.Temperature{
+			Date:			v.Date,
+			Temperature:	float32(v.Temperature),
+		}
+	}
+	return res
+}
+
+func toServiceMapTemps(src map[string]*hrlgrpc.Temperature) map[string]Temperature {
+	res := make(map[string]Temperature)
+	for k,v := range src {
+		res[k] =  Temperature{
 			Date:			v.Date,
 			Temperature:	float64(v.Temperature),
 		}

@@ -66,6 +66,20 @@ func (scc HourlySVCClient) GetUpdateDate(ids []string) (resp *hrlgrpc.GetUpdateD
 	return resp, err
 }
 
+func (scc HourlySVCClient) GetLatest(ids []string) (resp *hrlgrpc.GetLatestResponse, err error) {
+	conn := scc.openConn()
+	defer conn.Close()
+
+	client := hrlgrpc.NewHourlySVCClient(conn)
+	resp, err = client.GetLatest(context.Background(), &hrlgrpc.GetLatestRequest{ Ids: ids })
+	if err != nil {
+		level.Error(scc.logger).Log("msg", "Failed to get latest", "err", err)
+	} else if resp.Err != "nil" {
+		err = errors.New(resp.Err)
+	}
+	return resp, err
+}
+
 
 func (scc HourlySVCClient) openConn() *googlerpc.ClientConn {
 	cc, err := googlerpc.Dial(scc.host, googlerpc.WithInsecure())

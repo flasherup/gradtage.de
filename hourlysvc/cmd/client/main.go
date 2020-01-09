@@ -21,11 +21,12 @@ func main() {
 		)
 	}
 	client := impl.NewHourlySCVClient("82.165.18.228:8103",logger)
+	//client := impl.NewHourlySCVClient("localhost:8103",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	_, err := client.PushPeriod("KBOS", period())
+	/*_, err := client.PushPeriod("KBOG", period())
 	if err != nil {
 		level.Error(logger).Log("msg", "PushPeriod Error", "err", err)
 
@@ -49,6 +50,16 @@ func main() {
 	} else {
 		for k,v := range dates.Dates {
 			level.Info(logger).Log("msg", "Update Date ", "id", k, "date:", v)
+		}
+	}*/
+
+	temps, err := client.GetLatest([]string{"KBOS"})
+	if err != nil {
+		level.Error(logger).Log("msg", "Get Latest Error", "err", err)
+	} else {
+		for k,v := range temps.Temps {
+
+			level.Info(logger).Log("msg", "Latest ", "id", k, "date:", v.Date, "temp", v.Temperature)
 		}
 	}
 }

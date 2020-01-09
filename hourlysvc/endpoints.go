@@ -6,9 +6,10 @@ import (
 )
 
 type Endpoints struct {
-	GetPeriodEndpoint  	endpoint.Endpoint
-	PushPeriodEndpoint  endpoint.Endpoint
+	GetPeriodEndpoint  		endpoint.Endpoint
+	PushPeriodEndpoint  	endpoint.Endpoint
 	GetUpdateDateEndpoint  	endpoint.Endpoint
+	GetLatestEndpoint  		endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -16,6 +17,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		GetPeriodEndpoint:   	MakeGetPeriodEndpoint(s),
 		PushPeriodEndpoint:		MakePushPeriodEndpoint(s),
 		GetUpdateDateEndpoint:	MakeGetUpdateDateEndpoint(s),
+		GetLatestEndpoint:		MakeGetLatestEndpoint(s),
 	}
 }
 
@@ -41,5 +43,13 @@ func MakeGetUpdateDateEndpoint(s Service) endpoint.Endpoint {
 		req := request.(GetUpdateDateRequest)
 		dates, err := s.GetUpdateDate(ctx, req.IDs)
 		return GetUpdateDateResponse{dates, err}, err
+	}
+}
+
+func MakeGetLatestEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetLatestRequest)
+		temps, err := s.GetLatest(ctx, req.IDs)
+		return GetLatestResponse{temps, err}, err
 	}
 }

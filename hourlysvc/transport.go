@@ -14,6 +14,7 @@ type GRPCServer struct {
 	getPeriod    	gt.Handler
 	pushPeriod  	gt.Handler
 	getUpdateDate   gt.Handler
+	getLatest		gt.Handler
 }
 
 func (s *GRPCServer) GetPeriod(ctx context.Context, req *hrlgrpc.GetPeriodRequest) (*hrlgrpc.GetPeriodResponse, error) {
@@ -21,7 +22,7 @@ func (s *GRPCServer) GetPeriod(ctx context.Context, req *hrlgrpc.GetPeriodReques
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*hrlgrpc.GetPeriodResponse), nil
+	return resp.(*hrlgrpc.GetPeriodResponse), err
 }
 
 func (s *GRPCServer) PushPeriod(ctx context.Context, req *hrlgrpc.PushPeriodRequest) (*hrlgrpc.PushPeriodResponse, error) {
@@ -29,7 +30,7 @@ func (s *GRPCServer) PushPeriod(ctx context.Context, req *hrlgrpc.PushPeriodRequ
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*hrlgrpc.PushPeriodResponse), nil
+	return resp.(*hrlgrpc.PushPeriodResponse), err
 }
 
 func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *hrlgrpc.GetUpdateDateRequest) (*hrlgrpc.GetUpdateDateResponse, error) {
@@ -37,7 +38,15 @@ func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *hrlgrpc.GetUpdateDa
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*hrlgrpc.GetUpdateDateResponse), nil
+	return resp.(*hrlgrpc.GetUpdateDateResponse), err
+}
+
+func (s *GRPCServer) GetLatest(ctx context.Context, req *hrlgrpc.GetLatestRequest) (*hrlgrpc.GetLatestResponse, error) {
+	_, resp, err := s.getLatest.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*hrlgrpc.GetLatestResponse), err
 }
 
 
@@ -58,6 +67,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) hrlgrpc.HourlySVCServe
 			endpoint.GetUpdateDateEndpoint,
 			DecodeGetUpdateDateRequest,
 			EncodeGetUpdateDateResponse,
+		),
+		getLatest: gt.NewServer(
+			endpoint.GetLatestEndpoint,
+			DecodeGetLatestRequest,
+			EncodeGetLatestResponse,
 		),
 	}
 	return &server

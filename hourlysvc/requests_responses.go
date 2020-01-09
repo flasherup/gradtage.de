@@ -7,14 +7,14 @@ type GetPeriodRequest struct {
 }
 
 type GetPeriodResponse struct {
-	Temps []Temperature `json:"temp"`
+	Temps []Temperature `json:"temps"`
 	Err  error `json:"err"`
 }
 
 
 type PushPeriodRequest struct {
 	ID    string        `json:"id"`
-	Temps []Temperature `json:"temp"`
+	Temps []Temperature `json:"temps"`
 }
 
 type PushPeriodResponse struct {
@@ -27,6 +27,16 @@ type GetUpdateDateRequest struct {
 
 type GetUpdateDateResponse struct {
 	Dates  map[string]string `json:"dates"`
+	Err  error `json:"err"`
+}
+
+
+type GetLatestRequest struct {
+	IDs 	[]string `json:"ids"`
+}
+
+type GetLatestResponse struct {
+	Temps  map[string]Temperature `json:"temps"`
 	Err  error `json:"err"`
 }
 

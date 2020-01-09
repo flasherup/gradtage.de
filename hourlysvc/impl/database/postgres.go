@@ -124,6 +124,23 @@ func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
 	return date,err
 }
 
+//GetLatest return latest temperature data
+//for station with name @name
+func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
+		name)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temp,err
+	}
+	defer rows.Close()
+
+	rows.Next()
+	return parseRow(rows)
+}
+
+
 
 func parseRow(rows *sql.Rows) (row hourlysvc.Temperature, err error) {
 	err = rows.Scan(
@@ -141,4 +158,6 @@ func writeToDB(db *sql.DB, query string) (err error){
 	row.Close()
 	return
 }
+
+
 
