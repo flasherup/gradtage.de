@@ -11,8 +11,18 @@ type ServerConfig struct {
 	PortGRPC int `yaml:"grpc_port"`
 }
 
+type EmailConfig struct {
+	Host  		string   `yaml:"host"`
+	Port  	 	string   `yaml:"port"`
+	User  	 	string   `yaml:"user"`
+	Pass  	 	string   `json:"pass"`
+	From  	 	string   `json:"from"`
+	Recipients  []string `json:"recipients"`
+}
+
 type AlertConfig struct {
-	Server   ServerConfig	`yaml:"server"`
+	Server   	ServerConfig `yaml:"server"`
+	EmailConfig EmailConfig  `yaml:"email_config"`
 }
 
 func LoadConfig(path string) (config *AlertConfig, err error) {

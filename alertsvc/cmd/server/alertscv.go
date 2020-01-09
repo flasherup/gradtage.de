@@ -8,6 +8,7 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc/altgrpc"
 	"github.com/flasherup/gradtage.de/alertsvc/config"
 	"github.com/flasherup/gradtage.de/alertsvc/impl"
+	"github.com/flasherup/gradtage.de/alertsvc/impl/alertsys"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net"
@@ -44,7 +45,8 @@ func main() {
 	defer level.Info(logger).Log("msg", "service ended")
 
 	ctx := context.Background()
-	alertService, err := impl.NewAlertSVC(logger)
+	alertSys := alertsys.NewEmailAlertSystem(conf.EmailConfig)
+	alertService, err := impl.NewAlertSVC(logger, alertSys)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -64,6 +66,7 @@ func main() {
 		altgrpc.RegisterAlertSVCServer(gRPCServer, alertsvc.NewGRPCServer(ctx, endpoints))
 		errors <- gRPCServer.Serve(listener)
 	}()
+
 	metrics := alertsvc.NewMetricsTransport(alertService,logger)
 
 	go func() {
