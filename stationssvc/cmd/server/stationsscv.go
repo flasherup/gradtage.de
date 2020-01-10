@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/stationssvc/config"
-	"github.com/flasherup/gradtage.de/stationssvc/stsgrpc"
 	"github.com/flasherup/gradtage.de/stationssvc/impl"
 	"github.com/flasherup/gradtage.de/stationssvc/impl/database"
+	"github.com/flasherup/gradtage.de/stationssvc/stsgrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net"
@@ -17,6 +17,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
 	googlerpc "google.golang.org/grpc"
 )
 
@@ -50,13 +51,16 @@ func main() {
 	}
 
 
+	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
+
+
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
-
+	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
 	ctx := context.Background()
-	stationsService, err := impl.NewStationsSVC(logger, db)
+	stationsService, err := impl.NewStationsSVC(logger, db, alertService)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -101,4 +105,5 @@ func main() {
 	}()
 
 	level.Error(logger).Log("exit", <-errors)
+	alertService.SendAlert(impl.NewNotificationAlert("service stopped"))
 }

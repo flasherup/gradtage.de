@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/stationssvc/impl/database"
 	"github.com/go-kit/kit/log"
@@ -13,11 +14,12 @@ import (
 
 type StationsSVC struct {
 	logger  	log.Logger
+	alert 		alertsvc.Client
 	db 			database.Postgres
 	counter 	*ktprom.Gauge
 }
 
-func NewStationsSVC(logger log.Logger, db *database.Postgres) (*StationsSVC, error) {
+func NewStationsSVC(logger log.Logger, db *database.Postgres, alert alertsvc.Client) (*StationsSVC, error) {
 	err := db.CreateTable()
 	if err != nil {
 		return nil, err
@@ -30,6 +32,7 @@ func NewStationsSVC(logger log.Logger, db *database.Postgres) (*StationsSVC, err
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
 	st := StationsSVC{
 		logger: logger,
+		alert:  alert,
 		db:		*db,
 		counter: guage,
 	}
@@ -42,6 +45,7 @@ func (ss StationsSVC) GetStations(ctx context.Context, ids []string) (sts map[st
 	stations, err := ss.db.GetStations(ids)
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "GetStations error", "err", err)
+		ss.sendAlert(NewErrorAlert(err))
 		return nil,err
 	}
 	sts = make(map[string]stationssvc.Station)
@@ -56,6 +60,7 @@ func (ss StationsSVC) GetAllStations(ctx context.Context) (sts map[string]statio
 	stations, err := ss.db.GetAllStations()
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "GetAllStations error", "err", err)
+		ss.sendAlert(NewErrorAlert(err))
 		return nil,err
 	}
 	sts = make(map[string]stationssvc.Station)
@@ -70,6 +75,7 @@ func (ss *StationsSVC) AddStations(ctx context.Context, sts []stationssvc.Statio
 	err = ss.db.AddStations(sts)
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "AddStations error", "err", err)
+		ss.sendAlert(NewErrorAlert(err))
 	}
 	ss.updateStationsMetrics()
 	return
@@ -84,5 +90,13 @@ func (ss *StationsSVC)updateStationsMetrics() {
 
 	} else {
 		level.Error(ss.logger).Log("msg", "Stations count update error", "err", err)
+		ss.sendAlert(NewErrorAlert(err))
+	}
+}
+
+func (ss StationsSVC)sendAlert(alert alertsvc.Alert) {
+	_, err := ss.alert.SendAlert(alert)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "Send Alert Error", "err", err)
 	}
 }
