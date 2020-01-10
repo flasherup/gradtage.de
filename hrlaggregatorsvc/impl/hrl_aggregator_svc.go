@@ -153,7 +153,8 @@ func (has HourlyAggregatorSVC)verifyPlausibility(latest *hrlgrpc.GetLatestRespon
 	}
 
 	if difT < time.Hour {
-		has.sendAlert(NewTemperatureSameDateAlert(*prevTemp, currentTemp))
+		//has.sendAlert(NewTemperatureSameDateAlert(*prevTemp, currentTemp))
+		level.Warn(has.logger).Log("msg", "Hourly temperature update period less the hour", "station", currentId)
 	}
 }
 
