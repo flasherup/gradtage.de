@@ -16,8 +16,9 @@ type SourcesConfig struct {
 }
 
 type Clients struct {
-	StationsAddr string `yaml:"stations_addr"`
-	HourlyAddr string `yaml:"hourly_addr"`
+	AlertAddr 		string `yaml:"alert_addr"`
+	StationsAddr 	string `yaml:"stations_addr"`
+	HourlyAddr 		string `yaml:"hourly_addr"`
 }
 
 type StationsConfig struct {

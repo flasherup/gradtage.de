@@ -17,6 +17,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
 	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	googlerpc "google.golang.org/grpc"
@@ -46,16 +47,17 @@ func main() {
 
 
 	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
+	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 	dataSrc := source.NewCheckWX(conf.Sources.CheckwxKey, logger)
 
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
-
+	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
 	ctx := context.Background()
-	hourlyAggregatorService, err := impl.NewHrlAggregatorSVC(logger, stationsService ,hourlyService, dataSrc)
+	hourlyAggregatorService, err := impl.NewHrlAggregatorSVC(logger, stationsService ,hourlyService, alertService, dataSrc)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -96,4 +98,5 @@ func main() {
 	}()
 
 	level.Error(logger).Log("exit", <-errors)
+	alertService.SendAlert(impl.NewNotificationAlert("service stopped"))
 }
