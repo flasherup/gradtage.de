@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
+	"github.com/flasherup/gradtage.de/apisvc/impl/security"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
@@ -20,6 +21,7 @@ type APISVC struct {
 	logger  	log.Logger
 	alert 		alertsvc.Client
 	daily		dailysvc.Client
+	keyManager *security.KeyManager
 	counter 	ktprom.Gauge
 }
 
@@ -28,23 +30,30 @@ const (
 	DDType  = "dd"
 )
 
-func NewAPISVC(logger log.Logger, daily dailysvc.Client, alert alertsvc.Client) *APISVC {
+func NewAPISVC(logger log.Logger, daily dailysvc.Client, alert alertsvc.Client, keyManager *security.KeyManager) *APISVC {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
 	}
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
 	st := APISVC{
-		logger:  logger,
-		daily:	 daily,
-		alert:   alert,
-		counter: *guage,
+		logger:  	logger,
+		daily:	 	daily,
+		alert:   	alert,
+		keyManager: keyManager,
+		counter: 	*guage,
 	}
 	return &st
 }
 
 func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station)
+	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetHDD invalid user", "err", err)
+		return [][]string{}, err
+	}
+
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "user", userId)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
@@ -63,7 +72,12 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]str
 }
 
 func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station)
+	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetHDD invalid user", "err", err)
+		return [][]string{}, "error", err
+	}
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "userId", userId)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)

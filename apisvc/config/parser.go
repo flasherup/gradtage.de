@@ -22,9 +22,10 @@ type Security struct {
 }
 
 type StationsConfig struct {
-	Server   ServerConfig	`yaml:"server"`
-	Clients  Clients		`yaml:"clients"`
-	Security Security		`yaml:"security"`
+	Server   ServerConfig	    `yaml:"server"`
+	Clients  Clients			`yaml:"clients"`
+	Security Security			`yaml:"security"`
+	Users 	 map[string]string 	`yaml:"users"`
 }
 
 func LoadConfig(path string) (config *StationsConfig, err error) {

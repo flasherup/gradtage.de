@@ -6,6 +6,7 @@ import (
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/config"
 	"github.com/flasherup/gradtage.de/apisvc/impl"
+	"github.com/flasherup/gradtage.de/apisvc/impl/security"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net/http"
@@ -41,6 +42,16 @@ func main() {
 		return
 	}
 
+
+
+	//Security
+	keyManager ,err := security.NewKeyManager()
+	if err != nil {
+		level.Error(logger).Log("msg", "security manager init error", "exit", err.Error())
+	}
+
+	keyManager.RestoreKeys(conf.Users)
+
 	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
 
@@ -50,7 +61,7 @@ func main() {
 
 	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
-	svc := impl.NewAPISVC(logger, dailyService, alertService)
+	svc := impl.NewAPISVC(logger, dailyService, alertService, keyManager)
 	hs := apisvc.NewHTTPTSransport(svc,logger)
 
 	errs := make(chan error)
