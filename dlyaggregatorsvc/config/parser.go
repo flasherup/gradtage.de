@@ -12,9 +12,10 @@ type ServerConfig struct {
 }
 
 type Clients struct {
+	AlertAddr 	 string `yaml:"alert_addr"`
 	StationsAddr string `yaml:"stations_addr"`
-	HourlyAddr string `yaml:"hourly_addr"`
-	DailyAddr string `yaml:"daily_addr"`
+	HourlyAddr   string `yaml:"hourly_addr"`
+	DailyAddr    string `yaml:"daily_addr"`
 }
 
 type StationsConfig struct {

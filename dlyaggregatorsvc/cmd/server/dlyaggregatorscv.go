@@ -17,6 +17,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
 	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
 	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
@@ -48,16 +49,17 @@ func main() {
 
 	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
+	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 	sourceHourly := source.NewHourly(logger, hourlyService, dailyService)
 
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
-
+	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
 	ctx := context.Background()
-	dailyAggregatorService, err := impl.NewDlyAggregatorSVC(logger, stationsService, dailyService, sourceHourly)
+	dailyAggregatorService, err := impl.NewDlyAggregatorSVC(logger, stationsService, dailyService, alertService, sourceHourly)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -98,4 +100,5 @@ func main() {
 	}()
 
 	level.Error(logger).Log("exit", <-errors)
+	alertService.SendAlert(impl.NewNotificationAlert("service stopped"))
 }

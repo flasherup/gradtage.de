@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc"
@@ -15,23 +16,31 @@ import (
 	"time"
 )
 
-type HourlyAggregatorSVC struct {
+type DailyAggregatorSVC struct {
 	stations    stationssvc.Client
 	src 		*source.Hourly
 	daily 		dailysvc.Client
+	alert 		alertsvc.Client
 	logger  	log.Logger
 	counter 	*ktprom.Gauge
 }
 
-func NewDlyAggregatorSVC(logger log.Logger, stations stationssvc.Client, daily dailysvc.Client, src *source.Hourly) (*HourlyAggregatorSVC, error) {
+func NewDlyAggregatorSVC(
+		logger log.Logger,
+		stations stationssvc.Client,
+		daily dailysvc.Client,
+		alert alertsvc.Client,
+		src *source.Hourly,
+	) (*DailyAggregatorSVC, error) {
 	options := prometheus.Opts{
 		Name: "stations_update_count",
 		Help: "The total number oh stations",
 	}
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
-	st := HourlyAggregatorSVC{
+	st := DailyAggregatorSVC{
 		stations: 	stations,
 		daily: 		daily,
+		alert:      alert,
 		src:		src,
 		logger: 	logger,
 		counter: 	guage,
@@ -40,13 +49,13 @@ func NewDlyAggregatorSVC(logger log.Logger, stations stationssvc.Client, daily d
 	return &st,nil
 }
 
-func (has HourlyAggregatorSVC) GetStatus(ctx context.Context) (temps []dlyaggregatorsvc.Status, err error) {
-	level.Info(has.logger).Log("msg", "GetStatus", "ids")
+func (das DailyAggregatorSVC) GetStatus(ctx context.Context) (temps []dlyaggregatorsvc.Status, err error) {
+	level.Info(das.logger).Log("msg", "GetStatus", "ids")
 	return temps,err
 }
 
 
-func startFetchProcess(ss *HourlyAggregatorSVC) {
+func startFetchProcess(ss *DailyAggregatorSVC) {
 	ss.processUpdate() //Do it first time
 	tick := time.Tick(time.Hour)
 	for {
@@ -58,10 +67,11 @@ func startFetchProcess(ss *HourlyAggregatorSVC) {
 }
 
 
-func (has HourlyAggregatorSVC)processUpdate() {
-	sts, err := has.stations.GetAllStations()
+func (das DailyAggregatorSVC)processUpdate() {
+	sts, err := das.stations.GetAllStations()
 	if err != nil {
-		level.Error(has.logger).Log("msg", "GetStations error", "err", err)
+		level.Error(das.logger).Log("msg", "GetStations error", "err", err)
+		das.sendAlert(NewErrorAlert(err))
 		return
 	}
 
@@ -73,38 +83,49 @@ func (has HourlyAggregatorSVC)processUpdate() {
 	}
 
 	ch := make(chan *parser.StationDaily)
-	go has.src.FetchTemperature(ch, ids)
+	go das.src.FetchTemperature(ch, ids)
 
 	count := 0.0
 	for range ids {
 		st := <-ch
 		if st != nil {
-			_, err := has.daily.PushPeriod(st.ID, st.Temps)
+			_, err := das.daily.PushPeriod(st.ID, st.Temps)
 			if err != nil {
-				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", err)
+				level.Error(das.logger).Log("msg", "PushPeriod Error", "err", err)
+				das.sendAlert(NewErrorAlert(err))
 			} else {
-				has.updateAverage(st.ID, st.Temps)
+				das.updateAverage(st.ID, st.Temps)
 				count++
 			}
 		}
 	}
 
-	g := has.counter.With("stations", "all")
+	g := das.counter.With("stations", "all")
 	g.Set(count)
-	level.Info(has.logger).Log("msg", "Temperature updated", "stations", count)
+	level.Info(das.logger).Log("msg", "Temperature updated", "stations", count)
 }
 
-func (has HourlyAggregatorSVC) updateAverage(id string, temps []dailysvc.Temperature) {
+func (das DailyAggregatorSVC) updateAverage(id string, temps []dailysvc.Temperature) {
 	for _,v := range temps {
 		doy, err := getDOY(v.Date)
 		if err != nil {
-			level.Error(has.logger).Log("msg", "Average Update Error", "err", err)
+			level.Error(das.logger).Log("msg", "Average Update Error", "err", err)
+			das.sendAlert(NewErrorAlert(err))
 			continue
 		}
-		_, err = has.daily.UpdateAvgForDOY(id, doy)
+		_, err = das.daily.UpdateAvgForDOY(id, doy)
 		if err != nil {
-			level.Error(has.logger).Log("msg", "Average Update Error", "err", err)
+			level.Error(das.logger).Log("msg", "Average Update Error", "err", err)
+			das.sendAlert(NewErrorAlert(err))
 		}
+	}
+}
+
+func (das DailyAggregatorSVC)sendAlert(alert alertsvc.Alert) {
+	_, err := das.alert.SendAlert(alert)
+	if err != nil {
+		level.Error(das.logger).Log("msg", "Send Alert Error", "err", err)
+		das.sendAlert(NewErrorAlert(err))
 	}
 }
 
