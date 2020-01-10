@@ -13,6 +13,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
 	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
 
 )
@@ -40,13 +41,16 @@ func main() {
 		return
 	}
 
+	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
 
 
 	level.Info(logger).Log("msg", "service started", "config", configFile)
 	defer level.Info(logger).Log("msg", "service ended")
 
-	svc := impl.NewAPISVC(logger, dailyService)
+	alertService.SendAlert(impl.NewNotificationAlert("service started"))
+
+	svc := impl.NewAPISVC(logger, dailyService, alertService)
 	hs := apisvc.NewHTTPTSransport(svc,logger)
 
 	errs := make(chan error)
@@ -73,5 +77,5 @@ func main() {
 	}()
 
 	level.Error(logger).Log("exit", <-errs)
-
+	alertService.SendAlert(impl.NewNotificationAlert("service stopped"))
 }

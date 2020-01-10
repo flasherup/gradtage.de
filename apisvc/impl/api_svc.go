@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
@@ -17,6 +18,7 @@ import (
 
 type APISVC struct {
 	logger  	log.Logger
+	alert 		alertsvc.Client
 	daily		dailysvc.Client
 	counter 	ktprom.Gauge
 }
@@ -26,7 +28,7 @@ const (
 	DDType  = "dd"
 )
 
-func NewAPISVC(logger log.Logger, daily dailysvc.Client) *APISVC {
+func NewAPISVC(logger log.Logger, daily dailysvc.Client, alert alertsvc.Client) *APISVC {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
@@ -35,38 +37,43 @@ func NewAPISVC(logger log.Logger, daily dailysvc.Client) *APISVC {
 	st := APISVC{
 		logger:  logger,
 		daily:	 daily,
+		alert:   alert,
 		counter: *guage,
 	}
 	return &st
 }
 
-func (ss APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
-	level.Info(ss.logger).Log("msg", "GetHDD", "station", params.Station)
-	temps, err := ss.daily.GetPeriod(params.Station, params.Start, params.End)
+func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station)
+	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "GetHDD error", "err", err)
+		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
 	}
 
-	avg, err := ss.daily.GetAvg(params.Station)
+	avg, err := as.daily.GetAvg(params.Station)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "GetHDD error", "err", err)
+		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
 	}
 
 	headerCSV := []string{ "ID","Date","HDD","HDDAverage" }
-	csv := ss.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
+	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
 	return csv, err
 }
 
-func (ss APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	level.Info(ss.logger).Log("msg", "GetHDD", "station", params.Station)
-	temps, err := ss.daily.GetPeriod(params.Station, params.Start, params.End)
+func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station)
+	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "GetHDD error", "err", err)
+		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
 	}
 
-	avg, err := ss.daily.GetAvg(params.Station)
+	avg, err := as.daily.GetAvg(params.Station)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "GetHDD error", "err", err)
+		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
 	}
 
 	var headerCSV []string
@@ -76,13 +83,13 @@ func (ss APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 		headerCSV = []string{ "ID","Date","HDD","HDDAverage" }
 	}
 
-	csv := ss.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
+	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
 	fileName = fmt.Sprintf("%s%s%s%g%g.csv", params.Station, params.Start, params.End, params.HL, params.RT)
 	return csv,fileName,err
 }
 
 
-func (ss APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsAvg map[int32]*dlygrpc.Temperature, params apisvc.Params) [][]string {
+func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsAvg map[int32]*dlygrpc.Temperature, params apisvc.Params) [][]string {
 	res := [][]string{ names }
 	var line []string
 	var degree float64
@@ -90,12 +97,13 @@ func (ss APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 	for _, v := range temps {
 		d, err := time.Parse(common.TimeLayout, v.Date)
 		if err != nil {
-			level.Error(ss.logger).Log("msg", "GetHDD generateCSV error", "err", err)
+			level.Error(as.logger).Log("msg", "GetHDD generateCSV error", "err", err)
+			as.sendAlert(NewErrorAlert(err))
 		}
 		doy := int32(d.YearDay())
 
 		aTemperature := tempsAvg[doy].Temperature
-		
+
 		if params.Output 		== HDDType {
 			degree 	= calculateHDD(params.HL, float64(v.Temperature))
 			degreeA = calculateHDD(params.HL, float64(aTemperature))
@@ -134,5 +142,12 @@ func calculateDD(baseHDD float64, baseDD float64, value float64) float64 {
 	}
 
 	return baseDD - value
+}
+
+func (as APISVC)sendAlert(alert alertsvc.Alert) {
+	_, err := as.alert.SendAlert(alert)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Send Alert Error", "err", err)
+	}
 }
 
