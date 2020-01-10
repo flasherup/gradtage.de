@@ -15,10 +15,8 @@ import (
 )
 
 func main() {
-	var (
-		httpAddr = flag.String("http", ":8001", "HTTP listen address")
-		configFile = flag.String("config.file", "cfg/config.yml", "Config file name.")
-	)
+	var configFile = flag.String("config.file", "src/config.yml", "Config file name.")
+
 	flag.Parse()
 
 	var logger log.Logger
@@ -54,7 +52,7 @@ func main() {
 	}()
 
 	go func() {
-		level.Info(logger).Log("transport", "HTTP", "addr", *httpAddr)
+		level.Info(logger).Log("transport", "HTTP", "addr", conf.GetHTTPAddress())
 		server := &http.Server{
 			Addr:    conf.GetHTTPAddress(),
 			Handler: h,

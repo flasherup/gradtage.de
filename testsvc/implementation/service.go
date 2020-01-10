@@ -30,7 +30,6 @@ func (ts *TestService) Text(cxt context.Context, text string) (string,int) {
 	ts.prom.Inc()
 	ts.count++
 	level.Info(ts.logger).Log("msg", "Text request", "text", text, "count", ts.count)
-
 	return text, ts.count
 }
 
