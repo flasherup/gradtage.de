@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/impl/average"
 	"github.com/flasherup/gradtage.de/dailysvc/impl/database"
@@ -14,12 +15,13 @@ import (
 
 type DailySVC struct {
 	logger  	log.Logger
+	alert 		alertsvc.Client
 	db 			database.DailyDB
 	avg			*average.Average
 	counter 	ktprom.Gauge
 }
 
-func NewDailySVC(logger log.Logger, db database.DailyDB, avg *average.Average) (*DailySVC, error) {
+func NewDailySVC(logger log.Logger, db database.DailyDB, avg *average.Average, alert alertsvc.Client) (*DailySVC, error) {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
@@ -27,6 +29,7 @@ func NewDailySVC(logger log.Logger, db database.DailyDB, avg *average.Average) (
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
 	st := DailySVC{
 		logger: logger,
+		alert: alert,
 		db:		db,
 		avg:	avg,
 		counter: *guage,
@@ -34,36 +37,40 @@ func NewDailySVC(logger log.Logger, db database.DailyDB, avg *average.Average) (
 	return &st,nil
 }
 
-func (ss DailySVC) GetPeriod(ctx context.Context, id string, start string, end string) (temps []dailysvc.Temperature, err error) {
-	level.Info(ss.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("%s: %s-%s",id, start, end))
-	temps, err = ss.db.GetPeriod(id, start, end)
+func (ds DailySVC) GetPeriod(ctx context.Context, id string, start string, end string) (temps []dailysvc.Temperature, err error) {
+	level.Info(ds.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("%s: %s-%s",id, start, end))
+	temps, err = ds.db.GetPeriod(id, start, end)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "GetPeriod error", "err", err)
+		level.Error(ds.logger).Log("msg", "GetPeriod error", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
 	}
 	return temps,err
 }
 
-func (ss DailySVC) PushPeriod(ctx context.Context, id string, temps []dailysvc.Temperature) (err error){
-	level.Info(ss.logger).Log("msg", "PushPeriod", "stId", id)
-	err = ss.db.CreateTable(id)
+func (ds DailySVC) PushPeriod(ctx context.Context, id string, temps []dailysvc.Temperature) (err error){
+	level.Info(ds.logger).Log("msg", "PushPeriod", "stId", id)
+	err = ds.db.CreateTable(id)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "Station creation error", "err", err)
+		level.Error(ds.logger).Log("msg", "Station creation error", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
 		return err
 	}
-	err = ss.db.PushPeriod(id, temps)
+	err = ds.db.PushPeriod(id, temps)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "PushPeriod error", "err", err)
+		level.Error(ds.logger).Log("msg", "PushPeriod error", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
 	}
 	return err
 }
 
-func (ss *DailySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
-	level.Info(ss.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
+func (ds *DailySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
+	level.Info(ds.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
 	dates = make(map[string]string)
 	for _,v := range ids {
-		date, err := ss.db.GetUpdateDate(v)
+		date, err := ds.db.GetUpdateDate(v)
 		if err != nil {
-			level.Error(ss.logger).Log("msg", "Get Update Date error", "err", err)
+			level.Error(ds.logger).Log("msg", "Get Update Date error", "err", err)
+			ds.sendAlert(NewErrorAlert(err))
 		} else {
 			dates[v] = date
 		}
@@ -71,29 +78,39 @@ func (ss *DailySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[
 	return dates, err
 }
 
-func (ss DailySVC) UpdateAvgForYear(ctx context.Context, id string) (err error) {
-	level.Info(ss.logger).Log("msg", " UpdateAvgForYear", "id", id)
-	err = ss.avg.CalculateAndSaveYearlyAverage(id)
+func (ds DailySVC) UpdateAvgForYear(ctx context.Context, id string) (err error) {
+	level.Info(ds.logger).Log("msg", " UpdateAvgForYear", "id", id)
+	err = ds.avg.CalculateAndSaveYearlyAverage(id)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "UpdateAvgForYear error", "err", err)
+		level.Error(ds.logger).Log("msg", "UpdateAvgForYear error", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
 	}
 	return err
 }
 
-func (ss DailySVC) UpdateAvgForDOY(ctx context.Context, id string, doy int) (err error) {
-	level.Info(ss.logger).Log("msg", " UpdateAvgForDOY", "id", id, "doy", doy)
-	err = ss.avg.CalculateAndSaveDOYAverage(id, doy)
+func (ds DailySVC) UpdateAvgForDOY(ctx context.Context, id string, doy int) (err error) {
+	level.Info(ds.logger).Log("msg", " UpdateAvgForDOY", "id", id, "doy", doy)
+	err = ds.avg.CalculateAndSaveDOYAverage(id, doy)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "UpdateAvgForDOY error", "err", err)
+		level.Error(ds.logger).Log("msg", "UpdateAvgForDOY error", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
 	}
 	return err
 }
 
-func (ss DailySVC) GetAvg(ctx context.Context, id string) (temps map[int]dailysvc.Temperature, err error) {
-	level.Info(ss.logger).Log("msg", "GetAvg", "id", id)
-	temps, err = ss.avg.GetAll(id)
+func (ds DailySVC) GetAvg(ctx context.Context, id string) (temps map[int]dailysvc.Temperature, err error) {
+	level.Info(ds.logger).Log("msg", "GetAvg", "id", id)
+	temps, err = ds.avg.GetAll(id)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "GetAvg error", "err", err)
+		level.Error(ds.logger).Log("msg", "GetAvg error", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
 	}
 	return temps,err
+}
+
+func (ds DailySVC)sendAlert(alert alertsvc.Alert) {
+	_, err := ds.alert.SendAlert(alert)
+	if err != nil {
+		level.Error(ds.logger).Log("msg", "Send Alert Error", "err", err)
+	}
 }

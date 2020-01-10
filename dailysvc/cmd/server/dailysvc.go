@@ -18,6 +18,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
 	googlerpc "google.golang.org/grpc"
 )
 
@@ -51,15 +52,17 @@ func main() {
 	}
 
 	avg := average.NewAverage(logger, *db)
+	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
 
 
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
+	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
 
 	ctx := context.Background()
-	hourlyService, err := impl.NewDailySVC(logger, db, avg)
+	hourlyService, err := impl.NewDailySVC(logger, db, avg, alertService)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -105,4 +108,5 @@ func main() {
 	}()
 
 	level.Error(logger).Log("exit", <-errors)
+	alertService.SendAlert(impl.NewNotificationAlert("service stopped"))
 }

@@ -19,9 +19,14 @@ type DatabaseConfig struct {
 	Password 	string 	`yaml:"password"`
 }
 
+type Clients struct {
+	AlertAddr 		string `yaml:"alert_addr"`
+}
+
 type StationsConfig struct {
 	Server   ServerConfig	`yaml:"server"`
 	Database DatabaseConfig	`yaml:"database"`
+	Clients  Clients		`yaml:"clients"`
 }
 
 func LoadConfig(path string) (config *StationsConfig, err error) {
