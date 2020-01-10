@@ -21,8 +21,8 @@ type EmailConfig struct {
 }
 
 type AlertConfig struct {
-	Server   	ServerConfig `yaml:"server"`
-	EmailConfig EmailConfig  `yaml:"email_config"`
+	Server   	ServerConfig 		`yaml:"server"`
+	EmailConfig EmailConfig  		`yaml:"email_config"`
 }
 
 func LoadConfig(path string) (config *AlertConfig, err error) {
