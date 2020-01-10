@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/alertsvc/altgrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -20,7 +21,7 @@ func NewAlertSCVClient(host string, logger log.Logger) *AlertSVCClient {
 	}
 }
 
-func (scc AlertSVCClient) SendAlert(alert altgrpc.Alert) (resp *altgrpc.SendAlertResponse, err error) {
+func (scc AlertSVCClient) SendAlert(alert alertsvc.Alert) (resp *altgrpc.SendAlertResponse, err error) {
 	conn := scc.openConn()
 	defer conn.Close()
 
@@ -42,7 +43,7 @@ func (scc AlertSVCClient) openConn() *googlerpc.ClientConn {
 	return cc
 }
 
-func encodeAlert(src altgrpc.Alert) *altgrpc.Alert {
+func encodeAlert(src alertsvc.Alert) *altgrpc.Alert {
 	return &altgrpc.Alert{
 		Name:	src.Name,
 		Desc:	src.Desc,

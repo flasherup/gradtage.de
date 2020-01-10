@@ -25,7 +25,7 @@ func (ea EmailAlert)Send(alert alertsvc.Alert) error {
 		ea.config.Host,
 	)
 
-	body := fmt.Sprintf("Alert form: %s\n%s\n%s",
+	body := fmt.Sprintf("Alert name: %s\n%s\n%s",
 		alert.Name,
 		alert.Desc,
 		paramsToString(alert.Params),
