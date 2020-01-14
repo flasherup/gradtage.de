@@ -87,6 +87,18 @@ func main() {
 		errs <- server.ListenAndServe()
 	}()
 
+
+	/*hs2 := apisvc.NewHTTPTSransport(svc,logger)
+
+	go func() {
+		level.Info(logger).Log("transport", "HTTP", "addr", ":8022")
+		server := &http.Server{
+			Addr:     ":8022",
+			Handler: hs2,
+		}
+		errs <- server.ListenAndServe()
+	}()*/
+
 	level.Error(logger).Log("exit", <-errs)
 	alertService.SendAlert(impl.NewNotificationAlert("service stopped"))
 }

@@ -114,9 +114,15 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 			level.Error(as.logger).Log("msg", "GetHDD generateCSV error", "err", err)
 			as.sendAlert(NewErrorAlert(err))
 		}
-		doy := int32(d.YearDay())
+		doy := int32(getLeapSafeDOY(d))
 
-		aTemperature := tempsAvg[doy].Temperature
+		temp := tempsAvg[doy]
+		if temp == nil {
+			level.Warn(as.logger).Log("msg", "GetHDD generateCSV, can't get Average temperature", "DOY", doy)
+			continue
+		}
+
+		aTemperature := temp.Temperature
 
 		if params.Output 		== HDDType {
 			degree 	= calculateHDD(params.HL, float64(v.Temperature))
@@ -163,5 +169,18 @@ func (as APISVC)sendAlert(alert alertsvc.Alert) {
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Send Alert Error", "err", err)
 	}
+}
+
+func getLeapSafeDOY(t time.Time) int {
+	doy := t.YearDay()
+	if isLeap(t.Year()) && doy >= 60 {
+		return doy -1
+	}
+
+	return doy
+}
+
+func isLeap(year int) bool {
+	return year%400 == 0 || year%4 == 0 && year%100 != 0
 }
 
