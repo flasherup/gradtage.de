@@ -131,8 +131,8 @@ func (has HourlyAggregatorSVC)verifyPlausibility(latest *hrlgrpc.GetLatestRespon
 	}
 
 	dif := math.Abs(float64(prevTemp.Temperature) - currentTemp.Temperature)
-	if dif > 5 {
-		has.sendAlert(NewTemperatureChangeAlert(*prevTemp, currentTemp))
+	if dif > 10 {
+		has.sendAlert(NewTemperatureChangeAlert(*prevTemp, currentTemp, currentId))
 	}
 
 	prevD, err := time.Parse(common.TimeLayout, prevTemp.Date)
@@ -149,7 +149,7 @@ func (has HourlyAggregatorSVC)verifyPlausibility(latest *hrlgrpc.GetLatestRespon
 
 	difT := curD.Sub(prevD)
 	if difT > time.Hour * 3 {
-		has.sendAlert(NewTemperatureGapAlert(*prevTemp, currentTemp))
+		has.sendAlert(NewTemperatureGapAlert(*prevTemp, currentTemp, currentId))
 	}
 
 	if difT < time.Hour {
