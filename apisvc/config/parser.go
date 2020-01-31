@@ -26,6 +26,7 @@ type StationsConfig struct {
 	Clients  Clients			`yaml:"clients"`
 	Security Security			`yaml:"security"`
 	Users 	 map[string]string 	`yaml:"users"`
+	AlertsEnable 	bool			`yaml:"alerts_enable"`
 }
 
 func LoadConfig(path string) (config *StationsConfig, err error) {

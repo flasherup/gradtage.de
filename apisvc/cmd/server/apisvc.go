@@ -3,10 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/config"
 	"github.com/flasherup/gradtage.de/apisvc/impl"
 	"github.com/flasherup/gradtage.de/apisvc/impl/security"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net/http"
@@ -52,7 +54,13 @@ func main() {
 
 	keyManager.RestoreKeys(conf.Users)
 
-	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
+	var alertService alertsvc.Client
+	if conf.AlertsEnable {
+		alertService = alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
+	} else {
+		alertService = common.NewSilentAlert()
+	}
+
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
 
 

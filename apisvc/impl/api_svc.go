@@ -165,7 +165,7 @@ func calculateDD(baseHDD float64, baseDD float64, value float64) float64 {
 }
 
 func (as APISVC)sendAlert(alert alertsvc.Alert) {
-	_, err := as.alert.SendAlert(alert)
+	err := as.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Send Alert Error", "err", err)
 	}
