@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/alertsvc/altgrpc"
 	"github.com/go-kit/kit/log"
@@ -21,17 +22,21 @@ func NewAlertSCVClient(host string, logger log.Logger) *AlertSVCClient {
 	}
 }
 
-func (scc AlertSVCClient) SendAlert(alert alertsvc.Alert) (resp *altgrpc.SendAlertResponse, err error) {
+func (scc AlertSVCClient) SendAlert(alert alertsvc.Alert)  error {
 	conn := scc.openConn()
 	defer conn.Close()
 
 	client := altgrpc.NewAlertSVCClient(conn)
-	resp, err = client.SendAlert(context.Background(), &altgrpc.SendAlertRequest{ Alert: encodeAlert(alert) })
+	resp, err := client.SendAlert(context.Background(), &altgrpc.SendAlertRequest{ Alert: encodeAlert(alert) })
+
+	if err == nil && resp.Err != "nil" {
+		err = errors.New(resp.Err)
+	}
+
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get stations", "err", err)
-
 	}
-	return resp, err
+	return err
 }
 
 

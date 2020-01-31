@@ -7,6 +7,8 @@ message Station {
     string id = 1;
     string name = 2;
     string timezone = 3;
+    string sourceType = 4;
+    string sourceId = 5;
 }
 
 message GetStationsRequest {

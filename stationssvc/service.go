@@ -9,6 +9,8 @@ type Station struct {
 	ID 			string `json:"id"`
 	Name 		string `json:"name"`
 	Timezone 	string `json:timezone`
+	SourceType	string `json:source_type`
+	SourceID	string `json:source_id`
 
 }
 

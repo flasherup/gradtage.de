@@ -13,6 +13,8 @@ type Postgres struct {
 	db       	*sql.DB
 }
 
+const tableName = "stations_hd"
+
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	dataSourceName := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -36,46 +38,46 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 
 //AddStation write single line of temperature in to DB
 func (pg Postgres) AddStation(station stationssvc.Station) error {
-	query := fmt.Sprintf("INSERT INTO stations "+
-		"(id, name, timezone) "+
-		"VALUES ( '%s', '%s', '%s') ",
-		station.ID, station.Name, station.Timezone)
+	query := fmt.Sprintf(`INSERT INTO %s 
+		(id, name, timezone, source_type, source_id) 
+		VALUES ( '%s', '%s', '%s', '%s', '%s') `,
+		tableName, station.ID, station.Name, station.Timezone, station.SourceType, station.SourceID)
 
 	return writeToDB(pg.db, query)
 }
 
 //AddStations write stations data into DB
 func (pg Postgres) AddStations(stations []stationssvc.Station) error {
-	query := fmt.Sprintf("INSERT INTO stations "+
-		"(id, name, timezone) VALUES")
+	query := fmt.Sprintf(`INSERT INTO %s 
+		(id, name, timezone, source_type, source_id) VALUES`, tableName)
 
 	length := len(stations)
 	for i, v := range stations {
 		query += fmt.Sprintf(
-			"( '%s', '%s', '%s') ",
-			v.ID, v.Name, v.Timezone)
+			"( '%s', '%s', '%s', '%s', '%s') ",
+			v.ID, v.Name, v.Timezone, v.SourceType, v.SourceID)
 		if i < length-1 {
 			query += ","
 		}
 	}
-	query += " ON CONFLICT (id) DO UPDATE SET " +
-		"(name, timezone) = (excluded.name, excluded.timezone);"
+	query += ` ON CONFLICT (id) DO UPDATE SET 
+		(name, timezone) = (excluded.name, excluded.timezone);`
 	return writeToDB(pg.db, query)
 }
 
 //DeleteStation remove station by icao ID
 func (pg Postgres) DeleteStation(id string) error {
-	query := fmt.Sprintf("DELETE FROM stations "+
-		" WHERE id = '%s'",
-		id)
+	query := fmt.Sprintf(	`DELETE FROM %s 
+									WHERE id = '%s'`,
+									tableName, id)
 	return writeToDB(pg.db, query)
 }
 
 //GetStations get a list of station
 func (pg Postgres) GetStations(ids []string) ([]stationssvc.Station,error) {
 	sts := make([]stationssvc.Station, 0)
-	query := "SELECT * FROM stations"
-	query += " WHERE id IN ( "
+	query := fmt.Sprintf(`SELECT * FROM %s
+								 WHERE id IN ( `, tableName)
 	length := len(ids)
 	for i, v := range ids {
 		query += fmt.Sprintf("'%s'",v)
@@ -105,7 +107,7 @@ func (pg Postgres) GetStations(ids []string) ([]stationssvc.Station,error) {
 //GetAllStations get a list of station
 func (pg Postgres) GetAllStations() ([]stationssvc.Station,error) {
 	sts := make([]stationssvc.Station, 0)
-	query := "SELECT * FROM stations;"
+	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
 
 	rows, err := pg.db.Query(query)
 	if err != nil {
@@ -125,7 +127,7 @@ func (pg Postgres) GetAllStations() ([]stationssvc.Station,error) {
 
 //GetCount return number of stored stations
 func (pg Postgres) GetCount() (int, error) {
-	query := "SELECT COUNT(*) FROM stations;"
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s;", tableName)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return 0, err
@@ -148,17 +150,19 @@ func (pg *Postgres) Dispose() {
 
 //CreateTable create a "Stations" table if not exist
 func (pg Postgres) CreateTable() error {
-	query := "CREATE TABLE IF NOT EXISTS stations ("+
-		"	id char(4) UNIQUE,"+
-		"	name varchar(30),"+
-		"	timezone varchar(8)"+
-		");"
+	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+			id char(4) UNIQUE,
+			name varchar(30),
+			timezone varchar(8),
+			source_type varchar(4),
+			source_id varchar(8)
+		);`, tableName)
 	return writeToDB(pg.db, query)
 }
 
 //RemoveTable remove stations table from BD
 func (pg *Postgres) RemoveTable() error {
-	query := "DROP TABLE IF EXISTS stations CASCADE;"
+	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", tableName)
 	return writeToDB(pg.db, query)
 }
 
@@ -168,6 +172,8 @@ func parseRow(rows *sql.Rows) (row stationssvc.Station, err error) {
 		&row.ID,
 		&row.Name,
 		&row.Timezone,
+		&row.SourceType,
+		&row.SourceID,
 	)
 	return
 }
