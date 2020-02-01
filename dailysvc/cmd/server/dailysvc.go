@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/flasherup/gradtage.de/alertsvc"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/config"
 	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
@@ -51,8 +53,15 @@ func main() {
 		return
 	}
 
+	var alertService alertsvc.Client
+	if conf.AlertsEnable {
+		alertService = alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
+	} else {
+		alertService = common.NewSilentAlert()
+	}
+
 	avg := average.NewAverage(logger, *db)
-	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
+
 
 
 	level.Info(logger).Log("msg", "service started")

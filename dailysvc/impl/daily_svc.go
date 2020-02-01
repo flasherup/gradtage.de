@@ -109,7 +109,7 @@ func (ds DailySVC) GetAvg(ctx context.Context, id string) (temps map[int]dailysv
 }
 
 func (ds DailySVC)sendAlert(alert alertsvc.Alert) {
-	_, err := ds.alert.SendAlert(alert)
+	err := ds.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(ds.logger).Log("msg", "Send Alert Error", "err", err)
 	}
