@@ -159,7 +159,7 @@ func (has HourlyAggregatorSVC)verifyPlausibility(latest *hrlgrpc.GetLatestRespon
 }
 
 func (has HourlyAggregatorSVC)sendAlert(alert alertsvc.Alert) {
-	_, err := has.alert.SendAlert(alert)
+	err := has.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(has.logger).Log("msg", "Send Alert Error", "err", err)
 	}
