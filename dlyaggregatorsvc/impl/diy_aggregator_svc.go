@@ -122,7 +122,7 @@ func (das DailyAggregatorSVC) updateAverage(id string, temps []dailysvc.Temperat
 }
 
 func (das DailyAggregatorSVC)sendAlert(alert alertsvc.Alert) {
-	_, err := das.alert.SendAlert(alert)
+	err := das.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(das.logger).Log("msg", "Send Alert Error", "err", err)
 		das.sendAlert(NewErrorAlert(err))

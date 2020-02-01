@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/flasherup/gradtage.de/alertsvc"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/config"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/dagrpc"
@@ -46,10 +48,15 @@ func main() {
 		return
 	}
 
+	var alertService alertsvc.Client
+	if conf.AlertsEnable {
+		alertService = alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
+	} else {
+		alertService = common.NewSilentAlert()
+	}
 
 	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
-	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 	sourceHourly := source.NewHourly(logger, hourlyService, dailyService)
 
