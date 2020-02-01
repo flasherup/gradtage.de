@@ -77,6 +77,8 @@ func toGRPCStations(sts []stationssvc.Station) []*stsgrpc.Station {
 			Id:v.ID,
 			Name:v.Name,
 			Timezone:v.Timezone,
+			SourceType:v.SourceType,
+			SourceId:v.SourceID,
 		}
 	}
 

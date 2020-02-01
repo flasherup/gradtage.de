@@ -61,7 +61,7 @@ func (pg Postgres) AddStations(stations []stationssvc.Station) error {
 		}
 	}
 	query += ` ON CONFLICT (id) DO UPDATE SET 
-		(name, timezone) = (excluded.name, excluded.timezone);`
+		(name, timezone, source_type, source_id) = (excluded.name, excluded.timezone, excluded.source_type, excluded.source_id);`
 	return writeToDB(pg.db, query)
 }
 

@@ -48,6 +48,8 @@ func DecodeAddStationsRequest(_ context.Context, r interface{}) (interface{}, er
 			ID:v.Id,
 			Name:v.Name,
 			Timezone:v.Timezone,
+			SourceType:v.SourceType,
+			SourceID:v.SourceId,
 		}
 	}
 	return AddStationsRequest{encStations}, nil
@@ -60,6 +62,8 @@ func toGRPCMap(src map[string]Station) map[string]*stsgrpc.Station {
 			Id:v.ID,
 			Name:v.Name,
 			Timezone:v.Timezone,
+			SourceType:v.SourceType,
+			SourceId:v.SourceID,
 		}
 	}
 	return res
