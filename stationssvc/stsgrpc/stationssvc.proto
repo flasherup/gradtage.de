@@ -20,11 +20,19 @@ message GetStationsResponse {
     string err = 2;
 }
 
-
 message GetAllStationsRequest {
 }
 
 message GetAllStationsResponse {
+    map<string,Station> sts = 1;
+    string err = 2;
+}
+
+message GetStationsBySrcTypeRequest {
+    repeated string types = 1 [(gogoproto.nullable) = false];
+}
+
+message GetStationsBySrcTypeResponse {
     map<string,Station> sts = 1;
     string err = 2;
 }
@@ -41,6 +49,7 @@ message AddStationsResponse {
 service StationSVC {
     rpc GetStations(GetStationsRequest) returns (GetStationsResponse) {}
     rpc GetAllStations(GetAllStationsRequest) returns (GetAllStationsResponse) {}
+    rpc GetStationsBySrcType(GetStationsBySrcTypeRequest) returns (GetStationsBySrcTypeResponse) {}
     rpc AddStations(AddStationsRequest) returns (AddStationsResponse) {}
 }
 

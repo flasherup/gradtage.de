@@ -7,16 +7,18 @@ import (
 
 
 type Endpoints struct {
-	GetStationsEndpoint  	endpoint.Endpoint
-	GetAllStationsEndpoint  endpoint.Endpoint
-	AddStationsEndpoint  	endpoint.Endpoint
+	GetStationsEndpoint  			endpoint.Endpoint
+	GetAllStationsEndpoint  		endpoint.Endpoint
+	GetStationsBySrcTypeEndpoint  	endpoint.Endpoint
+	AddStationsEndpoint  			endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetStationsEndpoint:   	MakeGetStationsEndpoint(s),
-		GetAllStationsEndpoint:	MakeGetAllStationsEndpoint(s),
-		AddStationsEndpoint:	MakeAddStationsEndpoint(s),
+		GetStationsEndpoint:   			MakeGetStationsEndpoint(s),
+		GetAllStationsEndpoint:			MakeGetAllStationsEndpoint(s),
+		GetStationsBySrcTypeEndpoint:	MakeGetStationsBySrcTypeEndpoint(s),
+		AddStationsEndpoint:			MakeAddStationsEndpoint(s),
 	}
 }
 
@@ -33,6 +35,14 @@ func MakeGetAllStationsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		sts, err := s.GetAllStations(ctx)
 		return GetAllStationsResponse{sts, err}, nil
+	}
+}
+
+func MakeGetStationsBySrcTypeEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetStationsBySrcTypeRequest)
+		sts, err := s.GetStationsBySrcType(ctx, req.Types)
+		return GetStationsBySrcTypeResponse{sts, err}, nil
 	}
 }
 

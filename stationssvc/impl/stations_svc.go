@@ -15,11 +15,11 @@ import (
 type StationsSVC struct {
 	logger  	log.Logger
 	alert 		alertsvc.Client
-	db 			database.Postgres
+	db 			database.StationsDB
 	counter 	*ktprom.Gauge
 }
 
-func NewStationsSVC(logger log.Logger, db *database.Postgres, alert alertsvc.Client) (*StationsSVC, error) {
+func NewStationsSVC(logger log.Logger, db database.StationsDB, alert alertsvc.Client) (*StationsSVC, error) {
 	err := db.CreateTable()
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func NewStationsSVC(logger log.Logger, db *database.Postgres, alert alertsvc.Cli
 	st := StationsSVC{
 		logger: logger,
 		alert:  alert,
-		db:		*db,
+		db:		db,
 		counter: guage,
 	}
 	st.updateStationsMetrics()
@@ -60,6 +60,21 @@ func (ss StationsSVC) GetAllStations(ctx context.Context) (sts map[string]statio
 	stations, err := ss.db.GetAllStations()
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "GetAllStations error", "err", err)
+		ss.sendAlert(NewErrorAlert(err))
+		return nil,err
+	}
+	sts = make(map[string]stationssvc.Station)
+	for _,v := range stations {
+		sts[v.ID] = v
+	}
+	return
+}
+
+func (ss StationsSVC) GetStationsBySrcType(ctx context.Context,  types []string) (sts map[string]stationssvc.Station, err error){
+	level.Info(ss.logger).Log("msg", "GetStationsBySrcType", "types", fmt.Sprintf("%+q",types))
+	stations, err := ss.db.GetStationsBySrcType(types)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "GetStationsBySrcType error", "err", err)
 		ss.sendAlert(NewErrorAlert(err))
 		return nil,err
 	}

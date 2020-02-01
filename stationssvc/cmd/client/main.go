@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/stationssvc/impl"
 	"github.com/go-kit/kit/log"
@@ -20,23 +21,24 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewStationsSCVClient("82.165.18.228:8102",logger)
+	client := impl.NewStationsSCVClient("localhost:8102",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	client.AddStations(stations())
+	//client.AddStations(stations())
 	//Just for test
-	client.GetStations([]string{"KBOS"})
-	sts, err := client.GetAllStations()
+	sts, err := client.GetStationsBySrcType([]string{ common.SrcTypeCheckWX })
 	if err != nil {
-		level.Error(logger).Log("msg", "GetStations error", "err", err)
+		level.Error(logger).Log("msg", "GetStationsBySrcType error", "err", err)
 
 	} else {
 		for k,v := range sts.Sts {
 			level.Info(logger).Log("msg", "sts", "ID", k,  " Name", v.Name,  "Timezone", v.Timezone)
 		}
 	}
+
+
 
 }
 

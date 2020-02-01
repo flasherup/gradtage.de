@@ -86,6 +86,7 @@ func main() {
 		stsgrpc.RegisterStationSVCServer(gRPCServer, stationssvc.NewGRPCServer(ctx, stationssvc.Endpoints {
 			GetStationsEndpoint:    stationssvc.MakeGetStationsEndpoint(stationsService),
 			GetAllStationsEndpoint: stationssvc.MakeGetAllStationsEndpoint(stationsService),
+			GetStationsBySrcTypeEndpoint: stationssvc.MakeGetStationsBySrcTypeEndpoint(stationsService),
 			AddStationsEndpoint: stationssvc.MakeAddStationsEndpoint(stationsService),
 		}))
 

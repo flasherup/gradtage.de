@@ -11,9 +11,10 @@ import (
 )
 
 type GRPCServer struct {
-	getStations    	gt.Handler
-	getAllStations  gt.Handler
-	addStations    	gt.Handler
+	getStations    		  	gt.Handler
+	getAllStations  		gt.Handler
+	getStationsBySrcType  	gt.Handler
+	addStations    			gt.Handler
 }
 
 func (s *GRPCServer) GetStations(ctx context.Context, req *stsgrpc.GetStationsRequest) (*stsgrpc.GetStationsResponse, error) {
@@ -30,6 +31,14 @@ func (s *GRPCServer) GetAllStations(ctx context.Context, req *stsgrpc.GetAllStat
 		return nil, err
 	}
 	return resp.(*stsgrpc.GetAllStationsResponse), nil
+}
+
+func (s *GRPCServer) GetStationsBySrcType(ctx context.Context, req *stsgrpc.GetStationsBySrcTypeRequest) (*stsgrpc.GetStationsBySrcTypeResponse, error) {
+	_, resp, err := s.getStationsBySrcType.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*stsgrpc.GetStationsBySrcTypeResponse), nil
 }
 
 func (s *GRPCServer) AddStations(ctx context.Context, req *stsgrpc.AddStationsRequest) (*stsgrpc.AddStationsResponse, error) {
@@ -53,6 +62,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) stsgrpc.StationSVCServ
 			endpoint.GetAllStationsEndpoint,
 			DecodeGeAllStationsRequest,
 			EncodeGetAllStationsResponse,
+		),
+		getStationsBySrcType: gt.NewServer(
+			endpoint.GetStationsBySrcTypeEndpoint,
+			DecodeGetStationsBySrcTypeRequest,
+			EncodeGetStationsBySrcTypeResponse,
 		),
 		addStations: gt.NewServer(
 			endpoint.AddStationsEndpoint,

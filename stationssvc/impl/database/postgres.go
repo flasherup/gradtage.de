@@ -10,7 +10,7 @@ import (
 
 //Postgres database
 type Postgres struct {
-	db       	*sql.DB
+	db *sql.DB
 }
 
 const tableName = "stations_hd"
@@ -125,6 +125,38 @@ func (pg Postgres) GetAllStations() ([]stationssvc.Station,error) {
 	return sts,err
 }
 
+//GetAllStations get a list of station
+func (pg Postgres) GetStationsBySrcType(types []string) ([]stationssvc.Station,error) {
+	sts := make([]stationssvc.Station, 0)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE ", tableName)
+
+	length := len(types)
+	for i, v := range types {
+		query += fmt.Sprintf("source_type='%s' ",v)
+		if i < length-1 {
+			query += "AND "
+		}
+	}
+	query += ";"
+
+	fmt.Println(query)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return sts, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		st,err := parseRow(rows)
+		if err != nil {
+			return sts, err
+		}
+		sts = append(sts, st)
+	}
+	return sts,err
+}
+
 //GetCount return number of stored stations
 func (pg Postgres) GetCount() (int, error) {
 	query := fmt.Sprintf("SELECT COUNT(*) FROM %s;", tableName)
@@ -179,10 +211,10 @@ func parseRow(rows *sql.Rows) (row stationssvc.Station, err error) {
 }
 
 func writeToDB(db *sql.DB, query string) (err error){
-	row, err := db.Query(query)
+	rows, err := db.Query(query)
 	if err != nil {
 		return
 	}
-	row.Close()
+	rows.Close()
 	return
 }

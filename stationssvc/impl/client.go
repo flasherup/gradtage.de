@@ -47,6 +47,19 @@ func (scc StationsSVCClient) GetAllStations() (resp *stsgrpc.GetAllStationsRespo
 	return resp, err
 }
 
+func (scc StationsSVCClient) GetStationsBySrcType(types []string) (resp *stsgrpc.GetStationsBySrcTypeResponse, err error) {
+	conn := scc.openConn()
+	defer conn.Close()
+
+	client := stsgrpc.NewStationSVCClient(conn)
+	resp, err = client.GetStationsBySrcType(context.Background(), &stsgrpc.GetStationsBySrcTypeRequest{ Types: types })
+	if err != nil {
+		level.Error(scc.logger).Log("msg", "Failed to get stations by src type", "err", err)
+
+	}
+	return resp, err
+}
+
 func (scc StationsSVCClient) AddStations(sts []stationssvc.Station) (resp *stsgrpc.AddStationsResponse, err error) {
 	conn := scc.openConn()
 	defer conn.Close()

@@ -32,6 +32,20 @@ func DecodeGeAllStationsRequest(_ context.Context, r interface{}) (interface{}, 
 	return GetAllStationsRequest{}, nil
 }
 
+func EncodeGetStationsBySrcTypeResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetStationsBySrcTypeResponse)
+	encStations := toGRPCMap(res.Stations)
+	return &stsgrpc.GetStationsBySrcTypeResponse {
+		Sts: encStations,
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeGetStationsBySrcTypeRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*stsgrpc.GetStationsBySrcTypeRequest)
+	return GetStationsBySrcTypeRequest{req.Types}, nil
+}
+
 func EncodeAddStationsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(AddStationsResponse)
 	return &stsgrpc.AddStationsResponse {
