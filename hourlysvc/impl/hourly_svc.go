@@ -93,7 +93,7 @@ func (hs *HourlySVC) GetLatest(ctx context.Context, ids []string) (temps map[str
 }
 
 func (hs HourlySVC)sendAlert(alert alertsvc.Alert) {
-	_, err := hs.alert.SendAlert(alert)
+	err := hs.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(hs.logger).Log("msg", "Send Alert Error", "err", err)
 	}

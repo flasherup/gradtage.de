@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/flasherup/gradtage.de/alertsvc"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/hourlysvc/config"
 	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
@@ -50,9 +52,12 @@ func main() {
 		return
 	}
 
-	alertService := alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
-
-
+	var alertService alertsvc.Client
+	if conf.AlertsEnable {
+		alertService = alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
+	} else {
+		alertService = common.NewSilentAlert()
+	}
 
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")

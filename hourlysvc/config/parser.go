@@ -24,9 +24,10 @@ type Clients struct {
 }
 
 type StationsConfig struct {
-	Server   ServerConfig	`yaml:"server"`
-	Database DatabaseConfig	`yaml:"database"`
-	Clients  Clients		`yaml:"clients"`
+	Server   		ServerConfig	`yaml:"server"`
+	Database 		DatabaseConfig	`yaml:"database"`
+	Clients  		Clients			`yaml:"clients"`
+	AlertsEnable  	bool			`yaml:"alerts_enable"`
 }
 
 func LoadConfig(path string) (config *StationsConfig, err error) {
