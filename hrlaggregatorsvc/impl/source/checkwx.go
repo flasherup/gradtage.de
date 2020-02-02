@@ -21,14 +21,14 @@ func NewCheckWX(key string, logger log.Logger) *CheckWX {
 	}
 }
 
-func (cwx CheckWX) FetchTemperature(ch chan *parser.StationData, ids []string) {
+func (cwx CheckWX) FetchTemperature(ch chan *parser.StationDataCheckWX, ids []string) {
 	for _,v := range ids {
 		go cwx.fetchStation(v, ch)
 	}
 }
 
 
-func (cwx CheckWX)fetchStation(id string, ch chan *parser.StationData) {
+func (cwx CheckWX)fetchStation(id string, ch chan *parser.StationDataCheckWX) {
 	url := "https://api.checkwx.com/metar/" + id + "/decoded"
 	client := &http.Client{
 		Timeout: time.Second * 10,

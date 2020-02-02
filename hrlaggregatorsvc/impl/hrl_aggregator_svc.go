@@ -8,6 +8,7 @@ import (
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc"
+	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/config"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl/parser"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl/source"
 	"github.com/flasherup/gradtage.de/stationssvc"
@@ -20,12 +21,13 @@ import (
 )
 
 type HourlyAggregatorSVC struct {
-	stations    stationssvc.Client
-	hourly 		hourlysvc.Client
-	alert 		alertsvc.Client
-	logger  	log.Logger
-	counter 	*ktprom.Gauge
-	src			source.CheckWX
+	stations stationssvc.Client
+	hourly   hourlysvc.Client
+	alert    alertsvc.Client
+	logger   log.Logger
+	counter  *ktprom.Gauge
+	checkWX  source.CheckWX
+	dwd 	 source.SourceDWD
 }
 
 func NewHrlAggregatorSVC(
@@ -33,20 +35,23 @@ func NewHrlAggregatorSVC(
 		stations stationssvc.Client,
 		hourly hourlysvc.Client,
 		alert alertsvc.Client,
-		src *source.CheckWX,
+		conf config.HrlAggregatorConfig,
 	) (*HourlyAggregatorSVC, error) {
 	options := prometheus.Opts{
 		Name: "stations_update_count",
 		Help: "The total number oh stations",
 	}
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
+	checkWX := source.NewCheckWX(conf.Sources.CheckwxKey, logger)
+	dwd := source.NewDWD(conf.Sources.UrlDWD, logger)
 	st := HourlyAggregatorSVC{
 		stations: stations,
-		hourly: hourly,
-		alert: alert,
-		logger: logger,
-		counter: guage,
-		src: *src,
+		hourly:   hourly,
+		alert:    alert,
+		logger:   logger,
+		counter:  guage,
+		checkWX:  *checkWX,
+		dwd: 	  *dwd,
 	}
 	go startFetchProcess(&st)
 	return &st,nil
@@ -57,21 +62,41 @@ func (has HourlyAggregatorSVC) GetStatus(ctx context.Context) (temps []hrlaggreg
 	return temps,err
 }
 
+const (
+	updateCheckWX 	= 1
+	updateDWD 		= 2
+)
+
 
 func startFetchProcess(ss *HourlyAggregatorSVC) {
-	ss.processUpdate() //Do it first time
-	tick := time.Tick(time.Hour)
+	ss.updateCheckWX() //Do it first time
+	ss.updateDWD(-1) //Do it first time
+
+
+	chTimer := make(chan bool)
+	chAlarm := make(chan bool)
+
+	go runTimer(chTimer, time.Hour)
+	go runAlarm(chAlarm, 23, 59)
+
 	for {
 		select {
-		case <-tick:
-			ss.processUpdate()
+		case timer := <- chTimer:
+			if timer {
+				ss.updateCheckWX()
+			}
+
+		case alarm := <- chAlarm:
+			if alarm {
+				ss.updateDWD(24)
+			}
 		}
 	}
 }
 
 
-func (has HourlyAggregatorSVC)processUpdate() {
-	sts, err := has.stations.GetAllStations()
+func (has HourlyAggregatorSVC) updateCheckWX() {
+	sts, err := has.stations.GetStationsBySrcType([]string{ common.SrcTypeCheckWX })
 	if err != nil {
 		level.Error(has.logger).Log("msg", "GetStations error", "err", err)
 		has.sendAlert(NewErrorAlert(err))
@@ -91,8 +116,8 @@ func (has HourlyAggregatorSVC)processUpdate() {
 		has.sendAlert(NewErrorAlert(err))
 	}
 
-	ch := make(chan *parser.StationData)
-	go has.src.FetchTemperature(ch, ids)
+	ch := make(chan *parser.StationDataCheckWX)
+	go has.checkWX.FetchTemperature(ch, ids)
 
 	count := 0.0
 	for range ids {
@@ -108,6 +133,57 @@ func (has HourlyAggregatorSVC)processUpdate() {
 				count++
 			}
 		} else {
+			level.Warn(has.logger).Log("msg", "Station is not updated")
+		}
+	}
+
+	g := has.counter.With("stations")
+	g.Set(count)
+	level.Info(has.logger).Log("msg", "Temperature updated", "stations", count)
+}
+
+func (has HourlyAggregatorSVC) updateDWD(rowsNumber int) {
+	sts, err := has.stations.GetStationsBySrcType([]string{ common.SrcTypeDWD })
+	if err != nil {
+		level.Error(has.logger).Log("msg", "Get DWD Stations error", "err", err)
+		has.sendAlert(NewErrorAlert(err))
+		return
+	}
+
+	ids := make(map[string]string)
+	for k,v := range sts.Sts {
+		ids[k] = v.SourceId
+	}
+
+	/*latest, err := has.hourly.GetLatest(ids)
+	if err != nil {
+		level.Error(has.logger).Log("msg", "Get latest error", "err", err)
+		has.sendAlert(NewErrorAlert(err))
+	}*/
+
+	ch := make(chan *parser.ParsedData)
+	go has.dwd.FetchTemperature(ch, ids)
+
+	count := 0.0
+	for range ids {
+		pd := <-ch
+		if pd != nil && pd.Success {
+			//has.verifyPlausibility(latest, pd.StationID, pd.Temps)
+			rowsToUpdate := pd.Temps
+			if rowsNumber > 0 {
+				rowsToUpdate = rowsToUpdate[len(rowsToUpdate)-rowsNumber:]
+			}
+			_, err := has.hourly.PushPeriod(pd.StationID, rowsToUpdate)
+			if err != nil {
+				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", err)
+				has.sendAlert(NewErrorAlert(err))
+			} else {
+				count++
+			}
+		} else {
+			if pd != nil {
+				level.Error(has.logger).Log("msg", "Station update error", "err", pd.Error)
+			}
 			level.Warn(has.logger).Log("msg", "Station is not updated")
 		}
 	}
@@ -165,11 +241,49 @@ func (has HourlyAggregatorSVC)sendAlert(alert alertsvc.Alert) {
 	}
 }
 
-func stationToTemperature(st *parser.StationData) hourlysvc.Temperature {
+func stationToTemperature(st *parser.StationDataCheckWX) hourlysvc.Temperature {
 	return  hourlysvc.Temperature{
 		Date:st.Observed,
 		Temperature:st.Temperature.Celsius,
 	}
+}
+
+
+//Timer
+
+func runTimer(ch chan bool, period time.Duration) {
+	defer close(ch)
+	for {
+		time.Sleep(period)
+		ch <- true
+	}
+}
+
+
+func runAlarm(ch chan bool, hours int, minutes int) {
+	defer close(ch)
+	loc, err := time.LoadLocation("CET")
+	if err != nil {
+		ch <- false
+		return
+	}
+
+	for {
+		current := time.Now()
+		current = current.In(loc)
+		period := getAlarmDuration(hours, minutes, current)
+		time.Sleep(period)
+		ch <- true
+	}
+}
+
+
+func getAlarmDuration(hours int, minutes int, current time.Time) time.Duration {
+	alarm := time.Date(current.Year(), current.Month(), current.Day(), hours, minutes, 0, 0, current.Location())
+	if alarm.Before(current) || alarm.Equal(current){
+		alarm = alarm.Add(time.Hour * 24)
+	}
+	return alarm.Sub(current)
 }
 
 

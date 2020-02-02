@@ -41,7 +41,7 @@ type Conditions struct {
 }
 
 
-type StationData struct {
+type StationDataCheckWX struct {
 	Temperature Temperature `json:"temperature"`
 	PewPoint Temperature `json:"dewpoint"`
 	Humidity Humidity `json:"humidity"`
@@ -57,11 +57,11 @@ type StationData struct {
 }
 
 type Result struct {
-	Result int `json:"result"`
-	Data []StationData `json:"data"`
+	Result int                `json:"result"`
+	Data []StationDataCheckWX `json:"data"`
 }
 
-func ParseCheckWX(data *[]byte) (*[]StationData, error) {
+func ParseCheckWX(data *[]byte) (*[]StationDataCheckWX, error) {
 	var parsed Result
 	err := json.Unmarshal(*data, &parsed)
 	if err != nil {

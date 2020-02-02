@@ -12,7 +12,8 @@ type ServerConfig struct {
 }
 
 type SourcesConfig struct {
-	CheckwxKey		string	`yaml:"checkwxKey"`
+	CheckwxKey		string	`yaml:"checkwx_key"`
+	UrlDWD			string  `yaml:"url_dwd"`
 }
 
 type Clients struct {
@@ -21,20 +22,20 @@ type Clients struct {
 	HourlyAddr 		string `yaml:"hourly_addr"`
 }
 
-type StationsConfig struct {
+type HrlAggregatorConfig struct {
 	Server   		ServerConfig	`yaml:"server"`
 	Sources  		SourcesConfig	`yaml:"sources"`
 	Clients  		Clients			`yaml:"clients"`
 	AlertsEnable  	bool			`yaml:"alerts_enable"`
 }
 
-func LoadConfig(path string) (config *StationsConfig, err error) {
+func LoadConfig(path string) (config *HrlAggregatorConfig, err error) {
 	c, err := ioutil.ReadFile(path)
 	if err != nil {
 		return
 	}
 
-	config = &StationsConfig{}
+	config = &HrlAggregatorConfig{}
 
 	err = yaml.Unmarshal(c, config)
 	if err != nil {
@@ -44,10 +45,10 @@ func LoadConfig(path string) (config *StationsConfig, err error) {
 	return
 }
 
-func (tc *StationsConfig)GetGRPCAddress() string {
+func (tc *HrlAggregatorConfig)GetGRPCAddress() string {
 	return fmt.Sprintf("%s:%d", "", tc.Server.PortGRPC)
 }
 
-func (tc *StationsConfig)GetHTTPAddress() string {
+func (tc *HrlAggregatorConfig)GetHTTPAddress() string {
 	return fmt.Sprintf("%s:%d", "", tc.Server.PortHTTP)
 }
