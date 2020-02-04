@@ -21,14 +21,16 @@ import (
 )
 
 type HourlyAggregatorSVC struct {
-	stations stationssvc.Client
-	hourly   hourlysvc.Client
-	alert    alertsvc.Client
-	logger   log.Logger
-	counter  *ktprom.Gauge
-	checkWX  source.CheckWX
-	dwd 	 source.SourceDWD
+	stations   stationssvc.Client
+	hourly     hourlysvc.Client
+	alert      alertsvc.Client
+	logger     log.Logger
+	counterCWX *ktprom.Gauge
+	counterDWD *ktprom.Gauge
+	checkWX    source.CheckWX
+	dwd        source.SourceDWD
 }
+
 
 func NewHrlAggregatorSVC(
 		logger log.Logger,
@@ -37,21 +39,30 @@ func NewHrlAggregatorSVC(
 		alert alertsvc.Client,
 		conf config.HrlAggregatorConfig,
 	) (*HourlyAggregatorSVC, error) {
-	options := prometheus.Opts{
-		Name: "stations_update_count",
-		Help: "The total number oh stations",
+
+	optionsCWX := prometheus.Opts{
+		Name: "stations_update_count_checkwx",
+		Help: "The number of stations updated form CheckWX",
 	}
-	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
+	guageCWX := ktprom.NewGaugeFrom(prometheus.GaugeOpts(optionsCWX), []string{ common.SrcTypeCheckWX})
+
+	optionsDWD := prometheus.Opts{
+		Name: "stations_update_count_dwd",
+		Help: "The number of stations updated form DWD",
+	}
+	guageDWD := ktprom.NewGaugeFrom(prometheus.GaugeOpts(optionsDWD), []string{ common.SrcTypeDWD})
+
 	checkWX := source.NewCheckWX(conf.Sources.CheckwxKey, logger)
 	dwd := source.NewDWD(conf.Sources.UrlDWD, logger)
 	st := HourlyAggregatorSVC{
-		stations: stations,
-		hourly:   hourly,
-		alert:    alert,
-		logger:   logger,
-		counter:  guage,
-		checkWX:  *checkWX,
-		dwd: 	  *dwd,
+		stations:   stations,
+		hourly:     hourly,
+		alert:      alert,
+		logger:     logger,
+		counterCWX: guageCWX,
+		counterDWD: guageDWD,
+		checkWX:    *checkWX,
+		dwd:        *dwd,
 	}
 	go startFetchProcess(&st)
 	return &st,nil
@@ -137,9 +148,9 @@ func (has HourlyAggregatorSVC) updateCheckWX() {
 		}
 	}
 
-	g := has.counter.With("stations")
+	g := has.counterCWX.With(common.SrcTypeCheckWX)
 	g.Set(count)
-	level.Info(has.logger).Log("msg", "Temperature updated", "stations", count)
+	level.Info(has.logger).Log("msg", "Temperature updated form CheckWX", "stations", count)
 }
 
 func (has HourlyAggregatorSVC) updateDWD(rowsNumber int) {
@@ -188,9 +199,9 @@ func (has HourlyAggregatorSVC) updateDWD(rowsNumber int) {
 		}
 	}
 
-	g := has.counter.With("stations")
+	g := has.counterDWD.With(common.SrcTypeDWD)
 	g.Set(count)
-	level.Info(has.logger).Log("msg", "Temperature updated", "stations", count)
+	level.Info(has.logger).Log("msg", "Temperature updated from DWD", "stations", count)
 }
 
 func (has HourlyAggregatorSVC)verifyPlausibility(latest *hrlgrpc.GetLatestResponse, currentId string, currentTemp hourlysvc.Temperature) {
