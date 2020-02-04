@@ -3,6 +3,7 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
@@ -81,7 +82,7 @@ const (
 
 func startFetchProcess(ss *HourlyAggregatorSVC) {
 	ss.updateCheckWX() //Do it first time
-	ss.updateDWD(-1) //Do it first time
+	//ss.updateDWD(-1) //Do it first time
 
 
 	chTimer := make(chan bool)
@@ -107,12 +108,14 @@ func startFetchProcess(ss *HourlyAggregatorSVC) {
 
 
 func (has HourlyAggregatorSVC) updateCheckWX() {
-	sts, err := has.stations.GetStationsBySrcType([]string{ common.SrcTypeCheckWX })
+	sts, err := has.stations.GetStationsBySrcType([]string{ common.SrcTypeCheckWX, common.SrcTypeNOAA })
 	if err != nil {
 		level.Error(has.logger).Log("msg", "GetStations error", "err", err)
 		has.sendAlert(NewErrorAlert(err))
 		return
 	}
+
+	fmt.Println("Stations amount:", len(sts.Sts))
 
 	ids := make([]string, len(sts.Sts))
 	i := 0
