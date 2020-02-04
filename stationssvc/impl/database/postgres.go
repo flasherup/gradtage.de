@@ -134,7 +134,7 @@ func (pg Postgres) GetStationsBySrcType(types []string) ([]stationssvc.Station,e
 	for i, v := range types {
 		query += fmt.Sprintf("source_type='%s' ",v)
 		if i < length-1 {
-			query += "AND "
+			query += "OR "
 		}
 	}
 	query += ";"
