@@ -1,8 +1,11 @@
 package source
 
 import (
+	"fmt"
 	"github.com/flasherup/gradtage.de/noaascrapersvc/impl/parser"
 	"github.com/go-kit/kit/log"
+	"github.com/gocolly/colly"
+	"sync"
 )
 
 type SourceNOAA struct {
@@ -25,19 +28,37 @@ func (sn SourceNOAA) FetchTemperature(ch chan *parser.ParsedData, ids map[string
 }
 
 func (sn SourceNOAA)fetchStation(id string, srcId string, ch chan *parser.ParsedData) {
+	wg := sync.WaitGroup{}
+	c := colly.NewCollector()
 
+	// Find and visit all links
+	c.OnHTML("table", func(e *colly.HTMLElement) {
+		if e.Index == 3 {
+			temps, err := parser.ParseNOAATable(e)
+			if err != nil {
+				ch <- &parser.ParsedData{ Success:false, Error:err }
+			} else {
+				res := parser.ParsedData{
+					Success:true,
+					StationID:id,
+					Temps:*temps,
+				}
+				ch <- &res
+			}
+		}
+	})
 
-	temps, err := parser.ParseNOAA(&[]byte{})
-	if err != nil {
+	c.OnError(func(_ *colly.Response, err error) {
 		ch <- &parser.ParsedData{ Success:false, Error:err }
-		return
-	}
+		wg.Done()
+	})
 
-	res := parser.ParsedData{
-		Success:true,
-		StationID:id,
-		Temps:*temps,
-	}
+	c.OnScraped(func(r *colly.Response) {
+		wg.Done()
+	})
 
-	ch <- &res
+	wg.Add(1)
+	url := fmt.Sprintf("%s%s.html", sn.url, srcId)
+	c.Visit(url)
+	wg.Wait()
 }

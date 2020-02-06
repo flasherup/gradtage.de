@@ -6,19 +6,30 @@ import (
 )
 
 type Endpoints struct {
-	ForceOverrideHourlyEndpoint  	endpoint.Endpoint
+	GetPeriodEndpoint  		endpoint.Endpoint
+	GetUpdateDateEndpoint  	endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		ForceOverrideHourlyEndpoint:   	MakeForceOverrideHourlyEndpoint(s),
+		GetPeriodEndpoint:   	MakeGetPeriodEndpoint(s),
+		GetUpdateDateEndpoint:	MakeGetUpdateDateEndpoint(s),
 	}
 }
 
-func MakeForceOverrideHourlyEndpoint(s Service) endpoint.Endpoint {
+
+func MakeGetPeriodEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(ForceOverrideHourlyRequest)
-		err := s.ForceOverrideHourly(ctx, req.Station, req.Start, req.End)
-		return ForceOverrideHourlyResponse{err}, err
+		req := request.(GetPeriodRequest)
+		temps, err := s.GetPeriod(ctx, req.ID, req.Start, req.End)
+		return GetPeriodResponse{temps, err}, err
+	}
+}
+
+func MakeGetUpdateDateEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetUpdateDateRequest)
+		dates, err := s.GetUpdateDate(ctx, req.IDs)
+		return GetUpdateDateResponse{dates, err}, err
 	}
 }

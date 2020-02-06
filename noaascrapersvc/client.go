@@ -5,5 +5,6 @@ import (
 )
 
 type Client interface {
-	ForceOverrideHourly() (resp *noaascpc.NoaaScraperSVCClient, err error)
+	GetPeriod		(id string, start string, end string) 		(resp *noaascpc.GetPeriodResponse, err error)
+	GetUpdateDate	(ids []string) 								(resp *noaascpc.GetUpdateDateResponse, err error)
 }

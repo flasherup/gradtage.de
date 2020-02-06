@@ -1,7 +1,11 @@
 package noaascrapersvc
 
-import "context"
+import (
+	"context"
+	"github.com/flasherup/gradtage.de/hourlysvc"
+)
 
 type Service interface {
-	ForceOverrideHourly(ctx context.Context, station string, start string, end string) error
+	GetPeriod(ctx context.Context, id string, start string, end string) (temps []hourlysvc.Temperature, err error)
+	GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string ,err error)
 }

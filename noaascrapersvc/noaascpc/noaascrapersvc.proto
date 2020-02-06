@@ -1,20 +1,37 @@
 syntax = "proto3";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 package noaascpc;
 
-message ForceOverrideHourlyRequest {
-    string station = 1;
-    string start = 2;
-    string end = 3;
+message Temperature {
+    string date = 1;
+    float  temperature = 2;
 }
 
-message ForceOverrideHourlyResponse {
-    string err = 1;
+message GetPeriodRequest {
+    string id      = 1;
+    string start    = 2;
+    string end      = 3;
+}
+
+message GetPeriodResponse {
+    repeated Temperature temps = 1;
+    string err = 2;
+}
+
+message GetUpdateDateRequest {
+    repeated string ids = 1 [(gogoproto.nullable) = false];
+}
+
+message GetUpdateDateResponse {
+    map<string,string> dates = 1;
+    string err = 2;
 }
 
 
 service NoaaScraperSVC {
-    rpc ForceOverrideHourly(ForceOverrideHourlyRequest) returns (ForceOverrideHourlyResponse) {}
+    rpc GetPeriod(GetPeriodRequest)         returns (GetPeriodResponse) {}
+    rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
 }
 
 

@@ -11,25 +11,39 @@ import (
 )
 
 type GRPCServer struct {
-	forceOverrideHourly   	gt.Handler
+	getPeriod    	gt.Handler
+	getUpdateDate   gt.Handler
 }
 
-func (s *GRPCServer) ForceOverrideHourly(ctx context.Context, req *noaascpc.ForceOverrideHourlyRequest) (*noaascpc.ForceOverrideHourlyResponse, error) {
-	_, resp, err := s.forceOverrideHourly.ServeGRPC(ctx, req)
+func (s *GRPCServer) GetPeriod(ctx context.Context, req *noaascpc.GetPeriodRequest) (*noaascpc.GetPeriodResponse, error) {
+	_, resp, err := s.getPeriod.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*noaascpc.ForceOverrideHourlyResponse), nil
+	return resp.(*noaascpc.GetPeriodResponse), err
+}
+
+func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *noaascpc.GetUpdateDateRequest) (*noaascpc.GetUpdateDateResponse, error) {
+	_, resp, err := s.getUpdateDate.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*noaascpc.GetUpdateDateResponse), err
 }
 
 
 
 func NewGRPCServer(_ context.Context, endpoint Endpoints) noaascpc.NoaaScraperSVCServer{
 	server := GRPCServer{
-		forceOverrideHourly: gt.NewServer(
-			endpoint.ForceOverrideHourlyEndpoint,
-			DecodeForceOverrideHourlyRequest,
-			EncodeForceOverrideHourlyResponse,
+		getPeriod: gt.NewServer(
+			endpoint.GetPeriodEndpoint,
+			DecodeGetPeriodRequest,
+			EncodeGetPeriodResponse,
+		),
+		getUpdateDate: gt.NewServer(
+			endpoint.GetUpdateDateEndpoint,
+			DecodeGetUpdateDateRequest,
+			EncodeGetUpdateDateResponse,
 		),
 	}
 	return &server

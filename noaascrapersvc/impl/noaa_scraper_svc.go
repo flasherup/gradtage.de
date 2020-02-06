@@ -2,7 +2,10 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
+	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/noaascrapersvc/config"
 	"github.com/flasherup/gradtage.de/noaascrapersvc/impl/database"
 	"github.com/flasherup/gradtage.de/noaascrapersvc/impl/parser"
@@ -12,6 +15,7 @@ import (
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
+	"strings"
 	"time"
 )
 
@@ -29,7 +33,7 @@ func NewNOAAScraperSVC(
 		stations 	stationssvc.Client,
 		db 			database.NoaaDB,
 		alert 		alertsvc.Client,
-		conf config.NOAAScraperConfig,
+		conf 		config.NOAAScraperConfig,
 	) (*NOAAScraperSVC, error) {
 	options := prometheus.Opts{
 		Name: "noaa_stations_update_count",
@@ -37,6 +41,7 @@ func NewNOAAScraperSVC(
 	}
 
 
+	fmt.Println("URL noaa:", conf.Sources.UrlNoaa)
 	src := 	source.NewNOAA(conf.Sources.UrlNoaa, logger)
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
 	st := NOAAScraperSVC{
@@ -51,44 +56,57 @@ func NewNOAAScraperSVC(
 	return &st,nil
 }
 
-func (das NOAAScraperSVC) ForceOverrideHourly(ctx context.Context, station string, start string, end string) error {
-	level.Info(das.logger).Log("msg", "ForceOverrideHourly", "station", station, "start", start, "end", end)
-	return nil
+func (hs NOAAScraperSVC) GetPeriod(ctx context.Context, id string, start string, end string) (temps []hourlysvc.Temperature, err error) {
+	level.Info(hs.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("%s: %s-%s",id, start, end))
+	temps, err = hs.db.GetPeriod(id, start, end)
+	if err != nil {
+		level.Error(hs.logger).Log("msg", "GetPeriod error", "err", err)
+		hs.sendAlert(NewErrorAlert(err))
+	}
+	return temps,err
+}
+
+func (hs *NOAAScraperSVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
+	level.Info(hs.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
+	dates = make(map[string]string)
+	for _,v := range ids {
+		date, err := hs.db.GetUpdateDate(v)
+		if err != nil {
+			level.Error(hs.logger).Log("msg", "Get Update Date error", "err", err)
+			hs.sendAlert(NewErrorAlert(err))
+		} else {
+			dates[v] = date
+		}
+	}
+
+	return dates, err
 }
 
 
 func startFetchProcess(ss *NOAAScraperSVC) {
-	ss.processUpdate(1) //Do it first time
+	ss.processUpdate(-1) //Do it first time
 	tick := time.Tick(time.Hour)
 	for {
 		select {
 		case <-tick:
-			ss.processUpdate(1)
+			ss.processUpdate(3)
 		}
 	}
 }
 
 
 func (das NOAAScraperSVC)processUpdate(rowsNumber int) {
-	/*sts, err := das.stations.GetStationsBySrcType([]string{ common.SrcTypeNOAA })
+	sts, err := das.stations.GetStationsBySrcType([]string{ common.SrcTypeNOAA })
 	if err != nil {
-		level.Error(das.logger).Log("msg", "Get DWD Stations error", "err", err)
+		level.Error(das.logger).Log("msg", "Get NOAA Stations error", "err", err)
 		das.sendAlert(NewErrorAlert(err))
 		return
-	}*/
+	}
 
-	/*ids := make(map[string]string)
+	ids := make(map[string]string)
 	for k,v := range sts.Sts {
-		ids[k] = v.SourceId
-	}*/
-
-	ids := map[string]string{"ebbr":"ebbr"}
-
-	/*latest, err := has.hourly.GetLatest(ids)
-	if err != nil {
-		level.Error(has.logger).Log("msg", "Get latest error", "err", err)
-		has.sendAlert(NewErrorAlert(err))
-	}*/
+		ids[k] = strings.ToUpper(v.SourceId)
+	}
 
 	ch := make(chan *parser.ParsedData)
 	go das.src.FetchTemperature(ch, ids)
@@ -97,12 +115,18 @@ func (das NOAAScraperSVC)processUpdate(rowsNumber int) {
 	for range ids {
 		pd := <-ch
 		if pd != nil && pd.Success {
-			//has.verifyPlausibility(latest, pd.StationID, pd.Temps)
 			rowsToUpdate := pd.Temps
-			/*if rowsNumber > 0 {
+			if len(rowsToUpdate) > 0 && rowsNumber > 0 {
 				rowsToUpdate = rowsToUpdate[len(rowsToUpdate)-rowsNumber:]
-			}*/
-			err := das.db.PushPeriod(pd.StationID, rowsToUpdate)
+			}
+			err := das.db.CreateTable(pd.StationID)
+			if err != nil {
+				level.Error(das.logger).Log("msg", "Create station Error", "err", err)
+				das.sendAlert(NewErrorAlert(err))
+				continue
+			}
+
+			err = das.db.PushPeriod(pd.StationID, rowsToUpdate)
 			if err != nil {
 				level.Error(das.logger).Log("msg", "PushPeriod Error", "err", err)
 				das.sendAlert(NewErrorAlert(err))

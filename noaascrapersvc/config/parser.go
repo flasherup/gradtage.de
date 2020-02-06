@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/ghodss/yaml"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
@@ -20,7 +20,6 @@ type DatabaseConfig struct {
 }
 
 type SourcesConfig struct {
-	CheckwxKey string `yaml:"checkwx_key"`
 	UrlNoaa    string `yaml:"url_noaa"`
 }
 
