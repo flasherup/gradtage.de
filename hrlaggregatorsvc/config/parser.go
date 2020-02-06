@@ -20,6 +20,7 @@ type Clients struct {
 	AlertAddr 		string `yaml:"alert_addr"`
 	StationsAddr 	string `yaml:"stations_addr"`
 	HourlyAddr 		string `yaml:"hourly_addr"`
+	NoaaAddr 		string `yaml:"noaa_addr"`
 }
 
 type HrlAggregatorConfig struct {

@@ -2,7 +2,11 @@ package parser
 
 import (
 	"encoding/json"
+	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/hourlysvc"
+	"time"
 )
+const checkWXTimeTemplate = "2006-01-02T15:04:05.000Z"
 
 type Temperature struct {
 	Celsius float64 `json:"celsius"`
@@ -61,12 +65,30 @@ type Result struct {
 	Data []StationDataCheckWX `json:"data"`
 }
 
-func ParseCheckWX(data *[]byte) (*[]StationDataCheckWX, error) {
+func ParseCheckWX(data *[]byte) (*hourlysvc.Temperature, error) {
 	var parsed Result
 	err := json.Unmarshal(*data, &parsed)
 	if err != nil {
 		return nil, err
 	}
 
-	return &parsed.Data,nil
+	if len(parsed.Data) == 0 {
+		return nil, nil
+	}
+
+	st := parsed.Data[0]
+
+	date, err := time.Parse(checkWXTimeTemplate, st.Observed)
+	if err != nil {
+		return nil, err
+	}
+
+	pTime := date.Format(common.TimeLayout)
+
+	temp := hourlysvc.Temperature{
+		Date:pTime,
+		Temperature:st.Temperature.Celsius,
+	}
+
+	return &temp,nil
 }

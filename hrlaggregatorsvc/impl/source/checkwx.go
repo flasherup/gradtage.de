@@ -1,6 +1,7 @@
 package source
 
 import (
+	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/hrlaggregatorsvc/impl/parser"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -21,14 +22,14 @@ func NewCheckWX(key string, logger log.Logger) *CheckWX {
 	}
 }
 
-func (cwx CheckWX) FetchTemperature(ch chan *parser.StationDataCheckWX, ids []string) {
+func (cwx CheckWX) FetchTemperature(ch chan *parser.ParsedData,  ids []string) {
 	for _,v := range ids {
 		go cwx.fetchStation(v, ch)
 	}
 }
 
 
-func (cwx CheckWX)fetchStation(id string, ch chan *parser.StationDataCheckWX) {
+func (cwx CheckWX)fetchStation(id string, ch chan *parser.ParsedData) {
 	url := "https://api.checkwx.com/metar/" + id + "/decoded"
 	client := &http.Client{
 		Timeout: time.Second * 10,
@@ -36,14 +37,14 @@ func (cwx CheckWX)fetchStation(id string, ch chan *parser.StationDataCheckWX) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		level.Error(cwx.logger).Log("msg", "request error", "err", err)
-		ch <- nil
+		ch <- &parser.ParsedData{ Success:false, Error:err }
 		return
 	}
 	req.Header.Add("X-API-Key", cwx.key)
 	resp, err := client.Do(req)
 	if err != nil {
 		level.Error(cwx.logger).Log("msg", "request error", "err", err)
-		ch <- nil
+		ch <- &parser.ParsedData{ Success:false, Error:err }
 		return
 	}
 	defer resp.Body.Close()
@@ -51,24 +52,28 @@ func (cwx CheckWX)fetchStation(id string, ch chan *parser.StationDataCheckWX) {
 	contents, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		level.Error(cwx.logger).Log("msg", "response read error", "err", err)
-		ch <- nil
+		ch <- &parser.ParsedData{ Success:false, Error:err }
 		return
 	}
 
 	temp, err := parser.ParseCheckWX(&contents)
 	if err != nil {
 		level.Error(cwx.logger).Log("msg", "response data parse error", "err", err, "response", string(contents))
-		ch <- nil
+		ch <- &parser.ParsedData{ Success:false, Error:err }
 		return
 	}
 
-	if len(*temp) < 1 {
+	if temp == nil {
 		level.Error(cwx.logger).Log("msg", "response error", "err", "station:" + id + " not found", "response", string(contents))
-		ch <- nil
+		ch <- &parser.ParsedData{ Success:false, Error:err }
 		return
 	}
 
-	for _,v := range *temp{
-		ch <- &v
+	res := parser.ParsedData{
+		Success:true,
+		StationID:id,
+		Temps:[]hourlysvc.Temperature{ *temp },
 	}
+
+	ch <- &res
 }

@@ -3,7 +3,6 @@ package impl
 
 import (
 	"context"
-	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
@@ -22,14 +21,16 @@ import (
 )
 
 type HourlyAggregatorSVC struct {
-	stations   stationssvc.Client
-	hourly     hourlysvc.Client
-	alert      alertsvc.Client
-	logger     log.Logger
-	counterCWX *ktprom.Gauge
-	counterDWD *ktprom.Gauge
-	checkWX    source.CheckWX
-	dwd        source.SourceDWD
+	stations    stationssvc.Client
+	hourly      hourlysvc.Client
+	alert       alertsvc.Client
+	logger      log.Logger
+	counterCWX  *ktprom.Gauge
+	counterDWD  *ktprom.Gauge
+	counterNOAA *ktprom.Gauge
+	checkWX     source.CheckWX
+	dwd         source.SourceDWD
+	noaa	    source.SourceNOAA
 }
 
 
@@ -53,17 +54,26 @@ func NewHrlAggregatorSVC(
 	}
 	guageDWD := ktprom.NewGaugeFrom(prometheus.GaugeOpts(optionsDWD), []string{ common.SrcTypeDWD})
 
+	optionsNOAA := prometheus.Opts{
+		Name: "stations_update_count_noaa",
+		Help: "The number of stations updated form NOAA",
+	}
+	guageNOAA := ktprom.NewGaugeFrom(prometheus.GaugeOpts(optionsNOAA), []string{ common.SrcTypeNOAA})
+
 	checkWX := source.NewCheckWX(conf.Sources.CheckwxKey, logger)
 	dwd := source.NewDWD(conf.Sources.UrlDWD, logger)
+	noaa := source.NewSourceNOAA(conf.Clients.NoaaAddr, logger)
 	st := HourlyAggregatorSVC{
-		stations:   stations,
-		hourly:     hourly,
-		alert:      alert,
-		logger:     logger,
-		counterCWX: guageCWX,
-		counterDWD: guageDWD,
-		checkWX:    *checkWX,
-		dwd:        *dwd,
+		stations:   	stations,
+		hourly:     	hourly,
+		alert:      	alert,
+		logger:     	logger,
+		counterCWX: 	guageCWX,
+		counterDWD: 	guageDWD,
+		counterNOAA: 	guageNOAA,
+		checkWX:    	*checkWX,
+		dwd:        	*dwd,
+		noaa:			*noaa,
 	}
 	go startFetchProcess(&st)
 	return &st,nil
@@ -81,9 +91,9 @@ const (
 
 
 func startFetchProcess(ss *HourlyAggregatorSVC) {
-	ss.updateCheckWX() //Do it first time
-	//ss.updateDWD(-1) //Do it first time
-
+	ss.updateCheckWX()
+	ss.updateDWD(-1)
+	ss.updateNOAA(-1)
 
 	chTimer := make(chan bool)
 	chAlarm := make(chan bool)
@@ -101,6 +111,7 @@ func startFetchProcess(ss *HourlyAggregatorSVC) {
 		case alarm := <- chAlarm:
 			if alarm {
 				ss.updateDWD(24)
+				ss.updateNOAA(24)
 			}
 		}
 	}
@@ -115,8 +126,6 @@ func (has HourlyAggregatorSVC) updateCheckWX() {
 		return
 	}
 
-	fmt.Println("Stations amount:", len(sts.Sts))
-
 	ids := make([]string, len(sts.Sts))
 	i := 0
 	for k,_ := range sts.Sts {
@@ -130,16 +139,16 @@ func (has HourlyAggregatorSVC) updateCheckWX() {
 		has.sendAlert(NewErrorAlert(err))
 	}
 
-	ch := make(chan *parser.StationDataCheckWX)
+	ch := make(chan *parser.ParsedData)
 	go has.checkWX.FetchTemperature(ch, ids)
 
 	count := 0.0
 	for range ids {
 		st := <-ch
-		if st != nil {
-			temp := stationToTemperature(st)
-			has.verifyPlausibility(latest, st.ICAO, temp)
-			_, err := has.hourly.PushPeriod(st.ICAO, []hourlysvc.Temperature{temp})
+		if st != nil && st.Success {
+			continue
+			has.verifyPlausibility(latest, st.StationID, st.Temps[0])
+			_, err := has.hourly.PushPeriod(st.StationID, st.Temps)
 			if err != nil {
 				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", err)
 				has.sendAlert(NewErrorAlert(err))
@@ -168,12 +177,6 @@ func (has HourlyAggregatorSVC) updateDWD(rowsNumber int) {
 	for k,v := range sts.Sts {
 		ids[k] = v.SourceId
 	}
-
-	/*latest, err := has.hourly.GetLatest(ids)
-	if err != nil {
-		level.Error(has.logger).Log("msg", "Get latest error", "err", err)
-		has.sendAlert(NewErrorAlert(err))
-	}*/
 
 	ch := make(chan *parser.ParsedData)
 	go has.dwd.FetchTemperature(ch, ids)
@@ -205,6 +208,48 @@ func (has HourlyAggregatorSVC) updateDWD(rowsNumber int) {
 	g := has.counterDWD.With(common.SrcTypeDWD)
 	g.Set(count)
 	level.Info(has.logger).Log("msg", "Temperature updated from DWD", "stations", count)
+}
+
+func (has HourlyAggregatorSVC) updateNOAA(daysNumber int) {
+	sts, err := has.stations.GetStationsBySrcType([]string{ common.SrcTypeNOAA })
+	if err != nil {
+		level.Error(has.logger).Log("msg", "Get NOAA Stations error", "err", err)
+		has.sendAlert(NewErrorAlert(err))
+		return
+	}
+
+	ids := make([]string, len(sts.Sts))
+	i := 0
+	for k,_ := range sts.Sts {
+		ids[i] = k
+		i++
+	}
+
+	ch := make(chan *parser.ParsedData)
+	go has.noaa.FetchTemperature(ch, daysNumber, ids)
+
+	count := 0.0
+	for range ids {
+		pd := <-ch
+		if pd != nil && pd.Success {
+			_, err := has.hourly.PushPeriod(pd.StationID, pd.Temps)
+			if err != nil {
+				level.Error(has.logger).Log("msg", "PushPeriod Error", "err", err)
+				has.sendAlert(NewErrorAlert(err))
+			} else {
+				count++
+			}
+		} else {
+			if pd != nil {
+				level.Error(has.logger).Log("msg", "Station update error", "err", pd.Error)
+			}
+			level.Warn(has.logger).Log("msg", "Station is not updated")
+		}
+	}
+
+	g := has.counterNOAA.With(common.SrcTypeNOAA)
+	g.Set(count)
+	level.Info(has.logger).Log("msg", "Temperature updated from NOAA", "stations", count)
 }
 
 func (has HourlyAggregatorSVC)verifyPlausibility(latest *hrlgrpc.GetLatestResponse, currentId string, currentTemp hourlysvc.Temperature) {
@@ -254,14 +299,6 @@ func (has HourlyAggregatorSVC)sendAlert(alert alertsvc.Alert) {
 		level.Error(has.logger).Log("msg", "Send Alert Error", "err", err)
 	}
 }
-
-func stationToTemperature(st *parser.StationDataCheckWX) hourlysvc.Temperature {
-	return  hourlysvc.Temperature{
-		Date:st.Observed,
-		Temperature:st.Temperature.Celsius,
-	}
-}
-
 
 //Timer
 

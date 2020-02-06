@@ -18,10 +18,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
-	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
-	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
-	googlerpc "google.golang.org/grpc"
+	alert 		"github.com/flasherup/gradtage.de/alertsvc/impl"
+	hourly 		"github.com/flasherup/gradtage.de/hourlysvc/impl"
+	stations 	"github.com/flasherup/gradtage.de/stationssvc/impl"
+	googlerpc 	"google.golang.org/grpc"
 )
 
 func main() {
