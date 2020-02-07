@@ -46,8 +46,6 @@ func main() {
 		return
 	}
 
-	fmt.Println("conf", conf)
-
 	//Database
 	db, err := database.NewPostgres(conf.Database)
 	if err != nil {

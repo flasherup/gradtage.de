@@ -28,6 +28,12 @@ type NOAAScraperSVC struct {
 	src			source.SourceNOAA
 }
 
+const (
+	labelStations = "stations"
+	labelTemperature = "temperature"
+	labelStationError = "station_error"
+)
+
 func NewNOAAScraperSVC(
 		logger 		log.Logger,
 		stations 	stationssvc.Client,
@@ -40,10 +46,8 @@ func NewNOAAScraperSVC(
 		Help: "The total number of NOAA stations that was updated",
 	}
 
-
-	fmt.Println("URL noaa:", conf.Sources.UrlNoaa)
 	src := 	source.NewNOAA(conf.Sources.UrlNoaa, logger)
-	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
+	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ labelStations, labelStationError })
 	st := NOAAScraperSVC{
 		stations: stations,
 		db: db,
@@ -114,15 +118,18 @@ func (das NOAAScraperSVC)processUpdate(rowsNumber int) {
 	count := 0.0
 	for range ids {
 		pd := <-ch
-		if pd != nil && pd.Success {
+		sErr := das.counter.With(labelStations, pd.StationID, labelStationError, "update_fail")
+		sErr.Set(0)
+		if pd != nil && pd.Success && len(pd.Temps) > 0 {
 			rowsToUpdate := pd.Temps
-			if len(rowsToUpdate) > 0 && rowsNumber > 0 {
+			if rowsNumber > 0 {
 				rowsToUpdate = rowsToUpdate[len(rowsToUpdate)-rowsNumber:]
 			}
 			err := das.db.CreateTable(pd.StationID)
 			if err != nil {
 				level.Error(das.logger).Log("msg", "Create station Error", "err", err)
 				das.sendAlert(NewErrorAlert(err))
+				sErr.Set(1)
 				continue
 			}
 
@@ -130,18 +137,28 @@ func (das NOAAScraperSVC)processUpdate(rowsNumber int) {
 			if err != nil {
 				level.Error(das.logger).Log("msg", "PushPeriod Error", "err", err)
 				das.sendAlert(NewErrorAlert(err))
-			} else {
-				count++
+				sErr.Set(1)
+				continue
 			}
+
+			if len(pd.Temps) > 0 {
+				g := das.counter.With(labelStations, pd.StationID, labelStationError, "")
+				g.Set(pd.Temps[len(pd.Temps)-1].Temperature)
+			}
+
+			level.Info(das.logger).Log("msg", "Station updated", "id", pd.StationID, "temp", fmt.Sprintf("%+q:",pd.Temps))
+			count++
+
 		} else {
+			sErr.Set(1)
 			if pd != nil {
 				level.Error(das.logger).Log("msg", "Station update error", "err", pd.Error)
 			}
-			level.Warn(das.logger).Log("msg", "Station is not updated")
+			level.Warn(das.logger).Log("msg", "Station is not updated", "reason", pd.Error)
 		}
 	}
 
-	g := das.counter.With("stations")
+	g := das.counter.With(labelStations, "all", labelStationError, "")
 	g.Set(count)
 	level.Info(das.logger).Log("msg", "Temperature updated from NOAA", "stations", count)
 }

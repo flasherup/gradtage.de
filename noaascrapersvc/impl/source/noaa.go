@@ -1,6 +1,7 @@
 package source
 
 import (
+	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/noaascrapersvc/impl/parser"
 	"github.com/go-kit/kit/log"
@@ -31,9 +32,15 @@ func (sn SourceNOAA)fetchStation(id string, srcId string, ch chan *parser.Parsed
 	wg := sync.WaitGroup{}
 	c := colly.NewCollector()
 
+	isDataScraped := false
 	// Find and visit all links
 	c.OnHTML("table", func(e *colly.HTMLElement) {
 		if e.Index == 3 {
+			if isDataScraped {
+				return
+			}
+			isDataScraped = true
+
 			temps, err := parser.ParseNOAATable(e)
 			if err != nil {
 				ch <- &parser.ParsedData{ Success:false, Error:err }
@@ -54,6 +61,10 @@ func (sn SourceNOAA)fetchStation(id string, srcId string, ch chan *parser.Parsed
 	})
 
 	c.OnScraped(func(r *colly.Response) {
+		if !isDataScraped {
+			isDataScraped = true
+			ch <- &parser.ParsedData{ Success:false, Error:errors.New("data was not found") }
+		}
 		wg.Done()
 	})
 
