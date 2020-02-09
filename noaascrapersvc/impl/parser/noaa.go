@@ -42,7 +42,7 @@ func ParseNOAATable(table *colly.HTMLElement) (*[]hourlysvc.Temperature, error) 
 
 		temp, err := WeatherDataToTemperature(wd)
 		if err == nil {
-			temps = append(temps, *temp)
+			temps = append([]hourlysvc.Temperature{*temp}, temps...)
 		}
 	})
 

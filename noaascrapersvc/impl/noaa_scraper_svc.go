@@ -122,8 +122,8 @@ func (das NOAAScraperSVC)processUpdate(rowsNumber int) {
 		sErr.Set(0)
 		if pd != nil && pd.Success && len(pd.Temps) > 0 {
 			rowsToUpdate := pd.Temps
-			if rowsNumber > 0 {
-				rowsToUpdate = rowsToUpdate[len(rowsToUpdate)-rowsNumber:]
+			if rowsNumber > 0 && len(rowsToUpdate) > rowsNumber{
+				rowsToUpdate = rowsToUpdate[len(rowsToUpdate)-rowsNumber-1:]
 			}
 			err := das.db.CreateTable(pd.StationID)
 			if err != nil {
@@ -146,7 +146,7 @@ func (das NOAAScraperSVC)processUpdate(rowsNumber int) {
 				g.Set(pd.Temps[len(pd.Temps)-1].Temperature)
 			}
 
-			level.Info(das.logger).Log("msg", "Station updated", "id", pd.StationID, "temp", fmt.Sprintf("%+q:",pd.Temps))
+			level.Info(das.logger).Log("msg", "Station updated", "id", pd.StationID, "temp", fmt.Sprintf("%v:",rowsToUpdate))
 			count++
 
 		} else {
