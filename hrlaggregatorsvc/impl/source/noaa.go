@@ -80,7 +80,7 @@ func processTemperature(src []*noaascpc.Temperature ) []hourlysvc.Temperature {
 		}
 		dp := time.Date(d.Year(), d.Month(), d.Day(), d.Hour(), 0, 0, 0, d.Location())
 
-		t := math.Floor(float64(v.Temperature) * 10) / 10
+		t := math.Round(v.Temperature * 10) / 10
 		temp := hourlysvc.Temperature {
 			Date: 			dp.Format(common.TimeLayout),
 			Temperature: 	t,

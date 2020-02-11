@@ -5,7 +5,7 @@ package hagrpc;
 message Status {
     string station      = 1;
     string update       = 2;
-    float  temperature  = 3;
+    double  temperature  = 3;
 }
 
 message GetStatusRequest {

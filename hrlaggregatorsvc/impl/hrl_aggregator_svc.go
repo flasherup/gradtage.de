@@ -146,7 +146,6 @@ func (has HourlyAggregatorSVC) updateCheckWX() {
 	for range ids {
 		st := <-ch
 		if st != nil && st.Success {
-			continue
 			has.verifyPlausibility(latest, st.StationID, st.Temps[0])
 			_, err := has.hourly.PushPeriod(st.StationID, st.Temps)
 			if err != nil {

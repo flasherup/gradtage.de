@@ -5,7 +5,7 @@ package hrlgrpc;
 
 message Temperature {
     string date = 1;
-    float  temperature = 2;
+    double  temperature = 2;
 }
 
 message GetPeriodRequest {

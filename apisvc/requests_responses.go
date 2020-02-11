@@ -16,3 +16,11 @@ type GetHDDCSVResponse struct {
 	Data [][]string `json:"data"`
 	FileName string `json:"fileName"`
 }
+
+type GetSourceDataRequest struct {
+	Params ParamsSourceData `json:"params"`
+}
+
+type GetSourceDataResponse struct {
+	Data [][]string `json:"data"`
+}

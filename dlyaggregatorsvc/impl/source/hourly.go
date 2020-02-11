@@ -12,8 +12,7 @@ import (
 	"math"
 	"time"
 )
-
-const veryFirstTime = "2000-01-02T01:04:05.070000000Z "
+const veryFirstTime = "2000-01-02T01:01:01.00Z "
 
 type Hourly struct {
 	hrlService 	hourlysvc.Client
@@ -29,7 +28,7 @@ func NewHourly(logger log.Logger, hourly hourlysvc.Client, daily dailysvc.Client
 	}
 }
 
-func (h Hourly) FetchTemperature(ch chan *parser.StationDaily, ids []string) {
+func (h Hourly) FetchLatestTemperature(ch chan *parser.StationDaily, ids []string) {
 	huorlyUpdates, err := h.hrlService.GetUpdateDate(ids)
 	if err != nil {
 		level.Error(h.logger).Log("msg", "GetUpdateDate hourly error", "err", err)
@@ -70,6 +69,12 @@ func (h Hourly) FetchTemperature(ch chan *parser.StationDaily, ids []string) {
 	}
 }
 
+func (h Hourly) FetchPeriodTemperature(ch chan *parser.StationDaily, ids []string, start, end string) {
+	for _,v := range ids {
+		go h.fetchStation(v, ch, start, end)
+	}
+}
+
 func (h Hourly)fetchStation(id string, ch chan *parser.StationDaily, start string, end string) {
 	period, err := h.hrlService.GetPeriod(id, start, end)
 	if err != nil {
@@ -88,7 +93,6 @@ func (h Hourly)fetchStation(id string, ch chan *parser.StationDaily, start strin
 	ch <- &parser.StationDaily{ ID:id, Temps:dPeriod }
 }
 
-
 func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature) []dailysvc.Temperature {
 	res := make([]dailysvc.Temperature , 0)
 	day := 0
@@ -104,7 +108,7 @@ func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature) []dailysvc.Temperature 
 		if day != current.Day() {
 			if dayCount < 20 {
 				if dayCount > 0 {
-					level.Error(h.logger).Log("msg", "Hourly to daily error", "err", fmt.Sprint("Not enough data: %d hours, for: %s", dayCount, latest.Format(veryFirstTime)))
+					level.Error(h.logger).Log("msg", "Hourly to daily error", "err", fmt.Sprintf("Not enough data: %d hours, for: %s", dayCount, latest.Format(common.TimeLayout)))
 				}
 			} else {
 				date := time.Date(latest.Year(), latest.Month(), latest.Day(), 0, 0, 0, 0, latest.Location() )

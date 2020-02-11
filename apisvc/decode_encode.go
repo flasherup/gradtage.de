@@ -69,6 +69,26 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 	return req, nil
 }
 
+func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	req := GetSourceDataRequest{}
+	if e := json.NewDecoder(r.Body).Decode(&req.Params); e != nil {
+		return nil, e
+	}
+	return req, nil
+}
+
+func encodeGetSourceDataResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(GetSourceDataResponse)
+	w.Header().Set("Content-Type", "text/csv")
+	wr := csv.NewWriter(w)
+	err := wr.WriteAll(resp.Data)
+	wr.Flush()
+	if err != nil {
+		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
+	}
+	return err
+}
+
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	return json.NewEncoder(w).Encode(response)

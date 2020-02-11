@@ -1,24 +1,20 @@
 syntax = "proto3";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 package dagrpc;
 
-message Status {
-    string station      = 1;
-    string update       = 2;
-    float  temperature  = 3;
+message ForceUpdateRequest {
+    repeated string ids = 1 [(gogoproto.nullable) = false];
+    string start        = 2;
+    string end          = 3;
 }
 
-message GetStatusRequest {
+message ForceUpdateResponse {
+    string err = 1;
 }
-
-message GetStatusResponse {
-    repeated Status status = 1;
-    string err = 2;
-}
-
 
 service DlyAggregatorSVC {
-    rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {}
+    rpc ForceUpdate(ForceUpdateRequest) returns (ForceUpdateResponse) {}
 }
 
 

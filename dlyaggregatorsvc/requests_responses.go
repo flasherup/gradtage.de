@@ -1,9 +1,11 @@
 package dlyaggregatorsvc
 
-type GetStatusRequest struct {
+type ForceUpdateRequest struct {
+	IDs 	[]string 	`json:"ids"`
+	Start 	string 		`json:"start"`
+	End   	string 		`json:"end"`
 }
 
-type GetStatusResponse struct {
-	Status 	[]Status 	`json:"status"`
+type ForceUpdateResponse struct {
 	Err  	error 		`json:"err"`
 }

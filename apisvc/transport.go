@@ -33,6 +33,13 @@ func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 		encodeGetHDDCSVResponse,
 		options...,
 	))
+
+	r.Methods("Get").Path("/source/").Handler(kithttp.NewServer(
+		e.GetHDDSVEndpoint,
+		decodeGetSourceDataRequest,
+		encodeGetSourceDataResponse,
+		options...,
+	))
 	return r
 }
 

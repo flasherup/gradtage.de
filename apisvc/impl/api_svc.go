@@ -9,6 +9,7 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
+	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
@@ -21,6 +22,7 @@ type APISVC struct {
 	logger  	log.Logger
 	alert 		alertsvc.Client
 	daily		dailysvc.Client
+	hourly		hourlysvc.Client
 	keyManager *security.KeyManager
 	counter 	ktprom.Gauge
 }
@@ -30,7 +32,18 @@ const (
 	DDType  = "dd"
 )
 
-func NewAPISVC(logger log.Logger, daily dailysvc.Client, alert alertsvc.Client, keyManager *security.KeyManager) *APISVC {
+const (
+	Hourly 	= "hourly"
+	Daily 	= "daily"
+)
+
+func NewAPISVC(
+		logger 		log.Logger,
+		daily 		dailysvc.Client,
+		hourly 		hourlysvc.Client,
+		alert 		alertsvc.Client,
+		keyManager 	*security.KeyManager,
+	) *APISVC {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
@@ -102,6 +115,77 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	return csv,fileName,err
 }
 
+func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {
+	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetSourceData invalid user", "err", err)
+		return [][]string{}, "error", err
+	}
+	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "userId", userId)
+
+	var temps []hourlysvc.Temperature
+	if params.Type == Hourly {
+		t, err := as.getDailyData(params.Station, params.Start, params.End)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
+			return [][]string{}, "error", err
+		}
+
+		temps = *t
+
+	} else if params.Type == Daily{
+		t, err := as.getHourlyData(params.Station, params.Start, params.End)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
+			return [][]string{}, "error", err
+		}
+
+		temps = *t
+	}
+
+	headerCSV := []string{ "ID","Date","Temperature" }
+
+	csv := as.generateSourceCSV(headerCSV, temps, params)
+	fileName = fmt.Sprintf("source_%s%s%s.csv", params.Station, params.Start, params.End)
+	return csv,fileName,err
+}
+
+func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
+	resp, err := as.daily.GetPeriod(id, start, end)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		return nil, err
+	}
+
+	res := make([]hourlysvc.Temperature, len(resp.Temps))
+	for i,v := range resp.Temps {
+		res[i] = hourlysvc.Temperature{
+			v.Date,
+			v.Temperature,
+		}
+	}
+
+	return &res, nil
+}
+
+func (as APISVC) getHourlyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
+	resp, err := as.hourly.GetPeriod(id, start, end)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		return nil, err
+	}
+
+	res := make([]hourlysvc.Temperature, len(resp.Temps))
+	for i,v := range resp.Temps {
+		res[i] = hourlysvc.Temperature{
+			v.Date,
+			v.Temperature,
+		}
+	}
+
+	return &res, nil
+}
+
 
 func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsAvg map[int32]*dlygrpc.Temperature, params apisvc.Params) [][]string {
 	res := [][]string{ names }
@@ -125,11 +209,11 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 		aTemperature := temp.Temperature
 
 		if params.Output 		== HDDType {
-			degree 	= calculateHDD(params.HL, float64(v.Temperature))
-			degreeA = calculateHDD(params.HL, float64(aTemperature))
+			degree 	= calculateHDD(params.HL, v.Temperature)
+			degreeA = calculateHDD(params.HL, aTemperature)
 		} else if params.Output == DDType {
-			degree 	= calculateDD(params.HL, params.RT, float64(v.Temperature))
-			degreeA = calculateDD(params.HL, params.RT, float64(aTemperature))
+			degree 	= calculateDD(params.HL, params.RT, v.Temperature)
+			degreeA = calculateDD(params.HL, params.RT, aTemperature)
 		}
 
 		line = []string{
@@ -137,6 +221,21 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 			v.Date,
 			fmt.Sprintf("%.1f", degree),
 			fmt.Sprintf("%.1f", degreeA),
+		}
+
+		res = append(res, line)
+	}
+	return res
+}
+
+func (as APISVC)generateSourceCSV(names []string, temps []hourlysvc.Temperature, params apisvc.ParamsSourceData) [][]string {
+	res := [][]string{ names }
+	var line []string
+	for _, v := range temps {
+		line = []string{
+			params.Station,
+			v.Date,
+			fmt.Sprintf("%.1f", v.Temperature),
 		}
 
 		res = append(res, line)

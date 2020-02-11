@@ -5,7 +5,6 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
-	"github.com/flasherup/gradtage.de/dlyaggregatorsvc"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/impl/parser"
 	"github.com/flasherup/gradtage.de/dlyaggregatorsvc/impl/source"
 	"github.com/flasherup/gradtage.de/stationssvc"
@@ -49,14 +48,14 @@ func NewDlyAggregatorSVC(
 	return &st,nil
 }
 
-func (das DailyAggregatorSVC) GetStatus(ctx context.Context) (temps []dlyaggregatorsvc.Status, err error) {
-	level.Info(das.logger).Log("msg", "GetStatus", "ids")
-	return temps,err
+func (das DailyAggregatorSVC) ForceUpdate(ctx context.Context, ids []string, start, end string) (err error) {
+	das.processPeriodUpdate(ids, start, end)
+	return err
 }
 
 
 func startFetchProcess(ss *DailyAggregatorSVC) {
-	ss.processUpdate() //Do it first time
+	//ss.processUpdate() //Do it first time
 	tick := time.Tick(time.Hour)
 	for {
 		select {
@@ -83,7 +82,7 @@ func (das DailyAggregatorSVC)processUpdate() {
 	}
 
 	ch := make(chan *parser.StationDaily)
-	go das.src.FetchTemperature(ch, ids)
+	go das.src.FetchLatestTemperature(ch, ids)
 
 	count := 0.0
 	for range ids {
@@ -103,6 +102,28 @@ func (das DailyAggregatorSVC)processUpdate() {
 	g := das.counter.With("stations", "all")
 	g.Set(count)
 	level.Info(das.logger).Log("msg", "Temperature updated", "stations", count)
+}
+
+
+func (das DailyAggregatorSVC)processPeriodUpdate(ids []string, start, end string) {
+	ch := make(chan *parser.StationDaily)
+	go das.src.FetchPeriodTemperature(ch, ids, start, end)
+
+	count := 0.0
+	for range ids {
+		st := <-ch
+		if st != nil {
+			_, err := das.daily.PushPeriod(st.ID, st.Temps)
+			if err != nil {
+				level.Error(das.logger).Log("msg", "PushPeriod Error", "err", err)
+				das.sendAlert(NewErrorAlert(err))
+			} else {
+				das.updateAverage(st.ID, st.Temps)
+				count++
+			}
+		}
+	}
+	level.Info(das.logger).Log("msg", "Force temperature updated", "stations", count)
 }
 
 func (das DailyAggregatorSVC) updateAverage(id string, temps []dailysvc.Temperature) {

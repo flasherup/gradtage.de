@@ -120,7 +120,7 @@ func toGRPCTemps(sts []dailysvc.Temperature) []*dlygrpc.Temperature {
 	for i,v := range sts {
 		res[i] = &dlygrpc.Temperature{
 			Date:			v.Date,
-			Temperature:	float32(v.Temperature),
+			Temperature:	v.Temperature,
 		}
 	}
 

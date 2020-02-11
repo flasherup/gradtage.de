@@ -79,6 +79,7 @@ func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []ho
 		}
 		temps = append(temps, st)
 	}
+
 	return temps,err
 }
 

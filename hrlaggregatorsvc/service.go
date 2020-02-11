@@ -8,7 +8,7 @@ import (
 type Status struct {
 	Station 	string 	`json:"station"`
 	Update 		string 	`json:"update"`
-	Temperature	float32 `json:"temperature"`
+	Temperature	float64 `json:"temperature"`
 
 }
 

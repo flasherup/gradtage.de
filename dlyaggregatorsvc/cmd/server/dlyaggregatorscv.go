@@ -82,7 +82,7 @@ func main() {
 
 		gRPCServer := googlerpc.NewServer()
 		dagrpc.RegisterDlyAggregatorSVCServer(gRPCServer, dlyaggregatorsvc.NewGRPCServer(ctx, dlyaggregatorsvc.Endpoints {
-			GetStatusEndpoint:    dlyaggregatorsvc.MakeGetStatusEndpoint(dailyAggregatorService),
+			ForceUpdateEndpoint:    dlyaggregatorsvc.MakeForceUpdateEndpoint(dailyAggregatorService),
 		}))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())

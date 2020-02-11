@@ -55,7 +55,10 @@ func (pg *Postgres) PushPeriod(name string, temperatures []dailysvc.Temperature)
 		}
 	}
 
-	query += " ON CONFLICT (date) DO NOTHING;"
+	//query += " ON CONFLICT (date) DO NOTHING;"
+
+	query += ` ON CONFLICT (date) DO UPDATE SET
+			 temperature = excluded.temperature;`
 	return writeToDB(pg.db, query)
 }
 

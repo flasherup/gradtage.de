@@ -40,7 +40,7 @@ func toGRPCTemps(src []hourlysvc.Temperature) []*noaascpc.Temperature {
 	for i,v := range src {
 		res[i] = &noaascpc.Temperature {
 			Date: 			v.Date,
-			Temperature: 	float32(v.Temperature),
+			Temperature: 	v.Temperature,
 		}
 	}
 	return res

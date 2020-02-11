@@ -6,18 +6,19 @@ import (
 )
 
 type Endpoints struct {
-	GetStatusEndpoint  	endpoint.Endpoint
+	ForceUpdateEndpoint  	endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetStatusEndpoint:   	MakeGetStatusEndpoint(s),
+		ForceUpdateEndpoint:   	MakeForceUpdateEndpoint(s),
 	}
 }
 
-func MakeGetStatusEndpoint(s Service) endpoint.Endpoint {
+func MakeForceUpdateEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		status, err := s.GetStatus(ctx)
-		return GetStatusResponse{status, err}, err
+		req := request.(ForceUpdateRequest)
+		err := s.ForceUpdate(ctx, req.IDs, req.Start, req.End)
+		return ForceUpdateResponse{ err }, err
 	}
 }

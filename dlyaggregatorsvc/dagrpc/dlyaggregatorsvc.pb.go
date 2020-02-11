@@ -6,6 +6,7 @@ package dagrpc
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/gogo/protobuf/gogoproto"
 
 import (
 	context "golang.org/x/net/context"
@@ -23,130 +24,92 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-type Status struct {
-	Station              string   `protobuf:"bytes,1,opt,name=station,proto3" json:"station,omitempty"`
-	Update               string   `protobuf:"bytes,2,opt,name=update,proto3" json:"update,omitempty"`
-	Temperature          float32  `protobuf:"fixed32,3,opt,name=temperature,proto3" json:"temperature,omitempty"`
+type ForceUpdateRequest struct {
+	Ids                  []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	Start                string   `protobuf:"bytes,2,opt,name=start,proto3" json:"start,omitempty"`
+	End                  string   `protobuf:"bytes,3,opt,name=end,proto3" json:"end,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Status) Reset()         { *m = Status{} }
-func (m *Status) String() string { return proto.CompactTextString(m) }
-func (*Status) ProtoMessage()    {}
-func (*Status) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dlyaggregatorsvc_2c686b1f09054b79, []int{0}
+func (m *ForceUpdateRequest) Reset()         { *m = ForceUpdateRequest{} }
+func (m *ForceUpdateRequest) String() string { return proto.CompactTextString(m) }
+func (*ForceUpdateRequest) ProtoMessage()    {}
+func (*ForceUpdateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dlyaggregatorsvc_f9e75d108579a5b4, []int{0}
 }
-func (m *Status) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Status.Unmarshal(m, b)
+func (m *ForceUpdateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ForceUpdateRequest.Unmarshal(m, b)
 }
-func (m *Status) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Status.Marshal(b, m, deterministic)
+func (m *ForceUpdateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ForceUpdateRequest.Marshal(b, m, deterministic)
 }
-func (dst *Status) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Status.Merge(dst, src)
+func (dst *ForceUpdateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ForceUpdateRequest.Merge(dst, src)
 }
-func (m *Status) XXX_Size() int {
-	return xxx_messageInfo_Status.Size(m)
+func (m *ForceUpdateRequest) XXX_Size() int {
+	return xxx_messageInfo_ForceUpdateRequest.Size(m)
 }
-func (m *Status) XXX_DiscardUnknown() {
-	xxx_messageInfo_Status.DiscardUnknown(m)
+func (m *ForceUpdateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ForceUpdateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Status proto.InternalMessageInfo
+var xxx_messageInfo_ForceUpdateRequest proto.InternalMessageInfo
 
-func (m *Status) GetStation() string {
+func (m *ForceUpdateRequest) GetIds() []string {
 	if m != nil {
-		return m.Station
-	}
-	return ""
-}
-
-func (m *Status) GetUpdate() string {
-	if m != nil {
-		return m.Update
-	}
-	return ""
-}
-
-func (m *Status) GetTemperature() float32 {
-	if m != nil {
-		return m.Temperature
-	}
-	return 0
-}
-
-type GetStatusRequest struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetStatusRequest) Reset()         { *m = GetStatusRequest{} }
-func (m *GetStatusRequest) String() string { return proto.CompactTextString(m) }
-func (*GetStatusRequest) ProtoMessage()    {}
-func (*GetStatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dlyaggregatorsvc_2c686b1f09054b79, []int{1}
-}
-func (m *GetStatusRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetStatusRequest.Unmarshal(m, b)
-}
-func (m *GetStatusRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetStatusRequest.Marshal(b, m, deterministic)
-}
-func (dst *GetStatusRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetStatusRequest.Merge(dst, src)
-}
-func (m *GetStatusRequest) XXX_Size() int {
-	return xxx_messageInfo_GetStatusRequest.Size(m)
-}
-func (m *GetStatusRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetStatusRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetStatusRequest proto.InternalMessageInfo
-
-type GetStatusResponse struct {
-	Status               []*Status `protobuf:"bytes,1,rep,name=status,proto3" json:"status,omitempty"`
-	Err                  string    `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
-	XXX_unrecognized     []byte    `json:"-"`
-	XXX_sizecache        int32     `json:"-"`
-}
-
-func (m *GetStatusResponse) Reset()         { *m = GetStatusResponse{} }
-func (m *GetStatusResponse) String() string { return proto.CompactTextString(m) }
-func (*GetStatusResponse) ProtoMessage()    {}
-func (*GetStatusResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dlyaggregatorsvc_2c686b1f09054b79, []int{2}
-}
-func (m *GetStatusResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetStatusResponse.Unmarshal(m, b)
-}
-func (m *GetStatusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetStatusResponse.Marshal(b, m, deterministic)
-}
-func (dst *GetStatusResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetStatusResponse.Merge(dst, src)
-}
-func (m *GetStatusResponse) XXX_Size() int {
-	return xxx_messageInfo_GetStatusResponse.Size(m)
-}
-func (m *GetStatusResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetStatusResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetStatusResponse proto.InternalMessageInfo
-
-func (m *GetStatusResponse) GetStatus() []*Status {
-	if m != nil {
-		return m.Status
+		return m.Ids
 	}
 	return nil
 }
 
-func (m *GetStatusResponse) GetErr() string {
+func (m *ForceUpdateRequest) GetStart() string {
+	if m != nil {
+		return m.Start
+	}
+	return ""
+}
+
+func (m *ForceUpdateRequest) GetEnd() string {
+	if m != nil {
+		return m.End
+	}
+	return ""
+}
+
+type ForceUpdateResponse struct {
+	Err                  string   `protobuf:"bytes,1,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ForceUpdateResponse) Reset()         { *m = ForceUpdateResponse{} }
+func (m *ForceUpdateResponse) String() string { return proto.CompactTextString(m) }
+func (*ForceUpdateResponse) ProtoMessage()    {}
+func (*ForceUpdateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dlyaggregatorsvc_f9e75d108579a5b4, []int{1}
+}
+func (m *ForceUpdateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ForceUpdateResponse.Unmarshal(m, b)
+}
+func (m *ForceUpdateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ForceUpdateResponse.Marshal(b, m, deterministic)
+}
+func (dst *ForceUpdateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ForceUpdateResponse.Merge(dst, src)
+}
+func (m *ForceUpdateResponse) XXX_Size() int {
+	return xxx_messageInfo_ForceUpdateResponse.Size(m)
+}
+func (m *ForceUpdateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ForceUpdateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ForceUpdateResponse proto.InternalMessageInfo
+
+func (m *ForceUpdateResponse) GetErr() string {
 	if m != nil {
 		return m.Err
 	}
@@ -154,9 +117,8 @@ func (m *GetStatusResponse) GetErr() string {
 }
 
 func init() {
-	proto.RegisterType((*Status)(nil), "dagrpc.Status")
-	proto.RegisterType((*GetStatusRequest)(nil), "dagrpc.GetStatusRequest")
-	proto.RegisterType((*GetStatusResponse)(nil), "dagrpc.GetStatusResponse")
+	proto.RegisterType((*ForceUpdateRequest)(nil), "dagrpc.ForceUpdateRequest")
+	proto.RegisterType((*ForceUpdateResponse)(nil), "dagrpc.ForceUpdateResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -171,7 +133,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DlyAggregatorSVCClient interface {
-	GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error)
+	ForceUpdate(ctx context.Context, in *ForceUpdateRequest, opts ...grpc.CallOption) (*ForceUpdateResponse, error)
 }
 
 type dlyAggregatorSVCClient struct {
@@ -182,9 +144,9 @@ func NewDlyAggregatorSVCClient(cc *grpc.ClientConn) DlyAggregatorSVCClient {
 	return &dlyAggregatorSVCClient{cc}
 }
 
-func (c *dlyAggregatorSVCClient) GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error) {
-	out := new(GetStatusResponse)
-	err := c.cc.Invoke(ctx, "/dagrpc.DlyAggregatorSVC/GetStatus", in, out, opts...)
+func (c *dlyAggregatorSVCClient) ForceUpdate(ctx context.Context, in *ForceUpdateRequest, opts ...grpc.CallOption) (*ForceUpdateResponse, error) {
+	out := new(ForceUpdateResponse)
+	err := c.cc.Invoke(ctx, "/dagrpc.DlyAggregatorSVC/ForceUpdate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -193,27 +155,27 @@ func (c *dlyAggregatorSVCClient) GetStatus(ctx context.Context, in *GetStatusReq
 
 // DlyAggregatorSVCServer is the server API for DlyAggregatorSVC service.
 type DlyAggregatorSVCServer interface {
-	GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error)
+	ForceUpdate(context.Context, *ForceUpdateRequest) (*ForceUpdateResponse, error)
 }
 
 func RegisterDlyAggregatorSVCServer(s *grpc.Server, srv DlyAggregatorSVCServer) {
 	s.RegisterService(&_DlyAggregatorSVC_serviceDesc, srv)
 }
 
-func _DlyAggregatorSVC_GetStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetStatusRequest)
+func _DlyAggregatorSVC_ForceUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ForceUpdateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DlyAggregatorSVCServer).GetStatus(ctx, in)
+		return srv.(DlyAggregatorSVCServer).ForceUpdate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/dagrpc.DlyAggregatorSVC/GetStatus",
+		FullMethod: "/dagrpc.DlyAggregatorSVC/ForceUpdate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DlyAggregatorSVCServer).GetStatus(ctx, req.(*GetStatusRequest))
+		return srv.(DlyAggregatorSVCServer).ForceUpdate(ctx, req.(*ForceUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -223,8 +185,8 @@ var _DlyAggregatorSVC_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*DlyAggregatorSVCServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetStatus",
-			Handler:    _DlyAggregatorSVC_GetStatus_Handler,
+			MethodName: "ForceUpdate",
+			Handler:    _DlyAggregatorSVC_ForceUpdate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -232,23 +194,23 @@ var _DlyAggregatorSVC_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("dlyaggregatorsvc.proto", fileDescriptor_dlyaggregatorsvc_2c686b1f09054b79)
+	proto.RegisterFile("dlyaggregatorsvc.proto", fileDescriptor_dlyaggregatorsvc_f9e75d108579a5b4)
 }
 
-var fileDescriptor_dlyaggregatorsvc_2c686b1f09054b79 = []byte{
+var fileDescriptor_dlyaggregatorsvc_f9e75d108579a5b4 = []byte{
 	// 224 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x90, 0x4f, 0x4b, 0x03, 0x31,
-	0x10, 0xc5, 0xdd, 0x2e, 0x44, 0x3a, 0x05, 0x59, 0xe7, 0x50, 0xa2, 0xa7, 0x90, 0x83, 0xec, 0x69,
-	0x0f, 0xf5, 0x13, 0xf8, 0x07, 0x3c, 0x79, 0xd9, 0x42, 0x4f, 0x5e, 0x62, 0x77, 0x08, 0x42, 0x6d,
-	0xe2, 0x64, 0x22, 0xf4, 0xdb, 0x8b, 0xbb, 0x69, 0x29, 0xe2, 0x2d, 0xef, 0xbd, 0x30, 0xef, 0x37,
-	0x03, 0xcb, 0x61, 0x77, 0x70, 0xde, 0x33, 0x79, 0x27, 0x81, 0xd3, 0xf7, 0xb6, 0x8b, 0x1c, 0x24,
-	0xa0, 0x1a, 0x9c, 0xe7, 0xb8, 0xb5, 0x6f, 0xa0, 0xd6, 0xe2, 0x24, 0x27, 0xd4, 0x70, 0x99, 0xc4,
-	0xc9, 0x47, 0xd8, 0xeb, 0xca, 0x54, 0xed, 0xbc, 0x3f, 0x4a, 0x5c, 0x82, 0xca, 0x71, 0x70, 0x42,
-	0x7a, 0x36, 0x06, 0x45, 0xa1, 0x81, 0x85, 0xd0, 0x67, 0x24, 0x76, 0x92, 0x99, 0x74, 0x6d, 0xaa,
-	0x76, 0xd6, 0x9f, 0x5b, 0x16, 0xa1, 0x79, 0x21, 0x99, 0x0a, 0x7a, 0xfa, 0xca, 0x94, 0xc4, 0xbe,
-	0xc2, 0xf5, 0x99, 0x97, 0x62, 0xd8, 0x27, 0xc2, 0x3b, 0x50, 0x69, 0x74, 0x74, 0x65, 0xea, 0x76,
-	0xb1, 0xba, 0xea, 0x26, 0xbe, 0xae, 0xfc, 0x2b, 0x29, 0x36, 0x50, 0x13, 0x73, 0xe1, 0xf8, 0x7d,
-	0xae, 0x36, 0xd0, 0x3c, 0xef, 0x0e, 0x0f, 0xa7, 0x15, 0xd7, 0x9b, 0x27, 0x7c, 0x84, 0xf9, 0xa9,
-	0x02, 0xf5, 0x71, 0xd4, 0x5f, 0x92, 0xdb, 0x9b, 0x7f, 0x92, 0x89, 0xc7, 0x5e, 0xbc, 0xab, 0xf1,
-	0x4e, 0xf7, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x71, 0xc7, 0x79, 0x7d, 0x41, 0x01, 0x00, 0x00,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4b, 0xc9, 0xa9, 0x4c,
+	0x4c, 0x4f, 0x2f, 0x4a, 0x4d, 0x4f, 0x2c, 0xc9, 0x2f, 0x2a, 0x2e, 0x4b, 0xd6, 0x2b, 0x28, 0xca,
+	0x2f, 0xc9, 0x17, 0x62, 0x4b, 0x49, 0x4c, 0x2f, 0x2a, 0x48, 0x96, 0xd2, 0x4d, 0xcf, 0x2c, 0xc9,
+	0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f, 0xcf, 0x4f, 0xcf, 0xd7, 0x07, 0x4b, 0x27, 0x95,
+	0xa6, 0x81, 0x79, 0x60, 0x0e, 0x98, 0x05, 0xd1, 0xa6, 0x14, 0xc2, 0x25, 0xe4, 0x96, 0x5f, 0x94,
+	0x9c, 0x1a, 0x5a, 0x90, 0x92, 0x58, 0x92, 0x1a, 0x94, 0x5a, 0x58, 0x9a, 0x5a, 0x5c, 0x22, 0x24,
+	0xc6, 0xc5, 0x9c, 0x99, 0x52, 0x2c, 0xc1, 0xa8, 0xc0, 0xac, 0xc1, 0xe9, 0xc4, 0x72, 0xe2, 0x9e,
+	0x3c, 0x43, 0x10, 0x48, 0x40, 0x48, 0x84, 0x8b, 0xb5, 0xb8, 0x24, 0xb1, 0xa8, 0x44, 0x82, 0x49,
+	0x81, 0x51, 0x83, 0x33, 0x08, 0xc2, 0x11, 0x12, 0xe0, 0x62, 0x4e, 0xcd, 0x4b, 0x91, 0x60, 0x06,
+	0x8b, 0x81, 0x98, 0x4a, 0xea, 0x5c, 0xc2, 0x28, 0xa6, 0x16, 0x17, 0xe4, 0xe7, 0x15, 0xa7, 0x82,
+	0x15, 0x16, 0x15, 0x49, 0x30, 0x42, 0x15, 0x16, 0x15, 0x19, 0xc5, 0x70, 0x09, 0xb8, 0xe4, 0x54,
+	0x3a, 0xc2, 0xfd, 0x13, 0x1c, 0xe6, 0x2c, 0xe4, 0xc1, 0xc5, 0x8d, 0xa4, 0x59, 0x48, 0x4a, 0x0f,
+	0xe2, 0x33, 0x3d, 0x4c, 0x77, 0x4a, 0x49, 0x63, 0x95, 0x83, 0xd8, 0xa6, 0xc4, 0x90, 0xc4, 0x06,
+	0xf6, 0xa3, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x14, 0xa6, 0x7f, 0x97, 0x34, 0x01, 0x00, 0x00,
 }

@@ -11,25 +11,25 @@ import (
 )
 
 type GRPCServer struct {
-	getStatus    	gt.Handler
+	forceUpdate   	gt.Handler
 }
 
-func (s *GRPCServer) GetStatus(ctx context.Context, req *dagrpc.GetStatusRequest) (*dagrpc.GetStatusResponse, error) {
-	_, resp, err := s.getStatus.ServeGRPC(ctx, req)
+func (s *GRPCServer) ForceUpdate(ctx context.Context, req *dagrpc.ForceUpdateRequest) (*dagrpc.ForceUpdateResponse, error) {
+	_, resp, err := s.forceUpdate.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*dagrpc.GetStatusResponse), nil
+	return resp.(*dagrpc.ForceUpdateResponse), nil
 }
 
 
 
 func NewGRPCServer(_ context.Context, endpoint Endpoints) dagrpc.DlyAggregatorSVCServer {
 	server := GRPCServer{
-		getStatus: gt.NewServer(
-			endpoint.GetStatusEndpoint,
-			DecodeGetStatusRequest,
-			EncodeGetStatusResponse,
+		forceUpdate: gt.NewServer(
+			endpoint.ForceUpdateEndpoint,
+			DecodeForceUpdateRequest,
+			EncodeForceUpdateResponse,
 		),
 	}
 	return &server

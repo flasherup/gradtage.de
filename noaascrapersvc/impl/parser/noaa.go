@@ -65,7 +65,7 @@ func WeatherDataToTemperature(wd WeatherData) (*hourlysvc.Temperature, error) {
 		return nil,err
 	}
 
-	temp = fahrenheitToCelsius(temp)
+	//temp = fahrenheitToCelsius(temp)
 
 	sDate := time.Now()
 	date := time.Date(sDate.Year(), sDate.Month(), day, h, m, 0, 0, sDate.Location())

@@ -93,7 +93,7 @@ func toGRPCTemps(src []Temperature) []*dlygrpc.Temperature {
 	for i,v := range src {
 		res[i] = &dlygrpc.Temperature {
 			Date: 			v.Date,
-			Temperature: 	float32(v.Temperature),
+			Temperature: 	v.Temperature,
 		}
 	}
 	return res
@@ -104,7 +104,7 @@ func toServiceTemps(src []*dlygrpc.Temperature) []Temperature {
 	for i,v := range src {
 		res[i] =  Temperature{
 			Date:			v.Date,
-			Temperature:	float64(v.Temperature),
+			Temperature:	v.Temperature,
 		}
 	}
 	return res
@@ -115,7 +115,7 @@ func toGRPCMapTemps(src map[int]Temperature) map[int32]*dlygrpc.Temperature {
 	for k,v := range src {
 		res[int32(k)] = &dlygrpc.Temperature{
 			Date: 			v.Date,
-			Temperature: 	float32(v.Temperature),
+			Temperature: 	v.Temperature,
 		}
 	}
 	return res
