@@ -19,6 +19,7 @@ import (
 	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
 	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
 	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
+	noaa "github.com/flasherup/gradtage.de/noaascrapersvc/impl"
 
 )
 
@@ -64,6 +65,7 @@ func main() {
 
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
 	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
+	noaaService := noaa.NewNoaaScraperSVCClient(conf.Clients.HoaaAddr, logger)
 
 
 	level.Info(logger).Log("msg", "service started", "config", configFile)
@@ -71,7 +73,7 @@ func main() {
 
 	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
-	svc := impl.NewAPISVC(logger, dailyService, hourlyService, alertService, keyManager)
+	svc := impl.NewAPISVC(logger, dailyService, hourlyService, noaaService, alertService, keyManager)
 	hs := apisvc.NewHTTPTSransport(svc,logger)
 
 	errs := make(chan error)
@@ -98,7 +100,7 @@ func main() {
 	}()
 
 
-	/*hs2 := apisvc.NewHTTPTSransport(svc,logger)
+	hs2 := apisvc.NewHTTPTSransport(svc,logger)
 
 	go func() {
 		level.Info(logger).Log("transport", "HTTP", "addr", ":8022")
@@ -107,7 +109,7 @@ func main() {
 			Handler: hs2,
 		}
 		errs <- server.ListenAndServe()
-	}()*/
+	}()
 
 	level.Error(logger).Log("exit", <-errs)
 	alertService.SendAlert(impl.NewNotificationAlert("service stopped"))

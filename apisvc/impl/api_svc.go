@@ -10,6 +10,7 @@ import (
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
 	"github.com/flasherup/gradtage.de/hourlysvc"
+	"github.com/flasherup/gradtage.de/noaascrapersvc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
@@ -23,6 +24,7 @@ type APISVC struct {
 	alert 		alertsvc.Client
 	daily		dailysvc.Client
 	hourly		hourlysvc.Client
+	noaa 		noaascrapersvc.Client
 	keyManager *security.KeyManager
 	counter 	ktprom.Gauge
 }
@@ -35,12 +37,14 @@ const (
 const (
 	Hourly 	= "hourly"
 	Daily 	= "daily"
+	Noaa 	= "noaa"
 )
 
 func NewAPISVC(
 		logger 		log.Logger,
 		daily 		dailysvc.Client,
 		hourly 		hourlysvc.Client,
+		noaa 		noaascrapersvc.Client,
 		alert 		alertsvc.Client,
 		keyManager 	*security.KeyManager,
 	) *APISVC {
@@ -52,6 +56,8 @@ func NewAPISVC(
 	st := APISVC{
 		logger:  	logger,
 		daily:	 	daily,
+		hourly:		hourly,
+		noaa: 		noaa,
 		alert:   	alert,
 		keyManager: keyManager,
 		counter: 	*guage,
@@ -121,10 +127,10 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 		level.Error(as.logger).Log("msg", "GetSourceData invalid user", "err", err)
 		return [][]string{}, "error", err
 	}
-	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "userId", userId)
+	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "userId", userId, "start", params.Start, "end", params.End, "type", params.Type)
 
 	var temps []hourlysvc.Temperature
-	if params.Type == Hourly {
+	if params.Type == Daily {
 		t, err := as.getDailyData(params.Station, params.Start, params.End)
 		if err != nil {
 			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
@@ -133,8 +139,16 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 
 		temps = *t
 
-	} else if params.Type == Daily{
+	} else if params.Type == Hourly{
 		t, err := as.getHourlyData(params.Station, params.Start, params.End)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
+			return [][]string{}, "error", err
+		}
+
+		temps = *t
+	} else if params.Type == Noaa{
+		t, err := as.getNoaaData(params.Station, params.Start, params.End)
 		if err != nil {
 			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
 			return [][]string{}, "error", err
@@ -146,14 +160,14 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 	headerCSV := []string{ "ID","Date","Temperature" }
 
 	csv := as.generateSourceCSV(headerCSV, temps, params)
-	fileName = fmt.Sprintf("source_%s%s%s.csv", params.Station, params.Start, params.End)
+	fileName = fmt.Sprintf("source_%s_%s%s%s.csv",params.Type, params.Station, params.Start, params.End)
 	return csv,fileName,err
 }
 
 func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
 	resp, err := as.daily.GetPeriod(id, start, end)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		level.Error(as.logger).Log("msg", "Get Daily Data error", "err", err)
 		return nil, err
 	}
 
@@ -171,7 +185,25 @@ func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc
 func (as APISVC) getHourlyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
 	resp, err := as.hourly.GetPeriod(id, start, end)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
+		level.Error(as.logger).Log("msg", "Get Hourly Data error", "err", err)
+		return nil, err
+	}
+
+	res := make([]hourlysvc.Temperature, len(resp.Temps))
+	for i,v := range resp.Temps {
+		res[i] = hourlysvc.Temperature{
+			v.Date,
+			v.Temperature,
+		}
+	}
+
+	return &res, nil
+}
+
+func (as APISVC) getNoaaData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
+	resp, err := as.noaa.GetPeriod(id, start, end)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Get NOAA Data error", "err", err)
 		return nil, err
 	}
 

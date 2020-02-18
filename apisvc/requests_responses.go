@@ -23,4 +23,5 @@ type GetSourceDataRequest struct {
 
 type GetSourceDataResponse struct {
 	Data [][]string `json:"data"`
+	FileName string `json:"fileName"`
 }

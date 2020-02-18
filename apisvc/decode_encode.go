@@ -70,16 +70,24 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 }
 
 func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	req := GetSourceDataRequest{}
-	if e := json.NewDecoder(r.Body).Decode(&req.Params); e != nil {
-		return nil, e
+	r.ParseForm()
+
+	prm := ParamsSourceData{
+		Key :		r.Form.Get("key"),
+		Station : 	r.Form.Get("station"),
+		Start : 	r.Form.Get("start"),
+		End : 		r.Form.Get("end"),
+		Type : 		r.Form.Get("type"),
 	}
+
+	req  := GetSourceDataRequest{ prm }
 	return req, nil
 }
 
 func encodeGetSourceDataResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetSourceDataResponse)
 	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
 	wr := csv.NewWriter(w)
 	err := wr.WriteAll(resp.Data)
 	wr.Flush()

@@ -39,7 +39,7 @@ func MakeGetHDDCSVEndpoint(s Service) endpoint.Endpoint {
 func MakeGetSourceDataEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetSourceDataRequest)
-		data, err := s.GetSourceData(ctx, req.Params)
-		return GetSourceDataResponse{ data}, err
+		data, filename, err := s.GetSourceData(ctx, req.Params)
+		return GetSourceDataResponse{ data, filename }, err
 	}
 }

@@ -14,6 +14,7 @@ type ServerConfig struct {
 type Clients struct {
 	DailyAddr string `yaml:"daily_addr"`
 	HourlyAddr string `yaml:"hourly_addr"`
+	HoaaAddr string `yaml:"noaa_addr"`
 	AlertAddr string `yaml:"alert_addr"`
 }
 
