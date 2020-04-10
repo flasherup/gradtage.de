@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package acrpc;
+
+message GetAutocompleteRequest {
+    string text = 1;
+}
+
+message GetAutocompleteResponse {
+    map<string,string> result = 1;
+    string err               = 2;
+}
+
+service AutocompleteSVC {
+    rpc GetAutocomplete(GetAutocompleteRequest) returns (GetAutocompleteResponse) {}
+}
+
+
