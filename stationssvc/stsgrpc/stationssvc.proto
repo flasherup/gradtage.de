@@ -45,12 +45,21 @@ message AddStationsResponse {
     string err = 1;
 }
 
+message ResetStationsRequest {
+    repeated Station sts = 1;
+}
+
+message ResetStationsResponse {
+    string err = 1;
+}
+
 
 service StationSVC {
     rpc GetStations(GetStationsRequest) returns (GetStationsResponse) {}
     rpc GetAllStations(GetAllStationsRequest) returns (GetAllStationsResponse) {}
     rpc GetStationsBySrcType(GetStationsBySrcTypeRequest) returns (GetStationsBySrcTypeResponse) {}
     rpc AddStations(AddStationsRequest) returns (AddStationsResponse) {}
+    rpc ResetStations(ResetStationsRequest) returns (ResetStationsResponse) {}
 }
 
 

@@ -14,6 +14,8 @@ type ServerConfig struct {
 type SourcesConfig struct {
 	CheckwxKey		string	`yaml:"checkwx_key"`
 	UrlDWD			string  `yaml:"url_dwd"`
+	MeteostatUrl	string  `yaml:"url_meteostat"`
+	MeteostatKey	string  `yaml:"key_meteostat"`
 }
 
 type Clients struct {

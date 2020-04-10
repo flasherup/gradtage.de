@@ -27,7 +27,7 @@ func NewDWD(url string, logger log.Logger) *SourceDWD {
 
 func (sdwd SourceDWD) FetchTemperature(ch chan *parser.ParsedData, ids map[string]string) {
 	for k,v := range ids {
-		go sdwd.fetchStation(k, v, ch)
+		sdwd.fetchStation(k, v, ch)
 	}
 }
 
@@ -35,19 +35,19 @@ func (sdwd SourceDWD)fetchStation(id string, srcId string, ch chan *parser.Parse
 	fileName := generateFileName(srcId)
 	zip, err := DownloadFile(sdwd.url + fileName)
 	if err != nil {
-		ch <- &parser.ParsedData{ Success:false, Error:err }
+		ch <- &parser.ParsedData{ Success:false, StationID:id, Error:err }
 		return
 	}
 
 	data, err := ReadZipFile(zip)
 	if err != nil {
-		ch <- &parser.ParsedData{ Success:false, Error:err }
+		ch <- &parser.ParsedData{ Success:false, StationID:id, Error:err }
 		return
 	}
 
 	temps, err := parser.ParseDWD(data)
 	if err != nil {
-		ch <- &parser.ParsedData{ Success:false, Error:err }
+		ch <- &parser.ParsedData{ Success:false, StationID:id, Error:err }
 		return
 	}
 

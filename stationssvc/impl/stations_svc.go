@@ -96,11 +96,32 @@ func (ss *StationsSVC) AddStations(ctx context.Context, sts []stationssvc.Statio
 	return
 }
 
+func (ss *StationsSVC) ResetStations(ctx context.Context, sts []stationssvc.Station) (err error) {
+	level.Info(ss.logger).Log("msg", "ResetStations")
+	err = ss.db.RemoveTable()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "RemoveTable error", "err", err)
+		return
+	}
+	err = ss.db.CreateTable()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "CreateTable error", "err", err)
+		return
+	}
+	err = ss.db.AddStations(sts)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "AddStations error", "err", err)
+		ss.sendAlert(NewErrorAlert(err))
+	}
+	ss.updateStationsMetrics()
+	return
+}
+
 func (ss *StationsSVC)updateStationsMetrics() {
 	count, err :=  ss.db.GetCount()
 	if err == nil {
 		g := ss.counter.With("stations")
-		g.Add(float64(count))
+		g.Set(float64(count))
 		level.Info(ss.logger).Log("msg", "Stations count updated", "count", count)
 
 	} else {

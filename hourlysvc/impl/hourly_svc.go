@@ -63,31 +63,20 @@ func (hs HourlySVC) PushPeriod(ctx context.Context, id string, temps []hourlysvc
 
 func (hs *HourlySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
 	level.Info(hs.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
-	dates = make(map[string]string)
-	for _,v := range ids {
-		date, err := hs.db.GetUpdateDate(v)
-		if err != nil {
-			level.Error(hs.logger).Log("msg", "Get Update Date error", "err", err)
-			hs.sendAlert(NewErrorAlert(err))
-		} else {
-			dates[v] = date
-		}
+	dates, err = hs.db.GetUpdateDateList(ids)
+	if err != nil {
+		level.Error(hs.logger).Log("msg", "Get Update Date List error", "err", err)
+		hs.sendAlert(NewErrorAlert(err))
 	}
-
 	return dates, err
 }
 
 func (hs *HourlySVC) GetLatest(ctx context.Context, ids []string) (temps map[string]hourlysvc.Temperature, err error) {
 	level.Info(hs.logger).Log("msg", "Get Latest", "ids", fmt.Sprintf("%+q:",ids))
-	temps = make(map[string]hourlysvc.Temperature)
-	for _,v := range ids {
-		temp, err := hs.db.GetLatest(v)
-		if err != nil {
-			level.Error(hs.logger).Log("msg", "Get Latest error", "err", err)
-			hs.sendAlert(NewErrorAlert(err))
-		} else {
-			temps[v] = temp
-		}
+	temps, err = hs.db.GetLatestList(ids)
+	if err != nil {
+		level.Error(hs.logger).Log("msg", "Get Latest List error", "err", err)
+		hs.sendAlert(NewErrorAlert(err))
 	}
 	return temps, err
 }

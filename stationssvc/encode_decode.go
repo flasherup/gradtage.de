@@ -69,6 +69,29 @@ func DecodeAddStationsRequest(_ context.Context, r interface{}) (interface{}, er
 	return AddStationsRequest{encStations}, nil
 }
 
+func EncodeResetStationsResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(ResetStationsResponse)
+	return &stsgrpc.ResetStationsResponse {
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+
+func DecodeResetStationsRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*stsgrpc.ResetStationsRequest)
+	encStations := make([]Station, len(req.Sts))
+	for i,v := range req.Sts {
+		encStations[i] = Station {
+			ID:v.Id,
+			Name:v.Name,
+			Timezone:v.Timezone,
+			SourceType:v.SourceType,
+			SourceID:v.SourceId,
+		}
+	}
+	return ResetStationsRequest{encStations}, nil
+}
+
 func toGRPCMap(src map[string]Station) map[string]*stsgrpc.Station {
 	res := make(map[string]*stsgrpc.Station)
 	for k,v := range src {

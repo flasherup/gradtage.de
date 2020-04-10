@@ -7,4 +7,5 @@ type Client interface {
 	GetAllStations() 						(resp *stsgrpc.GetAllStationsResponse, err error)
 	GetStationsBySrcType(types []string) 	(resp *stsgrpc.GetStationsBySrcTypeResponse, err error)
 	AddStations(sts []Station) 				(resp *stsgrpc.AddStationsResponse, err error)
+	ResetStations(sts []Station) 			(resp *stsgrpc.ResetStationsResponse, err error)
 }

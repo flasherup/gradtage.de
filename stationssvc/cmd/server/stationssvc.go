@@ -88,6 +88,7 @@ func main() {
 			GetAllStationsEndpoint: stationssvc.MakeGetAllStationsEndpoint(stationsService),
 			GetStationsBySrcTypeEndpoint: stationssvc.MakeGetStationsBySrcTypeEndpoint(stationsService),
 			AddStationsEndpoint: stationssvc.MakeAddStationsEndpoint(stationsService),
+			ResetStationsEndpoint: stationssvc.MakeResetStationsEndpoint(stationsService),
 		}))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())

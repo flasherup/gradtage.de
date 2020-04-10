@@ -15,6 +15,7 @@ type GRPCServer struct {
 	getAllStations  		gt.Handler
 	getStationsBySrcType  	gt.Handler
 	addStations    			gt.Handler
+	resetStations    		gt.Handler
 }
 
 func (s *GRPCServer) GetStations(ctx context.Context, req *stsgrpc.GetStationsRequest) (*stsgrpc.GetStationsResponse, error) {
@@ -49,6 +50,14 @@ func (s *GRPCServer) AddStations(ctx context.Context, req *stsgrpc.AddStationsRe
 	return resp.(*stsgrpc.AddStationsResponse), nil
 }
 
+func (s *GRPCServer) ResetStations(ctx context.Context, req *stsgrpc.ResetStationsRequest) (*stsgrpc.ResetStationsResponse, error) {
+	_, resp, err := s.resetStations.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*stsgrpc.ResetStationsResponse), nil
+}
+
 
 
 func NewGRPCServer(_ context.Context, endpoint Endpoints) stsgrpc.StationSVCServer {
@@ -72,6 +81,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) stsgrpc.StationSVCServ
 			endpoint.AddStationsEndpoint,
 			DecodeAddStationsRequest,
 			EncodeAddStationsResponse,
+		),
+		resetStations: gt.NewServer(
+			endpoint.ResetStationsEndpoint,
+			DecodeResetStationsRequest,
+			EncodeResetStationsResponse,
 		),
 	}
 }

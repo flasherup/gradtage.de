@@ -26,31 +26,31 @@ func NewSourceNOAA(url string, logger log.Logger) *SourceNOAA {
 	}
 }
 
-func (sn SourceNOAA) FetchTemperature(ch chan *parser.ParsedData, daysNumber int,  ids []string) {
+func (sn SourceNOAA) FetchTemperature(ch chan *parser.ParsedData, daysNumber int,  ids map[string]string) {
 	if daysNumber < 1 {
 		daysNumber = 72
 	}
 	start,end := getDates(daysNumber)
-	for _,v := range ids {
-		go sn.fetchStation(v, start,end, ch)
+	for k,v := range ids {
+		sn.fetchStation(k, v, start,end, ch)
 	}
 }
 
 
-func (sn SourceNOAA)fetchStation(id string, startDate string, endDate string, ch chan *parser.ParsedData) {
+func (sn SourceNOAA)fetchStation(id string, srcId string, startDate string, endDate string, ch chan *parser.ParsedData) {
 	noaa := noaa.NewNoaaScraperSVCClient(sn.url, sn.logger)
 
 	period, err := noaa.GetPeriod(id, startDate, endDate)
 
 	if err != nil {
 		level.Error(sn.logger).Log("msg", "Get period error", "start", startDate, "end", endDate, "err", err.Error())
-		ch <- &parser.ParsedData{ Success:false, Error:err }
+		ch <- &parser.ParsedData{ Success:false, StationID:id, Error:err }
 		return
 	}
 
 	if period.Err != "nil" {
 		level.Error(sn.logger).Log("msg", "Get period error", "start", startDate, "end", endDate, "err", period.Err)
-		ch <- &parser.ParsedData{ Success:false, Error: errors.New(period.Err) }
+		ch <- &parser.ParsedData{ Success:false, StationID:id, Error: errors.New(period.Err) }
 		return
 	}
 

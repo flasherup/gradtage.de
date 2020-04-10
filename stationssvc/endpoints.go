@@ -11,6 +11,7 @@ type Endpoints struct {
 	GetAllStationsEndpoint  		endpoint.Endpoint
 	GetStationsBySrcTypeEndpoint  	endpoint.Endpoint
 	AddStationsEndpoint  			endpoint.Endpoint
+	ResetStationsEndpoint  			endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -19,6 +20,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		GetAllStationsEndpoint:			MakeGetAllStationsEndpoint(s),
 		GetStationsBySrcTypeEndpoint:	MakeGetStationsBySrcTypeEndpoint(s),
 		AddStationsEndpoint:			MakeAddStationsEndpoint(s),
+		ResetStationsEndpoint:			MakeResetStationsEndpoint(s),
 	}
 }
 
@@ -51,5 +53,14 @@ func MakeAddStationsEndpoint(s Service) endpoint.Endpoint {
 		req := request.(AddStationsRequest)
 		err := s.AddStations(ctx, req.Stations)
 		return AddStationsResponse{err}, nil
+	}
+}
+
+
+func MakeResetStationsEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ResetStationsRequest)
+		err := s.ResetStations(ctx, req.Stations)
+		return ResetStationsResponse{err}, nil
 	}
 }

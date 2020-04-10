@@ -33,3 +33,11 @@ type AddStationsRequest struct {
 type AddStationsResponse struct {
 	Err error `json:"err"`
 }
+
+type ResetStationsRequest struct {
+	Stations []Station `json:"sts"`
+}
+
+type ResetStationsResponse struct {
+	Err error `json:"err"`
+}

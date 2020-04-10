@@ -102,7 +102,7 @@ func (pg *Postgres) RemoveTable(name string) error {
 	return writeToDB(pg.db, query)
 }
 
-//GetUpdateDate ...
+//GetUpdateDate return latest date of update for station with @name
 func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
 		name)
@@ -126,6 +126,49 @@ func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
 	return date,err
 }
 
+
+//GetUpdateDateList return latest dates of update for stations with specified in @names
+func (pg *Postgres)GetUpdateDateList(names []string) (temps map[string]string, err error) {
+	query := ""
+	for i,v := range names {
+		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
+			v, v)
+
+		if i < len(names)-1 {
+			query += " UNION ALL "
+		} else {
+			query += ";"
+		}
+	}
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temps,err
+	}
+	defer rows.Close()
+
+	temps = map[string]string{}
+
+	row := struct {
+		Date 		string
+		Temperature float64
+		Name 		string
+	}{}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&row.Date,
+			&row.Temperature,
+			&row.Name,
+		)
+
+		if err == nil {
+			temps[row.Name] = row.Date
+		}
+	}
+	return temps, nil
+}
+
 //GetLatest return latest temperature data
 //for station with name @name
 func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error) {
@@ -140,6 +183,54 @@ func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error
 
 	rows.Next()
 	return parseRow(rows)
+}
+
+//GetLatestList return latest temperatures data
+//for station specified in @[]strings
+func (pg *Postgres)GetLatestList(names []string) (temps map[string]hourlysvc.Temperature, err error) {
+	query := ""
+
+	for i,v := range names {
+		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
+			v, v)
+
+		if i < len(names)-1 {
+			query += " UNION ALL "
+		} else {
+			query += ";"
+		}
+	}
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temps,err
+	}
+	defer rows.Close()
+
+	temps = map[string]hourlysvc.Temperature{}
+
+	row := struct {
+		Date 		string
+		Temperature float64
+		Name 		string
+	}{}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&row.Date,
+			&row.Temperature,
+			&row.Name,
+		)
+
+		if err == nil {
+
+			temps[row.Name] = hourlysvc.Temperature{
+				Date:row.Date,
+				Temperature:row.Temperature,
+			}
+		}
+	}
+	return temps, nil
 }
 
 

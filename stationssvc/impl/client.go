@@ -74,6 +74,20 @@ func (scc StationsSVCClient) AddStations(sts []stationssvc.Station) (resp *stsgr
 	return resp, err
 }
 
+func (scc StationsSVCClient) ResetStations(sts []stationssvc.Station) (resp *stsgrpc.ResetStationsResponse, err error) {
+	conn := scc.openConn()
+	defer conn.Close()
+
+	s := toGRPCStations(sts)
+	client := stsgrpc.NewStationSVCClient(conn)
+	resp, err = client.ResetStations(context.Background(), &stsgrpc.ResetStationsRequest{ Sts: s })
+	if err != nil {
+		level.Error(scc.logger).Log("msg", "Failed to reset stations", "err", err)
+
+	}
+	return resp, err
+}
+
 
 func (scc StationsSVCClient) openConn() *googlerpc.ClientConn {
 	cc, err := googlerpc.Dial(scc.host, googlerpc.WithInsecure())

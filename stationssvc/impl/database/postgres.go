@@ -183,8 +183,8 @@ func (pg *Postgres) Dispose() {
 //CreateTable create a "Stations" table if not exist
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			id char(4) UNIQUE,
-			name varchar(30),
+			id varchar(8) UNIQUE,
+			name varchar(50),
 			timezone varchar(8),
 			source_type varchar(4),
 			source_id varchar(8)
