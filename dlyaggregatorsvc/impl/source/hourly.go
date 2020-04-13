@@ -51,7 +51,7 @@ func (h Hourly) FetchLatestTemperature(ch chan *parser.StationDaily, ids []strin
 	)
 	for _,v := range ids {
 		hrlUpdate = currentTime
-		hrlUpdate = veryFirstTime
+		dlyUpdate = veryFirstTime
 
 		if date, ok := huorlyUpdates.Dates[v]; ok {
 			hrlUpdate = date
@@ -65,13 +65,13 @@ func (h Hourly) FetchLatestTemperature(ch chan *parser.StationDaily, ids []strin
 			level.Warn(h.logger).Log("msg", "Daily update warning", "warn", "Station is not presented in daily db", "station", v)
 		}
 
-		go h.fetchStation(v, ch, dlyUpdate, hrlUpdate)
+		h.fetchStation(v, ch, dlyUpdate, hrlUpdate)
 	}
 }
 
 func (h Hourly) FetchPeriodTemperature(ch chan *parser.StationDaily, ids []string, start, end string) {
 	for _,v := range ids {
-		go h.fetchStation(v, ch, start, end)
+		h.fetchStation(v, ch, start, end)
 	}
 }
 

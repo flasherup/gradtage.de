@@ -63,17 +63,13 @@ func (ds DailySVC) PushPeriod(ctx context.Context, id string, temps []dailysvc.T
 	return err
 }
 
-func (ds *DailySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
-	level.Info(ds.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
-	dates = make(map[string]string)
-	for _,v := range ids {
-		date, err := ds.db.GetUpdateDate(v)
-		if err != nil {
-			level.Error(ds.logger).Log("msg", "Get Update Date error", "err", err)
-			ds.sendAlert(NewErrorAlert(err))
-		} else {
-			dates[v] = date
-		}
+func (ds DailySVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
+	level.Info(ds.logger).Log("msg", "GetUpdateDate", "idsAmount", len(ids))
+	ids = ds.getValidIds(ids)
+	dates, err = ds.db.GetUpdateDateList(ids)
+	if err != nil {
+		level.Error(ds.logger).Log("msg", "Get Update Date error", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
 	}
 	return dates, err
 }
@@ -106,6 +102,33 @@ func (ds DailySVC) GetAvg(ctx context.Context, id string) (temps map[int]dailysv
 		ds.sendAlert(NewErrorAlert(err))
 	}
 	return temps,err
+}
+
+func (ds DailySVC) getValidIds(ids []string) []string {
+	tableNames, err := ds.db.GetTablesList()
+	if err != nil {
+		level.Error(ds.logger).Log("msg", "Can not validate ids", "err", err)
+		ds.sendAlert(NewErrorAlert(err))
+		return ids
+	}
+	valid := make(map[string]bool, 0)
+	for _,v := range ids {
+		_,ok := tableNames[v]
+		if ok {
+			valid[v] = true
+		} else {
+			level.Warn(ds.logger).Log("msg", "Id not found", "id", v)
+		}
+	}
+
+	res := make([]string, len(valid))
+	i := 0
+	for id,_ := range valid {
+		res[i] = id
+		i++
+	}
+
+	return res
 }
 
 func (ds DailySVC)sendAlert(alert alertsvc.Alert) {

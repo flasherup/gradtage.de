@@ -13,7 +13,7 @@ type Postgres struct {
 	db *sql.DB
 }
 
-const tableName = "stations_hd"
+const tableName = "stations"
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){

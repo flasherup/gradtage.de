@@ -175,6 +175,87 @@ func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
 }
 
 
+//Request example
+//(SELECT *, 'de00044' as name
+//FROM de00044
+//ORDER BY date
+//DESC LIMIT 1)
+//UNION ALL
+//(SELECT *, 'de00071' as name
+//FROM de00071
+//ORDER BY date
+//DESC LIMIT 1);
+//GetUpdateDateList return latest dates of update for stations with specified in @names
+func (pg *Postgres)GetUpdateDateList(names []string) (temps map[string]string, err error) {
+	query := ""
+	for i,v := range names {
+		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
+			v, v)
+
+		if i < len(names)-1 {
+			query += " UNION ALL "
+		} else {
+			query += ";"
+		}
+	}
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temps,err
+	}
+	defer rows.Close()
+
+	temps = map[string]string{}
+
+	row := struct {
+		Date 		string
+		Temperature float64
+		Name 		string
+	}{}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&row.Date,
+			&row.Temperature,
+			&row.Name,
+		)
+
+		if err == nil {
+			temps[row.Name] = row.Date
+		}
+	}
+	return temps, nil
+}
+
+func (pg *Postgres)GetTablesList() (map[string]bool, error) {
+	query := "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"
+
+	res := make(map[string]bool)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return res,err
+	}
+	defer rows.Close()
+
+	row := struct {
+		TableName 	 string
+	}{}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&row.TableName,
+		)
+
+		if err == nil {
+			res[row.TableName] = true
+		}
+	}
+
+	return res, nil
+}
+
+
 func parseRow(rows *sql.Rows) (row dailysvc.Temperature, err error) {
 	err = rows.Scan(
 		&row.Date,

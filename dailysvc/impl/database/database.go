@@ -12,5 +12,7 @@ type DailyDB interface {
 	GetAll(name string) (temps []dailysvc.Temperature, err error)
 	PushPeriod(name string, temps []dailysvc.Temperature) (err error)
 	GetUpdateDate(name string) (date string, err error)
+	GetUpdateDateList(names []string) (temps map[string]string, err error)
+	GetTablesList() (map[string]bool, error)
 	Dispose()
 }
