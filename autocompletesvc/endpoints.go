@@ -1,4 +1,4 @@
-package stationssvc
+package autocompletesvc
 
 import (
 	"context"
@@ -7,20 +7,29 @@ import (
 
 
 type Endpoints struct {
-	GetAutocompleteEndpoint  			endpoint.Endpoint
+	GetAutocompleteEndpoint  		endpoint.Endpoint
+	AddSourcesEndpoint  			endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetAutocompleteEndpoint:   			MakeGetAutocompleteEndpoint(s),
+		GetAutocompleteEndpoint:   		MakeGetAutocompleteEndpoint(s),
+		AddSourcesEndpoint:   			MakeAddSourcesEndpoint(s),
 	}
 }
-
 
 func MakeGetAutocompleteEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetAutocompleteRequest)
-		result, id, err := s.GetAutocomplete(ctx, req.Text)
-		return GetAutocompleteResponse{result, id, err}, err
+		result, err := s.GetAutocomplete(ctx, req.Text)
+		return GetAutocompleteResponse{result, err}, err
+	}
+}
+
+func MakeAddSourcesEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(AddSourcesRequest)
+		err := s.AddSources(ctx, req.Sources)
+		return AddSourcesResponse{err}, err
 	}
 }

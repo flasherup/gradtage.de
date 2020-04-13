@@ -23,6 +23,114 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+type Source struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=Name,proto3" json:"Name,omitempty"`
+	Icao                 string   `protobuf:"bytes,3,opt,name=Icao,proto3" json:"Icao,omitempty"`
+	Dwd                  string   `protobuf:"bytes,4,opt,name=Dwd,proto3" json:"Dwd,omitempty"`
+	Wmo                  string   `protobuf:"bytes,5,opt,name=Wmo,proto3" json:"Wmo,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Source) Reset()         { *m = Source{} }
+func (m *Source) String() string { return proto.CompactTextString(m) }
+func (*Source) ProtoMessage()    {}
+func (*Source) Descriptor() ([]byte, []int) {
+	return fileDescriptor_autocompletesvc_abece09fe01050d8, []int{0}
+}
+func (m *Source) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Source.Unmarshal(m, b)
+}
+func (m *Source) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Source.Marshal(b, m, deterministic)
+}
+func (dst *Source) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Source.Merge(dst, src)
+}
+func (m *Source) XXX_Size() int {
+	return xxx_messageInfo_Source.Size(m)
+}
+func (m *Source) XXX_DiscardUnknown() {
+	xxx_messageInfo_Source.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Source proto.InternalMessageInfo
+
+func (m *Source) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *Source) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *Source) GetIcao() string {
+	if m != nil {
+		return m.Icao
+	}
+	return ""
+}
+
+func (m *Source) GetDwd() string {
+	if m != nil {
+		return m.Dwd
+	}
+	return ""
+}
+
+func (m *Source) GetWmo() string {
+	if m != nil {
+		return m.Wmo
+	}
+	return ""
+}
+
+type Sources struct {
+	Sources              []*Source `protobuf:"bytes,1,rep,name=sources,proto3" json:"sources,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
+}
+
+func (m *Sources) Reset()         { *m = Sources{} }
+func (m *Sources) String() string { return proto.CompactTextString(m) }
+func (*Sources) ProtoMessage()    {}
+func (*Sources) Descriptor() ([]byte, []int) {
+	return fileDescriptor_autocompletesvc_abece09fe01050d8, []int{1}
+}
+func (m *Sources) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Sources.Unmarshal(m, b)
+}
+func (m *Sources) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Sources.Marshal(b, m, deterministic)
+}
+func (dst *Sources) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Sources.Merge(dst, src)
+}
+func (m *Sources) XXX_Size() int {
+	return xxx_messageInfo_Sources.Size(m)
+}
+func (m *Sources) XXX_DiscardUnknown() {
+	xxx_messageInfo_Sources.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Sources proto.InternalMessageInfo
+
+func (m *Sources) GetSources() []*Source {
+	if m != nil {
+		return m.Sources
+	}
+	return nil
+}
+
 type GetAutocompleteRequest struct {
 	Text                 string   `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -34,7 +142,7 @@ func (m *GetAutocompleteRequest) Reset()         { *m = GetAutocompleteRequest{}
 func (m *GetAutocompleteRequest) String() string { return proto.CompactTextString(m) }
 func (*GetAutocompleteRequest) ProtoMessage()    {}
 func (*GetAutocompleteRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_autocompletesvc_39264745a093dd5a, []int{0}
+	return fileDescriptor_autocompletesvc_abece09fe01050d8, []int{2}
 }
 func (m *GetAutocompleteRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAutocompleteRequest.Unmarshal(m, b)
@@ -62,18 +170,18 @@ func (m *GetAutocompleteRequest) GetText() string {
 }
 
 type GetAutocompleteResponse struct {
-	Result               map[string]string `protobuf:"bytes,1,rep,name=result,proto3" json:"result,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Err                  string            `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_unrecognized     []byte            `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
+	Result               map[string]*Sources `protobuf:"bytes,1,rep,name=result,proto3" json:"result,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Err                  string              `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_unrecognized     []byte              `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
 }
 
 func (m *GetAutocompleteResponse) Reset()         { *m = GetAutocompleteResponse{} }
 func (m *GetAutocompleteResponse) String() string { return proto.CompactTextString(m) }
 func (*GetAutocompleteResponse) ProtoMessage()    {}
 func (*GetAutocompleteResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_autocompletesvc_39264745a093dd5a, []int{1}
+	return fileDescriptor_autocompletesvc_abece09fe01050d8, []int{3}
 }
 func (m *GetAutocompleteResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAutocompleteResponse.Unmarshal(m, b)
@@ -93,7 +201,7 @@ func (m *GetAutocompleteResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetAutocompleteResponse proto.InternalMessageInfo
 
-func (m *GetAutocompleteResponse) GetResult() map[string]string {
+func (m *GetAutocompleteResponse) GetResult() map[string]*Sources {
 	if m != nil {
 		return m.Result
 	}
@@ -107,10 +215,90 @@ func (m *GetAutocompleteResponse) GetErr() string {
 	return ""
 }
 
+type AddSourcesRequest struct {
+	Sources              []*Source `protobuf:"bytes,1,rep,name=sources,proto3" json:"sources,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
+}
+
+func (m *AddSourcesRequest) Reset()         { *m = AddSourcesRequest{} }
+func (m *AddSourcesRequest) String() string { return proto.CompactTextString(m) }
+func (*AddSourcesRequest) ProtoMessage()    {}
+func (*AddSourcesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_autocompletesvc_abece09fe01050d8, []int{4}
+}
+func (m *AddSourcesRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddSourcesRequest.Unmarshal(m, b)
+}
+func (m *AddSourcesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddSourcesRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddSourcesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddSourcesRequest.Merge(dst, src)
+}
+func (m *AddSourcesRequest) XXX_Size() int {
+	return xxx_messageInfo_AddSourcesRequest.Size(m)
+}
+func (m *AddSourcesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddSourcesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddSourcesRequest proto.InternalMessageInfo
+
+func (m *AddSourcesRequest) GetSources() []*Source {
+	if m != nil {
+		return m.Sources
+	}
+	return nil
+}
+
+type AddSourcesResponse struct {
+	Err                  string   `protobuf:"bytes,1,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AddSourcesResponse) Reset()         { *m = AddSourcesResponse{} }
+func (m *AddSourcesResponse) String() string { return proto.CompactTextString(m) }
+func (*AddSourcesResponse) ProtoMessage()    {}
+func (*AddSourcesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_autocompletesvc_abece09fe01050d8, []int{5}
+}
+func (m *AddSourcesResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddSourcesResponse.Unmarshal(m, b)
+}
+func (m *AddSourcesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddSourcesResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddSourcesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddSourcesResponse.Merge(dst, src)
+}
+func (m *AddSourcesResponse) XXX_Size() int {
+	return xxx_messageInfo_AddSourcesResponse.Size(m)
+}
+func (m *AddSourcesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddSourcesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddSourcesResponse proto.InternalMessageInfo
+
+func (m *AddSourcesResponse) GetErr() string {
+	if m != nil {
+		return m.Err
+	}
+	return ""
+}
+
 func init() {
+	proto.RegisterType((*Source)(nil), "acrpc.Source")
+	proto.RegisterType((*Sources)(nil), "acrpc.Sources")
 	proto.RegisterType((*GetAutocompleteRequest)(nil), "acrpc.GetAutocompleteRequest")
 	proto.RegisterType((*GetAutocompleteResponse)(nil), "acrpc.GetAutocompleteResponse")
-	proto.RegisterMapType((map[string]string)(nil), "acrpc.GetAutocompleteResponse.ResultEntry")
+	proto.RegisterMapType((map[string]*Sources)(nil), "acrpc.GetAutocompleteResponse.ResultEntry")
+	proto.RegisterType((*AddSourcesRequest)(nil), "acrpc.AddSourcesRequest")
+	proto.RegisterType((*AddSourcesResponse)(nil), "acrpc.AddSourcesResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -126,6 +314,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AutocompleteSVCClient interface {
 	GetAutocomplete(ctx context.Context, in *GetAutocompleteRequest, opts ...grpc.CallOption) (*GetAutocompleteResponse, error)
+	AddSources(ctx context.Context, in *AddSourcesRequest, opts ...grpc.CallOption) (*AddSourcesResponse, error)
 }
 
 type autocompleteSVCClient struct {
@@ -145,9 +334,19 @@ func (c *autocompleteSVCClient) GetAutocomplete(ctx context.Context, in *GetAuto
 	return out, nil
 }
 
+func (c *autocompleteSVCClient) AddSources(ctx context.Context, in *AddSourcesRequest, opts ...grpc.CallOption) (*AddSourcesResponse, error) {
+	out := new(AddSourcesResponse)
+	err := c.cc.Invoke(ctx, "/acrpc.AutocompleteSVC/AddSources", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AutocompleteSVCServer is the server API for AutocompleteSVC service.
 type AutocompleteSVCServer interface {
 	GetAutocomplete(context.Context, *GetAutocompleteRequest) (*GetAutocompleteResponse, error)
+	AddSources(context.Context, *AddSourcesRequest) (*AddSourcesResponse, error)
 }
 
 func RegisterAutocompleteSVCServer(s *grpc.Server, srv AutocompleteSVCServer) {
@@ -172,6 +371,24 @@ func _AutocompleteSVC_GetAutocomplete_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AutocompleteSVC_AddSources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddSourcesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AutocompleteSVCServer).AddSources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/acrpc.AutocompleteSVC/AddSources",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AutocompleteSVCServer).AddSources(ctx, req.(*AddSourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _AutocompleteSVC_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "acrpc.AutocompleteSVC",
 	HandlerType: (*AutocompleteSVCServer)(nil),
@@ -180,29 +397,41 @@ var _AutocompleteSVC_serviceDesc = grpc.ServiceDesc{
 			MethodName: "GetAutocomplete",
 			Handler:    _AutocompleteSVC_GetAutocomplete_Handler,
 		},
+		{
+			MethodName: "AddSources",
+			Handler:    _AutocompleteSVC_AddSources_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "autocompletesvc.proto",
 }
 
 func init() {
-	proto.RegisterFile("autocompletesvc.proto", fileDescriptor_autocompletesvc_39264745a093dd5a)
+	proto.RegisterFile("autocompletesvc.proto", fileDescriptor_autocompletesvc_abece09fe01050d8)
 }
 
-var fileDescriptor_autocompletesvc_39264745a093dd5a = []byte{
-	// 215 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4d, 0x2c, 0x2d, 0xc9,
-	0x4f, 0xce, 0xcf, 0x2d, 0xc8, 0x49, 0x2d, 0x49, 0x2d, 0x2e, 0x4b, 0xd6, 0x2b, 0x28, 0xca, 0x2f,
-	0xc9, 0x17, 0x62, 0x4d, 0x4c, 0x2e, 0x2a, 0x48, 0x56, 0xd2, 0xe1, 0x12, 0x73, 0x4f, 0x2d, 0x71,
-	0x44, 0x52, 0x12, 0x94, 0x5a, 0x58, 0x9a, 0x5a, 0x5c, 0x22, 0x24, 0xc4, 0xc5, 0x52, 0x92, 0x5a,
-	0x51, 0x22, 0xc1, 0xa8, 0xc0, 0xa8, 0xc1, 0x19, 0x04, 0x66, 0x2b, 0xad, 0x62, 0xe4, 0x12, 0xc7,
-	0x50, 0x5e, 0x5c, 0x90, 0x9f, 0x57, 0x9c, 0x2a, 0xe4, 0xc4, 0xc5, 0x56, 0x94, 0x5a, 0x5c, 0x9a,
-	0x03, 0xd2, 0xc1, 0xac, 0xc1, 0x6d, 0xa4, 0xa5, 0x07, 0xb6, 0x41, 0x0f, 0x87, 0x7a, 0xbd, 0x20,
-	0xb0, 0x62, 0xd7, 0xbc, 0x92, 0xa2, 0xca, 0x20, 0xa8, 0x4e, 0x21, 0x01, 0x2e, 0xe6, 0xd4, 0xa2,
-	0x22, 0x09, 0x26, 0xb0, 0x95, 0x20, 0xa6, 0x94, 0x25, 0x17, 0x37, 0x92, 0x42, 0x90, 0x82, 0xec,
-	0xd4, 0x4a, 0xa8, 0x9b, 0x40, 0x4c, 0x21, 0x11, 0x2e, 0xd6, 0xb2, 0xc4, 0x9c, 0xd2, 0x54, 0xa8,
-	0x26, 0x08, 0xc7, 0x8a, 0xc9, 0x82, 0xd1, 0x28, 0x95, 0x8b, 0x1f, 0xd9, 0xe2, 0xe0, 0x30, 0x67,
-	0xa1, 0x20, 0x2e, 0x7e, 0x34, 0xe7, 0x08, 0xc9, 0xe2, 0x72, 0x26, 0x38, 0x14, 0xa4, 0xe4, 0xf0,
-	0xfb, 0x42, 0x89, 0x21, 0x89, 0x0d, 0x1c, 0x9e, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xb5,
-	0xbe, 0xb7, 0x4d, 0x68, 0x01, 0x00, 0x00,
+var fileDescriptor_autocompletesvc_abece09fe01050d8 = []byte{
+	// 343 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x52, 0xcd, 0x4a, 0xc3, 0x40,
+	0x18, 0x74, 0xd3, 0x3f, 0xfc, 0x8a, 0xad, 0x2e, 0xa8, 0x6b, 0x41, 0x29, 0x41, 0xb4, 0x88, 0xe4,
+	0x10, 0x2f, 0x22, 0x5e, 0x6a, 0x2b, 0x92, 0x8b, 0x87, 0x2d, 0xd8, 0x73, 0x4c, 0xf6, 0x64, 0xd3,
+	0x8d, 0xbb, 0x9b, 0x6a, 0x5f, 0xc9, 0x47, 0xf0, 0xe9, 0x64, 0x7f, 0xa2, 0xd1, 0x5a, 0xf1, 0x36,
+	0xcc, 0xcc, 0xe6, 0x9b, 0x19, 0x02, 0xbb, 0x71, 0xa1, 0x78, 0xc2, 0xb3, 0x7c, 0xc6, 0x14, 0x93,
+	0x8b, 0x24, 0xc8, 0x05, 0x57, 0x1c, 0x37, 0xe2, 0x44, 0xe4, 0x89, 0x9f, 0x42, 0x73, 0xc2, 0x0b,
+	0x91, 0x30, 0xdc, 0x01, 0x2f, 0x1a, 0x13, 0xd4, 0x47, 0x83, 0x4d, 0xea, 0x45, 0x63, 0x8c, 0xa1,
+	0x7e, 0x1f, 0x67, 0x8c, 0x78, 0x86, 0x31, 0x58, 0x73, 0x51, 0x12, 0x73, 0x52, 0xb3, 0x9c, 0xc6,
+	0x78, 0x1b, 0x6a, 0xe3, 0x97, 0x94, 0xd4, 0x0d, 0xa5, 0xa1, 0x66, 0xa6, 0x19, 0x27, 0x0d, 0xcb,
+	0x4c, 0x33, 0xee, 0x87, 0xd0, 0xb2, 0x57, 0x24, 0x3e, 0x85, 0x96, 0xb4, 0x90, 0xa0, 0x7e, 0x6d,
+	0xd0, 0x0e, 0xb7, 0x02, 0x93, 0x24, 0xb0, 0x06, 0x5a, 0xaa, 0xfe, 0x39, 0xec, 0xdd, 0x31, 0x35,
+	0xac, 0x84, 0xa7, 0xec, 0xb9, 0x60, 0x52, 0xe9, 0x14, 0x8a, 0xbd, 0x2a, 0x97, 0xd5, 0x60, 0xff,
+	0x1d, 0xc1, 0xfe, 0x8a, 0x5d, 0xe6, 0x7c, 0x2e, 0x19, 0xbe, 0x81, 0xa6, 0x60, 0xb2, 0x98, 0x29,
+	0x77, 0xf1, 0xcc, 0x5d, 0x5c, 0xe3, 0x0f, 0xa8, 0x31, 0xdf, 0xce, 0x95, 0x58, 0x52, 0xf7, 0x52,
+	0x77, 0x62, 0x42, 0xb8, 0x31, 0x34, 0xec, 0x45, 0xd0, 0xae, 0x18, 0xb5, 0xe1, 0x89, 0x2d, 0x5d,
+	0x26, 0x0d, 0xf1, 0x31, 0x34, 0x16, 0xf1, 0xac, 0xb0, 0x0b, 0xb6, 0xc3, 0xce, 0xb7, 0x9e, 0x92,
+	0x5a, 0xf1, 0xca, 0xbb, 0x44, 0xfe, 0x35, 0xec, 0x0c, 0xd3, 0xb4, 0x14, 0x5c, 0xcb, 0x7f, 0x0f,
+	0x75, 0x02, 0xb8, 0xfa, 0xda, 0x95, 0x76, 0x81, 0xd1, 0x67, 0xe0, 0xf0, 0x0d, 0x41, 0xb7, 0xda,
+	0x77, 0xf2, 0x30, 0xc2, 0x14, 0xba, 0x3f, 0x56, 0xc0, 0x87, 0xeb, 0xd6, 0x31, 0xb1, 0x7a, 0x47,
+	0x7f, 0x8f, 0xe7, 0x6f, 0xe0, 0x11, 0xc0, 0x57, 0x1e, 0x4c, 0x9c, 0x7f, 0xa5, 0x60, 0xef, 0xe0,
+	0x17, 0xa5, 0xfc, 0xc8, 0x63, 0xd3, 0xfc, 0xa5, 0x17, 0x1f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xf0,
+	0x58, 0xe2, 0xf2, 0xbe, 0x02, 0x00, 0x00,
 }

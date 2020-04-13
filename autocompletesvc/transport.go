@@ -1,4 +1,4 @@
-package stationssvc
+package autocompletesvc
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 
 type GRPCServer struct {
 	getAutocomplete    	gt.Handler
+	addSources    		gt.Handler
 }
 
 func (s *GRPCServer) GetAutocomplete(ctx context.Context, req *acrpc.GetAutocompleteRequest) (*acrpc.GetAutocompleteResponse, error) {
@@ -22,12 +23,25 @@ func (s *GRPCServer) GetAutocomplete(ctx context.Context, req *acrpc.GetAutocomp
 	return resp.(*acrpc.GetAutocompleteResponse), nil
 }
 
+func (s *GRPCServer) AddSources(ctx context.Context, req *acrpc.AddSourcesRequest) (*acrpc.AddSourcesResponse, error) {
+	_, resp, err := s.addSources.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*acrpc.AddSourcesResponse), nil
+}
+
 func NewGRPCServer(_ context.Context, endpoint Endpoints) acrpc.AutocompleteSVCServer {
 	return &GRPCServer{
 		getAutocomplete: gt.NewServer(
 			endpoint.GetAutocompleteEndpoint,
 			DecodeGetAutocompleteRequest,
 			EncodeGetAutocompleteResponse,
+		),
+		addSources: gt.NewServer(
+			endpoint.AddSourcesEndpoint,
+			DecodeAddSourcesRequest,
+			EncodeAddSourcesResponse,
 		),
 	}
 }

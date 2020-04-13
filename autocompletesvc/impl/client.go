@@ -2,112 +2,60 @@ package impl
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/stationssvc"
-	"github.com/flasherup/gradtage.de/stationssvc/stsgrpc"
+	"github.com/flasherup/gradtage.de/autocompletesvc"
+	"github.com/flasherup/gradtage.de/autocompletesvc/acrpc"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	googlerpc "google.golang.org/grpc"
 )
 
-type StationsSVCClient struct{
+type AutocompleteSVCClient struct{
 	logger     log.Logger
 	host string
 }
 
-func NewStationsSCVClient(host string, logger log.Logger) *StationsSVCClient {
-	return &StationsSVCClient{
+func NewAutocompleteSCVClient(host string, logger log.Logger) *AutocompleteSVCClient {
+	return &AutocompleteSVCClient{
 		logger:logger,
 		host: host,
 	}
 }
 
-func (scc StationsSVCClient) GetStations(ids []string) (resp *stsgrpc.GetStationsResponse, err error) {
+func (scc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]autocompletesvc.Source , error) {
+
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := stsgrpc.NewStationSVCClient(conn)
-	resp, err = client.GetStations(context.Background(), &stsgrpc.GetStationsRequest{ Ids: ids })
+	client := acrpc.NewAutocompleteSVCClient(conn)
+	resp,err := client.GetAutocomplete(context.Background(), &acrpc.GetAutocompleteRequest{Text:text})
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get stations", "err", err)
-
+		return nil, err
 	}
-	return resp, err
+	res := autocompletesvc.DecodeSourcesMap(resp.Result)
+	return res, common.ErrorFromString(resp.Err)
 }
 
-func (scc StationsSVCClient) GetAllStations() (resp *stsgrpc.GetAllStationsResponse, err error) {
+
+func (scc AutocompleteSVCClient) AddSource(source []autocompletesvc.Source) error {
 	conn := scc.openConn()
 	defer conn.Close()
 
-	client := stsgrpc.NewStationSVCClient(conn)
-	resp, err = client.GetAllStations(context.Background(), &stsgrpc.GetAllStationsRequest{})
+	client := acrpc.NewAutocompleteSVCClient(conn)
+	src := autocompletesvc.EncodeSources(source)
+	resp,err := client.AddSources(context.Background(), &acrpc.AddSourcesRequest{Sources:src})
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to get all stations", "err", err)
-
+		level.Error(scc.logger).Log("msg", "Failed to add sources", "err", err)
+		return err
 	}
-	return resp, err
+	return common.ErrorFromString(resp.Err)
 }
 
-func (scc StationsSVCClient) GetStationsBySrcType(types []string) (resp *stsgrpc.GetStationsBySrcTypeResponse, err error) {
-	conn := scc.openConn()
-	defer conn.Close()
-
-	client := stsgrpc.NewStationSVCClient(conn)
-	resp, err = client.GetStationsBySrcType(context.Background(), &stsgrpc.GetStationsBySrcTypeRequest{ Types: types })
-	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to get stations by src type", "err", err)
-
-	}
-	return resp, err
-}
-
-func (scc StationsSVCClient) AddStations(sts []stationssvc.Station) (resp *stsgrpc.AddStationsResponse, err error) {
-	conn := scc.openConn()
-	defer conn.Close()
-
-	s := toGRPCStations(sts)
-	client := stsgrpc.NewStationSVCClient(conn)
-	resp, err = client.AddStations(context.Background(), &stsgrpc.AddStationsRequest{ Sts: s })
-	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to get stations", "err", err)
-
-	}
-	return resp, err
-}
-
-func (scc StationsSVCClient) ResetStations(sts []stationssvc.Station) (resp *stsgrpc.ResetStationsResponse, err error) {
-	conn := scc.openConn()
-	defer conn.Close()
-
-	s := toGRPCStations(sts)
-	client := stsgrpc.NewStationSVCClient(conn)
-	resp, err = client.ResetStations(context.Background(), &stsgrpc.ResetStationsRequest{ Sts: s })
-	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to reset stations", "err", err)
-
-	}
-	return resp, err
-}
-
-
-func (scc StationsSVCClient) openConn() *googlerpc.ClientConn {
+func (scc AutocompleteSVCClient) openConn() *googlerpc.ClientConn {
 	cc, err := googlerpc.Dial(scc.host, googlerpc.WithInsecure())
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to start gRPC connection", "err", err)
 	}
 	return cc
-}
-
-func toGRPCStations(sts []stationssvc.Station) []*stsgrpc.Station {
-	res := make([]*stsgrpc.Station, len(sts))
-	for i,v := range sts {
-		res[i] = &stsgrpc.Station{
-			Id:v.ID,
-			Name:v.Name,
-			Timezone:v.Timezone,
-			SourceType:v.SourceType,
-			SourceId:v.SourceID,
-		}
-	}
-
-	return res
 }

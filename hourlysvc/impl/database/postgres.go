@@ -126,7 +126,16 @@ func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
 	return date,err
 }
 
-
+//Request example
+//(SELECT *, 'de00044' as name
+//FROM de00044
+//ORDER BY date
+//DESC LIMIT 1)
+//UNION ALL
+//(SELECT *, 'de00071' as name
+//FROM de00071
+//ORDER BY date
+//DESC LIMIT 1);
 //GetUpdateDateList return latest dates of update for stations with specified in @names
 func (pg *Postgres)GetUpdateDateList(names []string) (temps map[string]string, err error) {
 	query := ""
@@ -185,6 +194,17 @@ func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error
 	return parseRow(rows)
 }
 
+
+//Request example
+//(SELECT *, 'de00044' as name
+//FROM de00044
+//ORDER BY date
+//DESC LIMIT 1)
+//UNION ALL
+//(SELECT *, 'de00071' as name
+//FROM de00071
+//ORDER BY date
+//DESC LIMIT 1);
 //GetLatestList return latest temperatures data
 //for station specified in @[]strings
 func (pg *Postgres)GetLatestList(names []string) (temps map[string]hourlysvc.Temperature, err error) {

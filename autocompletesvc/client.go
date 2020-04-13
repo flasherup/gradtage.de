@@ -1,7 +1,6 @@
-package stationssvc
-
-import "github.com/flasherup/gradtage.de/stationssvc/stsgrpc"
+package autocompletesvc
 
 type Client interface {
-	GetAutocomplete(text string) (resp *stsgrpc.GetStationsResponse, err error)
+	GetAutocomplete(text string) (map[string][]Source, error)
+	AddSources(sources []Source) error
 }

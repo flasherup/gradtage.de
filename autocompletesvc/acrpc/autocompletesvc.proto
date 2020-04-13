@@ -2,17 +2,38 @@ syntax = "proto3";
 
 package acrpc;
 
+message Source {
+    string ID   = 1;
+    string Name = 2;
+    string Icao = 3;
+    string Dwd  = 4;
+    string Wmo  = 5;
+}
+
+message Sources {
+    repeated Source sources = 1;
+}
+
 message GetAutocompleteRequest {
     string text = 1;
 }
 
 message GetAutocompleteResponse {
-    map<string,string> result = 1;
-    string err               = 2;
+    map<string,Sources> result = 1;
+    string err                = 2;
+}
+
+message AddSourcesRequest {
+    repeated Source sources = 1;
+}
+
+message AddSourcesResponse {
+    string err = 1;
 }
 
 service AutocompleteSVC {
     rpc GetAutocomplete(GetAutocompleteRequest) returns (GetAutocompleteResponse) {}
+    rpc AddSources(AddSourcesRequest) returns (AddSourcesResponse) {}
 }
 
 

@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/flasherup/gradtage.de/stationssvc"
-	"github.com/flasherup/gradtage.de/stationssvc/config"
+	"github.com/flasherup/gradtage.de/autocompletesvc"
+	"github.com/flasherup/gradtage.de/autocompletesvc/config"
 	_ "github.com/lib/pq"
 )
 
@@ -13,7 +13,7 @@ type Postgres struct {
 	db *sql.DB
 }
 
-const tableName = "stations_hd"
+const tableName = "autocomplete"
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
@@ -35,143 +35,101 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	return
 }
 
+//Query example
+//(SELECT *, 'icao' as column
+//FROM autocomplete
+//WHERE icao LIKE '%frank%')
+//UNION ALL
+//(SELECT *, 'station' as column
+//FROM autocomplete
+//WHERE station LIKE '%frank%')
+//UNION ALL
+//(SELECT *, 'dwd' as column
+//FROM autocomplete
+//WHERE dwd LIKE '%frank%')
+//UNION ALL
+//(SELECT *, 'wmo' as column
+//FROM autocomplete
+//WHERE wmo LIKE '%frank%');
 
-//AddStation write single line of temperature in to DB
-func (pg Postgres) AddStation(station stationssvc.Station) error {
-	query := fmt.Sprintf(`INSERT INTO %s 
-		(id, name, timezone, source_type, source_id) 
-		VALUES ( '%s', '%s', '%s', '%s', '%s') `,
-		tableName, station.ID, station.Name, station.Timezone, station.SourceType, station.SourceID)
-
-	return writeToDB(pg.db, query)
-}
-
-//AddStations write stations data into DB
-func (pg Postgres) AddStations(stations []stationssvc.Station) error {
-	query := fmt.Sprintf(`INSERT INTO %s 
-		(id, name, timezone, source_type, source_id) VALUES`, tableName)
-
-	length := len(stations)
-	for i, v := range stations {
-		query += fmt.Sprintf(
-			"( '%s', '%s', '%s', '%s', '%s') ",
-			v.ID, v.Name, v.Timezone, v.SourceType, v.SourceID)
-		if i < length-1 {
-			query += ","
-		}
-	}
-	query += ` ON CONFLICT (id) DO UPDATE SET 
-		(name, timezone, source_type, source_id) = (excluded.name, excluded.timezone, excluded.source_type, excluded.source_id);`
-	return writeToDB(pg.db, query)
-}
-
-//DeleteStation remove station by icao ID
-func (pg Postgres) DeleteStation(id string) error {
-	query := fmt.Sprintf(	`DELETE FROM %s 
-									WHERE id = '%s'`,
-									tableName, id)
-	return writeToDB(pg.db, query)
-}
-
-//GetStations get a list of station
-func (pg Postgres) GetStations(ids []string) ([]stationssvc.Station,error) {
-	sts := make([]stationssvc.Station, 0)
-	query := fmt.Sprintf(`SELECT * FROM %s
-								 WHERE id IN ( `, tableName)
-	length := len(ids)
-	for i, v := range ids {
-		query += fmt.Sprintf("'%s'",v)
-		if i < length-1 {
-			query += ","
-		}
-	}
-	query += " );"
-
+//AddSources
+func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.Source, error) {
+	result := make(map[string][]autocompletesvc.Source)
+	query := "(SELECT *, 'icao' as column " +
+	"FROM autocomplete " +
+	"WHERE icao LIKE '%" + text + "%') " +
+	"UNION ALL " +
+	"(SELECT *, 'station' as column " +
+	"FROM autocomplete " +
+	"WHERE station LIKE '%" + text + "%') " +
+	"UNION ALL " +
+	"(SELECT *, 'dwd' as column " +
+	"FROM autocomplete " +
+	"WHERE dwd LIKE '%" + text + "%') " +
+	"UNION ALL " +
+	"(SELECT *, 'wmo' as column " +
+	"FROM autocomplete " +
+	"WHERE wmo LIKE '%" + text + "%');"
 	rows, err := pg.db.Query(query)
 	if err != nil {
-		return sts,err
+		return result,err
 	}
 	defer rows.Close()
 
+	row := struct {
+		ID 		string
+		Station string
+		Icao 	string
+		Dwd 	string
+		Wmo 	string
+		Column  string
+	}{}
 
-	for rows.Next() {
-		st,err := parseRow(rows)
-		if err != nil {
-			return sts, err
-		}
-		sts = append(sts, st)
-	}
-	return sts,err
-}
-
-//GetAllStations get a list of station
-func (pg Postgres) GetAllStations() ([]stationssvc.Station,error) {
-	sts := make([]stationssvc.Station, 0)
-	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
-
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return sts, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		st,err := parseRow(rows)
-		if err != nil {
-			return sts, err
-		}
-		sts = append(sts, st)
-	}
-	return sts,err
-}
-
-//GetAllStations get a list of station
-func (pg Postgres) GetStationsBySrcType(types []string) ([]stationssvc.Station,error) {
-	sts := make([]stationssvc.Station, 0)
-	query := fmt.Sprintf("SELECT * FROM %s WHERE ", tableName)
-
-	length := len(types)
-	for i, v := range types {
-		query += fmt.Sprintf("source_type='%s' ",v)
-		if i < length-1 {
-			query += "OR "
-		}
-	}
-	query += ";"
-
-	fmt.Println(query)
-
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return sts, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		st,err := parseRow(rows)
-		if err != nil {
-			return sts, err
-		}
-		sts = append(sts, st)
-	}
-	return sts,err
-}
-
-//GetCount return number of stored stations
-func (pg Postgres) GetCount() (int, error) {
-	query := fmt.Sprintf("SELECT COUNT(*) FROM %s;", tableName)
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return 0, err
-	}
-
-	count := 0
 	for rows.Next() {
 		err = rows.Scan(
-			&count,
+			&row.ID,
+			&row.Station,
+			&row.Icao,
+			&row.Dwd,
+			&row.Wmo,
+			&row.Column,
 		)
+		if err == nil {
+			_,ok := result[row.Column]
+			if !ok {
+				result[row.Column] = make([]autocompletesvc.Source, 0)
+			}
+			result[row.Column] = append(result[row.Column],autocompletesvc.Source{
+				ID:row.ID,
+				Name:row.Station,
+				Icao:row.Icao,
+				Dwd:row.Dwd,
+				Wmo:row.Wmo,
+			})
+		}
 	}
-	return count, err
+	return result, err
+}
+
+//AddSources
+func (pg *Postgres) AddSources(sources []autocompletesvc.Source) (err error) {
+	query := fmt.Sprintf("INSERT INTO %s " +
+		"(id, station, icao, dwd, wmo) VALUES", tableName)
+
+
+	length := len(sources)
+	for i, v := range sources {
+		query += fmt.Sprintf(
+			" ( '%s', '%s', '%s', '%s', '%s')",
+			v.ID, v.Name, v.Icao, v.Dwd, v.Wmo)
+		if i < length-1 {
+			query += ","
+		}
+	}
+	query += ` ON CONFLICT (id) DO UPDATE SET (station, icao, dwd, wmo) = (excluded.station, excluded.icao, excluded.dwd, excluded.wmo);`
+
+	fmt.Println(query)
+	return writeToDB(pg.db, query)
 }
 
 //Dispose and disconnect
@@ -184,10 +142,10 @@ func (pg *Postgres) Dispose() {
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 			id varchar(8) UNIQUE,
-			name varchar(50),
-			timezone varchar(8),
-			source_type varchar(4),
-			source_id varchar(8)
+			station varchar(50),
+			icao varchar(4),
+			dwd varchar(5),
+			wmo varchar(5)
 		);`, tableName)
 	return writeToDB(pg.db, query)
 }
@@ -196,18 +154,6 @@ func (pg Postgres) CreateTable() error {
 func (pg *Postgres) RemoveTable() error {
 	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", tableName)
 	return writeToDB(pg.db, query)
-}
-
-
-func parseRow(rows *sql.Rows) (row stationssvc.Station, err error) {
-	err = rows.Scan(
-		&row.ID,
-		&row.Name,
-		&row.Timezone,
-		&row.SourceType,
-		&row.SourceID,
-	)
-	return
 }
 
 func writeToDB(db *sql.DB, query string) (err error){

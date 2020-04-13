@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"github.com/flasherup/gradtage.de/alertsvc"
+	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/impl/database"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -28,7 +29,7 @@ func NewAutocompleteSVC(logger log.Logger, db database.AutocompleteDB, alert ale
 	return &st,nil
 }
 
-func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (result map[string]string, err error) {
+func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (result map[string][]autocompletesvc.Source, err error) {
 	level.Info(ss.logger).Log("msg", "GetAutocomplete", "text", text)
 	result, err = ss.db.GetAutocomplete(text)
 	if err != nil {
@@ -37,6 +38,17 @@ func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (res
 		return nil,err
 	}
 	return result, nil
+}
+
+func (ss AutocompleteSVC) AddSources(ctx context.Context, sources []autocompletesvc.Source) (err error) {
+	level.Info(ss.logger).Log("msg", "AddSource", "length", len(sources))
+	err = ss.db.AddSources(sources)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "AddSources DB error", "err", err)
+		ss.sendAlert(NewErrorAlert(err))
+		return err
+	}
+	return nil
 }
 
 func (ss AutocompleteSVC)sendAlert(alert alertsvc.Alert) {
