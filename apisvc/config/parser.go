@@ -12,10 +12,11 @@ type ServerConfig struct {
 }
 
 type Clients struct {
-	DailyAddr string `yaml:"daily_addr"`
-	HourlyAddr string `yaml:"hourly_addr"`
-	HoaaAddr string `yaml:"noaa_addr"`
-	AlertAddr string `yaml:"alert_addr"`
+	DailyAddr 			string `yaml:"daily_addr"`
+	HourlyAddr 			string `yaml:"hourly_addr"`
+	HoaaAddr 			string `yaml:"noaa_addr"`
+	AutocompleteAddr 	string `yaml:"autocomplete_addr"`
+	AlertAddr 			string `yaml:"alert_addr"`
 }
 
 type Security struct {

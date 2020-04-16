@@ -17,10 +17,10 @@ import (
 	"syscall"
 
 	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
+	autocomplete "github.com/flasherup/gradtage.de/autocompletesvc/impl"
 	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
 	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
 	noaa "github.com/flasherup/gradtage.de/noaascrapersvc/impl"
-
 )
 
 func main() {
@@ -66,6 +66,7 @@ func main() {
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
 	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
 	noaaService := noaa.NewNoaaScraperSVCClient(conf.Clients.HoaaAddr, logger)
+	autocompleteService := autocomplete.NewAutocompleteSCVClient(conf.Clients.AutocompleteAddr, logger)
 
 
 	level.Info(logger).Log("msg", "service started", "config", configFile)
@@ -73,7 +74,7 @@ func main() {
 
 	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
-	svc := impl.NewAPISVC(logger, dailyService, hourlyService, noaaService, alertService, keyManager)
+	svc := impl.NewAPISVC(logger, dailyService, hourlyService, noaaService, autocompleteService, alertService, keyManager)
 	hs := apisvc.NewHTTPTSransport(svc,logger)
 
 	errs := make(chan error)

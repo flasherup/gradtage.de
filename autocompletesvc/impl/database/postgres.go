@@ -57,19 +57,19 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 	result := make(map[string][]autocompletesvc.Source)
 	query := "(SELECT *, 'icao' as column " +
 	"FROM autocomplete " +
-	"WHERE icao LIKE '%" + text + "%') " +
+	"WHERE icao ILIKE '%" + text + "%') " +
 	"UNION ALL " +
 	"(SELECT *, 'station' as column " +
 	"FROM autocomplete " +
-	"WHERE station LIKE '%" + text + "%') " +
+	"WHERE station ILIKE '%" + text + "%') " +
 	"UNION ALL " +
 	"(SELECT *, 'dwd' as column " +
 	"FROM autocomplete " +
-	"WHERE dwd LIKE '%" + text + "%') " +
+	"WHERE dwd ILIKE '%" + text + "%') " +
 	"UNION ALL " +
 	"(SELECT *, 'wmo' as column " +
 	"FROM autocomplete " +
-	"WHERE wmo LIKE '%" + text + "%');"
+	"WHERE wmo ILIKE '%" + text + "%');"
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return result,err

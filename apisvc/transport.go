@@ -40,6 +40,13 @@ func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 		encodeGetSourceDataResponse,
 		options...,
 	))
+
+	r.Methods("Get").Path("/search/").Handler(kithttp.NewServer(
+		e.SearchEndpoint,
+		decodeSearchRequest,
+		encodeSearchResponse,
+		options...,
+	))
 	return r
 }
 

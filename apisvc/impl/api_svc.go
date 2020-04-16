@@ -6,6 +6,7 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/impl/security"
+	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
@@ -20,13 +21,14 @@ import (
 )
 
 type APISVC struct {
-	logger  	log.Logger
-	alert 		alertsvc.Client
-	daily		dailysvc.Client
-	hourly		hourlysvc.Client
-	noaa 		noaascrapersvc.Client
-	keyManager *security.KeyManager
-	counter 	ktprom.Gauge
+	logger  		log.Logger
+	alert 			alertsvc.Client
+	daily			dailysvc.Client
+	hourly			hourlysvc.Client
+	noaa 			noaascrapersvc.Client
+	autocomplete 	autocompletesvc.Client
+	keyManager 		*security.KeyManager
+	counter 		ktprom.Gauge
 }
 
 const (
@@ -41,12 +43,13 @@ const (
 )
 
 func NewAPISVC(
-		logger 		log.Logger,
-		daily 		dailysvc.Client,
-		hourly 		hourlysvc.Client,
-		noaa 		noaascrapersvc.Client,
-		alert 		alertsvc.Client,
-		keyManager 	*security.KeyManager,
+		logger 			log.Logger,
+		daily 			dailysvc.Client,
+		hourly 			hourlysvc.Client,
+		noaa 			noaascrapersvc.Client,
+		autocomplete 	autocompletesvc.Client,
+		alert 			alertsvc.Client,
+		keyManager 		*security.KeyManager,
 	) *APISVC {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
@@ -54,13 +57,14 @@ func NewAPISVC(
 	}
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
 	st := APISVC{
-		logger:  	logger,
-		daily:	 	daily,
-		hourly:		hourly,
-		noaa: 		noaa,
-		alert:   	alert,
-		keyManager: keyManager,
-		counter: 	*guage,
+		logger:  		logger,
+		daily:	 		daily,
+		hourly:			hourly,
+		noaa: 			noaa,
+		autocomplete: 	autocomplete,
+		alert:   		alert,
+		keyManager: 	keyManager,
+		counter: 		*guage,
 	}
 	return &st
 }
@@ -162,6 +166,25 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 	csv := as.generateSourceCSV(headerCSV, temps, params)
 	fileName = fmt.Sprintf("source_%s_%s%s%s.csv",params.Type, params.Station, params.Start, params.End)
 	return csv,fileName,err
+}
+
+func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [][]string, err error) {
+	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Search invalid user", "err", err)
+		return [][]string{}, err
+	}
+
+	level.Info(as.logger).Log("msg", "Search", "text", params.Text, "user", userId)
+	sources, err := as.autocomplete.GetAutocomplete(params.Text)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Search error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
+	}
+
+	headerCSV := []string{ "FoundIn", "ID","ICAO","WMO","DWD", "Station" }
+	csv := as.generateSearchCSV(headerCSV, sources)
+	return csv, err
 }
 
 func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
@@ -271,6 +294,25 @@ func (as APISVC)generateSourceCSV(names []string, temps []hourlysvc.Temperature,
 		}
 
 		res = append(res, line)
+	}
+	return res
+}
+
+func (as APISVC)generateSearchCSV(names []string, sources map[string][]autocompletesvc.Source) [][]string {
+	res := [][]string{ names }
+	var line []string
+	for k, v := range sources {
+		for _,s := range v {
+			line = []string{
+				k,
+				s.ID,
+				s.Icao,
+				s.Wmo,
+				s.Dwd,
+				s.Name,
+			}
+			res = append(res, line)
+		}
 	}
 	return res
 }

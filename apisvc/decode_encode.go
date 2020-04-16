@@ -84,10 +84,31 @@ func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request int
 	return req, nil
 }
 
-func encodeGetSourceDataResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeGetSourceDataResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetSourceDataResponse)
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
+	wr := csv.NewWriter(w)
+	err := wr.WriteAll(resp.Data)
+	wr.Flush()
+	if err != nil {
+		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
+	}
+	return err
+}
+
+func decodeSearchRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	r.ParseForm()
+	params := ParamsSearch{
+		Key: 		r.Form.Get("key"),
+		Text :		r.Form.Get("text"),
+	}
+	return SearchRequest{params}, nil
+}
+
+func encodeSearchResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(SearchResponse)
+	w.Header().Set("Content-Type", "text/csv")
 	wr := csv.NewWriter(w)
 	err := wr.WriteAll(resp.Data)
 	wr.Flush()

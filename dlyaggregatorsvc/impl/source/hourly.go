@@ -12,7 +12,7 @@ import (
 	"math"
 	"time"
 )
-const veryFirstTime = "2000-01-02T01:01:01.00Z "
+const veryFirstTime = "2000-01-02T01:01:01.00Z"
 
 type Hourly struct {
 	hrlService 	hourlysvc.Client

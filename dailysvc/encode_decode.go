@@ -8,7 +8,7 @@ import (
 
 func EncodeGetPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetPeriodResponse)
-	encTemp := toGRPCTemps(res.Temps)
+	encTemp := EncodeTemperature(res.Temps)
 	return &dlygrpc.GetPeriodResponse {
 		Temps: encTemp,
 		Err: errorToString(res.Err),
@@ -29,7 +29,7 @@ func EncodePushPeriodResponse(_ context.Context, r interface{}) (interface{}, er
 
 func DecodePushPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(*dlygrpc.PushPeriodRequest)
-	encTemp := toServiceTemps(req.Temps)
+	encTemp := DecodeTemperature(req.Temps)
 	return PushPeriodRequest{req.Id, encTemp}, nil
 }
 
@@ -86,9 +86,7 @@ func DecodeGetAvgRequest(_ context.Context, r interface{}) (interface{}, error) 
 	return GetAvgRequest{req.Id}, nil
 }
 
-
-
-func toGRPCTemps(src []Temperature) []*dlygrpc.Temperature {
+func EncodeTemperature(src []Temperature) []*dlygrpc.Temperature {
 	res := make([]*dlygrpc.Temperature, len(src))
 	for i,v := range src {
 		res[i] = &dlygrpc.Temperature {
@@ -99,7 +97,7 @@ func toGRPCTemps(src []Temperature) []*dlygrpc.Temperature {
 	return res
 }
 
-func toServiceTemps(src []*dlygrpc.Temperature) []Temperature {
+func DecodeTemperature(src []*dlygrpc.Temperature) []Temperature {
 	res := make([]Temperature , len(src))
 	for i,v := range src {
 		res[i] =  Temperature{

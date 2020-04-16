@@ -10,6 +10,7 @@ type Endpoints struct {
 	GetHDDEndpoint  		endpoint.Endpoint
 	GetHDDSVEndpoint  		endpoint.Endpoint
 	GetSourceDataEndpoint	endpoint.Endpoint
+	SearchEndpoint			endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -17,6 +18,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		GetHDDEndpoint:   		MakeGetHDDEndpoint(s),
 		GetHDDSVEndpoint: 		MakeGetHDDCSVEndpoint(s),
 		GetSourceDataEndpoint:  MakeGetSourceDataEndpoint(s),
+		SearchEndpoint:  		MakeSearchEndpoint(s),
 	}
 }
 
@@ -41,5 +43,13 @@ func MakeGetSourceDataEndpoint(s Service) endpoint.Endpoint {
 		req := request.(GetSourceDataRequest)
 		data, filename, err := s.GetSourceData(ctx, req.Params)
 		return GetSourceDataResponse{ data, filename }, err
+	}
+}
+
+func MakeSearchEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(SearchRequest)
+		data, err := s.Search(ctx, req.Params)
+		return SearchResponse{ data}, err
 	}
 }

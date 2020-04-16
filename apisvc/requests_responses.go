@@ -25,3 +25,11 @@ type GetSourceDataResponse struct {
 	Data [][]string `json:"data"`
 	FileName string `json:"fileName"`
 }
+
+type SearchRequest struct {
+	Params ParamsSearch `json:"params"`
+}
+
+type SearchResponse struct {
+	Data [][]string `json:"data"`
+}

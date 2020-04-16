@@ -22,15 +22,15 @@ func NewAutocompleteSCVClient(host string, logger log.Logger) *AutocompleteSVCCl
 	}
 }
 
-func (scc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]autocompletesvc.Source , error) {
+func (acc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]autocompletesvc.Source , error) {
 
-	conn := scc.openConn()
+	conn := acc.openConn()
 	defer conn.Close()
 
 	client := acrpc.NewAutocompleteSVCClient(conn)
 	resp,err := client.GetAutocomplete(context.Background(), &acrpc.GetAutocompleteRequest{Text:text})
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to get stations", "err", err)
+		level.Error(acc.logger).Log("msg", "Failed to get stations", "err", err)
 		return nil, err
 	}
 	res := autocompletesvc.DecodeSourcesMap(resp.Result)
@@ -38,24 +38,24 @@ func (scc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]auto
 }
 
 
-func (scc AutocompleteSVCClient) AddSource(source []autocompletesvc.Source) error {
-	conn := scc.openConn()
+func (acc AutocompleteSVCClient) AddSources(source []autocompletesvc.Source) error {
+	conn := acc.openConn()
 	defer conn.Close()
 
 	client := acrpc.NewAutocompleteSVCClient(conn)
 	src := autocompletesvc.EncodeSources(source)
 	resp,err := client.AddSources(context.Background(), &acrpc.AddSourcesRequest{Sources:src})
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to add sources", "err", err)
+		level.Error(acc.logger).Log("msg", "Failed to add sources", "err", err)
 		return err
 	}
 	return common.ErrorFromString(resp.Err)
 }
 
-func (scc AutocompleteSVCClient) openConn() *googlerpc.ClientConn {
-	cc, err := googlerpc.Dial(scc.host, googlerpc.WithInsecure())
+func (acc AutocompleteSVCClient) openConn() *googlerpc.ClientConn {
+	cc, err := googlerpc.Dial(acc.host, googlerpc.WithInsecure())
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to start gRPC connection", "err", err)
+		level.Error(acc.logger).Log("msg", "Failed to start gRPC connection", "err", err)
 	}
 	return cc
 }

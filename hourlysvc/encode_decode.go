@@ -8,7 +8,7 @@ import (
 
 func EncodeGetPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetPeriodResponse)
-	encTemp := toGRPCTemps(res.Temps)
+	encTemp := EncodeTemperature(res.Temps)
 	return &hrlgrpc.GetPeriodResponse {
 		Temps: encTemp,
 		Err: errorToString(res.Err),
@@ -29,7 +29,7 @@ func EncodePushPeriodResponse(_ context.Context, r interface{}) (interface{}, er
 
 func DecodePushPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(*hrlgrpc.PushPeriodRequest)
-	encTemp := toServiceTemps(req.Temps)
+	encTemp := DecodeTemperature(req.Temps)
 	return PushPeriodRequest{req.Id, encTemp}, nil
 }
 
@@ -63,7 +63,7 @@ func DecodeGetLatestRequest(_ context.Context, r interface{}) (interface{}, erro
 
 
 
-func toGRPCTemps(src []Temperature) []*hrlgrpc.Temperature {
+func EncodeTemperature(src []Temperature) []*hrlgrpc.Temperature {
 	res := make([]*hrlgrpc.Temperature, len(src))
 	for i,v := range src {
 		res[i] = &hrlgrpc.Temperature {
@@ -74,7 +74,7 @@ func toGRPCTemps(src []Temperature) []*hrlgrpc.Temperature {
 	return res
 }
 
-func toServiceTemps(src []*hrlgrpc.Temperature) []Temperature {
+func DecodeTemperature(src []*hrlgrpc.Temperature) []Temperature {
 	res := make([]Temperature , len(src))
 	for i,v := range src {
 		res[i] =  Temperature{
