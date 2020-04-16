@@ -16,3 +16,11 @@ type  AddSourcesRequest struct {
 type AddSourcesResponse struct {
 	Err     error  `json:"err"`
 }
+
+type ResetSourcesRequest struct {
+	Sources []Source `json:"sources"`
+}
+
+type ResetSourcesResponse struct {
+	Err     error  `json:"err"`
+}

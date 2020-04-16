@@ -52,6 +52,20 @@ func (acc AutocompleteSVCClient) AddSources(source []autocompletesvc.Source) err
 	return common.ErrorFromString(resp.Err)
 }
 
+func (acc AutocompleteSVCClient) ResetSources(source []autocompletesvc.Source) error {
+	conn := acc.openConn()
+	defer conn.Close()
+
+	client := acrpc.NewAutocompleteSVCClient(conn)
+	src := autocompletesvc.EncodeSources(source)
+	resp,err := client.ResetSources(context.Background(), &acrpc.ResetSourcesRequest{Sources:src})
+	if err != nil {
+		level.Error(acc.logger).Log("msg", "Failed to reset sources", "err", err)
+		return err
+	}
+	return common.ErrorFromString(resp.Err)
+}
+
 func (acc AutocompleteSVCClient) openConn() *googlerpc.ClientConn {
 	cc, err := googlerpc.Dial(acc.host, googlerpc.WithInsecure())
 	if err != nil {

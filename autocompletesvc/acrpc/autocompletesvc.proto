@@ -31,9 +31,18 @@ message AddSourcesResponse {
     string err = 1;
 }
 
+message ResetSourcesRequest {
+    repeated Source sources = 1;
+}
+
+message ResetSourcesResponse {
+    string err = 1;
+}
+
 service AutocompleteSVC {
     rpc GetAutocomplete(GetAutocompleteRequest) returns (GetAutocompleteResponse) {}
     rpc AddSources(AddSourcesRequest) returns (AddSourcesResponse) {}
+    rpc ResetSources(ResetSourcesRequest) returns (ResetSourcesResponse) {}
 }
 
 

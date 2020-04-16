@@ -61,7 +61,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 	"UNION ALL " +
 	"(SELECT *, 'station' as column " +
 	"FROM autocomplete " +
-	"WHERE station ILIKE '%" + text + "%') " +
+	"WHERE name ILIKE '%" + text + "%') " +
 	"UNION ALL " +
 	"(SELECT *, 'dwd' as column " +
 	"FROM autocomplete " +
@@ -78,7 +78,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 
 	row := struct {
 		ID 		string
-		Station string
+		Name	string
 		Icao 	string
 		Dwd 	string
 		Wmo 	string
@@ -88,7 +88,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 	for rows.Next() {
 		err = rows.Scan(
 			&row.ID,
-			&row.Station,
+			&row.Name,
 			&row.Icao,
 			&row.Dwd,
 			&row.Wmo,
@@ -101,7 +101,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 			}
 			result[row.Column] = append(result[row.Column],autocompletesvc.Source{
 				ID:row.ID,
-				Name:row.Station,
+				Name:row.Name,
 				Icao:row.Icao,
 				Dwd:row.Dwd,
 				Wmo:row.Wmo,
@@ -114,7 +114,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 //AddSources
 func (pg *Postgres) AddSources(sources []autocompletesvc.Source) (err error) {
 	query := fmt.Sprintf("INSERT INTO %s " +
-		"(id, station, icao, dwd, wmo) VALUES", tableName)
+		"(id, name, icao, dwd, wmo) VALUES", tableName)
 
 
 	length := len(sources)
@@ -126,7 +126,7 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Source) (err error) {
 			query += ","
 		}
 	}
-	query += ` ON CONFLICT (id) DO UPDATE SET (station, icao, dwd, wmo) = (excluded.station, excluded.icao, excluded.dwd, excluded.wmo);`
+	query += ` ON CONFLICT (id) DO UPDATE SET (name, icao, dwd, wmo) = (excluded.name, excluded.icao, excluded.dwd, excluded.wmo);`
 
 	fmt.Println(query)
 	return writeToDB(pg.db, query)
@@ -142,7 +142,7 @@ func (pg *Postgres) Dispose() {
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 			id varchar(8) UNIQUE,
-			station varchar(50),
+			name varchar(50),
 			icao varchar(4),
 			dwd varchar(5),
 			wmo varchar(5)

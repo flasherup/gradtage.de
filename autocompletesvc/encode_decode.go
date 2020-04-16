@@ -35,6 +35,21 @@ func DecodeAddSourcesRequest(_ context.Context, r interface{}) (interface{}, err
 	}, nil
 }
 
+func EncodeResetSourcesResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(ResetSourcesResponse)
+	return &acrpc.ResetSourcesResponse {
+		Err:common.ErrorToString(res.Err),
+	}, nil
+}
+
+func DecodeResetSourcesRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*acrpc.ResetSourcesRequest)
+	encSources := DecodeSources(req.Sources)
+	return ResetSourcesRequest{
+		Sources:encSources,
+	}, nil
+}
+
 func EncodeSources(sources []Source) []*acrpc.Source {
 	res := make([]*acrpc.Source, len(sources))
 	for i,v := range sources {

@@ -15,4 +15,5 @@ type Source struct {
 type Service interface {
 	GetAutocomplete(ctx context.Context, text string) (result map[string][]Source, err error)
 	AddSources(ctx context.Context, sources []Source) (err error)
+	ResetSources(ctx context.Context, sources []Source) (err error)
 }

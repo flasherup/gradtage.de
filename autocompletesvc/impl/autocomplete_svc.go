@@ -51,6 +51,29 @@ func (ss AutocompleteSVC) AddSources(ctx context.Context, sources []autocomplete
 	return nil
 }
 
+func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocompletesvc.Source) (err error) {
+	level.Info(ss.logger).Log("msg", "ResetSource", "length", len(sources))
+	err = ss.db.RemoveTable()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "Remove Table DB error", "err", err)
+		return err
+	}
+
+	err = ss.db.CreateTable()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "Create Table DB error", "err", err)
+		return err
+	}
+
+	err = ss.db.AddSources(sources)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "AddSources DB error", "err", err)
+		return err
+	}
+
+	return nil
+}
+
 func (ss AutocompleteSVC)sendAlert(alert alertsvc.Alert) {
 	err := ss.alert.SendAlert(alert)
 	if err != nil {
