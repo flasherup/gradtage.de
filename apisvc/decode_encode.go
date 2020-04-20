@@ -69,6 +69,47 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 	return req, nil
 }
 
+func encodeGetCDDCSVResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(GetCDDCSVResponse)
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
+	wr := csv.NewWriter(w)
+	err := wr.WriteAll(resp.Data)
+	wr.Flush()
+	if err != nil {
+		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
+	}
+	return err
+}
+
+func decodeGetCDDCSVRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	r.ParseForm()
+	basehddStr := r.Form.Get("hl")
+	basehdd, err := strconv.ParseFloat(basehddStr, 64);
+	if  err != nil {
+		basehdd = 0
+	}
+
+	baseddStr := r.Form.Get("rt")
+	basedd, err := strconv.ParseFloat(baseddStr, 64);
+	if  err != nil {
+		basedd = 0
+	}
+
+	prm := Params{
+		Key :		r.Form.Get("key"),
+		Station : 	r.Form.Get("station"),
+		Start : 	r.Form.Get("start"),
+		End : 		r.Form.Get("end"),
+		HL : 		basehdd,
+		RT : 		basedd,
+		Output : 	r.Form.Get("output"),
+	}
+
+	req  := GetCDDCSVRequest{ prm }
+	return req, nil
+}
+
 func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	r.ParseForm()
 

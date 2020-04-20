@@ -87,6 +87,7 @@ func main() {
 		acrpc.RegisterAutocompleteSVCServer(gRPCServer, autocompletesvc.NewGRPCServer(ctx, autocompletesvc.Endpoints {
 			GetAutocompleteEndpoint:    autocompletesvc.MakeGetAutocompleteEndpoint(autocompleteService),
 			AddSourcesEndpoint:    autocompletesvc.MakeAddSourcesEndpoint(autocompleteService),
+			ResetSourcesEndpoint:    autocompletesvc.MakeResetSourcesEndpoint(autocompleteService),
 		}))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())

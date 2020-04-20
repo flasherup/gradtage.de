@@ -32,6 +32,7 @@ type APISVC struct {
 }
 
 const (
+	CDDType = "cdd"
 	HDDType = "hdd"
 	DDType  = "dd"
 )
@@ -125,6 +126,43 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	return csv,fileName,err
 }
 
+func (as APISVC) GetCDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
+	fmt.Println("GetCDDCSV", params)
+	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetCDD invalid user", "err", err)
+		return [][]string{}, "error", err
+	}
+	level.Info(as.logger).Log("msg", "GetCDD", "station", params.Station, "userId", userId)
+	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
+	}
+
+	if temps.Err != "nil" {
+		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
+	}
+
+	avg, err := as.daily.GetAvg(params.Station)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
+	}
+
+	if avg.Err != "nil" {
+		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
+	}
+
+	headerCSV := []string{ "ID","Date","CDD","CDDAverage" }
+	fmt.Println("generateCSV", params.Output, )
+	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
+	fileName = fmt.Sprintf("%s%s%s%g%g.csv", params.Station, params.Start, params.End, params.HL, params.RT)
+	return csv,fileName,err
+}
+
 func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {
 	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
 	if err != nil {
@@ -182,7 +220,7 @@ func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [
 		as.sendAlert(NewErrorAlert(err))
 	}
 
-	headerCSV := []string{ "FoundIn", "ID","ICAO","WMO","DWD", "Station" }
+	headerCSV := []string{ "FoundIn", "ID","ICAO","WMO","DWD", "Name" }
 	csv := as.generateSearchCSV(headerCSV, sources)
 	return csv, err
 }
@@ -247,19 +285,22 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 	var line []string
 	var degree float64
 	var degreeA float64
+	fmt.Println("generateCSV", len(temps))
 	for _, v := range temps {
 		d, err := time.Parse(common.TimeLayout, v.Date)
 		if err != nil {
-			level.Error(as.logger).Log("msg", "GetHDD generateCSV error", "err", err)
+			level.Error(as.logger).Log("msg", "Get " + params.Output + " generateCSV error", "err", err)
 			as.sendAlert(NewErrorAlert(err))
 		}
 		doy := int32(getLeapSafeDOY(d))
 
 		temp := tempsAvg[doy]
 		if temp == nil {
-			level.Warn(as.logger).Log("msg", "GetHDD generateCSV, can't get Average temperature", "DOY", doy)
+			level.Warn(as.logger).Log("msg", "Get " + params.Output + " generateCSV, can't get Average temperature", "DOY", doy)
 			continue
 		}
+
+		fmt.Println(CDDType)
 
 		aTemperature := temp.Temperature
 
@@ -269,6 +310,9 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 		} else if params.Output == DDType {
 			degree 	= calculateDD(params.HL, params.RT, v.Temperature)
 			degreeA = calculateDD(params.HL, params.RT, aTemperature)
+		} else if params.Output == CDDType {
+			degree 	= calculateCDD(params.HL, v.Temperature)
+			degreeA = calculateCDD(params.HL, aTemperature)
 		}
 
 		line = []string{
@@ -336,6 +380,15 @@ func calculateDD(baseHDD float64, baseDD float64, value float64) float64 {
 
 	return baseDD - value
 }
+
+
+func calculateCDD(baseCDD float64, value float64) float64 {
+	if value < baseCDD {
+		return 0
+	}
+	return value
+}
+
 
 func (as APISVC)sendAlert(alert alertsvc.Alert) {
 	err := as.alert.SendAlert(alert)

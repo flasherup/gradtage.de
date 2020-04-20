@@ -34,6 +34,13 @@ func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 		options...,
 	))
 
+	r.Methods("Get").Path("/temperature/csv/cdd").Handler(kithttp.NewServer(
+		e.GetCDDSVEndpoint,
+		decodeGetCDDCSVRequest,
+		encodeGetCDDCSVResponse,
+		options...,
+	))
+
 	r.Methods("Get").Path("/source/").Handler(kithttp.NewServer(
 		e.GetSourceDataEndpoint,
 		decodeGetSourceDataRequest,

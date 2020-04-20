@@ -28,6 +28,7 @@ type ParamsSearch struct {
 type Service interface {
 	GetHDD(ctx context.Context, params Params) (data [][]string, err error)
 	GetHDDCSV(cts context.Context, params Params) (data [][]string, fileName string, err error)
+	GetCDDCSV(cts context.Context, params Params) (data [][]string, fileName string, err error)
 	GetSourceData(ctx context.Context, params ParamsSourceData) (data [][]string, fileName string, err error)
 	Search(ctx context.Context, params ParamsSearch) (data [][]string, err error)
 }

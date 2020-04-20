@@ -20,7 +20,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewAutocompleteSCVClient("localhost:8109",logger)
+	//client := impl.NewAutocompleteSCVClient("localhost:8109",logger)
+	client := impl.NewAutocompleteSCVClient("82.165.18.228:8109",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")

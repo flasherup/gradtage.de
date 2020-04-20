@@ -23,7 +23,6 @@ func NewAutocompleteSCVClient(host string, logger log.Logger) *AutocompleteSVCCl
 }
 
 func (acc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]autocompletesvc.Source , error) {
-
 	conn := acc.openConn()
 	defer conn.Close()
 

@@ -127,8 +127,6 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Source) (err error) {
 		}
 	}
 	query += ` ON CONFLICT (id) DO UPDATE SET (name, icao, dwd, wmo) = (excluded.name, excluded.icao, excluded.dwd, excluded.wmo);`
-
-	fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 

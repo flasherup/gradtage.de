@@ -17,6 +17,15 @@ type GetHDDCSVResponse struct {
 	FileName string `json:"fileName"`
 }
 
+type GetCDDCSVRequest struct {
+	Params Params `json:"params"`
+}
+
+type GetCDDCSVResponse struct {
+	Data [][]string `json:"data"`
+	FileName string `json:"fileName"`
+}
+
 type GetSourceDataRequest struct {
 	Params ParamsSourceData `json:"params"`
 }

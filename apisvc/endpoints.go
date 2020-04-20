@@ -9,6 +9,7 @@ import (
 type Endpoints struct {
 	GetHDDEndpoint  		endpoint.Endpoint
 	GetHDDSVEndpoint  		endpoint.Endpoint
+	GetCDDSVEndpoint  		endpoint.Endpoint
 	GetSourceDataEndpoint	endpoint.Endpoint
 	SearchEndpoint			endpoint.Endpoint
 }
@@ -17,6 +18,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
 		GetHDDEndpoint:   		MakeGetHDDEndpoint(s),
 		GetHDDSVEndpoint: 		MakeGetHDDCSVEndpoint(s),
+		GetCDDSVEndpoint: 		MakeGetCDDCSVEndpoint(s),
 		GetSourceDataEndpoint:  MakeGetSourceDataEndpoint(s),
 		SearchEndpoint:  		MakeSearchEndpoint(s),
 	}
@@ -35,6 +37,14 @@ func MakeGetHDDCSVEndpoint(s Service) endpoint.Endpoint {
 		req := request.(GetHDDCSVRequest)
 		data, filename, err := s.GetHDDCSV(ctx, req.Params)
 		return GetHDDCSVResponse{ data, filename }, err
+	}
+}
+
+func MakeGetCDDCSVEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetCDDCSVRequest)
+		data, filename, err := s.GetCDDCSV(ctx, req.Params)
+		return GetCDDCSVResponse{ data, filename }, err
 	}
 }
 
