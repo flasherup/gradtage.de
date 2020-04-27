@@ -127,7 +127,6 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 }
 
 func (as APISVC) GetCDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	fmt.Println("GetCDDCSV", params)
 	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetCDD invalid user", "err", err)
@@ -157,7 +156,6 @@ func (as APISVC) GetCDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	}
 
 	headerCSV := []string{ "ID","Date","CDD","CDDAverage" }
-	fmt.Println("generateCSV", params.Output, )
 	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
 	fileName = fmt.Sprintf("%s%s%s%g%g.csv", params.Station, params.Start, params.End, params.HL, params.RT)
 	return csv,fileName,err
@@ -285,7 +283,6 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 	var line []string
 	var degree float64
 	var degreeA float64
-	fmt.Println("generateCSV", len(temps))
 	for _, v := range temps {
 		d, err := time.Parse(common.TimeLayout, v.Date)
 		if err != nil {
@@ -299,8 +296,6 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 			level.Warn(as.logger).Log("msg", "Get " + params.Output + " generateCSV, can't get Average temperature", "DOY", doy)
 			continue
 		}
-
-		fmt.Println(CDDType)
 
 		aTemperature := temp.Temperature
 
