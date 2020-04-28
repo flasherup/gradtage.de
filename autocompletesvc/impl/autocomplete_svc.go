@@ -31,7 +31,7 @@ func NewAutocompleteSVC(logger log.Logger, db database.AutocompleteDB, alert ale
 
 func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (result map[string][]autocompletesvc.Source, err error) {
 	level.Info(ss.logger).Log("msg", "GetAutocomplete", "text", text)
-	result, err = ss.db.GetAutocomplete(text)
+	result, err = ss.db.GetStationId(text)
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "GetAutocomplete DB error", "err", err)
 		ss.sendAlert(NewErrorAlert(err))

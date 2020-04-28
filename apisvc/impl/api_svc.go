@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
@@ -101,6 +102,22 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 		level.Error(as.logger).Log("msg", "GetHDD invalid user", "err", err)
 		return [][]string{}, "error", err
 	}
+
+	id, err := as.getStationID(params.Station)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "err", err)
+		return [][]string{}, "error", err
+	}
+
+	if id == "" {
+		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "station", params.Station)
+		return [][]string{}, "error", errors.New("station id  not found, station:" + params.Station)
+	}
+
+	fmt.Println("id", id)
+
+	params.Station = id
+
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "userId", userId)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
@@ -117,47 +134,19 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	var headerCSV []string
 	if params.Output == DDType {
 		headerCSV = []string{ "ID", "Date", "DD", "DDAverage" }
-	} else {
+	} else if  params.Output == HDDType {
 		headerCSV = []string{ "ID","Date","HDD","HDDAverage" }
+	} else if  params.Output == CDDType {
+		headerCSV = []string{ "ID","Date","CDD","CDDAverage" }
 	}
 
 	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
-	fileName = fmt.Sprintf("%s%s%s%g%g.csv", params.Station, params.Start, params.End, params.HL, params.RT)
-	return csv,fileName,err
-}
-
-func (as APISVC) GetCDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
-	if err != nil {
-		level.Error(as.logger).Log("msg", "GetCDD invalid user", "err", err)
-		return [][]string{}, "error", err
-	}
-	level.Info(as.logger).Log("msg", "GetCDD", "station", params.Station, "userId", userId)
-	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
-	}
-
-	if temps.Err != "nil" {
-		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
-	}
-
-	avg, err := as.daily.GetAvg(params.Station)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
-	}
-
-	if avg.Err != "nil" {
-		level.Error(as.logger).Log("msg", "GetCDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
-	}
-
-	headerCSV := []string{ "ID","Date","CDD","CDDAverage" }
-	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
-	fileName = fmt.Sprintf("%s%s%s%g%g.csv", params.Station, params.Start, params.End, params.HL, params.RT)
+	fileName = fmt.Sprintf("%s%s%s%g%g.csv",
+		params.Station,
+		params.Start,
+		params.End,
+		params.TD,
+		params.TR)
 	return csv,fileName,err
 }
 
@@ -241,6 +230,23 @@ func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc
 	return &res, nil
 }
 
+func (as APISVC) getStationID(text string) (string, error) {
+	sources, err := as.autocomplete.GetAutocomplete(text)
+	if err != nil {
+		as.sendAlert(NewErrorAlert(err))
+		return "", err
+	}
+
+	for _,v := range sources {
+		if len(v) == 0 {
+			return "", errors.New("stations not found")
+		}
+		return v[0].ID, nil
+	}
+
+	return text,nil
+}
+
 func (as APISVC) getHourlyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
 	resp, err := as.hourly.GetPeriod(id, start, end)
 	if err != nil {
@@ -300,14 +306,14 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 		aTemperature := temp.Temperature
 
 		if params.Output 		== HDDType {
-			degree 	= calculateHDD(params.HL, v.Temperature)
-			degreeA = calculateHDD(params.HL, aTemperature)
+			degree 	= calculateHDD(params.TD, v.Temperature)
+			degreeA = calculateHDD(params.TD, aTemperature)
 		} else if params.Output == DDType {
-			degree 	= calculateDD(params.HL, params.RT, v.Temperature)
-			degreeA = calculateDD(params.HL, params.RT, aTemperature)
+			degree 	= calculateDD(params.TD, params.TR, v.Temperature)
+			degreeA = calculateDD(params.TD, params.TR, aTemperature)
 		} else if params.Output == CDDType {
-			degree 	= calculateCDD(params.HL, v.Temperature)
-			degreeA = calculateCDD(params.HL, aTemperature)
+			degree 	= calculateCDD(params.TD, v.Temperature)
+			degreeA = calculateCDD(params.TD, aTemperature)
 		}
 
 		line = []string{

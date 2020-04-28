@@ -111,6 +111,68 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 	return result, err
 }
 
+func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Source, error) {
+	result := make(map[string][]autocompletesvc.Source)
+	query := "(SELECT *, 'id' as column " +
+		"FROM autocomplete " +
+		"WHERE id ILIKE '" + text + "') " +
+		"UNION ALL " +
+		"(SELECT *, 'icao' as column " +
+		"FROM autocomplete " +
+		"WHERE icao ILIKE '" + text + "') " +
+		"UNION ALL " +
+		"(SELECT *, 'station' as column " +
+		"FROM autocomplete " +
+		"WHERE name ILIKE '" + text + "') " +
+		"UNION ALL " +
+		"(SELECT *, 'dwd' as column " +
+		"FROM autocomplete " +
+		"WHERE dwd ILIKE '" + text + "') " +
+		"UNION ALL " +
+		"(SELECT *, 'wmo' as column " +
+		"FROM autocomplete " +
+		"WHERE wmo ILIKE '" + text + "');"
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return result,err
+	}
+	defer rows.Close()
+
+	row := struct {
+		ID 		string
+		Name	string
+		Icao 	string
+		Dwd 	string
+		Wmo 	string
+		Column  string
+	}{}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&row.ID,
+			&row.Name,
+			&row.Icao,
+			&row.Dwd,
+			&row.Wmo,
+			&row.Column,
+		)
+		if err == nil {
+			_,ok := result[row.Column]
+			if !ok {
+				result[row.Column] = make([]autocompletesvc.Source, 0)
+			}
+			result[row.Column] = append(result[row.Column],autocompletesvc.Source{
+				ID:row.ID,
+				Name:row.Name,
+				Icao:row.Icao,
+				Dwd:row.Dwd,
+				Wmo:row.Wmo,
+			})
+		}
+	}
+	return result, err
+}
+
 //AddSources
 func (pg *Postgres) AddSources(sources []autocompletesvc.Source) (err error) {
 	query := fmt.Sprintf("INSERT INTO %s " +
