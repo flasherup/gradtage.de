@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
@@ -42,8 +43,9 @@ func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, respons
 }
 
 func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(r)
 	r.ParseForm()
-	basehddStr := r.Form.Get("td")
+	basehddStr := r.Form.Get("tb")
 	basehdd, err := strconv.ParseFloat(basehddStr, 64);
 	if  err != nil {
 		basehdd = 0
@@ -60,9 +62,9 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 		Station : r.Form.Get("station"),
 		Start :   r.Form.Get("start"),
 		End :     r.Form.Get("end"),
-		TD:       basehdd,
+		TB:       basehdd,
 		TR:       basedd,
-		Output :  r.Form.Get("output"),
+		Output :  vars[Method],
 	}
 
 	req  := GetHDDCSVRequest{ prm }

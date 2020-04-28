@@ -145,7 +145,7 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 		params.Station,
 		params.Start,
 		params.End,
-		params.TD,
+		params.TB,
 		params.TR)
 	return csv,fileName,err
 }
@@ -306,14 +306,14 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 		aTemperature := temp.Temperature
 
 		if params.Output 		== HDDType {
-			degree 	= calculateHDD(params.TD, v.Temperature)
-			degreeA = calculateHDD(params.TD, aTemperature)
+			degree 	= calculateHDD(params.TB, v.Temperature)
+			degreeA = calculateHDD(params.TB, aTemperature)
 		} else if params.Output == DDType {
-			degree 	= calculateDD(params.TD, params.TR, v.Temperature)
-			degreeA = calculateDD(params.TD, params.TR, aTemperature)
+			degree 	= calculateDD(params.TB, params.TR, v.Temperature)
+			degreeA = calculateDD(params.TB, params.TR, aTemperature)
 		} else if params.Output == CDDType {
-			degree 	= calculateCDD(params.TD, v.Temperature)
-			degreeA = calculateCDD(params.TD, aTemperature)
+			degree 	= calculateCDD(params.TB, v.Temperature)
+			degreeA = calculateCDD(params.TB, aTemperature)
 		}
 
 		line = []string{
@@ -387,7 +387,7 @@ func calculateCDD(baseCDD float64, value float64) float64 {
 	if value < baseCDD {
 		return 0
 	}
-	return value
+	return value-baseCDD
 }
 
 

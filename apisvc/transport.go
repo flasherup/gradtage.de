@@ -10,6 +10,8 @@ import (
 	"net/http"
 )
 
+const Method = "method"
+
 func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
@@ -27,7 +29,7 @@ func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 	))
 
 
-	r.Methods("Get").Path("/temperature/csv").Handler(kithttp.NewServer(
+	r.Methods("Get").Path("/temperature/csv/{" + Method + "}").Handler(kithttp.NewServer(
 		e.GetHDDSVEndpoint,
 		decodeGetHDDCSVRequest,
 		encodeGetHDDCSVResponse,

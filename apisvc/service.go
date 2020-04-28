@@ -7,7 +7,7 @@ type Params struct {
 	Station string  `json:"station"`
 	Start   string  `json:"start"`
 	End     string  `json:"end"`
-	TD      float64 `json:"td"`
+	TB      float64 `json:"tb"`
 	TR      float64 `json:"tr"`
 	Output  string  `json:"output"`
 }
