@@ -204,8 +204,8 @@ func (pg Postgres) CreateTable() error {
 			id varchar(8) UNIQUE,
 			name varchar(50),
 			icao varchar(4),
-			dwd varchar(5),
-			wmo varchar(5)
+			dwd varchar(8),
+			wmo varchar(8)
 		);`, tableName)
 	return writeToDB(pg.db, query)
 }

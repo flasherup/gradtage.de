@@ -33,7 +33,7 @@ func main() {
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 		logger = level.NewFilter(logger, level.AllowDebug())
 		logger = log.With(logger,
-			"svc", "hourlysvc",
+			"svc", "dailysvc",
 			"ts", log.DefaultTimestampUTC,
 			"caller", log.Caller(3),
 		)
@@ -71,7 +71,7 @@ func main() {
 
 
 	ctx := context.Background()
-	hourlyService, err := impl.NewDailySVC(logger, db, avg, alertService)
+	dailyService, err := impl.NewDailySVC(logger, db, avg, alertService)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -87,19 +87,19 @@ func main() {
 
 		gRPCServer := googlerpc.NewServer()
 		dlygrpc.RegisterDailySVCServer(gRPCServer, dailysvc.NewGRPCServer(ctx, dailysvc.Endpoints {
-			GetPeriodEndpoint:    		dailysvc.MakeGetPeriodEndpoint(hourlyService),
-			PushPeriodEndpoint: 		dailysvc.MakePushPeriodEndpoint(hourlyService),
-			GetUpdateDateEndpoint: 		dailysvc.MakeGetUpdateDateEndpoint(hourlyService),
-			UpdateAvgForYearEndpoint: 	dailysvc.MakeUpdateAvgForYearEndpoint(hourlyService),
-			UpdateAvgForDOYEndpoint: 	dailysvc.MakeUpdateAvgForDOYEndpoint(hourlyService),
-			GetAvgEndpoint: 			dailysvc.MakeGetAvgEndpoint(hourlyService),
+			GetPeriodEndpoint:    		dailysvc.MakeGetPeriodEndpoint(dailyService),
+			PushPeriodEndpoint: 		dailysvc.MakePushPeriodEndpoint(dailyService),
+			GetUpdateDateEndpoint: 		dailysvc.MakeGetUpdateDateEndpoint(dailyService),
+			UpdateAvgForYearEndpoint: 	dailysvc.MakeUpdateAvgForYearEndpoint(dailyService),
+			UpdateAvgForDOYEndpoint: 	dailysvc.MakeUpdateAvgForDOYEndpoint(dailyService),
+			GetAvgEndpoint: 			dailysvc.MakeGetAvgEndpoint(dailyService),
 		}))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())
 		errors <- gRPCServer.Serve(listener)
 	}()
 
-	metrics := dailysvc.NewMetricsTransport(hourlyService,logger)
+	metrics := dailysvc.NewMetricsTransport(dailyService,logger)
 
 	go func() {
 		c := make(chan os.Signal)
