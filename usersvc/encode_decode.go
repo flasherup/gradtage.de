@@ -1,110 +1,102 @@
-package hourlysvc
+package usersvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
+	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/usersvc/grpcusr"
+	"time"
 )
 
 
-func EncodeGetPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(GetPeriodResponse)
-	encTemp := EncodeTemperature(res.Temps)
-	return &hrlgrpc.GetPeriodResponse {
-		Temps: encTemp,
+func EncodeCreateUserResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(CreateUserResponse)
+	return &grpcusr.CreateUserResponse {
 		Err: errorToString(res.Err),
 	}, nil
 }
 
-func DecodeGetPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*hrlgrpc.GetPeriodRequest)
-	return GetPeriodRequest{req.Id, req.Start, req.End}, nil
+func DecodeCreateUserRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.CreateUserRequest)
+	plan, err := DecodePlan(req.Plan)
+	return CreateUserRequest{req.UserName, *plan}, err
 }
 
-func EncodePushPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(PushPeriodResponse)
-	return &hrlgrpc.PushPeriodResponse {
+func EncodeCreateUserAutoResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(CreateUserAutoResponse)
+	return &grpcusr.CreateUserAutoResponse {
 		Err: errorToString(res.Err),
 	}, nil
 }
 
-func DecodePushPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*hrlgrpc.PushPeriodRequest)
-	encTemp := DecodeTemperature(req.Temps)
-	return PushPeriodRequest{req.Id, encTemp}, nil
+func DecodeCreateUserAutoRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.CreateUserAutoRequest)
+	plan, err := DecodePlan(req.Plan)
+	return CreateUserAutoRequest{req.UserName, *plan}, err
 }
 
-func EncodeGetUpdateDateResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(GetUpdateDateResponse)
-	return &hrlgrpc.GetUpdateDateResponse {
-		Dates: res.Dates,
+func EncodeSetPlanResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(SetPlanResponse)
+	return &grpcusr.SetPlanResponse {
 		Err: errorToString(res.Err),
 	}, nil
 }
 
-func DecodeGetUpdateDateRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*hrlgrpc.GetUpdateDateRequest)
-	return GetUpdateDateRequest{req.Ids}, nil
+func DecodeSetPlanRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.SetPlanRequest)
+	plan, err := DecodePlan(req.Plan)
+	return SetPlanRequest{req.UserName, *plan}, err
 }
 
-
-
-func EncodeGetLatestResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(GetLatestResponse)
-	return &hrlgrpc.GetLatestResponse {
-		Temps: toGRPCMapTemps(res.Temps),
+func EncodeSetStationsResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(SetStationsResponse)
+	return &grpcusr.SetStationsResponse {
 		Err: errorToString(res.Err),
 	}, nil
 }
 
-func DecodeGetLatestRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*hrlgrpc.GetLatestRequest)
-	return GetLatestRequest{req.Ids}, nil
+func DecodeSetStationsRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.SetStationsRequest)
+	return SetStationsRequest{req.UserName, req.Stations}, nil
 }
 
-
-
-func EncodeTemperature(src []Temperature) []*hrlgrpc.Temperature {
-	res := make([]*hrlgrpc.Temperature, len(src))
-	for i,v := range src {
-		res[i] = &hrlgrpc.Temperature {
-			Date: 			v.Date,
-			Temperature: 	v.Temperature,
-		}
-	}
-	return res
+func EncodeValidateKeyResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(ValidateKeyResponse)
+	return &grpcusr.ValidateKeyResponse {
+		Err: errorToString(res.Err),
+	}, nil
 }
 
-func DecodeTemperature(src []*hrlgrpc.Temperature) []Temperature {
-	res := make([]Temperature , len(src))
-	for i,v := range src {
-		res[i] =  Temperature{
-			Date:			v.Date,
-			Temperature:	v.Temperature,
-		}
-	}
-	return res
+func DecodeValidateKeyRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.ValidateKeyRequest)
+	return ValidateKeyRequest{req.Key}, nil
 }
 
-func toGRPCMapTemps(src map[string]Temperature) map[string]*hrlgrpc.Temperature {
-	res := make(map[string]*hrlgrpc.Temperature)
-	for k,v := range src {
-		res[k] =  &hrlgrpc.Temperature{
-			Date:			v.Date,
-			Temperature:	v.Temperature,
-		}
+func DecodePlan(src *grpcusr.Plan) (*Plan, error) {
+	start, err := time.Parse(src.Start, common.TimeLayout)
+	if err != nil {
+		return nil, err
 	}
-	return res
+	end, err := time.Parse(src.End, common.TimeLayout)
+	if err != nil {
+		return nil, err
+	}
+	return &Plan{
+		Name:  src.Name,
+		Start: start,
+		End:   end,
+		Admin: src.Admin,
+	}, nil
 }
 
-func toServiceMapTemps(src map[string]*hrlgrpc.Temperature) map[string]Temperature {
-	res := make(map[string]Temperature)
-	for k,v := range src {
-		res[k] =  Temperature{
-			Date:			v.Date,
-			Temperature:	v.Temperature,
-		}
+func EncodePlan(src *Plan) (*grpcusr.Plan) {
+	start := src.Start.Format(common.TimeLayout)
+	end := src.End.Format(common.TimeLayout)
+	return &grpcusr.Plan{
+		Name:  src.Name,
+		Start: start,
+		End:   end,
+		Admin: src.Admin,
 	}
-	return res
 }
 
 func errorToString(err error) string{

@@ -1,10 +1,9 @@
-package hourlysvc
-
-import "github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
+package usersvc
 
 type Client interface {
-	GetPeriod		(id string, start string, end string) 	(resp *hrlgrpc.GetPeriodResponse, err error)
-	PushPeriod		(id string, temps []Temperature) 		(resp *hrlgrpc.PushPeriodResponse, err error)
-	GetUpdateDate	(ids []string) 							(resp *hrlgrpc.GetUpdateDateResponse, err error)
-	GetLatest		(ids []string) 							(resp *hrlgrpc.GetLatestResponse, err error)
+	CreateUser(userName string, plan Plan)error
+	CreateUserAuto(userName string, plan Plan)error
+	SetPlan(userName string, plan Plan)error
+	SetStations(userName string, stations []string)error
+	ValidateKey(key string) (parameters UserParameters, err error)
 }

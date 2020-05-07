@@ -1,5 +1,5 @@
 INCLUDE = -I=. -I=${GO_PATH}/src -I=${GO_PATH}/src/github.com/gogo/protobuf/protobuf
 
 regenerate:
-	protoc $(INCLUDE) --go_out=plugins=grpc:. hourlysvc.proto
+	protoc $(INCLUDE) --go_out=plugins=grpc:. usersvc.proto
 

@@ -1,0 +1,72 @@
+syntax = "proto3";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+package grpcusr;
+
+message Plan {
+    string  name = 1;
+    string  start = 2;
+    string  end = 3;
+    bool    Admin = 4;
+}
+
+message UserParameters {
+    string          name = 1;
+    Plan            plan = 2;
+    repeated string stations = 3;
+}
+
+message CreateUserRequest {
+    string  userName   = 1;
+    Plan    Plan 	    = 2;
+}
+
+message CreateUserResponse {
+    string Err = 1;
+}
+
+message CreateUserAutoRequest {
+    string  userName = 1;
+    Plan	plan = 2;
+}
+
+message CreateUserAutoResponse {
+    string err = 1;
+}
+
+message SetPlanRequest {
+    string  userName = 1;
+    Plan	plan = 2;
+}
+
+message SetPlanResponse {
+    string err = 1;
+}
+
+message SetStationsRequest {
+    string          userName = 1;
+    repeated string stations = 2;
+}
+
+message SetStationsResponse {
+    string err = 1;
+}
+
+message ValidateKeyRequest {
+    string key = 1;
+}
+
+message ValidateKeyResponse {
+    UserParameters parameters = 1;
+    string err = 2;
+}
+
+service UserSVC {
+    rpc CreateUser(CreateUserRequest)           returns (CreateUserResponse) {}
+    rpc CreateUserAuto(CreateUserAutoRequest)   returns (CreateUserAutoResponse) {}
+    rpc SetPlan(SetPlanRequest)                 returns (SetPlanResponse) {}
+    rpc SetStations(SetStationsRequest)         returns (SetStationsResponse) {}
+    rpc ValidateKey(ValidateKeyRequest)         returns (ValidateKeyResponse) {}
+}
+
+

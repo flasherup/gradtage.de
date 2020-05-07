@@ -1,4 +1,4 @@
-package hourlysvc
+package usersvc
 
 import (
 	"context"

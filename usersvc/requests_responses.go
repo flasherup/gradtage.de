@@ -1,42 +1,46 @@
-package hourlysvc
+package usersvc
 
-type GetPeriodRequest struct {
-	ID    string `json:"id"`
-	Start string `json:"start"`
-	End   string `json:"end"`
+type CreateUserRequest struct {
+	UserName    string 	`json:"user_name"`
+	Plan		Plan 	`json:"plan"`
 }
 
-type GetPeriodResponse struct {
-	Temps []Temperature `json:"temps"`
-	Err  error `json:"err"`
+type CreateUserResponse struct {
+	Err    error `json:"err"`
 }
 
-
-type PushPeriodRequest struct {
-	ID    string        `json:"id"`
-	Temps []Temperature `json:"temps"`
+type CreateUserAutoRequest struct {
+	UserName    string 	`json:"user_name"`
+	Plan		Plan 	`json:"plan"`
 }
 
-type PushPeriodResponse struct {
-	Err  error `json:"err"`
+type CreateUserAutoResponse struct {
+	Err    error `json:"err"`
 }
 
-type GetUpdateDateRequest struct {
-	IDs 	[]string `json:"ids"`
+type SetPlanRequest struct {
+	UserName    string 	`json:"user_name"`
+	Plan		Plan 	`json:"plan"`
 }
 
-type GetUpdateDateResponse struct {
-	Dates  map[string]string `json:"dates"`
-	Err  error `json:"err"`
+type SetPlanResponse struct {
+	Err    error `json:"err"`
 }
 
-
-type GetLatestRequest struct {
-	IDs 	[]string `json:"ids"`
+type SetStationsRequest struct {
+	UserName    string 		`json:"user_name"`
+	Station		[]string 	`json:"stations"`
 }
 
-type GetLatestResponse struct {
-	Temps  map[string]Temperature `json:"temps"`
-	Err  error `json:"err"`
+type SetStationsResponse struct {
+	Err    error `json:"err"`
 }
 
+type ValidateKeyRequest struct {
+	Key   string	`json:"key"`
+}
+
+type ValidateKeyResponse struct {
+	Parameters  UserParameters 	`json:"err"`
+	Err    		error 			`json:"err"`
+}

@@ -1,8 +1,8 @@
-package hourlysvc
+package usersvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
+	"github.com/flasherup/gradtage.de/usersvc/grpcusr"
 	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
@@ -11,67 +11,82 @@ import (
 )
 
 type GRPCServer struct {
-	getPeriod    	gt.Handler
-	pushPeriod  	gt.Handler
-	getUpdateDate   gt.Handler
-	getLatest		gt.Handler
+	createUser    	gt.Handler
+	createUserAuto  gt.Handler
+	setPlan   		gt.Handler
+	setStations		gt.Handler
+	validateKey		gt.Handler
 }
 
-func (s *GRPCServer) GetPeriod(ctx context.Context, req *hrlgrpc.GetPeriodRequest) (*hrlgrpc.GetPeriodResponse, error) {
-	_, resp, err := s.getPeriod.ServeGRPC(ctx, req)
+func (s *GRPCServer) CreateUser(ctx context.Context, req *grpcusr.CreateUserRequest) (*grpcusr.CreateUserResponse, error) {
+	_, resp, err := s.createUser.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*hrlgrpc.GetPeriodResponse), err
+	return resp.(*grpcusr.CreateUserResponse), err
 }
 
-func (s *GRPCServer) PushPeriod(ctx context.Context, req *hrlgrpc.PushPeriodRequest) (*hrlgrpc.PushPeriodResponse, error) {
-	_, resp, err := s.pushPeriod.ServeGRPC(ctx, req)
+func (s *GRPCServer) CreateUserAuto(ctx context.Context, req *grpcusr.CreateUserAutoRequest) (*grpcusr.CreateUserAutoResponse, error) {
+	_, resp, err := s.createUserAuto.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*hrlgrpc.PushPeriodResponse), err
+	return resp.(*grpcusr.CreateUserAutoResponse), err
 }
 
-func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *hrlgrpc.GetUpdateDateRequest) (*hrlgrpc.GetUpdateDateResponse, error) {
-	_, resp, err := s.getUpdateDate.ServeGRPC(ctx, req)
+func (s *GRPCServer) SetPlan(ctx context.Context, req *grpcusr.SetPlanRequest) (*grpcusr.SetPlanResponse, error) {
+	_, resp, err := s.setPlan.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*hrlgrpc.GetUpdateDateResponse), err
+	return resp.(*grpcusr.SetPlanResponse), err
 }
 
-func (s *GRPCServer) GetLatest(ctx context.Context, req *hrlgrpc.GetLatestRequest) (*hrlgrpc.GetLatestResponse, error) {
-	_, resp, err := s.getLatest.ServeGRPC(ctx, req)
+func (s *GRPCServer) SetStations(ctx context.Context, req *grpcusr.SetStationsRequest) (*grpcusr.SetStationsResponse, error) {
+	_, resp, err := s.setStations.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*hrlgrpc.GetLatestResponse), err
+	return resp.(*grpcusr.SetStationsResponse), err
+}
+
+func (s *GRPCServer) ValidateKey(ctx context.Context, req *grpcusr.ValidateKeyRequest) (*grpcusr.ValidateKeyResponse, error) {
+	_, resp, err := s.validateKey.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpcusr.ValidateKeyResponse), err
 }
 
 
 
-func NewGRPCServer(_ context.Context, endpoint Endpoints) hrlgrpc.HourlySVCServer {
+
+func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer {
 	server := GRPCServer{
-		getPeriod: gt.NewServer(
-			endpoint.GetPeriodEndpoint,
-			DecodeGetPeriodRequest,
-			EncodeGetPeriodResponse,
+		createUser: gt.NewServer(
+			endpoint.CreateUserEndpoint,
+			DecodeCreateUserRequest,
+			EncodeCreateUserResponse,
 		),
-		pushPeriod: gt.NewServer(
-			endpoint.PushPeriodEndpoint,
-			DecodePushPeriodRequest,
-			EncodePushPeriodResponse,
+		createUserAuto: gt.NewServer(
+			endpoint.CreateUserAutoEndpoint,
+			DecodeCreateUserAutoRequest,
+			EncodeCreateUserAutoResponse,
 		),
-		getUpdateDate: gt.NewServer(
-			endpoint.GetUpdateDateEndpoint,
-			DecodeGetUpdateDateRequest,
-			EncodeGetUpdateDateResponse,
+		setPlan: gt.NewServer(
+			endpoint.SetPlanEndpoint,
+			DecodeSetPlanRequest,
+			EncodeSetPlanResponse,
 		),
-		getLatest: gt.NewServer(
-			endpoint.GetLatestEndpoint,
-			DecodeGetLatestRequest,
-			EncodeGetLatestResponse,
+		setStations: gt.NewServer(
+			endpoint.SetStationsEndpoint,
+			DecodeSetStationsRequest,
+			EncodeSetStationsResponse,
+		),
+		validateKey: gt.NewServer(
+			endpoint.ValidateKeyEndpoint,
+			DecodeValidateKeyRequest,
+			EncodeValidateKeyResponse,
 		),
 	}
 	return &server

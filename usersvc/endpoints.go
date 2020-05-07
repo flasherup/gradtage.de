@@ -1,55 +1,66 @@
-package hourlysvc
+package usersvc
 
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
 )
 
+
 type Endpoints struct {
-	GetPeriodEndpoint  		endpoint.Endpoint
-	PushPeriodEndpoint  	endpoint.Endpoint
-	GetUpdateDateEndpoint  	endpoint.Endpoint
-	GetLatestEndpoint  		endpoint.Endpoint
+	CreateUserEndpoint  		endpoint.Endpoint
+	CreateUserAutoEndpoint  	endpoint.Endpoint
+	SetPlanEndpoint  			endpoint.Endpoint
+	SetStationsEndpoint  		endpoint.Endpoint
+	ValidateKeyEndpoint  		endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetPeriodEndpoint:   	MakeGetPeriodEndpoint(s),
-		PushPeriodEndpoint:		MakePushPeriodEndpoint(s),
-		GetUpdateDateEndpoint:	MakeGetUpdateDateEndpoint(s),
-		GetLatestEndpoint:		MakeGetLatestEndpoint(s),
+		CreateUserEndpoint:   		MakeCreateUserEndpoint(s),
+		CreateUserAutoEndpoint:   	MakeCreateUserAutoEndpoint(s),
+		SetPlanEndpoint:   			MakeSetPlanEndpoint(s),
+		SetStationsEndpoint:   		MakeSetStationsEndpoint(s),
+		ValidateKeyEndpoint:   		MakeValidateKeyEndpoint(s),
 	}
 }
 
 
-func MakeGetPeriodEndpoint(s Service) endpoint.Endpoint {
+func MakeCreateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetPeriodRequest)
-		temps, err := s.GetPeriod(ctx, req.ID, req.Start, req.End)
-		return GetPeriodResponse{temps, err}, err
+		req := request.(CreateUserRequest)
+		err := s.CreateUser(ctx, req.UserName,req.Plan)
+		return CreateUserResponse{err}, err
 	}
 }
 
-func MakePushPeriodEndpoint(s Service) endpoint.Endpoint {
+func MakeCreateUserAutoEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(PushPeriodRequest)
-		err := s.PushPeriod(ctx, req.ID, req.Temps)
-		return PushPeriodResponse{ err}, err
+		req := request.(CreateUserAutoRequest)
+		err := s.CreateUserAuto(ctx, req.UserName,req.Plan)
+		return CreateUserAutoResponse{err}, err
 	}
 }
 
-func MakeGetUpdateDateEndpoint(s Service) endpoint.Endpoint {
+func MakeSetPlanEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetUpdateDateRequest)
-		dates, err := s.GetUpdateDate(ctx, req.IDs)
-		return GetUpdateDateResponse{dates, err}, err
+		req := request.(SetPlanRequest)
+		err := s.SetPlan(ctx, req.UserName,req.Plan)
+		return SetPlanResponse{err}, err
 	}
 }
 
-func MakeGetLatestEndpoint(s Service) endpoint.Endpoint {
+func MakeSetStationsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetLatestRequest)
-		temps, err := s.GetLatest(ctx, req.IDs)
-		return GetLatestResponse{temps, err}, err
+		req := request.(SetStationsRequest)
+		err := s.SetStations(ctx, req.UserName,req.Station)
+		return SetStationsResponse{err}, err
+	}
+}
+
+func MakeValidateKeyEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ValidateKeyRequest)
+		parameters, err := s.ValidateKey(ctx, req.Key)
+		return ValidateKeyResponse{ parameters, err}, err
 	}
 }
