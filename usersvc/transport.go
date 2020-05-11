@@ -12,10 +12,10 @@ import (
 
 type GRPCServer struct {
 	createUser    	gt.Handler
-	createUserAuto  gt.Handler
-	setPlan   		gt.Handler
-	setStations		gt.Handler
+	updateUser		gt.Handler
+	addPlan   		gt.Handler
 	validateKey		gt.Handler
+	validateName	gt.Handler
 }
 
 func (s *GRPCServer) CreateUser(ctx context.Context, req *grpcusr.CreateUserRequest) (*grpcusr.CreateUserResponse, error) {
@@ -26,28 +26,20 @@ func (s *GRPCServer) CreateUser(ctx context.Context, req *grpcusr.CreateUserRequ
 	return resp.(*grpcusr.CreateUserResponse), err
 }
 
-func (s *GRPCServer) CreateUserAuto(ctx context.Context, req *grpcusr.CreateUserAutoRequest) (*grpcusr.CreateUserAutoResponse, error) {
-	_, resp, err := s.createUserAuto.ServeGRPC(ctx, req)
+func (s *GRPCServer) UpdateUser(ctx context.Context, req *grpcusr.UpdateUserRequest) (*grpcusr.UpdateUserResponse, error) {
+	_, resp, err := s.updateUser.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpcusr.CreateUserAutoResponse), err
+	return resp.(*grpcusr.UpdateUserResponse), err
 }
 
-func (s *GRPCServer) SetPlan(ctx context.Context, req *grpcusr.SetPlanRequest) (*grpcusr.SetPlanResponse, error) {
-	_, resp, err := s.setPlan.ServeGRPC(ctx, req)
+func (s *GRPCServer) AddPlan(ctx context.Context, req *grpcusr.AddPlanRequest) (*grpcusr.AddPlanResponse, error) {
+	_, resp, err := s.addPlan.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpcusr.SetPlanResponse), err
-}
-
-func (s *GRPCServer) SetStations(ctx context.Context, req *grpcusr.SetStationsRequest) (*grpcusr.SetStationsResponse, error) {
-	_, resp, err := s.setStations.ServeGRPC(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	return resp.(*grpcusr.SetStationsResponse), err
+	return resp.(*grpcusr.AddPlanResponse), err
 }
 
 func (s *GRPCServer) ValidateKey(ctx context.Context, req *grpcusr.ValidateKeyRequest) (*grpcusr.ValidateKeyResponse, error) {
@@ -56,6 +48,14 @@ func (s *GRPCServer) ValidateKey(ctx context.Context, req *grpcusr.ValidateKeyRe
 		return nil, err
 	}
 	return resp.(*grpcusr.ValidateKeyResponse), err
+}
+
+func (s *GRPCServer) ValidateName(ctx context.Context, req *grpcusr.ValidateNameRequest) (*grpcusr.ValidateNameResponse, error) {
+	_, resp, err := s.validateName.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpcusr.ValidateNameResponse), err
 }
 
 
@@ -68,25 +68,25 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer 
 			DecodeCreateUserRequest,
 			EncodeCreateUserResponse,
 		),
-		createUserAuto: gt.NewServer(
-			endpoint.CreateUserAutoEndpoint,
-			DecodeCreateUserAutoRequest,
-			EncodeCreateUserAutoResponse,
+		updateUser: gt.NewServer(
+			endpoint.UpdateUserEndpoint,
+			DecodeUpdateUserRequest,
+			EncodeUpdateUserResponse,
 		),
-		setPlan: gt.NewServer(
-			endpoint.SetPlanEndpoint,
-			DecodeSetPlanRequest,
-			EncodeSetPlanResponse,
-		),
-		setStations: gt.NewServer(
-			endpoint.SetStationsEndpoint,
-			DecodeSetStationsRequest,
-			EncodeSetStationsResponse,
+		addPlan: gt.NewServer(
+			endpoint.AddPlanEndpoint,
+			DecodeAddPlanRequest,
+			EncodeAddPlanResponse,
 		),
 		validateKey: gt.NewServer(
 			endpoint.ValidateKeyEndpoint,
 			DecodeValidateKeyRequest,
 			EncodeValidateKeyResponse,
+		),
+		validateName: gt.NewServer(
+			endpoint.ValidateNameEndpoint,
+			DecodeValidateNameRequest,
+			EncodeValidateNameResponse,
 		),
 	}
 	return &server

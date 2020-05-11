@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//HourlyDB main structure
+//UserDB main structure
 type Postgres struct {
 	db  *sql.DB
 }

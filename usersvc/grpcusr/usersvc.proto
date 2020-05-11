@@ -4,51 +4,59 @@ import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 package grpcusr;
 
 message Plan {
-    string  name = 1;
-    string  start = 2;
-    string  end = 3;
-    bool    Admin = 4;
+    string  name        = 1;
+    int32   stations    = 2;
+    int32   limitation  = 3;
+    bool    hdd         = 4;
+    bool    dd          = 5;
+    bool    cdd         = 6;
+    string  start       = 7;
+    string  end         = 8;
+    int32   period      = 9;
+    bool    Admin       = 10;
 }
 
-message UserParameters {
-    string          name = 1;
-    Plan            plan = 2;
-    repeated string stations = 3;
+message User {
+    string          name        = 1;
+    string          key         = 2;
+    string          renewDate   = 3;
+    string          requestDate = 4;
+    int32           requests    = 5;
+    string            plan      = 6;
+    repeated string stations    = 7;
+}
+
+message Parameters {
+    User user = 1;
+    Plan plan = 2;
 }
 
 message CreateUserRequest {
-    string  userName   = 1;
-    Plan    Plan 	    = 2;
+    string      userName    = 1;
+    string      plan 	    = 2;
+    bool        email       = 3;
 }
 
 message CreateUserResponse {
-    string Err = 1;
+    string key = 1;
+    string Err = 2;
 }
 
-message CreateUserAutoRequest {
-    string  userName = 1;
+message UpdateUserRequest {
+    User    user    = 1;
+    bool    email   = 3;
+}
+
+message UpdateUserResponse {
+    string key = 1;
+    string Err = 2;
+}
+
+message AddPlanRequest {
     Plan	plan = 2;
 }
 
-message CreateUserAutoResponse {
-    string err = 1;
-}
-
-message SetPlanRequest {
-    string  userName = 1;
-    Plan	plan = 2;
-}
-
-message SetPlanResponse {
-    string err = 1;
-}
-
-message SetStationsRequest {
-    string          userName = 1;
-    repeated string stations = 2;
-}
-
-message SetStationsResponse {
+message AddPlanResponse {
     string err = 1;
 }
 
@@ -57,16 +65,25 @@ message ValidateKeyRequest {
 }
 
 message ValidateKeyResponse {
-    UserParameters parameters = 1;
+    Parameters parameters = 1;
+    string err = 2;
+}
+
+message ValidateNameRequest {
+    string name = 1;
+}
+
+message ValidateNameResponse {
+    Parameters parameters = 1;
     string err = 2;
 }
 
 service UserSVC {
     rpc CreateUser(CreateUserRequest)           returns (CreateUserResponse) {}
-    rpc CreateUserAuto(CreateUserAutoRequest)   returns (CreateUserAutoResponse) {}
-    rpc SetPlan(SetPlanRequest)                 returns (SetPlanResponse) {}
-    rpc SetStations(SetStationsRequest)         returns (SetStationsResponse) {}
+    rpc UpdateUser(UpdateUserRequest)           returns (UpdateUserResponse) {}
+    rpc AddPlan(AddPlanRequest)                 returns (AddPlanResponse) {}
     rpc ValidateKey(ValidateKeyRequest)         returns (ValidateKeyResponse) {}
+    rpc ValidateName(ValidateNameRequest)       returns (ValidateNameResponse) {}
 }
 
 

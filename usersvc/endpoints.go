@@ -5,22 +5,21 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-
 type Endpoints struct {
 	CreateUserEndpoint  		endpoint.Endpoint
-	CreateUserAutoEndpoint  	endpoint.Endpoint
-	SetPlanEndpoint  			endpoint.Endpoint
-	SetStationsEndpoint  		endpoint.Endpoint
+	UpdateUserEndpoint  		endpoint.Endpoint
+	AddPlanEndpoint  			endpoint.Endpoint
 	ValidateKeyEndpoint  		endpoint.Endpoint
+	ValidateNameEndpoint  		endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
 		CreateUserEndpoint:   		MakeCreateUserEndpoint(s),
-		CreateUserAutoEndpoint:   	MakeCreateUserAutoEndpoint(s),
-		SetPlanEndpoint:   			MakeSetPlanEndpoint(s),
-		SetStationsEndpoint:   		MakeSetStationsEndpoint(s),
+		UpdateUserEndpoint:   		MakeUpdateUserEndpoint(s),
+		AddPlanEndpoint:   			MakeAddPlanEndpoint(s),
 		ValidateKeyEndpoint:   		MakeValidateKeyEndpoint(s),
+		ValidateNameEndpoint:   	MakeValidateNameEndpoint(s),
 	}
 }
 
@@ -28,32 +27,24 @@ func MakeServerEndpoints(s Service) Endpoints {
 func MakeCreateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateUserRequest)
-		err := s.CreateUser(ctx, req.UserName,req.Plan)
-		return CreateUserResponse{err}, err
+		key, err := s.CreateUser(ctx, req.UserName,req.Plan, req.Email)
+		return CreateUserResponse{key, err}, err
 	}
 }
 
-func MakeCreateUserAutoEndpoint(s Service) endpoint.Endpoint {
+func MakeUpdateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(CreateUserAutoRequest)
-		err := s.CreateUserAuto(ctx, req.UserName,req.Plan)
-		return CreateUserAutoResponse{err}, err
+		req := request.(UpdateUserRequest)
+		key, err := s.UpdateUser(ctx, req.User,req.Plan, req.Email)
+		return UpdateUserResponse{key, err}, err
 	}
 }
 
-func MakeSetPlanEndpoint(s Service) endpoint.Endpoint {
+func MakeAddPlanEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(SetPlanRequest)
-		err := s.SetPlan(ctx, req.UserName,req.Plan)
-		return SetPlanResponse{err}, err
-	}
-}
-
-func MakeSetStationsEndpoint(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(SetStationsRequest)
-		err := s.SetStations(ctx, req.UserName,req.Station)
-		return SetStationsResponse{err}, err
+		req := request.(AddPlanRequest)
+		err := s.AddPlan(ctx, req.Plan)
+		return AddPlanResponse{err}, err
 	}
 }
 
@@ -62,5 +53,13 @@ func MakeValidateKeyEndpoint(s Service) endpoint.Endpoint {
 		req := request.(ValidateKeyRequest)
 		parameters, err := s.ValidateKey(ctx, req.Key)
 		return ValidateKeyResponse{ parameters, err}, err
+	}
+}
+
+func MakeValidateNameEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ValidateNameRequest)
+		parameters, err := s.ValidateName(ctx, req.Name)
+		return ValidateNameResponse{ parameters, err}, err
 	}
 }
