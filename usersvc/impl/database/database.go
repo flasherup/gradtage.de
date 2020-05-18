@@ -2,6 +2,9 @@ package database
 
 import "github.com/flasherup/gradtage.de/usersvc"
 
+
+const KeyLength = 20
+
 type UserDB interface {
 	SetUser(user usersvc.User) error
 	GetUserDataByName(userName string)  (usersvc.Parameters, error)

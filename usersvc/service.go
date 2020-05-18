@@ -14,6 +14,14 @@ const (
 	PlanEnterprise		= "enterprise"
 )
 
+type Selection struct {
+	Key 		string
+	StationID 	string
+	Method 		string
+	Start 		time.Time
+	End 		time.Time
+}
+
 type Parameters struct {
 	User User
 	Plan Plan
@@ -46,6 +54,7 @@ type Service interface {
 	CreateUser(ctx context.Context, userName string, plan string, email bool) (string, error)
 	UpdateUser(ctx context.Context, user User, email bool) (string, error)
 	AddPlan(ctx context.Context, plan Plan) error
-	ValidateKey(ctx context.Context, key string) (parameters Parameters, err error)
-	ValidateName(ctx context.Context, name string) (parameters Parameters, err error)
+	ValidateSelection(ctx context.Context, selection Selection) (bool, error)
+	ValidateKey(ctx context.Context, key string) (Parameters, error)
+	ValidateName(ctx context.Context, name string) (Parameters, error)
 }

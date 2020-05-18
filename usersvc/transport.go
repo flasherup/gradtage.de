@@ -11,11 +11,12 @@ import (
 )
 
 type GRPCServer struct {
-	createUser    	gt.Handler
-	updateUser		gt.Handler
-	addPlan   		gt.Handler
-	validateKey		gt.Handler
-	validateName	gt.Handler
+	createUser    		gt.Handler
+	updateUser			gt.Handler
+	addPlan   			gt.Handler
+	validateSelection	gt.Handler
+	validateKey			gt.Handler
+	validateName		gt.Handler
 }
 
 func (s *GRPCServer) CreateUser(ctx context.Context, req *grpcusr.CreateUserRequest) (*grpcusr.CreateUserResponse, error) {
@@ -40,6 +41,14 @@ func (s *GRPCServer) AddPlan(ctx context.Context, req *grpcusr.AddPlanRequest) (
 		return nil, err
 	}
 	return resp.(*grpcusr.AddPlanResponse), err
+}
+
+func (s *GRPCServer) ValidateSelection(ctx context.Context, req *grpcusr.ValidateSelectionRequest) (*grpcusr.ValidateSelectionResponse, error) {
+	_, resp, err := s.validateSelection.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpcusr.ValidateSelectionResponse), err
 }
 
 func (s *GRPCServer) ValidateKey(ctx context.Context, req *grpcusr.ValidateKeyRequest) (*grpcusr.ValidateKeyResponse, error) {
@@ -77,6 +86,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer 
 			endpoint.AddPlanEndpoint,
 			DecodeAddPlanRequest,
 			EncodeAddPlanResponse,
+		),
+		validateSelection: gt.NewServer(
+			endpoint.ValidateSelectionEndpoint,
+			DecodeValidateSelectionRequest,
+			EncodeValidateSelectionResponse,
 		),
 		validateKey: gt.NewServer(
 			endpoint.ValidateKeyEndpoint,

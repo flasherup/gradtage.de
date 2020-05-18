@@ -23,20 +23,25 @@ type Clients struct {
 	AlertAddr 		string `yaml:"alert_addr"`
 }
 
-type StationsConfig struct {
+type Plans struct {
+	FreeDefault string `yaml:"free_default"`
+}
+
+type UsersConfig struct {
 	Server   		ServerConfig	`yaml:"server"`
 	Database 		DatabaseConfig	`yaml:"database"`
 	Clients  		Clients			`yaml:"clients"`
 	AlertsEnable  	bool			`yaml:"alerts_enable"`
+	Plans 			Plans			`yaml:"plans"`
 }
 
-func LoadConfig(path string) (config *StationsConfig, err error) {
+func LoadConfig(path string) (config *UsersConfig, err error) {
 	c, err := ioutil.ReadFile(path)
 	if err != nil {
 		return
 	}
 
-	config = &StationsConfig{}
+	config = &UsersConfig{}
 
 	err = yaml.Unmarshal(c, config)
 	if err != nil {
@@ -46,10 +51,10 @@ func LoadConfig(path string) (config *StationsConfig, err error) {
 	return
 }
 
-func (tc *StationsConfig)GetGRPCAddress() string {
+func (tc *UsersConfig)GetGRPCAddress() string {
 	return fmt.Sprintf("%s:%d", "", tc.Server.PortGRPC)
 }
 
-func (tc *StationsConfig)GetHTTPAddress() string {
+func (tc *UsersConfig)GetHTTPAddress() string {
 	return fmt.Sprintf("%s:%d", "", tc.Server.PortHTTP)
 }

@@ -3,9 +3,11 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/hourlysvc/config"
+	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/usersvc"
+	"github.com/flasherup/gradtage.de/usersvc/config"
 	_ "github.com/lib/pq"
+	"time"
 )
 
 //UserDB main structure
@@ -39,228 +41,312 @@ func (pg *Postgres) Dispose() {
 	pg.db = nil
 }
 
-//PushPeriod write a list of temperatures in to DB
-func (pg *Postgres) PushPeriod(name string, temperatures []hourlysvc.Temperature) error {
-
-	query := fmt.Sprintf("INSERT INTO %s " +
-		"(date, temperature) VALUES", name)
-
-	length := len(temperatures)
-	for i, v := range temperatures {
-		query += fmt.Sprintf(
-			" ( '%s', %g)",
-			v.Date, v.Temperature)
-		if i < length-1 {
-			query += ","
+//SetUser(user usersvc.User) error
+func (pg *Postgres) SetUser(user usersvc.User) error {
+	stations := "{"
+	for i,v := range user.Stations {
+		stations := v
+		if i < len(user.Stations)-1 {
+			stations += ","
 		}
 	}
+	stations += "}"
+	query := fmt.Sprintf("INSERT INTO users " +
+		"(key, name, renew, request, req_count, plan, stations) VALUES " +
+		"( '%s', '%s', '%s', '%s', %d, '%s', '%s')",
+		user.Key,
+		user.Name,
+		user.RequestDate.Format(common.TimeLayout),
+		user.RequestDate.Format(common.TimeLayout),
+		user.Requests,
+		user.Plan,
+		stations)
 
-	query += ` ON CONFLICT (date) DO UPDATE SET
-			 temperature = excluded.temperature;`
-
+	query += ` ON CONFLICT (key) DO UPDATE SET
+			 (	name,
+			 	renew,
+			 	request,
+			 	req_count,
+			 	plan,
+			 	stations
+			) = (
+				excluded.name,
+			 	excluded.renew,
+			 	excluded.request,
+			 	excluded.req_count,
+			 	excluded.plan,
+			 	excluded.stations
+			);`
 	return writeToDB(pg.db, query)
 }
 
-
-//GetPeriod get a list of temperatures form table @name (station Id)
-func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []hourlysvc.Temperature, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
-		name, start, end)
-
-	rows, err := pg.db.Query(query)
+//GetUserDataByName(userName string)  (usersvc.Parameters, error)
+func (pg *Postgres) GetUserDataByName(userName string)  (res usersvc.Parameters, err error){
+	res = usersvc.Parameters{}
+	res.User, err = pg.getUserByName(userName)
 	if err != nil {
-		return temps,err
+		return res, err
 	}
-	defer rows.Close()
 
-
-	for rows.Next() {
-		st,err := parseRow(rows)
-		if err != nil {
-			return temps, err
-		}
-		temps = append(temps, st)
-	}
-	return temps,err
-}
-
-
-//CreateTable create a table with name @icao + tPrefix if not exist
-func (pg *Postgres) CreateTable(name string) error {
-	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ("+
-		"	date timestamp UNIQUE,"+
-		"	temperature real"+
-		");",
-		name)
-	return writeToDB(pg.db, query)
-}
-
-//RemoveTable remove stations table from BD
-func (pg *Postgres) RemoveTable(name string) error {
-	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;",
-		name)
-	return writeToDB(pg.db, query)
-}
-
-//GetUpdateDate return latest date of update for station with @name
-func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
-		name)
-
-	rows, err := pg.db.Query(query)
+	res.Plan, err = pg.GetPlan(res.User.Plan)
 	if err != nil {
-		return date,err
+		return res, err
 	}
-	defer rows.Close()
 
-
-	for rows.Next() {
-		temp,err := parseRow(rows)
-		if err != nil {
-			return date, err
-		}
-
-		date = temp.Date
-
-	}
-	return date,err
+	return res, err
 }
 
-//Request example
-//(SELECT *, 'de00044' as name
-//FROM de00044
-//ORDER BY date
-//DESC LIMIT 1)
-//UNION ALL
-//(SELECT *, 'de00071' as name
-//FROM de00071
-//ORDER BY date
-//DESC LIMIT 1);
-//GetUpdateDateList return latest dates of update for stations with specified in @names
-func (pg *Postgres)GetUpdateDateList(names []string) (temps map[string]string, err error) {
-	query := ""
-	for i,v := range names {
-		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
-			v, v)
-
-		if i < len(names)-1 {
-			query += " UNION ALL "
-		} else {
-			query += ";"
-		}
-	}
-
-	rows, err := pg.db.Query(query)
+//GetUserDataByKey(key string)  (res usersvc.Parameters, err error)
+func (pg *Postgres) GetUserDataByKey(key string)  (res usersvc.Parameters, err error){
+	res = usersvc.Parameters{}
+	res.User, err = pg.getUserByKey(key)
 	if err != nil {
-		return temps,err
+		return res, err
 	}
-	defer rows.Close()
 
-	temps = map[string]string{}
+	res.Plan, err = pg.GetPlan(res.User.Plan)
+	if err != nil {
+		return res, err
+	}
 
-	row := struct {
-		Date 		string
-		Temperature float64
-		Name 		string
-	}{}
+	return res, err
+}
 
-	for rows.Next() {
-		err = rows.Scan(
-			&row.Date,
-			&row.Temperature,
-			&row.Name,
+//SetPlan(plan usersvc.Plan) error
+func (pg *Postgres) SetPlan(plan usersvc.Plan) error {
+	query := fmt.Sprintf("INSERT INTO plans " +
+		"(name, stations, limitation, hdd, dd, cdd, stime, etime, period, admin) VALUES " +
+		"( '%s', '%d', '%d', '%t', %t, '%t', '%s', '%s', %d, %t)",
+			plan.Name,
+			plan.Stations,
+			plan.Limitation,
+			plan.HDD,
+			plan.DD,
+			plan.CDD,
+			plan.Start.Format(common.TimeLayout),
+			plan.End.Format(common.TimeLayout),
+			plan.Period,
+			plan.Admin,
 		)
 
-		if err == nil {
-			temps[row.Name] = row.Date
-		}
-	}
-	return temps, nil
+	query += ` ON CONFLICT (name) DO UPDATE SET
+			 (	
+				name,
+				stations,
+				limitation,
+				hdd,
+				dd,
+				cdd,
+				stime,
+				etime,
+				period,
+				admin
+			) = (
+				excluded.name,
+				excluded.stations,
+				excluded.limitation,
+				excluded.hdd,
+				excluded.dd,
+				excluded.cdd,
+				excluded.stime,
+				excluded.etime,
+				excluded.period,
+				excluded.admin
+			);`
+	return writeToDB(pg.db, query)
 }
 
-//GetLatest return latest temperature data
-//for station with name @name
-func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
-		name)
-
+//GetPlan(name string) (usersvc.Plan, error)
+func (pg *Postgres) GetPlan(name string) (usersvc.Plan, error) {
+	query := fmt.Sprintf("SELECT * FROM plans WHERE name = '%s';", name)
 	rows, err := pg.db.Query(query)
 	if err != nil {
-		return temp,err
+		return  usersvc.Plan{},err
 	}
 	defer rows.Close()
-
-	rows.Next()
-	return parseRow(rows)
-}
-
-
-//Request example
-//(SELECT *, 'de00044' as name
-//FROM de00044
-//ORDER BY date
-//DESC LIMIT 1)
-//UNION ALL
-//(SELECT *, 'de00071' as name
-//FROM de00071
-//ORDER BY date
-//DESC LIMIT 1);
-//GetLatestList return latest temperatures data
-//for station specified in @[]strings
-func (pg *Postgres)GetLatestList(names []string) (temps map[string]hourlysvc.Temperature, err error) {
-	query := ""
-
-	for i,v := range names {
-		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
-			v, v)
-
-		if i < len(names)-1 {
-			query += " UNION ALL "
-		} else {
-			query += ";"
-		}
-	}
-
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return temps,err
-	}
-	defer rows.Close()
-
-	temps = map[string]hourlysvc.Temperature{}
-
-	row := struct {
-		Date 		string
-		Temperature float64
-		Name 		string
-	}{}
-
+	var res usersvc.Plan
 	for rows.Next() {
-		err = rows.Scan(
-			&row.Date,
-			&row.Temperature,
-			&row.Name,
-		)
-
-		if err == nil {
-
-			temps[row.Name] = hourlysvc.Temperature{
-				Date:row.Date,
-				Temperature:row.Temperature,
-			}
+		p, err := parsePlanRow(rows)
+		if err != nil {
+			return res, err
 		}
+
+		res = p
 	}
-	return temps, nil
+	return res, nil
+}
+
+func (pg *Postgres) getUserByName(userName string) (usersvc.User, error) {
+	query := fmt.Sprintf("SELECT * FROM users WHERE name = '%s';", userName)
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return  usersvc.User{},err
+	}
+	defer rows.Close()
+	var res usersvc.User
+	for rows.Next() {
+		u, err := parseUserRow(rows)
+		if err != nil {
+			return res, err
+		}
+
+		res = u
+	}
+	return res, nil
 }
 
 
+func (pg *Postgres) getUserByKey(key string) (usersvc.User, error) {
+	query := fmt.Sprintf("SELECT * FROM users WHERE key = '%s';", key)
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return  usersvc.User{},err
+	}
+	defer rows.Close()
+	var res usersvc.User
+	for rows.Next() {
+		u, err := parseUserRow(rows)
+		if err != nil {
+			return res, err
+		}
 
-func parseRow(rows *sql.Rows) (row hourlysvc.Temperature, err error) {
+		res = u
+	}
+	return res, nil
+}
+
+//CreateUserTable() error
+func (pg *Postgres) CreateUserTable() error {
+	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS users (
+			key 		varchar(%d) UNIQUE,
+			name 		varchar(50),
+			renew 		timestamp,
+			request 	timestamp,
+			req_count	integer,
+			plan 		varchar(15),
+			stations 	varchar(8)[]
+		);`, KeyLength)
+	return writeToDB(pg.db, query)
+}
+
+//CreatePlanTable() error
+func (pg *Postgres) CreatePlanTable() error {
+	query := `CREATE TABLE IF NOT EXISTS plans (
+				name 		varchar(15) UNIQUE,
+				stations 	integer,
+				limitation 	integer,
+				hdd			bool,
+				dd			bool,
+				cdd			bool,
+				stime 		timestamp,
+				etime 		timestamp,
+				period		integer,
+				admin		bool
+			);`
+	return writeToDB(pg.db, query)
+}
+
+//RemoveUserTable remove users table from BD
+func (pg *Postgres) RemoveUserTable() error {
+	query := "DROP TABLE IF EXISTS users CASCADE;"
+	return writeToDB(pg.db, query)
+}
+
+//RemovePlanTable remove plan table from BD
+func (pg *Postgres) RemovePlanTable() error {
+	query := "DROP TABLE IF EXISTS plans CASCADE;"
+	return writeToDB(pg.db, query)
+}
+
+func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
+	u := struct {
+		key 		string
+		name 		string
+		renew 		string
+		request 	string
+		req_count	int
+		plan 		string
+		stations 	[]string
+	}{}
 	err = rows.Scan(
-		&row.Date,
-		&row.Temperature,
+		&u.key,
+		&u.name,
+		&u.renew,
+		&u.request,
+		&u.req_count,
+		&u.plan,
+		&u.stations,
 	)
-	return
+
+	renew, err := time.Parse(common.TimeLayout, u.renew)
+	if err != nil {
+		return user,err
+	}
+
+	request, err := time.Parse(common.TimeLayout, u.request)
+	if err != nil {
+		return user,err
+	}
+
+	user.Key = u.key
+	user.Name = u.name
+	user.RenewDate = renew
+	user.RequestDate = request
+	user.Requests = u.req_count
+	user.Plan = u.plan
+	user.Stations = u.stations
+
+	return user, err
+}
+
+func parsePlanRow(rows *sql.Rows) (plan usersvc.Plan, err error) {
+	p := struct {
+		name 		string
+		stations 	int
+		limitation 	int
+		hdd 		bool
+		dd			bool
+		cdd 		bool
+		stime 		string
+		etime		string
+		period 		int
+		admin		bool
+	}{}
+	err = rows.Scan(
+		&p.name,
+		&p.stations,
+		&p.limitation,
+		&p.hdd,
+		&p.dd,
+		&p.cdd,
+		&p.stime,
+		&p.etime,
+		&p.period,
+		&p.admin,
+	)
+
+	start, err := time.Parse(common.TimeLayout, p.stime)
+	if err != nil {
+		return plan,err
+	}
+
+	end, err := time.Parse(common.TimeLayout, p.etime)
+	if err != nil {
+		return plan,err
+	}
+
+	plan.Name = p.name
+	plan.Stations = p.stations
+	plan.Limitation = p.limitation
+	plan.HDD = p.hdd
+	plan.DD = p.dd
+	plan.CDD = p.cdd
+	plan.Start = start
+	plan.End = end
+	plan.Period = p.period
+	plan.Admin = p.admin
+
+	return plan, err
 }
 
 func writeToDB(db *sql.DB, query string) (err error){

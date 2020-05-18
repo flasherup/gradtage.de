@@ -29,6 +29,15 @@ type AddPlanResponse struct {
 	Err    error `json:"err"`
 }
 
+type ValidateSelectionRequest struct {
+	Selection   Selection 	`json:"selection"`
+}
+
+type ValidateSelectionResponse struct {
+	IsValid 	bool `json:"is_valid"`
+	Err    		error 		`json:"err"`
+}
+
 type ValidateKeyRequest struct {
 	Key    string 		`json:"key"`
 }

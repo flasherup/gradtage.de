@@ -51,6 +51,20 @@ func DecodeAddPlanRequest(_ context.Context, r interface{}) (interface{}, error)
 	return AddPlanRequest{*plan}, err
 }
 
+func EncodeValidateSelectionResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(ValidateSelectionResponse)
+	return &grpcusr.ValidateSelectionResponse {
+		IsValid: res.IsValid,
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeValidateSelectionRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.ValidateSelectionRequest)
+	selection, err := DecodeSelection(req.Selection)
+	return ValidateSelectionRequest{*selection}, err
+}
+
 func EncodeValidateKeyResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(ValidateKeyResponse)
 	params:= EncodeParameters(&res.Parameters)
@@ -80,11 +94,11 @@ func DecodeValidateNameRequest(_ context.Context, r interface{}) (interface{}, e
 }
 
 func DecodePlan(src *grpcusr.Plan) (*Plan, error) {
-	start, err := time.Parse(src.Start, common.TimeLayout)
+	start, err := time.Parse(common.TimeLayout, src.Start)
 	if err != nil {
 		return nil, err
 	}
-	end, err := time.Parse(src.End, common.TimeLayout)
+	end, err := time.Parse(common.TimeLayout, src.End)
 	if err != nil {
 		return nil, err
 	}
@@ -120,16 +134,17 @@ func EncodePlan(src *Plan) (*grpcusr.Plan) {
 }
 
 func DecodeUser(src *grpcusr.User) (*User, error) {
-	renew, err := time.Parse(src.RenewDate, common.TimeLayout)
+	renew, err := time.Parse(common.TimeLayout, src.RenewDate)
 	if err != nil {
 		return nil, err
 	}
-	requests, err := time.Parse(src.RequestDate, common.TimeLayout)
+	requests, err := time.Parse(common.TimeLayout, src.RequestDate)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
 		Name:  			src.Name,
+		Key: 			src.Key,
 		RequestDate: 	renew,
 		RenewDate: 		requests,
 		Requests: 		int(src.Requests),
@@ -138,11 +153,12 @@ func DecodeUser(src *grpcusr.User) (*User, error) {
 	}, nil
 }
 
-func EncodeUser(src *User) (*grpcusr.User) {
+func EncodeUser(src *User) *grpcusr.User {
 	renew := src.RenewDate.Format(common.TimeLayout)
 	requests := src.RequestDate.Format(common.TimeLayout)
 	return &grpcusr.User{
 		Name:  			src.Name,
+		Key: 			src.Key,
 		RequestDate: 	renew,
 		RenewDate: 		requests,
 		Requests: 		int32(src.Requests),
@@ -166,12 +182,42 @@ func DecodeParameters(src *grpcusr.Parameters) (*Parameters, error) {
 	}, nil
 }
 
-func EncodeParameters(src *Parameters) (*grpcusr.Parameters) {
+func EncodeParameters(src *Parameters) *grpcusr.Parameters {
 	user := EncodeUser(&src.User)
 	plan := EncodePlan(&src.Plan)
 	return &grpcusr.Parameters{
 		User: user,
 		Plan: plan,
+	}
+}
+
+func DecodeSelection(src *grpcusr.Selection) (*Selection, error) {
+	start, err := time.Parse(common.TimeLayout, src.Start)
+	if err != nil {
+		return nil, err
+	}
+	end, err := time.Parse(common.TimeLayout, src.End)
+	if err != nil {
+		return nil, err
+	}
+	return &Selection{
+		Key: 		src.Key,
+		StationID: 	src.StationID,
+		Method: 	src.Method,
+		Start: 		start,
+		End: 		end,
+	}, nil
+}
+
+func EncodeSelection(src *Selection) *grpcusr.Selection {
+	start := src.Start.Format(common.TimeLayout)
+	end := src.End.Format(common.TimeLayout)
+	return &grpcusr.Selection{
+		Key: 		src.Key,
+		StationID: 	src.StationID,
+		Method: 	src.Method,
+		Start: 		start,
+		End: 		end,
 	}
 }
 

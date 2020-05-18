@@ -3,6 +3,14 @@ import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 package grpcusr;
 
+message Selection {
+    string  key         = 1;
+ 	string  stationID   = 2;
+    string  method      = 3;
+    string  Start       = 4;
+    string  End         = 5;
+}
+
 message Plan {
     string  name        = 1;
     int32   stations    = 2;
@@ -60,6 +68,15 @@ message AddPlanResponse {
     string err = 1;
 }
 
+message ValidateSelectionRequest {
+    Selection selection = 1;
+}
+
+message ValidateSelectionResponse {
+    bool isValid = 1;
+    string err = 2;
+}
+
 message ValidateKeyRequest {
     string key = 1;
 }
@@ -79,11 +96,12 @@ message ValidateNameResponse {
 }
 
 service UserSVC {
-    rpc CreateUser(CreateUserRequest)           returns (CreateUserResponse) {}
-    rpc UpdateUser(UpdateUserRequest)           returns (UpdateUserResponse) {}
-    rpc AddPlan(AddPlanRequest)                 returns (AddPlanResponse) {}
-    rpc ValidateKey(ValidateKeyRequest)         returns (ValidateKeyResponse) {}
-    rpc ValidateName(ValidateNameRequest)       returns (ValidateNameResponse) {}
+    rpc CreateUser(CreateUserRequest)                   returns (CreateUserResponse) {}
+    rpc UpdateUser(UpdateUserRequest)                   returns (UpdateUserResponse) {}
+    rpc AddPlan(AddPlanRequest)                         returns (AddPlanResponse) {}
+    rpc ValidateSelection(ValidateSelectionRequest)     returns (ValidateSelectionResponse) {}
+    rpc ValidateKey(ValidateKeyRequest)                 returns (ValidateKeyResponse) {}
+    rpc ValidateName(ValidateNameRequest)               returns (ValidateNameResponse) {}
 }
 
 

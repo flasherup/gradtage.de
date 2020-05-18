@@ -2,18 +2,18 @@ package common
 
 import "errors"
 
-const errorString  = "nil"
+const ErrorNilString = "nil"
 
 func ErrorToString(err error) string{
 	if err == nil {
-		return errorString
+		return ErrorNilString
 	}
 	return err.Error()
 }
 
 
 func ErrorFromString(err string) error{
-	if err == errorString {
+	if err == ErrorNilString {
 		return nil
 	}
 	return errors.New(err)

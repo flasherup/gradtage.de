@@ -3,100 +3,161 @@ package impl
 import (
 	"context"
 	"errors"
-	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/hourlysvc/hrlgrpc"
+	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/usersvc"
+	"github.com/flasherup/gradtage.de/usersvc/grpcusr"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	googlerpc "google.golang.org/grpc"
 )
 
-type HourlySVCClient struct{
-	logger     log.Logger
-	host string
+type UsersSVCClient struct{
+	logger     	log.Logger
+	host 		string
 }
 
-func NewHourlySCVClient(host string, logger log.Logger) *HourlySVCClient {
-	return &HourlySVCClient{
+func NewUsersSCVClient(host string, logger log.Logger) *UsersSVCClient {
+	return &UsersSVCClient{
 		logger:logger,
 		host: host,
 	}
 }
 
-func (scc HourlySVCClient) GetPeriod(id string, start string, end string) (resp *hrlgrpc.GetPeriodResponse, err error) {
-	conn := scc.openConn()
+
+func (us UsersSVCClient) CreateUser(userName string, plan string, email bool) (string, error) {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return common.ErrorNilString,err
+	}
 	defer conn.Close()
 
-	client := hrlgrpc.NewHourlySVCClient(conn)
-	resp, err = client.GetPeriod(context.Background(), &hrlgrpc.GetPeriodRequest{ Id: id, Start:start, End:end })
+	client := grpcusr.NewUserSVCClient(conn)
+	resp, err := client.CreateUser(context.Background(), &grpcusr.CreateUserRequest{
+		UserName: userName,
+		Plan: plan,
+		Email: email,
+	})
+
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to get period", "err", err)
-	}else if resp.Err != "nil" {
+		level.Error(us.logger).Log("msg", "Failed to create user", "err", err)
+	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
 
-	return resp, err
+	return resp.Key, err
 }
 
-func (scc HourlySVCClient) PushPeriod(id string, temps []hourlysvc.Temperature) (resp *hrlgrpc.PushPeriodResponse, err error) {
-	conn := scc.openConn()
+func (us UsersSVCClient) UpdateUser(user usersvc.User, email bool) (string, error) {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return common.ErrorNilString,err
+	}
 	defer conn.Close()
 
-	client := hrlgrpc.NewHourlySVCClient(conn)
-	tGRPC := toGRPCTemps(temps)
-	resp, err = client.PushPeriod(context.Background(), &hrlgrpc.PushPeriodRequest{Id: id, Temps:tGRPC})
+	client := grpcusr.NewUserSVCClient(conn)
+	u := usersvc.EncodeUser(&user)
+	resp, err := client.UpdateUser(context.Background(), &grpcusr.UpdateUserRequest{
+		User:  u,
+		Email: email,
+	})
+
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to push period", "err", err)
-	}else if resp.Err != "nil" {
+		level.Error(us.logger).Log("msg", "Failed to create user", "err", err)
+	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
-	return resp, err
+
+	return resp.Key, err
 }
 
-func (scc HourlySVCClient) GetUpdateDate(ids []string) (resp *hrlgrpc.GetUpdateDateResponse, err error) {
-	conn := scc.openConn()
+//AddPlan(plan Plan) error
+func (us UsersSVCClient) AddPlan(plan usersvc.Plan) error {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return err
+	}
 	defer conn.Close()
 
-	client := hrlgrpc.NewHourlySVCClient(conn)
-	resp, err = client.GetUpdateDate(context.Background(), &hrlgrpc.GetUpdateDateRequest{ Ids: ids })
+	client := grpcusr.NewUserSVCClient(conn)
+	p := usersvc.EncodePlan(&plan)
+	resp, err := client.AddPlan(context.Background(), &grpcusr.AddPlanRequest{
+		Plan:  p,
+	})
+
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to get update date", "err", err)
-	} else if resp.Err != "nil" {
+		level.Error(us.logger).Log("msg", "Failed to create user", "err", err)
+	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
-	return resp, err
+
+	return err
 }
 
-func (scc HourlySVCClient) GetLatest(ids []string) (resp *hrlgrpc.GetLatestResponse, err error) {
-	conn := scc.openConn()
+//ValidateSelection(selection Selection) (bool, error)
+func (us UsersSVCClient) ValidateSelection(selection usersvc.Selection) error {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return err
+	}
 	defer conn.Close()
 
-	client := hrlgrpc.NewHourlySVCClient(conn)
-	resp, err = client.GetLatest(context.Background(), &hrlgrpc.GetLatestRequest{ Ids: ids })
+	client := grpcusr.NewUserSVCClient(conn)
+	p := usersvc.EncodeSelection(&selection)
+	resp, err := client.ValidateSelection(context.Background(), &grpcusr.ValidateSelectionRequest{
+		Selection:  p,
+	})
+
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to get latest", "err", err)
-	} else if resp.Err != "nil" {
+		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
-	return resp, err
+
+	return err
 }
 
-
-func (scc HourlySVCClient) openConn() *googlerpc.ClientConn {
-	cc, err := googlerpc.Dial(scc.host, googlerpc.WithInsecure())
+//ValidateKey(key string) (Parameters, error)
+func (us UsersSVCClient) ValidateKey(key string) (usersvc.Parameters, error) {
+	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
-		level.Error(scc.logger).Log("msg", "Failed to start gRPC connection", "err", err)
+		return usersvc.Parameters{}, err
 	}
-	return cc
+	defer conn.Close()
+
+	client := grpcusr.NewUserSVCClient(conn)
+	resp, err := client.ValidateKey(context.Background(), &grpcusr.ValidateKeyRequest{
+		Key:  key,
+	})
+
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+	}else if resp.Err != common.ErrorNilString {
+		err = errors.New(resp.Err)
+	}
+
+	p, err := usersvc.DecodeParameters(resp.Parameters)
+	return *p, err
 }
 
-func toGRPCTemps(sts []hourlysvc.Temperature) []*hrlgrpc.Temperature {
-	res := make([]*hrlgrpc.Temperature, len(sts))
-	for i,v := range sts {
-		res[i] = &hrlgrpc.Temperature{
-			Date:			v.Date,
-			Temperature:	v.Temperature,
-		}
+
+//ValidateName(name string) (Parameters, error)
+func (us UsersSVCClient) ValidateName(name string) (usersvc.Parameters, error) {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return usersvc.Parameters{}, err
+	}
+	defer conn.Close()
+
+	client := grpcusr.NewUserSVCClient(conn)
+	resp, err := client.ValidateName(context.Background(), &grpcusr.ValidateNameRequest{
+		Name:  name,
+	})
+
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+	}else if resp.Err != common.ErrorNilString {
+		err = errors.New(resp.Err)
 	}
 
-	return res
+	p, err := usersvc.DecodeParameters(resp.Parameters)
+	return *p, err
 }

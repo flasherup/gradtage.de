@@ -9,6 +9,7 @@ type Endpoints struct {
 	CreateUserEndpoint  		endpoint.Endpoint
 	UpdateUserEndpoint  		endpoint.Endpoint
 	AddPlanEndpoint  			endpoint.Endpoint
+	ValidateSelectionEndpoint  	endpoint.Endpoint
 	ValidateKeyEndpoint  		endpoint.Endpoint
 	ValidateNameEndpoint  		endpoint.Endpoint
 }
@@ -18,6 +19,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		CreateUserEndpoint:   		MakeCreateUserEndpoint(s),
 		UpdateUserEndpoint:   		MakeUpdateUserEndpoint(s),
 		AddPlanEndpoint:   			MakeAddPlanEndpoint(s),
+		ValidateSelectionEndpoint:  MakeValidateSelectionEndpoint(s),
 		ValidateKeyEndpoint:   		MakeValidateKeyEndpoint(s),
 		ValidateNameEndpoint:   	MakeValidateNameEndpoint(s),
 	}
@@ -35,7 +37,7 @@ func MakeCreateUserEndpoint(s Service) endpoint.Endpoint {
 func MakeUpdateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(UpdateUserRequest)
-		key, err := s.UpdateUser(ctx, req.User,req.Plan, req.Email)
+		key, err := s.UpdateUser(ctx, req.User, req.Email)
 		return UpdateUserResponse{key, err}, err
 	}
 }
@@ -45,6 +47,14 @@ func MakeAddPlanEndpoint(s Service) endpoint.Endpoint {
 		req := request.(AddPlanRequest)
 		err := s.AddPlan(ctx, req.Plan)
 		return AddPlanResponse{err}, err
+	}
+}
+
+func MakeValidateSelectionEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ValidateSelectionRequest)
+		isValid, err := s.ValidateSelection(ctx, req.Selection)
+		return ValidateSelectionResponse{ isValid, err}, err
 	}
 }
 
