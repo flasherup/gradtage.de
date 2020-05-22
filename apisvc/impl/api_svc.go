@@ -7,12 +7,14 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/impl/security"
+	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/dailysvc"
 	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/noaascrapersvc"
+	"github.com/flasherup/gradtage.de/usersvc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
@@ -28,6 +30,7 @@ type APISVC struct {
 	hourly			hourlysvc.Client
 	noaa 			noaascrapersvc.Client
 	autocomplete 	autocompletesvc.Client
+	user 			usersvc.Client
 	keyManager 		*security.KeyManager
 	counter 		ktprom.Gauge
 }
@@ -50,6 +53,7 @@ func NewAPISVC(
 		hourly 			hourlysvc.Client,
 		noaa 			noaascrapersvc.Client,
 		autocomplete 	autocompletesvc.Client,
+		user 			usersvc.Client,
 		alert 			alertsvc.Client,
 		keyManager 		*security.KeyManager,
 	) *APISVC {
@@ -64,6 +68,7 @@ func NewAPISVC(
 		hourly:			hourly,
 		noaa: 			noaa,
 		autocomplete: 	autocomplete,
+		user: 			user,
 		alert:   		alert,
 		keyManager: 	keyManager,
 		counter: 		*guage,
@@ -210,6 +215,49 @@ func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [
 	headerCSV := []string{ "FoundIn", "ID","ICAO","WMO","DWD", "Name" }
 	csv := as.generateSearchCSV(headerCSV, sources)
 	return csv, err
+}
+
+func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]string, err error) {
+	p, err := as.validateUser(params.Key)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return utils.CSVError(err), err
+	}
+
+	if !p.Plan.Admin {
+		err := errors.New("not enough rights to create user")
+		return utils.CSVError(err), err
+	}
+
+	level.Info(as.logger).Log("msg", "User", "action", params.Action, "key", params.Key)
+
+
+	switch params.Action {
+		case CrateAction:
+			return CreateUser(as.user, params, false)
+		case AutoCrateAction:
+			return CreateUser(as.user, params, true)
+		case SetPLanAction:
+			return SetUserPlan(as.user, params)
+		case RenewAction:
+			return RenewUser(as.user, params)
+	}
+	return [][]string{}, err
+}
+
+func (as APISVC) Plan(ctx context.Context, params apisvc.ParamsPlan) (data [][]string, err error) {
+	p, err := as.validateUser(params.Key)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return utils.CSVError(err), err
+	}
+
+	if !p.Plan.Admin {
+		err := errors.New("not enough rights to create user")
+		return utils.CSVError(err), err
+	}
+
+	return [][]string{}, err
 }
 
 func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
@@ -396,6 +444,20 @@ func (as APISVC)sendAlert(alert alertsvc.Alert) {
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Send Alert Error", "err", err)
 	}
+}
+
+func (as APISVC)validateUser(key string) (*usersvc.Parameters, error) {
+	_,err := as.keyManager.KeyGuard.APIKeyValid([]byte(key))
+	if err == nil {
+		key = "FlcFxoq89juakDyjYWZa"
+	}
+
+	params, err := as.user.ValidateKey(key)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "User validation invalid", "err", err)
+		return nil, err
+	}
+	return &params, nil
 }
 
 func getLeapSafeDOY(t time.Time) int {

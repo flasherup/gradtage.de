@@ -33,3 +33,19 @@ type SearchRequest struct {
 type SearchResponse struct {
 	Data [][]string `json:"data"`
 }
+
+type UserRequest struct {
+	Params ParamsUser `json:"params"`
+}
+
+type UserResponse struct {
+	Data [][]string `json:"data"`
+}
+
+type PlanRequest struct {
+	Params ParamsPlan `json:"params"`
+}
+
+type PlanResponse struct {
+	Data [][]string `json:"data"`
+}

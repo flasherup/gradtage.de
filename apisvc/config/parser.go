@@ -16,6 +16,7 @@ type Clients struct {
 	HourlyAddr 			string `yaml:"hourly_addr"`
 	HoaaAddr 			string `yaml:"noaa_addr"`
 	AutocompleteAddr 	string `yaml:"autocomplete_addr"`
+	UserAddr 			string `yaml:"user_addr"`
 	AlertAddr 			string `yaml:"alert_addr"`
 }
 

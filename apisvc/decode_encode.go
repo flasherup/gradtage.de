@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -120,7 +122,64 @@ func encodeSearchResponse(ctx context.Context, w http.ResponseWriter, response i
 	return err
 }
 
-func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	return json.NewEncoder(w).Encode(response)
+func decodeUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	fmt.Println("decodeUserRequest")
+	vars := mux.Vars(r)
+
+	urlParams := map[string][]string{}
+	if e := json.NewDecoder(r.Body).Decode(&urlParams); e != nil {
+		return nil, e
+	}
+
+	k, ok := urlParams["key"]
+	if !ok {
+		return nil, errors.New("key is required")
+	}
+
+	params := ParamsUser{
+		Key: 		k[0],
+		Action :	vars[UserAction],
+		Params: 	urlParams,
+	}
+	return UserRequest{params}, nil
 }
+
+func encodeUserResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(UserResponse)
+	w.Header().Set("Content-Type", "text/csv")
+	wr := csv.NewWriter(w)
+	err := wr.WriteAll(resp.Data)
+	wr.Flush()
+	if err != nil {
+		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
+	}
+	return err
+}
+
+func decodePlanRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(r)
+	r.ParseForm()
+	p := make(map[string][]string)
+	for k,v := range r.Form {
+		p[k] = v
+	}
+	params := ParamsPlan{
+		Key: 		r.Form.Get("key"),
+		Action :	vars[UserAction],
+		Params: 	p,
+	}
+	return PlanRequest{params}, nil
+}
+
+func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(UserResponse)
+	w.Header().Set("Content-Type", "text/csv")
+	wr := csv.NewWriter(w)
+	err := wr.WriteAll(resp.Data)
+	wr.Flush()
+	if err != nil {
+		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
+	}
+	return err
+}
+

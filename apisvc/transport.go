@@ -11,6 +11,8 @@ import (
 )
 
 const Method = "method"
+const UserAction = "userAction"
+const PlanAction = "planAction"
 
 func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 	r := mux.NewRouter()
@@ -47,6 +49,20 @@ func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 		e.SearchEndpoint,
 		decodeSearchRequest,
 		encodeSearchResponse,
+		options...,
+	))
+
+	r.Methods("Post").Path("/user/{" + UserAction + "}").Handler(kithttp.NewServer(
+		e.UserEndpoint,
+		decodeUserRequest,
+		encodeUserResponse,
+		options...,
+	))
+
+	r.Methods("Post").Path("/plan/{" + PlanAction + "}").Handler(kithttp.NewServer(
+		e.PlanEndpoint,
+		decodePlanRequest,
+		encodePlanResponse,
 		options...,
 	))
 	return r
