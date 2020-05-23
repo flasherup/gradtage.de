@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/usersvc"
@@ -45,6 +46,11 @@ func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Key generation error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
+	}
+
+	_, err = us.ValidateName(ctx, userName)
+	if err == nil {
+		return "", errors.New("user already exist")
 	}
 
 	//TODO send email
@@ -125,6 +131,12 @@ func (us UserSVC) ValidateName(ctx context.Context, name string) (usersvc.Parame
 		us.sendAlert(NewErrorAlert(err))
 		return parameters, err
 	}
+
+	if parameters.User.Key == "" {
+		level.Error(us.logger).Log("msg", "User not found", "usr", name)
+		return parameters, errors.New("user not found")
+	}
+
 	return parameters, err
 }
 

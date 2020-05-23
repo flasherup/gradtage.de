@@ -30,6 +30,7 @@ func (us UsersSVCClient) CreateUser(userName string, plan string, email bool) (s
 	}
 	defer conn.Close()
 
+
 	client := grpcusr.NewUserSVCClient(conn)
 	resp, err := client.CreateUser(context.Background(), &grpcusr.CreateUserRequest{
 		UserName: userName,
@@ -39,10 +40,13 @@ func (us UsersSVCClient) CreateUser(userName string, plan string, email bool) (s
 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Failed to create user", "err", err)
-	}else if resp.Err != common.ErrorNilString {
-		err = errors.New(resp.Err)
+		return "", err
 	}
 
+	if resp.Err != common.ErrorNilString {
+		err = errors.New(resp.Err)
+		return resp.Key, err
+	}
 	return resp.Key, err
 }
 

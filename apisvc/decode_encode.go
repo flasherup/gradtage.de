@@ -125,26 +125,28 @@ func encodeSearchResponse(ctx context.Context, w http.ResponseWriter, response i
 func decodeUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	fmt.Println("decodeUserRequest")
 	vars := mux.Vars(r)
-
-	urlParams := map[string][]string{}
-	if e := json.NewDecoder(r.Body).Decode(&urlParams); e != nil {
-		return nil, e
+	r.ParseForm()
+	p := map[string]string{
+		"key":r.Form.Get("key"),
+		"name":r.Form.Get("email"),
 	}
 
-	k, ok := urlParams["key"]
-	if !ok {
+	if p["key"] == "" {
 		return nil, errors.New("key is required")
 	}
 
 	params := ParamsUser{
-		Key: 		k[0],
+		Key: 		p["key"],
 		Action :	vars[UserAction],
-		Params: 	urlParams,
+		Params: 	p,
 	}
+
+	fmt.Println(params)
 	return UserRequest{params}, nil
 }
 
 func encodeUserResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	fmt.Println("encodeUserResponse")
 	resp := response.(UserResponse)
 	w.Header().Set("Content-Type", "text/csv")
 	wr := csv.NewWriter(w)
@@ -159,10 +161,11 @@ func encodeUserResponse(ctx context.Context, w http.ResponseWriter, response int
 func decodePlanRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	vars := mux.Vars(r)
 	r.ParseForm()
-	p := make(map[string][]string)
+	p := make(map[string]string)
 	for k,v := range r.Form {
-		p[k] = v
+		p[k] = v[0]
 	}
+
 	params := ParamsPlan{
 		Key: 		r.Form.Get("key"),
 		Action :	vars[UserAction],

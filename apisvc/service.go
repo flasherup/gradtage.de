@@ -28,13 +28,13 @@ type ParamsSearch struct {
 type ParamsUser struct {
 	Key 	string  			`json:"key"`
 	Action 	string  			`json:"action"`
-	Params 	map[string][]string `json:"params"`
+	Params 	map[string]string `json:"params"`
 }
 
 type ParamsPlan struct {
 	Key 	string  			`json:"key"`
 	Action 	string  			`json:"action"`
-	Params 	map[string][]string `json:"params"`
+	Params 	map[string]string `json:"params"`
 }
 
 type Service interface {

@@ -449,7 +449,7 @@ func (as APISVC)sendAlert(alert alertsvc.Alert) {
 func (as APISVC)validateUser(key string) (*usersvc.Parameters, error) {
 	_,err := as.keyManager.KeyGuard.APIKeyValid([]byte(key))
 	if err == nil {
-		key = "FlcFxoq89juakDyjYWZa"
+		key = "SbHMbOu1phpsEw7re5y2"
 	}
 
 	params, err := as.user.ValidateKey(key)

@@ -20,12 +20,12 @@ func CreateUser(client usersvc.Client, req apisvc.ParamsUser, email bool) ([][]s
 		err := errors.New("user name not set")
 		return utils.CSVError(err), err
 	}
-	name := namep[0]
+	name := namep
 
 	plan := usersvc.PlanTrial
 	planp, ok := req.Params["plan"]
 	if ok && len(namep) > 0 {
-		plan = planp[0]
+		plan = planp
 	}
 
 	key, err := client.CreateUser(name, plan,email)
@@ -45,14 +45,14 @@ func SetUserPlan(client usersvc.Client, req apisvc.ParamsUser) ([][]string, erro
 		err := errors.New("user name is required")
 		return utils.CSVError(err), err
 	}
-	name := namep[0]
+	name := namep
 
 	planp, ok := req.Params["plan"]
 	if !ok || len(planp) < 1 {
 		err := errors.New("user plan is required")
 		return utils.CSVError(err), err
 	}
-	plan := planp[0]
+	plan := planp
 
 	user, err := client.ValidateName(name)
 	if err != nil {
@@ -78,7 +78,7 @@ func RenewUser(client usersvc.Client, req apisvc.ParamsUser) ([][]string, error)
 		err := errors.New("user name is required")
 		return utils.CSVError(err), err
 	}
-	name := namep[0]
+	name := namep
 
 	user, err := client.ValidateName(name)
 	if err != nil {

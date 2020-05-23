@@ -2,6 +2,7 @@ package apisvc
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kit/kit/endpoint"
 )
 
@@ -60,6 +61,7 @@ func MakeSearchEndpoint(s Service) endpoint.Endpoint {
 
 func MakeUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		fmt.Println("MakeUserEndpoint")
 		req := request.(UserRequest)
 		data, err := s.User(ctx, req.Params)
 		return UserResponse{ data}, err

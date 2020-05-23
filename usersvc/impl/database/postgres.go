@@ -62,7 +62,7 @@ func (pg *Postgres) SetUser(user usersvc.User) error {
 		user.Plan,
 		stations)
 
-	query += ` ON CONFLICT (key) DO UPDATE SET
+	query += ` ON CONFLICT (name) DO UPDATE SET
 			 (	name,
 			 	renew,
 			 	request,
@@ -218,8 +218,8 @@ func (pg *Postgres) getUserByKey(key string) (usersvc.User, error) {
 //CreateUserTable() error
 func (pg *Postgres) CreateUserTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS users (
-			key 		varchar(%d) UNIQUE,
-			name 		varchar(50),
+			key 		varchar(%d),
+			name 		varchar(50) UNIQUE,
 			renew 		timestamp,
 			request 	timestamp,
 			req_count	integer,

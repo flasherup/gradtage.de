@@ -31,35 +31,35 @@ func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 	))
 
 
-	r.Methods("Get").Path("/temperature/csv/{" + Method + "}").Handler(kithttp.NewServer(
+	r.Methods("GET").Path("/temperature/csv/{" + Method + "}").Handler(kithttp.NewServer(
 		e.GetHDDSVEndpoint,
 		decodeGetHDDCSVRequest,
 		encodeGetHDDCSVResponse,
 		options...,
 	))
 
-	r.Methods("Get").Path("/source/").Handler(kithttp.NewServer(
+	r.Methods("GET").Path("/source/").Handler(kithttp.NewServer(
 		e.GetSourceDataEndpoint,
 		decodeGetSourceDataRequest,
 		encodeGetSourceDataResponse,
 		options...,
 	))
 
-	r.Methods("Get").Path("/search/").Handler(kithttp.NewServer(
+	r.Methods("GET").Path("/search/").Handler(kithttp.NewServer(
 		e.SearchEndpoint,
 		decodeSearchRequest,
 		encodeSearchResponse,
 		options...,
 	))
 
-	r.Methods("Post").Path("/user/{" + UserAction + "}").Handler(kithttp.NewServer(
+	r.Methods("GET").Path("/user/{" + UserAction + "}").Handler(kithttp.NewServer(
 		e.UserEndpoint,
 		decodeUserRequest,
 		encodeUserResponse,
 		options...,
 	))
 
-	r.Methods("Post").Path("/plan/{" + PlanAction + "}").Handler(kithttp.NewServer(
+	r.Methods("GET").Path("/plan/{" + PlanAction + "}").Handler(kithttp.NewServer(
 		e.PlanEndpoint,
 		decodePlanRequest,
 		encodePlanResponse,
