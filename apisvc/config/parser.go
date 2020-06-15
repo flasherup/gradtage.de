@@ -7,8 +7,9 @@ import (
 )
 
 type ServerConfig struct {
-	PortHTTPS int `yaml:"https_port"`
-	PortHTTP  int `yaml:"http_port"`
+	PortHTTPS 	int `yaml:"https_port"`
+	PortHTTP  	int `yaml:"http_port"`
+	PortStatic 	int `yaml:"static_port"`
 }
 
 type Clients struct {
@@ -25,21 +26,26 @@ type Security struct {
 	Key  string	`yaml:"key"`
 }
 
-type StationsConfig struct {
-	Server   ServerConfig	    `yaml:"server"`
-	Clients  Clients			`yaml:"clients"`
-	Security Security			`yaml:"security"`
-	Users 	 map[string]string 	`yaml:"users"`
-	AlertsEnable 	bool			`yaml:"alerts_enable"`
+type Static struct {
+	Folder  string `yaml:"folder"`
 }
 
-func LoadConfig(path string) (config *StationsConfig, err error) {
+type ApiConfig struct {
+	Server   		ServerConfig	    `yaml:"server"`
+	Clients  		Clients				`yaml:"clients"`
+	Security 		Security			`yaml:"security"`
+	Users 	 		map[string]string 	`yaml:"users"`
+	AlertsEnable 	bool				`yaml:"alerts_enable"`
+	Static			Static				`yaml:"static"`
+}
+
+func LoadConfig(path string) (config *ApiConfig, err error) {
 	c, err := ioutil.ReadFile(path)
 	if err != nil {
 		return
 	}
 
-	config = &StationsConfig{}
+	config = &ApiConfig{}
 
 	err = yaml.Unmarshal(c, config)
 	if err != nil {
@@ -49,10 +55,14 @@ func LoadConfig(path string) (config *StationsConfig, err error) {
 	return
 }
 
-func (tc *StationsConfig)GetHTTPAddress() string {
+func (tc *ApiConfig)GetHTTPAddress() string {
 	return fmt.Sprintf("%s:%d", "", tc.Server.PortHTTP)
 }
 
-func (tc *StationsConfig)GetHTTPSAddress() string {
+func (tc *ApiConfig)GetHTTPSAddress() string {
 	return fmt.Sprintf("%s:%d", "", tc.Server.PortHTTPS)
+}
+
+func (tc *ApiConfig)GetStaticAddress() string {
+	return fmt.Sprintf("%s:%d", "", tc.Server.PortStatic)
 }

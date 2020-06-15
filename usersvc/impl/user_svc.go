@@ -120,7 +120,7 @@ func (us UserSVC) ValidateKey(ctx context.Context, key string) (usersvc.Paramete
 		return parameters, err
 	}
 	//valid, err := ValidateUser(params)
-	return parameters, err
+	return parameters, us.validateUserParameters(&parameters)
 }
 
 func (us UserSVC) ValidateName(ctx context.Context, name string) (usersvc.Parameters, error) {
@@ -137,7 +137,52 @@ func (us UserSVC) ValidateName(ctx context.Context, name string) (usersvc.Parame
 		return parameters, errors.New("user not found")
 	}
 
+	return parameters, us.validateUserParameters(&parameters)
+}
+
+func (us UserSVC) ValidateStripe(ctx context.Context, stripe string) (usersvc.Parameters, error) {
+	level.Info(us.logger).Log("msg", "Validate Stripe", "stripe", stripe)
+	parameters, err := us.db.GetUserDataByStripe(stripe)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Validate Stripe Error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+		return parameters, err
+	}
+
+	if parameters.User.Key == "" {
+		level.Error(us.logger).Log("msg", "User not found", "stripe", stripe)
+		return parameters, errors.New("user by stripe id not found")
+	}
+
 	return parameters, err
+}
+
+func (us UserSVC)validateUserParameters(params *usersvc.Parameters) error {
+	if params.Plan.Admin {
+		return nil
+	}
+
+	err := ValidatePlanExpiration(params)
+	if err != nil {
+		return err
+	}
+
+	requests, err := ValidateRequestsAvailable(params)
+	if err != nil {
+		return err
+	}
+
+	//Update user request time nad count
+	params.User.RequestDate = time.Now().UTC()
+	params.User.Requests = requests
+	err = us.db.SetUser(params.User)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Update user request time nad count", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+	}
+
+
+	return nil
 }
 
 func (us UserSVC)sendAlert(alert alertsvc.Alert) {

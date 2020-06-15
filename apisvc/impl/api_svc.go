@@ -7,6 +7,7 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/impl/security"
+	"github.com/flasherup/gradtage.de/apisvc/impl/stripe"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
@@ -77,13 +78,13 @@ func NewAPISVC(
 }
 
 func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
-	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	p, err := as.validateUser(params.Key)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD invalid user", "err", err)
-		return [][]string{}, err
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return utils.CSVError(err), err
 	}
 
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "user", userId)
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "user", p.User.Name)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
@@ -102,10 +103,10 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]str
 }
 
 func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	p, err := as.validateUser(params.Key)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD invalid user", "err", err)
-		return [][]string{}, "error", err
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return utils.CSVError(err), "error", err
 	}
 
 	id, err := as.getStationID(params.Station)
@@ -123,7 +124,7 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 
 	params.Station = id
 
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "userId", userId)
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "userId", p.User.Name)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
@@ -156,12 +157,12 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 }
 
 func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {
-	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	p, err := as.validateUser(params.Key)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "GetSourceData invalid user", "err", err)
-		return [][]string{}, "error", err
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return utils.CSVError(err), "error", err
 	}
-	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "userId", userId, "start", params.Start, "end", params.End, "type", params.Type)
+	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "userId", p.User.Name, "start", params.Start, "end", params.End, "type", params.Type)
 
 	var temps []hourlysvc.Temperature
 	if params.Type == Daily {
@@ -199,13 +200,13 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 }
 
 func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [][]string, err error) {
-	userId,err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	p, err := as.validateUser(params.Key)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "Search invalid user", "err", err)
-		return [][]string{}, err
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return utils.CSVError(err), err
 	}
 
-	level.Info(as.logger).Log("msg", "Search", "text", params.Text, "user", userId)
+	level.Info(as.logger).Log("msg", "Search", "text", params.Text, "user", p.User.Name)
 	sources, err := as.autocomplete.GetAutocomplete(params.Text)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Search error", "err", err)
@@ -225,7 +226,7 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 	}
 
 	if !p.Plan.Admin {
-		err := errors.New("not enough rights to create user")
+		err := errors.New("not enough rights to create a user")
 		return utils.CSVError(err), err
 	}
 
@@ -258,6 +259,29 @@ func (as APISVC) Plan(ctx context.Context, params apisvc.ParamsPlan) (data [][]s
 	}
 
 	return [][]string{}, err
+}
+
+func (as APISVC) Stripe(ctx context.Context, event apisvc.StripeEvent) (json string, err error) {
+	level.Info(as.logger).Log("msg", "Stripe event", "event", event.Type)
+	if event.Type == stripe.InvoiceFinalize {
+		invoiceFinalize, err := stripe.ParseInvoiceFinalize(event.Data.Object)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "Invoice Finalize parse error", "err", err)
+		} else {
+			level.Info(as.logger).Log("msg", "Invoice Finalize parsed", "customer", invoiceFinalize.Customer, "email", invoiceFinalize.CustomerEmail)
+			return ProcessUpdateStripeUser(as.user, invoiceFinalize.CustomerEmail, invoiceFinalize.Customer, usersvc.PlanStarter)
+		}
+	} else if event.Type == stripe.SubscriptionScheduleCanceled {
+		subscriptionScheduleCanceled, err := stripe.ParseSubscriptionScheduleCanceled(event.Data.Object)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "Subscription Schedule Canceled parse error", "err", err)
+		} else {
+			level.Info(as.logger).Log("msg", "Subscription Schedule Canceled parsed", "customer", subscriptionScheduleCanceled.Customer)
+			return ProcessCancelStripeUser(as.user, subscriptionScheduleCanceled.Customer)
+		}
+	}
+		json = "{\"status\":\"ok\"}"
+	return json, err
 }
 
 func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
@@ -447,9 +471,40 @@ func (as APISVC)sendAlert(alert alertsvc.Alert) {
 }
 
 func (as APISVC)validateUser(key string) (*usersvc.Parameters, error) {
+	/*return &usersvc.Parameters{
+		User:usersvc.User{
+			Name:        "temp",
+			Key:         "temp",
+			RenewDate:   time.Time{},
+			RequestDate: time.Time{},
+			Requests:    0,
+			Plan:        "",
+			Stations:    nil,
+			Stripe:      "",
+		},
+		Plan:usersvc.Plan{
+			Name:       "",
+			Stations:   0,
+			Limitation: 0,
+			HDD:        false,
+			DD:         false,
+			CDD:        false,
+			Start:      time.Time{},
+			End:        time.Time{},
+			Period:     0,
+			Admin:      false,
+		},
+	}, nil*/
+
 	_,err := as.keyManager.KeyGuard.APIKeyValid([]byte(key))
 	if err == nil {
-		key = "SbHMbOu1phpsEw7re5y2"
+		user := "admin@gradtage.de"
+		params, err := as.user.ValidateName(user)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "User validation invalid", "err", err)
+			return nil, err
+		}
+		return &params, nil
 	}
 
 	params, err := as.user.ValidateKey(key)

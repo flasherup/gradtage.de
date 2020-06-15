@@ -134,8 +134,10 @@ func (us UsersSVCClient) ValidateKey(key string) (usersvc.Parameters, error) {
 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+		return usersvc.Parameters{}, err
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
+		return usersvc.Parameters{}, err
 	}
 
 	p, err := usersvc.DecodeParameters(resp.Parameters)
@@ -158,8 +160,35 @@ func (us UsersSVCClient) ValidateName(name string) (usersvc.Parameters, error) {
 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+		return usersvc.Parameters{},err
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
+		return usersvc.Parameters{},err
+	}
+
+	p, err := usersvc.DecodeParameters(resp.Parameters)
+	return *p, err
+}
+
+//ValidateName(name string) (Parameters, error)
+func (us UsersSVCClient) ValidateStripe(stripe string) (usersvc.Parameters, error) {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return usersvc.Parameters{}, err
+	}
+	defer conn.Close()
+
+	client := grpcusr.NewUserSVCClient(conn)
+	resp, err := client.ValidateStripe(context.Background(), &grpcusr.ValidateStripeRequest{
+		Stripe:  stripe,
+	})
+
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Failed to validate stripe", "err", err)
+		return  usersvc.Parameters{}, err
+	}else if resp.Err != common.ErrorNilString {
+		err = errors.New(resp.Err)
+		return  usersvc.Parameters{}, err
 	}
 
 	p, err := usersvc.DecodeParameters(resp.Parameters)

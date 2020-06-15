@@ -14,7 +14,7 @@ const Method = "method"
 const UserAction = "userAction"
 const PlanAction = "planAction"
 
-func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
+func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
 	e := MakeServerEndpoints(s)
@@ -65,6 +65,16 @@ func NewHTTPTSransport(s Service, logger log.Logger,) http.Handler {
 		encodePlanResponse,
 		options...,
 	))
+
+	r.Methods("POST").Path("/stripe").Handler(kithttp.NewServer(
+		e.StripeEndpoint,
+		decodeStripeRequest,
+		encodeStripeResponse,
+		options...,
+	))
+
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(staticFolder)))
+
 	return r
 }
 

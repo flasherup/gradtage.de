@@ -17,6 +17,7 @@ type GRPCServer struct {
 	validateSelection	gt.Handler
 	validateKey			gt.Handler
 	validateName		gt.Handler
+	validateStripe		gt.Handler
 }
 
 func (s *GRPCServer) CreateUser(ctx context.Context, req *grpcusr.CreateUserRequest) (*grpcusr.CreateUserResponse, error) {
@@ -67,6 +68,14 @@ func (s *GRPCServer) ValidateName(ctx context.Context, req *grpcusr.ValidateName
 	return resp.(*grpcusr.ValidateNameResponse), err
 }
 
+func (s *GRPCServer) ValidateStripe(ctx context.Context, req *grpcusr.ValidateStripeRequest) (*grpcusr.ValidateStripeResponse, error) {
+	_, resp, err := s.validateStripe.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpcusr.ValidateStripeResponse), err
+}
+
 
 
 
@@ -101,6 +110,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer 
 			endpoint.ValidateNameEndpoint,
 			DecodeValidateNameRequest,
 			EncodeValidateNameResponse,
+		),
+		validateStripe: gt.NewServer(
+			endpoint.ValidateStripeEndpoint,
+			DecodeValidateStripeRequest,
+			EncodeValidateStripeResponse,
 		),
 	}
 	return &server

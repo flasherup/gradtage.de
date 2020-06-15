@@ -28,13 +28,29 @@ type ParamsSearch struct {
 type ParamsUser struct {
 	Key 	string  			`json:"key"`
 	Action 	string  			`json:"action"`
-	Params 	map[string]string `json:"params"`
+	Params 	map[string]string 	`json:"params"`
 }
 
 type ParamsPlan struct {
 	Key 	string  			`json:"key"`
 	Action 	string  			`json:"action"`
 	Params 	map[string]string `json:"params"`
+}
+
+type StripeData struct {
+	Object 		interface{}  			`json:"object"`
+}
+
+type StripeEvent struct {
+	Created 			int 		`json:"created"`
+	LiveMode 			bool 		`json:"livemode"`
+	ID 					string 		`json:"id"`
+	Type 				string 		`json:"type"`
+	Object 				string 		`json:"object"`
+	Request 			string 		`json:"request"`
+	PendingWebHooks 	int 		`json:"pending_webhooks"`
+	ApiVersion 			int 		`json:"api_version"`
+	Data 				StripeData 	`json:"data"`
 }
 
 type Service interface {
@@ -44,4 +60,5 @@ type Service interface {
 	Search(ctx context.Context, params ParamsSearch) (data [][]string, err error)
 	User(ctx context.Context, params ParamsUser) (data [][]string, err error)
 	Plan(ctx context.Context, params ParamsPlan) (data [][]string, err error)
+	Stripe(ctx context.Context, event StripeEvent) (json string, err error)
 }

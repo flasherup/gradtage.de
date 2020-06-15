@@ -6,4 +6,5 @@ type Client interface {
 	AddPlan(plan Plan) error
 	ValidateKey(key string) (Parameters, error)
 	ValidateName(name string) (Parameters, error)
+	ValidateStripe(stripe string) (Parameters, error)
 }

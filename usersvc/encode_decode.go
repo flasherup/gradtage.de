@@ -88,6 +88,20 @@ func EncodeValidateNameResponse(_ context.Context, r interface{}) (interface{}, 
 	}, nil
 }
 
+func DecodeValidateStripeRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.ValidateStripeRequest)
+	return ValidateStripeRequest{req.Stripe}, nil
+}
+
+func EncodeValidateStripeResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(ValidateStripeResponse)
+	params:= EncodeParameters(&res.Parameters)
+	return &grpcusr.ValidateStripeResponse {
+		Parameters: params,
+		Err: errorToString(res.Err),
+	}, nil
+}
+
 func DecodeValidateNameRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(*grpcusr.ValidateNameRequest)
 	return ValidateNameRequest{req.Name}, nil
@@ -150,6 +164,7 @@ func DecodeUser(src *grpcusr.User) (*User, error) {
 		Requests: 		int(src.Requests),
 		Plan: 			src.Plan,
 		Stations: 		src.Stations,
+		Stripe: 		src.Stripe,
 	}, nil
 }
 
@@ -164,6 +179,7 @@ func EncodeUser(src *User) *grpcusr.User {
 		Requests: 		int32(src.Requests),
 		Plan: 			src.Plan,
 		Stations: 		src.Stations,
+		Stripe: 		src.Stripe,
 	}
 }
 

@@ -49,3 +49,11 @@ type PlanRequest struct {
 type PlanResponse struct {
 	Data [][]string `json:"data"`
 }
+
+type StripeRequest struct {
+	Event StripeEvent `json:"event"`
+}
+
+type StripeResponse struct {
+	Json string `json:"json"`
+}

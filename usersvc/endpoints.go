@@ -12,6 +12,7 @@ type Endpoints struct {
 	ValidateSelectionEndpoint  	endpoint.Endpoint
 	ValidateKeyEndpoint  		endpoint.Endpoint
 	ValidateNameEndpoint  		endpoint.Endpoint
+	ValidateStripeEndpoint  	endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -22,6 +23,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		ValidateSelectionEndpoint:  MakeValidateSelectionEndpoint(s),
 		ValidateKeyEndpoint:   		MakeValidateKeyEndpoint(s),
 		ValidateNameEndpoint:   	MakeValidateNameEndpoint(s),
+		ValidateStripeEndpoint:   	MakeValidateStripeEndpoint(s),
 	}
 }
 
@@ -71,5 +73,13 @@ func MakeValidateNameEndpoint(s Service) endpoint.Endpoint {
 		req := request.(ValidateNameRequest)
 		parameters, err := s.ValidateName(ctx, req.Name)
 		return ValidateNameResponse{ parameters, err}, err
+	}
+}
+
+func MakeValidateStripeEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ValidateStripeRequest)
+		parameters, err := s.ValidateStripe(ctx, req.Stripe)
+		return ValidateStripeResponse{ parameters, err}, err
 	}
 }

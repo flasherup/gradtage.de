@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	PlanAdmin 			= "admin"
 	PlanTrial 			= "trial"
 	PlanStarter 		= "starter"
 	PlanBasic 			= "basic"
@@ -48,6 +49,7 @@ type User struct {
 	Requests 	int //Number of request during hour
 	Plan 		string //Plan name
 	Stations 	[]string //The list of stations
+	Stripe 		string //Stripe id is exist
 }
 
 type Service interface {
@@ -57,4 +59,5 @@ type Service interface {
 	ValidateSelection(ctx context.Context, selection Selection) (bool, error)
 	ValidateKey(ctx context.Context, key string) (Parameters, error)
 	ValidateName(ctx context.Context, name string) (Parameters, error)
+	ValidateStripe(ctx context.Context, stripe string) (Parameters, error)
 }

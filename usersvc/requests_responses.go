@@ -55,3 +55,12 @@ type ValidateNameResponse struct {
 	Parameters 	Parameters 	`json:"parameters"`
 	Err    		error 		`json:"err"`
 }
+
+type ValidateStripeRequest struct {
+	Stripe    string 		`json:"stripe"`
+}
+
+type ValidateStripeResponse struct {
+	Parameters 	Parameters 	`json:"parameters"`
+	Err    		error 		`json:"err"`
+}

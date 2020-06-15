@@ -1,6 +1,7 @@
 package apisvc
 
 import (
+	"bytes"
 	"context"
 	"encoding/csv"
 	"encoding/json"
@@ -128,6 +129,7 @@ func decodeUserRequest(_ context.Context, r *http.Request) (request interface{},
 	r.ParseForm()
 	p := map[string]string{
 		"key":r.Form.Get("key"),
+		"plan":r.Form.Get("plan"),
 		"name":r.Form.Get("email"),
 	}
 
@@ -183,6 +185,25 @@ func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response int
 	if err != nil {
 		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
 	}
+	return err
+}
+
+func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	req := StripeRequest{}
+	if e := json.NewDecoder(r.Body).Decode(&req.Event); e != nil {
+		return nil, e
+	}
+	return req, nil
+}
+
+func encodeStripeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(StripeResponse)
+	fmt.Println("encodeStripeResponse", resp)
+	bt := new(bytes.Buffer)
+	err := json.NewEncoder(bt).Encode(resp)
+
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write(bt.Bytes())
 	return err
 }
 

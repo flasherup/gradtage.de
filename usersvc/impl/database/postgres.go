@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/usersvc"
@@ -45,22 +46,23 @@ func (pg *Postgres) Dispose() {
 func (pg *Postgres) SetUser(user usersvc.User) error {
 	stations := "{"
 	for i,v := range user.Stations {
-		stations := v
+		stations += v
 		if i < len(user.Stations)-1 {
 			stations += ","
 		}
 	}
 	stations += "}"
 	query := fmt.Sprintf("INSERT INTO users " +
-		"(key, name, renew, request, req_count, plan, stations) VALUES " +
-		"( '%s', '%s', '%s', '%s', %d, '%s', '%s')",
+		"(key, name, renew, request, req_count, plan, stations, stripe) VALUES " +
+		"( '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s')",
 		user.Key,
 		user.Name,
 		user.RequestDate.Format(common.TimeLayout),
 		user.RequestDate.Format(common.TimeLayout),
 		user.Requests,
 		user.Plan,
-		stations)
+		stations,
+		user.Stripe)
 
 	query += ` ON CONFLICT (name) DO UPDATE SET
 			 (	name,
@@ -68,15 +70,18 @@ func (pg *Postgres) SetUser(user usersvc.User) error {
 			 	request,
 			 	req_count,
 			 	plan,
-			 	stations
+			 	stations,
+				stripe
 			) = (
 				excluded.name,
 			 	excluded.renew,
 			 	excluded.request,
 			 	excluded.req_count,
 			 	excluded.plan,
-			 	excluded.stations
+			 	excluded.stations,
+			 	excluded.stripe
 			);`
+
 	return writeToDB(pg.db, query)
 }
 
@@ -100,6 +105,22 @@ func (pg *Postgres) GetUserDataByName(userName string)  (res usersvc.Parameters,
 func (pg *Postgres) GetUserDataByKey(key string)  (res usersvc.Parameters, err error){
 	res = usersvc.Parameters{}
 	res.User, err = pg.getUserByKey(key)
+	if err != nil {
+		return res, err
+	}
+
+	res.Plan, err = pg.GetPlan(res.User.Plan)
+	if err != nil {
+		return res, err
+	}
+
+	return res, err
+}
+
+//GetUserDataByStripe(stripe string)  (res usersvc.Parameters, err error)
+func (pg *Postgres) GetUserDataByStripe(stripe string)  (res usersvc.Parameters, err error){
+	res = usersvc.Parameters{}
+	res.User, err = pg.getUserByStripe(stripe)
 	if err != nil {
 		return res, err
 	}
@@ -192,12 +213,40 @@ func (pg *Postgres) getUserByName(userName string) (usersvc.User, error) {
 
 		res = u
 	}
+
+	if res.Name == "" {
+		err = errors.New("user not found")
+	}
 	return res, nil
 }
 
 
 func (pg *Postgres) getUserByKey(key string) (usersvc.User, error) {
 	query := fmt.Sprintf("SELECT * FROM users WHERE key = '%s';", key)
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return  usersvc.User{},err
+	}
+
+	defer rows.Close()
+	var res usersvc.User
+	for rows.Next() {
+		u, err := parseUserRow(rows)
+		if err != nil {
+			return res, err
+		}
+
+		res = u
+	}
+
+	if res.Name == "" {
+		err = errors.New("user not found")
+	}
+	return res, err
+}
+
+func (pg *Postgres) getUserByStripe(stripe string) (usersvc.User, error) {
+	query := fmt.Sprintf("SELECT * FROM users WHERE stripe = '%s';", stripe)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return  usersvc.User{},err
@@ -212,6 +261,10 @@ func (pg *Postgres) getUserByKey(key string) (usersvc.User, error) {
 
 		res = u
 	}
+
+	if res.Name == "" {
+		err = errors.New("user not found")
+	}
 	return res, nil
 }
 
@@ -224,7 +277,8 @@ func (pg *Postgres) CreateUserTable() error {
 			request 	timestamp,
 			req_count	integer,
 			plan 		varchar(15),
-			stations 	varchar(8)[]
+			stations 	varchar(8)[],
+			stripe 		varchar(20)
 		);`, KeyLength)
 	return writeToDB(pg.db, query)
 }
@@ -267,6 +321,7 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 		req_count	int
 		plan 		string
 		stations 	[]string
+		stripe		string
 	}{}
 	err = rows.Scan(
 		&u.key,
@@ -276,6 +331,7 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 		&u.req_count,
 		&u.plan,
 		&u.stations,
+		&u.stripe,
 	)
 
 	renew, err := time.Parse(common.TimeLayout, u.renew)
@@ -295,6 +351,7 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 	user.Requests = u.req_count
 	user.Plan = u.plan
 	user.Stations = u.stations
+	user.Stripe = u.stripe
 
 	return user, err
 }
