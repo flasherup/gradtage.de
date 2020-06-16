@@ -1,3 +1,0 @@
-url_dwd: "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl/historical/"
-stations_addr: "localhost:8102"
-daily_addr: "localhost:8104"

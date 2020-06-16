@@ -320,7 +320,7 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 		request 	string
 		req_count	int
 		plan 		string
-		stations 	[]string
+		stations 	[]uint8
 		stripe		string
 	}{}
 	err = rows.Scan(
@@ -344,16 +344,37 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 		return user,err
 	}
 
+	str := parseToStringSlice(u.stations)
+
 	user.Key = u.key
 	user.Name = u.name
 	user.RenewDate = renew
 	user.RequestDate = request
 	user.Requests = u.req_count
 	user.Plan = u.plan
-	user.Stations = u.stations
+	user.Stations = str
 	user.Stripe = u.stripe
 
 	return user, err
+}
+
+func parseToStringSlice(slice []uint8) []string {
+	if len(slice) < 3 {
+		return []string{}
+	}
+	trim := slice[1:]
+	res := make([]string, 0)
+	word := make([]byte, 0)
+	for _,v := range trim {
+		if v == 44 || v == 125 {
+			res = append(res, string(word))
+			fmt.Println("parsed", string(v), v)
+			word = make([]byte, 0)
+			continue
+		}
+		word = append(word,  v)
+	}
+	return res
 }
 
 func parsePlanRow(rows *sql.Rows) (plan usersvc.Plan, err error) {

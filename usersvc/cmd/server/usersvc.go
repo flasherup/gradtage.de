@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	configFile := flag.String("config.file", "src/dwdhistory.yml", "Config file name.")
+	configFile := flag.String("config.file", "src/config.yml", "Config file name.")
 	flag.Parse()
 
 	var logger log.Logger

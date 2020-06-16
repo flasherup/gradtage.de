@@ -87,6 +87,7 @@ func (us UserSVC) UpdateUser(ctx context.Context, user usersvc.User, email bool)
 
 func (us UserSVC) AddPlan(ctx context.Context, plan usersvc.Plan) error {
 	level.Info(us.logger).Log("msg", "Update Plan", "plan", plan.Name)
+
 	err := us.db.SetPlan(plan)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Update Plan Error", "err", err)

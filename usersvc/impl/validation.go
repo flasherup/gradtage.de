@@ -46,3 +46,27 @@ func ValidateRequestsAvailable(params *usersvc.Parameters) (int, error) {
 
 	return count, nil
 }
+func ValidateStationId(stationId string, params *usersvc.Parameters) error {
+	if  !isIDExist(params.User.Stations, stationId) {
+		return fmt.Errorf("invalid station request")
+	}
+
+	return nil
+}
+
+func ValidateStationsCount(stationId string, params *usersvc.Parameters) error {
+	if params.User.Stations != nil &&
+		params.Plan.Stations == len(params.User.Stations) {
+		return fmt.Errorf("all stations are seted")
+	}
+	return nil
+}
+
+func isIDExist(ids []string, stationId string) bool {
+	for i, _ := range ids {
+		if ids[i] == stationId {
+			return true
+		}
+	}
+	return false
+}

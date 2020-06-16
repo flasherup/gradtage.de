@@ -16,6 +16,7 @@ import (
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/noaascrapersvc"
 	"github.com/flasherup/gradtage.de/usersvc"
+	"github.com/flasherup/gradtage.de/usersvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
@@ -78,13 +79,12 @@ func NewAPISVC(
 }
 
 func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
-	p, err := as.validateUser(params.Key)
+	userName, err := as.isRequestValid(params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
 		return utils.CSVError(err), err
 	}
-
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "user", p.User.Name)
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "user", userName)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
@@ -103,7 +103,7 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]str
 }
 
 func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	p, err := as.validateUser(params.Key)
+	userName, err := as.isRequestValid(params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
 		return utils.CSVError(err), "error", err
@@ -119,12 +119,9 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "station", params.Station)
 		return [][]string{}, "error", errors.New("station id  not found, station:" + params.Station)
 	}
-
-	fmt.Println("id", id)
-
 	params.Station = id
 
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "userId", p.User.Name)
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "userId", userName)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
@@ -355,7 +352,6 @@ func (as APISVC) getNoaaData(id string, start string, end string) (*[]hourlysvc.
 	return &res, nil
 }
 
-
 func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsAvg map[int32]*dlygrpc.Temperature, params apisvc.Params) [][]string {
 	res := [][]string{ names }
 	var line []string
@@ -470,38 +466,29 @@ func (as APISVC)sendAlert(alert alertsvc.Alert) {
 	}
 }
 
-func (as APISVC)validateUser(key string) (*usersvc.Parameters, error) {
-	/*return &usersvc.Parameters{
-		User:usersvc.User{
-			Name:        "temp",
-			Key:         "temp",
-			RenewDate:   time.Time{},
-			RequestDate: time.Time{},
-			Requests:    0,
-			Plan:        "",
-			Stations:    nil,
-			Stripe:      "",
-		},
-		Plan:usersvc.Plan{
-			Name:       "",
-			Stations:   0,
-			Limitation: 0,
-			HDD:        false,
-			DD:         false,
-			CDD:        false,
-			Start:      time.Time{},
-			End:        time.Time{},
-			Period:     0,
-			Admin:      false,
-		},
-	}, nil*/
+func (as APISVC)isRequestValid(params apisvc.Params) (string, error) {
+	p, err := as.validateUser(params.Key)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return p.User.Name, err
+	}
 
+	err = as.validateRequest(params, p)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Request validation error", "err", err)
+		return p.User.Name, err
+	}
+
+	return p.User.Name, nil
+}
+
+func (as APISVC)validateUser(key string) (*usersvc.Parameters, error) {
 	_,err := as.keyManager.KeyGuard.APIKeyValid([]byte(key))
 	if err == nil {
 		user := "admin@gradtage.de"
 		params, err := as.user.ValidateName(user)
 		if err != nil {
-			level.Error(as.logger).Log("msg", "User validation invalid", "err", err)
+			level.Error(as.logger).Log("msg", "User validation name is invalid", "err", err)
 			return nil, err
 		}
 		return &params, nil
@@ -509,11 +496,36 @@ func (as APISVC)validateUser(key string) (*usersvc.Parameters, error) {
 
 	params, err := as.user.ValidateKey(key)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation invalid", "err", err)
+		level.Error(as.logger).Log("msg", "User validation key is invalid", "err", err)
 		return nil, err
 	}
+
 	return &params, nil
 }
+
+func (as APISVC)validateRequest(request apisvc.Params, params *usersvc.Parameters) error {
+	err := impl.ValidateStationId(request.Station, params)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Station ID is invalid", "err", err)
+		err = impl.ValidateStationsCount(request.Station, params)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "Station Count is full", "err", err)
+			return err
+		}
+
+		params.User.Stations = append(params.User.Stations, request.Station)
+		_, err = UpdateUser(as.user, params.User)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "User stations update error", "err", err)
+			return err
+		}
+		return nil
+	}
+	return nil
+}
+
+
+
 
 func getLeapSafeDOY(t time.Time) int {
 	doy := t.YearDay()

@@ -99,6 +99,18 @@ func CreateUser(client usersvc.Client, req apisvc.ParamsUser, email bool) ([][]s
 	}, nil
 }
 
+func UpdateUser(client usersvc.Client, user usersvc.User) ([][]string, error){
+	key, err := client.UpdateUser(user, true)
+	if err != nil {
+		return utils.CSVError(err), err
+	}
+
+	return [][]string{
+		{"status", "key"},
+		{"ok", key},
+	}, nil
+}
+
 func SetUserPlan(client usersvc.Client, req apisvc.ParamsUser) ([][]string, error){
 	namep, ok := req.Params["name"]
 	if !ok || len(namep) < 1 {
