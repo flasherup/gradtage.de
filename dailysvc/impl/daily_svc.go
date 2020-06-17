@@ -134,6 +134,6 @@ func (ds DailySVC) getValidIds(ids []string) []string {
 func (ds DailySVC)sendAlert(alert alertsvc.Alert) {
 	err := ds.alert.SendAlert(alert)
 	if err != nil {
-		level.Error(ds.logger).Log("msg", "Send Alert Error", "err", err)
+		level.Error(ds.logger).Log("msg", "SendAlert Alert Error", "err", err)
 	}
 }

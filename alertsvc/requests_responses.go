@@ -5,5 +5,14 @@ type SendAlertRequest struct {
 }
 
 type SendAlertResponse struct {
-	Err      error              `json:"err"`
+	Err	error	`json:"err"`
 }
+
+type SendEmailRequest struct {
+	Email Email `json:"email"`
+}
+
+type SendEmailResponse struct {
+	Err	error	`json:"err"`
+}
+

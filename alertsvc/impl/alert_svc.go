@@ -31,14 +31,28 @@ func NewAlertSVC(logger log.Logger, alertSystem alertsys.AlertSystem) (*AlertSVC
 }
 
 func (a AlertSVC) SendAlert(ctx context.Context, alert alertsvc.Alert) error {
-	level.Info(a.logger).Log("msg", "Send Alert", "Name", alert.Name, "desc", alert.Desc)
-	err := a.alertSys.Send(alert)
+	level.Info(a.logger).Log("msg", "SendAlert Alert", "Name", alert.Name, "desc", alert.Desc)
+	err := a.alertSys.SendAlert(alert)
 	if err != nil {
-		level.Error(a.logger).Log("msg", "Send Alert error", "err", err)
+		level.Error(a.logger).Log("msg", "SendAlert Alert error", "err", err)
 
 	}
 
 	g := a.counter.With("name", alert.Name)
+	g.Add(1.0)
+	return err
+}
+
+
+func (a AlertSVC) SendEmail(ctx context.Context, email alertsvc.Email) error {
+	level.Info(a.logger).Log("msg", "SendAlert Email", "Name", email.Name, "email", email.Email)
+	err := a.alertSys.SendEmail(email)
+	if err != nil {
+		level.Error(a.logger).Log("msg", "SendAlert Alert error", "err", err)
+
+	}
+
+	g := a.counter.With("name", email.Name)
 	g.Add(1.0)
 	return err
 }

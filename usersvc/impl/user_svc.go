@@ -189,7 +189,7 @@ func (us UserSVC)validateUserParameters(params *usersvc.Parameters) error {
 func (us UserSVC)sendAlert(alert alertsvc.Alert) {
 	err := us.alert.SendAlert(alert)
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Send Alert Error", "err", err)
+		level.Error(us.logger).Log("msg", "SendAlert Alert Error", "err", err)
 	}
 }
 

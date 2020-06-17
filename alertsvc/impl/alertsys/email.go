@@ -17,7 +17,7 @@ func NewEmailAlertSystem(config config.EmailConfig) *EmailAlert {
 	}
 }
 
-func (ea EmailAlert)Send(alert alertsvc.Alert) error {
+func (ea EmailAlert) SendAlert(alert alertsvc.Alert) error {
 	auth := smtp.PlainAuth(
 		"",
 		ea.config.User,
@@ -41,6 +41,35 @@ func (ea EmailAlert)Send(alert alertsvc.Alert) error {
 		auth,
 		ea.config.From,
 		ea.config.Recipients,
+		[]byte(msg),
+	)
+	return err
+}
+
+func (ea EmailAlert) SendEmail(email alertsvc.Email) error {
+	auth := smtp.PlainAuth(
+		"",
+		ea.config.User,
+		ea.config.Pass,
+		ea.config.Host,
+	)
+
+	body := fmt.Sprintf("Email name: %s\n%s\n%s",
+		email.Name,
+		email.Email,
+		paramsToString(email.Params),
+	)
+
+	msg := "From: " + ea.config.From + "\n" +
+		"To: " + "Admin" + "\n" +
+		"Subject: Alert notification\n\n" +
+		body
+
+	err := smtp.SendMail(
+		ea.config.Host + ":" + ea.config.Port,
+		auth,
+		ea.config.From,
+		[]string{email.Email},
 		[]byte(msg),
 	)
 	return err

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package altgrpc;
+package grpcalt;
 
 message Alert {
     string name = 1;
@@ -16,8 +16,23 @@ message SendAlertResponse {
     string err = 1;
 }
 
+message Email {
+    string name = 1;
+    string email = 2;
+    map<string,string> params = 3;
+}
+
+message SendEmailRequest {
+    Email email = 1;
+}
+
+message SendEmailResponse {
+    string err = 1;
+}
+
 service AlertSVC {
     rpc SendAlert(SendAlertRequest) returns (SendAlertResponse) {}
+    rpc SendEmail(SendEmailRequest) returns (SendEmailResponse) {}
 }
 
 

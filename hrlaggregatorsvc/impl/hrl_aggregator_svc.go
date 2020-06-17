@@ -356,7 +356,7 @@ func (has HourlyAggregatorSVC)verifyPlausibility(latest *hrlgrpc.GetLatestRespon
 func (has HourlyAggregatorSVC)sendAlert(alert alertsvc.Alert) {
 	err := has.alert.SendAlert(alert)
 	if err != nil {
-		level.Error(has.logger).Log("msg", "Send Alert Error", "err", err)
+		level.Error(has.logger).Log("msg", "SendAlert Alert Error", "err", err)
 	}
 }
 

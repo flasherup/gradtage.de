@@ -133,6 +133,6 @@ func (ss *StationsSVC)updateStationsMetrics() {
 func (ss StationsSVC)sendAlert(alert alertsvc.Alert) {
 	err := ss.alert.SendAlert(alert)
 	if err != nil {
-		level.Error(ss.logger).Log("msg", "Send Alert Error", "err", err)
+		level.Error(ss.logger).Log("msg", "SendAlert Alert Error", "err", err)
 	}
 }

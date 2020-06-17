@@ -462,7 +462,7 @@ func calculateCDD(baseCDD float64, value float64) float64 {
 func (as APISVC)sendAlert(alert alertsvc.Alert) {
 	err := as.alert.SendAlert(alert)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "Send Alert Error", "err", err)
+		level.Error(as.logger).Log("msg", "SendAlert Alert Error", "err", err)
 	}
 }
 

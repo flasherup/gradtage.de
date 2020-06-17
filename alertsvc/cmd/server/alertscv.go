@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
-	"github.com/flasherup/gradtage.de/alertsvc/altgrpc"
+	"github.com/flasherup/gradtage.de/alertsvc/grpcalt"
 	"github.com/flasherup/gradtage.de/alertsvc/config"
 	"github.com/flasherup/gradtage.de/alertsvc/impl"
 	"github.com/flasherup/gradtage.de/alertsvc/impl/alertsys"
@@ -45,7 +45,9 @@ func main() {
 	defer level.Info(logger).Log("msg", "service ended")
 
 	ctx := context.Background()
-	alertSys := alertsys.NewEmailAlertSystem(conf.EmailConfig)
+	//alertSys := alertsys.NewEmailAlertSystem(conf.EmailConfig)
+	alertSys := alertsys.NewSilentAlert()
+
 	alertService, err := impl.NewAlertSVC(logger, alertSys)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
@@ -63,7 +65,7 @@ func main() {
 		}
 		gRPCServer := googlerpc.NewServer()
 		endpoints := alertsvc.MakeServerEndpoints(alertService)
-		altgrpc.RegisterAlertSVCServer(gRPCServer, alertsvc.NewGRPCServer(ctx, endpoints))
+		grpcalt.RegisterAlertSVCServer(gRPCServer, alertsvc.NewGRPCServer(ctx, endpoints))
 		errors <- gRPCServer.Serve(listener)
 	}()
 
