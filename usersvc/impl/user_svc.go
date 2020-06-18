@@ -71,16 +71,16 @@ func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, 
 		}
 	}
 
-	//TODO send email
-	us.alert.SendEmail(alertsvc.Email{
-		Name:   "create_user",
-		Email:  userName,
-		Params: map[string]string{
-			"key": key,
-			"plan": plan,
-		},
-	})
-
+	if email {
+		us.alert.SendEmail(alertsvc.Email{
+			Name:   "create_user",
+			Email:  userName,
+			Params: map[string]string{
+				"key": key,
+				"plan": plan,
+			},
+		})
+	}
 	return key,err
 }
 
