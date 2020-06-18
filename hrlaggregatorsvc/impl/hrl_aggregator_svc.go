@@ -103,10 +103,10 @@ const (
 
 
 func startFetchProcess(ss *HourlyAggregatorSVC) {
-	ss.updateCheckWX()
-	ss.updateDWD(-1)
-	ss.updateNOAA(-1)
-	ss.updateMeteostat(3)
+	//ss.updateCheckWX()
+	//ss.updateDWD(-1)
+	//ss.updateNOAA(-1)
+	//ss.updateMeteostat(3)
 
 
 	chTimer := make(chan bool)

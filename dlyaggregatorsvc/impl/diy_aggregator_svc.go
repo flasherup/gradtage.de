@@ -55,7 +55,7 @@ func (das DailyAggregatorSVC) ForceUpdate(ctx context.Context, ids []string, sta
 
 
 func startFetchProcess(ss *DailyAggregatorSVC) {
-	ss.processUpdate() //Do it first time
+	//ss.processUpdate() //Do it first time
 	tick := time.Tick(time.Hour)
 	for {
 		select {
