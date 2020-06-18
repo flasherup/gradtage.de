@@ -53,22 +53,34 @@ func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, 
 		return "", errors.New("user already exist")
 	}
 
-	//TODO send email
-
 	user := usersvc.User{
 		Name:        userName,
-		Key: 		key,
+		Key: 		 key,
 		RenewDate:   time.Now(),
 		RequestDate: time.Now(),
 		Requests:    0,
 		Plan:        plan,
 		Stations:    us.getDefaultStations(plan),
 	}
-	err = us.db.SetUser(user)
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Create User Error", "err", err)
-		us.sendAlert(NewErrorAlert(err))
+
+	if userName != "test@test.test" {
+		err = us.db.SetUser(user)
+		if err != nil {
+			level.Error(us.logger).Log("msg", "Create User Error", "err", err)
+			us.sendAlert(NewErrorAlert(err))
+		}
 	}
+
+	//TODO send email
+	us.alert.SendEmail(alertsvc.Email{
+		Name:   "create_user",
+		Email:  userName,
+		Params: map[string]string{
+			"key": key,
+			"plan": plan,
+		},
+	})
+
 	return key,err
 }
 

@@ -32,3 +32,10 @@ func (sa SilentAlert) SendAlert(alert alertsvc.Alert) error {
 		"Name", alert.Name, "Desc", alert.Desc);
 	return nil
 }
+
+//SendAlert log @alert
+func (sa SilentAlert) SendEmail(alert alertsvc.Email) error {
+	level.Debug(sa.logger).Log("msg", "Silent Email",
+		"Name", alert.Name, "Email", alert.Email);
+	return nil
+}
