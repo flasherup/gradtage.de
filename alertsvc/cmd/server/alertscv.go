@@ -45,8 +45,8 @@ func main() {
 	defer level.Info(logger).Log("msg", "service ended")
 
 	ctx := context.Background()
-	//alertSys := alertsys.NewEmailAlertSystem(conf.EmailConfig)
-	alertSys := alertsys.NewSilentAlert()
+	alertSys := alertsys.NewEmailAlertSystem(conf.EmailConfig)
+	//alertSys := alertsys.NewSilentAlert()
 
 	alertService, err := impl.NewAlertSVC(logger, alertSys)
 	if err != nil {
