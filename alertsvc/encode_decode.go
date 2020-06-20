@@ -40,20 +40,28 @@ func decodeAlert(alert *grpcalt.Alert) (res Alert) {
 }
 
 func decodeEmail(email *grpcalt.Email) (res Email) {
+	params := make(map[string]string)
+	for k,v := range email.Params {
+		params[k] = v
+	}
 	res = Email{
 		Name:email.Name,
 		Email:email.Email,
-		Params:email.Params,
+		Params:params,
 	}
 
 	return res
 }
 
 func EncodeEmail(src Email) *grpcalt.Email {
+	params := make(map[string]string)
+	for k,v := range src.Params {
+		params[k] = v
+	}
 	return &grpcalt.Email{
 		Name:	src.Name,
 		Email:	src.Email,
-		Params:	src.Params,
+		Params:	params,
 	}
 }
 

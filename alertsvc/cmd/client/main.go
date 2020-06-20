@@ -20,26 +20,26 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	//client := impl.NewAlertSCVClient("82.165.18.228:8107",logger)
-	client := impl.NewAlertSCVClient("localhost:8107",logger)
+	client := impl.NewAlertSCVClient("82.165.18.228:8107",logger)
+	//client := impl.NewAlertSCVClient("localhost:8107",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	err := client.SendAlert(alertsvc.Alert{
+	/*err := client.SendAlert(alertsvc.Alert{
 		Name:"Test",
 		Desc:"Service test alert",
 		Params:map[string]string{ "client": "alertClient" },
 	})
 	if err != nil {
 		level.Error(logger).Log("msg", "SendAlert Alert error", "err", err)
-	}
+	}*/
 
 
-	err = client.SendEmail(alertsvc.Email{
+	err := client.SendEmail(alertsvc.Email{
 		Name:"Test",
 		Email:"flasherup@gmail.com",
-		Params:map[string]string{ "client": "alertClient" },
+		Params:map[string]string{ "key": "test key", "plan": "test plan" },
 	})
 	if err != nil {
 		level.Error(logger).Log("msg", "Send Email error", "err", err)

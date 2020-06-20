@@ -92,7 +92,16 @@ func (us UserSVC) UpdateUser(ctx context.Context, user usersvc.User, email bool)
 		us.sendAlert(NewErrorAlert(err))
 	}
 
-	//TODO email update
+	if email {
+		us.alert.SendEmail(alertsvc.Email{
+			Name:   "create_user",
+			Email:  user.Name,
+			Params: map[string]string{
+				"key": user.Key,
+				"plan": user.Plan,
+			},
+		})
+	}
 
 	return user.Key,err
 }

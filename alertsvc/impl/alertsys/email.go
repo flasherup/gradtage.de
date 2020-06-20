@@ -1,9 +1,11 @@
 package alertsys
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/alertsvc/config"
+	"html/template"
 	"net/smtp"
 )
 
@@ -46,32 +48,47 @@ func (ea EmailAlert) SendAlert(alert alertsvc.Alert) error {
 	return err
 }
 
-func (ea EmailAlert) SendEmail(email alertsvc.Email) error {
+func (ue EmailAlert) SendEmail(email alertsvc.Email) error {
 	auth := smtp.PlainAuth(
 		"",
-		ea.config.User,
-		ea.config.Pass,
-		ea.config.Host,
+		ue.config.User,
+		ue.config.Pass,
+		ue.config.Host,
 	)
 
-	body := fmt.Sprintf("Email name: %s\n%s\n%s",
-		email.Name,
+	parameters := struct {
+		FromName        string
+		From 			string
+		To 				string
+		Subject 		string
+		Text			string
+		Email 			string
+		Key 			string
+		Plan 			string
+	}{
+		"User Name",
+		"mytest@mytest.mytest",
+		"Do Not Replay",
+		"User Plan Upgrade",
+		"Congratulations your plan is updated",
 		email.Email,
-		paramsToString(email.Params),
-	)
+		email.Params["key"],
+		email.Params["plan"],
+	}
 
-	msg := "From: " + ea.config.From + "\n" +
-		"To: " + "Admin" + "\n" +
-		"Subject: Alert notification\n\n" +
-		body
+	buffer := new(bytes.Buffer)
+
+	template := template.Must(template.New("emailTemplate").Parse(userEmailScript()))
+	template.Execute(buffer, &parameters)
 
 	err := smtp.SendMail(
-		ea.config.Host + ":" + ea.config.Port,
+		ue.config.Host + ":" + ue.config.Port,
 		auth,
-		ea.config.From,
+		ue.config.From,
 		[]string{email.Email},
-		[]byte(msg),
+		buffer.Bytes(),
 	)
+
 	return err
 }
 
@@ -81,4 +98,20 @@ func paramsToString(params map[string]string) string {
 		res += k + ": " + v + "\n"
 	}
 	return res
+}
+
+
+func userEmailScript() (script string) {
+	return `From: {{.FromName}} <{{.From}}>
+To: {{.To}}
+Subject: {{.Subject}}
+MIME-version: 1.0
+Content-Type: text/html; charset="UTF-8";
+<html><body>
+{{.Text}}<br/>
+{{.Email}}<br/>
+<br/>
+Key: {{.Key}}<br/>
+Plan: {{.Plan}}<br/>
+</body></html>`
 }
