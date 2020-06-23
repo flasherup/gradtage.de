@@ -265,16 +265,16 @@ func (as APISVC) Stripe(ctx context.Context, event apisvc.StripeEvent) (json str
 		if err != nil {
 			level.Error(as.logger).Log("msg", "Invoice Finalize parse error", "err", err)
 		} else {
-			level.Info(as.logger).Log("msg", "Invoice Finalize parsed", "customer", invoiceFinalize.Customer, "email", invoiceFinalize.CustomerEmail)
-			return ProcessUpdateStripeUser(as.user, invoiceFinalize.CustomerEmail, invoiceFinalize.Customer, usersvc.PlanStarter)
+			level.Info(as.logger).Log("msg", "Invoice Finalize parsed", "customer", invoiceFinalize.UserID, "email", invoiceFinalize.UserEmail)
+			return ProcessUpdateStripeUser(as.user, invoiceFinalize.UserEmail, invoiceFinalize.UserID, usersvc.PlanStarter)
 		}
 	} else if event.Type == stripe.SubscriptionScheduleCanceled {
 		subscriptionScheduleCanceled, err := stripe.ParseSubscriptionScheduleCanceled(event.Data.Object)
 		if err != nil {
 			level.Error(as.logger).Log("msg", "Subscription Schedule Canceled parse error", "err", err)
 		} else {
-			level.Info(as.logger).Log("msg", "Subscription Schedule Canceled parsed", "customer", subscriptionScheduleCanceled.Customer)
-			return ProcessCancelStripeUser(as.user, subscriptionScheduleCanceled.Customer)
+			level.Info(as.logger).Log("msg", "Subscription Schedule Canceled parsed", "customer", subscriptionScheduleCanceled.UserID)
+			return ProcessCancelStripeUser(as.user, subscriptionScheduleCanceled.UserID)
 		}
 	} else {
 		level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type, "event", event.Data.Object)

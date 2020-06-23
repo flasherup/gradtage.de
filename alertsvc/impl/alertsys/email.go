@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/alertsvc/config"
+	emailTemplates "github.com/flasherup/gradtage.de/alertsvc/impl/email"
 	"html/template"
 	"net/smtp"
 )
@@ -78,7 +79,7 @@ func (ue EmailAlert) SendEmail(email alertsvc.Email) error {
 
 	buffer := new(bytes.Buffer)
 
-	template := template.Must(template.New("emailTemplate").Parse(userEmailScript()))
+	template := template.Must(template.New("emailTemplate").Parse(emailTemplates.UserPlanUpdateTemplate))
 	template.Execute(buffer, &parameters)
 
 	err := smtp.SendMail(

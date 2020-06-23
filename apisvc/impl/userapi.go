@@ -51,7 +51,7 @@ func ProcessCancelStripeUser(client usersvc.Client, stripeId string) (string, er
 	user.User.Plan = usersvc.PlanTrial
 	user.User.Stripe = stripeId
 
-	_, err = client.UpdateUser(user.User, true)
+	_, err = client.UpdateUser(user.User, false)
 	if err != nil {
 		return "{\"status\":\"error\", \"error\":\"" + err.Error() + "\"}", err
 	}

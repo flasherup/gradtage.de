@@ -192,12 +192,12 @@ func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response int
 func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	req := StripeRequest{}
 
-	body, eBody := ioutil.ReadAll(r.Body)
-	if eBody != nil {
+	body, _ := ioutil.ReadAll(r.Body)
+	/*if eBody != nil {
 		fmt.Println("Stripe event body parse error:", eBody)
 	} else {
 		fmt.Println("Stripe event body:", string(body))
-	}
+	}*/
 	if e := json.Unmarshal(body, &req.Event); e != nil {
 		return nil, e
 	}
