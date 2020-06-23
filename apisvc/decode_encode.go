@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
@@ -190,7 +191,14 @@ func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response int
 
 func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	req := StripeRequest{}
-	if e := json.NewDecoder(r.Body).Decode(&req.Event); e != nil {
+
+	body, eBody := ioutil.ReadAll(r.Body)
+	if eBody != nil {
+		fmt.Println("Stripe event body parse error:", eBody)
+	} else {
+		fmt.Println("Stripe event body:", string(body))
+	}
+	if e := json.Unmarshal(body, &req.Event); e != nil {
 		return nil, e
 	}
 	return req, nil
@@ -198,7 +206,6 @@ func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{
 
 func encodeStripeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(StripeResponse)
-	fmt.Println("encodeStripeResponse", resp)
 	bt := new(bytes.Buffer)
 	err := json.NewEncoder(bt).Encode(resp)
 

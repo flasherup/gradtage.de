@@ -41,15 +41,21 @@ type StripeData struct {
 	Object 		interface{}  			`json:"object"`
 }
 
+
+type Request struct {
+	ID 				string 			`json:"id"`
+	IdempotencyKey 	string 			`json:"idempotency_key"`
+}
+
 type StripeEvent struct {
 	Created 			int 		`json:"created"`
 	LiveMode 			bool 		`json:"livemode"`
 	ID 					string 		`json:"id"`
 	Type 				string 		`json:"type"`
 	Object 				string 		`json:"object"`
-	Request 			string 		`json:"request"`
+	Request 			Request 	`json:"request"`
 	PendingWebHooks 	int 		`json:"pending_webhooks"`
-	ApiVersion 			int 		`json:"api_version"`
+	ApiVersion 			string 		`json:"api_version"`
 	Data 				StripeData 	`json:"data"`
 }
 

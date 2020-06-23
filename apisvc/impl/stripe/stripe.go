@@ -131,7 +131,7 @@ type InvoiceFinalizeObject struct {
 	Description 					string 				`json:"description"`
 	Discount 						string 				`json:"discount"`
 	DueDate 						string 				`json:"due_date"`
-	EndingBalance 					string 				`json:"ending_balance"`
+	EndingBalance 					int 				`json:"ending_balance"`
 	Footer 							string 				`json:"footer"`
 	HostedInvoiceUrl 				string 				`json:"hosted_invoice_url"`
 	InvoicePdf 						string 				`json:"invoice_pdf"`

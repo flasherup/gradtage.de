@@ -276,8 +276,10 @@ func (as APISVC) Stripe(ctx context.Context, event apisvc.StripeEvent) (json str
 			level.Info(as.logger).Log("msg", "Subscription Schedule Canceled parsed", "customer", subscriptionScheduleCanceled.Customer)
 			return ProcessCancelStripeUser(as.user, subscriptionScheduleCanceled.Customer)
 		}
+	} else {
+		level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type, "event", event.Data.Object)
 	}
-		json = "{\"status\":\"ok\"}"
+	json = "{\"status\":\"ok\"}"
 	return json, err
 }
 
