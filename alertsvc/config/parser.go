@@ -18,11 +18,17 @@ type EmailConfig struct {
 	Pass  	 	string   `json:"pass"`
 	From  	 	string   `json:"from"`
 	Recipients  []string `json:"recipients"`
+	EmailTemplates 	EmailTemplates  	`yaml:"email_templates"`
 }
 
+type EmailTemplates struct {
+	UserPlanUpdate string `yaml:"user_plan_update"`
+}
+
+
 type AlertConfig struct {
-	Server   	ServerConfig 		`yaml:"server"`
-	EmailConfig EmailConfig  		`yaml:"email_config"`
+	Server   		ServerConfig 		`yaml:"server"`
+	EmailConfig 	EmailConfig  		`yaml:"email_config"`
 }
 
 func LoadConfig(path string) (config *AlertConfig, err error) {

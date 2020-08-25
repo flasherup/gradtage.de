@@ -46,7 +46,7 @@ func main() {
 
 
 	//Just for test
-	err = client.ForceUpdate(ids, "2018-01-29T01:00:00Z", "2020-03-01T15:00:00Z")
+	err = client.ForceUpdate(ids, "2018-01-29T01:00:00Z", "2020-06-23T15:00:00Z")
 	if err != nil {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
 

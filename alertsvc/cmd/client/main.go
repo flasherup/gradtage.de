@@ -20,8 +20,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewAlertSCVClient("82.165.18.228:8107",logger)
-	//client := impl.NewAlertSCVClient("localhost:8107",logger)
+	//client := impl.NewAlertSCVClient("82.165.18.228:8107",logger)
+	client := impl.NewAlertSCVClient("localhost:8107",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")

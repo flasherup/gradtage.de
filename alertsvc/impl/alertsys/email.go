@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/alertsvc/config"
-	emailTemplates "github.com/flasherup/gradtage.de/alertsvc/impl/email"
 	"html/template"
 	"net/smtp"
 )
@@ -79,18 +78,20 @@ func (ue EmailAlert) SendEmail(email alertsvc.Email) error {
 
 	buffer := new(bytes.Buffer)
 
-	template := template.Must(template.New("emailTemplate").Parse(emailTemplates.UserPlanUpdateTemplate))
-	template.Execute(buffer, &parameters)
+	//tmpl := template.Must(template.New("emailTemplate").Parse(emailTemplates.UserPlanUpdateTemplate))
+	tmpl, err := template.ParseFiles(ue.config.EmailTemplates.UserPlanUpdate)
+	if err != nil {
+		return err
+	}
+	tmpl.Execute(buffer, &parameters)
 
-	err := smtp.SendMail(
+	return smtp.SendMail(
 		ue.config.Host + ":" + ue.config.Port,
 		auth,
 		ue.config.From,
 		[]string{email.Email},
 		buffer.Bytes(),
 	)
-
-	return err
 }
 
 func paramsToString(params map[string]string) string {
@@ -99,20 +100,4 @@ func paramsToString(params map[string]string) string {
 		res += k + ": " + v + "\n"
 	}
 	return res
-}
-
-
-func userEmailScript() (script string) {
-	return `From: {{.FromName}} <{{.From}}>
-To: {{.To}}
-Subject: {{.Subject}}
-MIME-version: 1.0
-Content-Type: text/html; charset="UTF-8";
-<html><body>
-{{.Text}}<br/>
-{{.Email}}<br/>
-<br/>
-Key: {{.Key}}<br/>
-Plan: {{.Plan}}<br/>
-</body></html>`
 }
