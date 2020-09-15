@@ -76,14 +76,15 @@ func (h Hourly) FetchPeriodTemperature(ch chan *parser.StationDaily, ids []strin
 }
 
 func (h Hourly)fetchStation(id string, ch chan *parser.StationDaily, start string, end string) {
+	level.Info(h.logger).Log("msg", "fetchStation", "id", id, "start", start, "end", end)
 	period, err := h.hrlService.GetPeriod(id, start, end)
 	if err != nil {
-		level.Error(h.logger).Log("msg", "GetPeriod hourly error", "err", err)
+		level.Error(h.logger).Log("msg", "GetPeriod hourly error", "err", err, "station", id)
 		ch <- nil
 		return
 	}
 
-	dPeriod := h.hourlyToDaily(period.Temps)
+	dPeriod := h.hourlyToDaily(period.Temps, id)
 	if len(dPeriod) == 0 {
 		level.Warn(h.logger).Log("msg", "Daily update warning", "warn", "nothing to update", "station", id)
 		ch <- nil
@@ -93,7 +94,7 @@ func (h Hourly)fetchStation(id string, ch chan *parser.StationDaily, start strin
 	ch <- &parser.StationDaily{ ID:id, Temps:dPeriod }
 }
 
-func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature) []dailysvc.Temperature {
+func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature, stId string) []dailysvc.Temperature {
 	res := make([]dailysvc.Temperature , 0)
 	day := 0
 	var latest, current time.Time
@@ -103,12 +104,13 @@ func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature) []dailysvc.Temperature 
 	for _,v := range src {
 		current, err =  time.Parse(common.TimeLayout, v.Date)
 		if err != nil {
-			level.Error(h.logger).Log("msg", "Hourly to daily error", "err", err)
+			level.Error(h.logger).Log("msg", "Hourly to daily error", "err", err, "station", stId)
 		}
 		if day != current.Day() {
 			if dayCount < 20 {
 				if dayCount > 0 {
-					level.Error(h.logger).Log("msg", "Hourly to daily error", "err", fmt.Sprintf("Not enough data: %d hours, for: %s", dayCount, latest.Format(common.TimeLayout)))
+					es := fmt.Sprintf("Not enough data: %d hours, for: %s, station: %s", dayCount, latest.Format(common.TimeLayout), stId)
+					level.Error(h.logger).Log("msg", "Hourly to daily error", "err", es)
 				}
 			} else {
 				date := time.Date(latest.Year(), latest.Month(), latest.Day(), 0, 0, 0, 0, latest.Location() )
@@ -121,7 +123,7 @@ func (h Hourly)hourlyToDaily(src []*hrlgrpc.Temperature) []dailysvc.Temperature 
 		latest = current
 		day = current.Day()
 		dayCount++
-		sum += float64(v.Temperature)
+		sum += v.Temperature
 	}
 
 	return res

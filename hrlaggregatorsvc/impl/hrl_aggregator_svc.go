@@ -104,9 +104,9 @@ const (
 
 func startFetchProcess(ss *HourlyAggregatorSVC) {
 	//ss.updateCheckWX()
-	//ss.updateDWD(-1)
-	//ss.updateNOAA(-1)
-	//ss.updateMeteostat(3)
+	ss.updateDWD(-1)
+	ss.updateNOAA(-1)
+	ss.updateMeteostat(3)
 
 
 	chTimer := make(chan bool)
@@ -124,7 +124,7 @@ func startFetchProcess(ss *HourlyAggregatorSVC) {
 
 		case alarm := <- chAlarm:
 			if alarm {
-				ss.updateDWD(3)
+				ss.updateDWD(72)
 				ss.updateNOAA(3)
 				ss.updateMeteostat(3)
 			}
