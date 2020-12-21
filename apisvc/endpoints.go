@@ -15,6 +15,7 @@ type Endpoints struct {
 	UserEndpoint			endpoint.Endpoint
 	PlanEndpoint			endpoint.Endpoint
 	StripeEndpoint			endpoint.Endpoint
+	CommandEndpoint			endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -26,6 +27,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		UserEndpoint:  			MakeUserEndpoint(s),
 		PlanEndpoint:  			MakePlanEndpoint(s),
 		StripeEndpoint:  		MakeStripeEndpoint(s),
+		CommandEndpoint:  		MakeCommandEndpoint(s),
 	}
 }
 
@@ -83,5 +85,13 @@ func MakeStripeEndpoint(s Service) endpoint.Endpoint {
 		req := request.(StripeRequest)
 		data, err := s.Stripe(ctx, req.Event)
 		return StripeResponse{ data}, err
+	}
+}
+
+func MakeCommandEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(CommandRequest)
+		data, err := s.Command(ctx, req.Name, req.Params)
+		return CommandResponse{ data}, err
 	}
 }

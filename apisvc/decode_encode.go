@@ -193,11 +193,6 @@ func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{
 	req := StripeRequest{}
 
 	body, _ := ioutil.ReadAll(r.Body)
-	/*if eBody != nil {
-		fmt.Println("Stripe event body parse error:", eBody)
-	} else {
-		fmt.Println("Stripe event body:", string(body))
-	}*/
 	if e := json.Unmarshal(body, &req.Event); e != nil {
 		return nil, e
 	}
@@ -208,6 +203,31 @@ func encodeStripeResponse(ctx context.Context, w http.ResponseWriter, response i
 	resp := response.(StripeResponse)
 	bt := new(bytes.Buffer)
 	err := json.NewEncoder(bt).Encode(resp)
+
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write(bt.Bytes())
+	return err
+}
+
+func decodeCommandRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	r.ParseForm()
+	p := make(map[string]string)
+	for k,v := range r.Form {
+		p[k] = v[0]
+	}
+	fmt.Println("params", p)
+	req := CommandRequest{}
+	req.Params = p;
+	if name, ok := p["name"]; ok {
+		req.Name = name
+	}
+	return req, nil
+}
+
+func encodeCommandResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(CommandResponse)
+	bt := new(bytes.Buffer)
+	err := json.NewEncoder(bt).Encode(resp.Json)
 
 	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
 	w.Write(bt.Bytes())

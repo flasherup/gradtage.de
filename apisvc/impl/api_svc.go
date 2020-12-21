@@ -15,6 +15,7 @@ import (
 	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/noaascrapersvc"
+	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/usersvc"
 	"github.com/flasherup/gradtage.de/usersvc/impl"
 	"github.com/go-kit/kit/log"
@@ -33,6 +34,7 @@ type APISVC struct {
 	noaa 			noaascrapersvc.Client
 	autocomplete 	autocompletesvc.Client
 	user 			usersvc.Client
+	stations		stationssvc.Client
 	keyManager 		*security.KeyManager
 	counter 		ktprom.Gauge
 }
@@ -57,6 +59,7 @@ func NewAPISVC(
 		autocomplete 	autocompletesvc.Client,
 		user 			usersvc.Client,
 		alert 			alertsvc.Client,
+		stations    	stationssvc.Client,
 		keyManager 		*security.KeyManager,
 	) *APISVC {
 	options := prometheus.Opts{
@@ -72,6 +75,7 @@ func NewAPISVC(
 		autocomplete: 	autocomplete,
 		user: 			user,
 		alert:   		alert,
+		stations:		stations,
 		keyManager: 	keyManager,
 		counter: 		*guage,
 	}
@@ -281,6 +285,44 @@ func (as APISVC) Stripe(ctx context.Context, event apisvc.StripeEvent) (json str
 	}
 	json = "{\"status\":\"ok\"}"
 	return json, err
+}
+
+func (as APISVC) Command(ctx context.Context, name string, params map[string]string) (response interface{}, err error) {
+	level.Info(as.logger).Log("msg", "Command", "Name", name)
+
+	resp := struct {
+		Status string `json:"status"`
+		Error string `json:"error"`
+		Response interface{} `json:"response"`
+	}{}
+
+	p, err := as.validateUser(params["key"])
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Run command error", "err", err)
+		resp.Status = "error"
+		resp.Error = err.Error()
+		return resp, err
+	}
+
+	if !p.Plan.Admin {
+		level.Error(as.logger).Log("msg", "Run command error", "err", "User validation error")
+		resp.Status = "error"
+		resp.Error = "Not enough rights to run commands"
+		return resp, nil
+	}
+
+	r, err := ParseCommand(as, name, params)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Run command error", "err", err.Error())
+		resp.Status = "error"
+		resp.Error = err.Error()
+		return resp, err
+	} else {
+		resp.Status = "ok"
+		resp.Response = r
+		return resp, nil
+	}
+	return "", err
 }
 
 func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
@@ -541,4 +583,6 @@ func getLeapSafeDOY(t time.Time) int {
 func isLeap(year int) bool {
 	return year%400 == 0 || year%4 == 0 && year%100 != 0
 }
+
+
 

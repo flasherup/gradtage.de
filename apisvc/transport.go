@@ -73,6 +73,13 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 		options...,
 	))
 
+	r.Methods("GET").Path("/command").Handler(kithttp.NewServer(
+		e.CommandEndpoint,
+		decodeCommandRequest,
+		encodeCommandResponse,
+		options...,
+	))
+
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(staticFolder)))
 
 	return r

@@ -19,6 +19,7 @@ type Clients struct {
 	AutocompleteAddr 	string `yaml:"autocomplete_addr"`
 	UserAddr 			string `yaml:"user_addr"`
 	AlertAddr 			string `yaml:"alert_addr"`
+	StationsAddr 		string `yaml:"stations_addr"`
 }
 
 type Security struct {

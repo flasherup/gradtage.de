@@ -67,4 +67,5 @@ type Service interface {
 	User(ctx context.Context, params ParamsUser) (data [][]string, err error)
 	Plan(ctx context.Context, params ParamsPlan) (data [][]string, err error)
 	Stripe(ctx context.Context, event StripeEvent) (json string, err error)
+	Command(ctx context.Context, name string, params map[string]string)(json interface{}, err error)
 }

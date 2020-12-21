@@ -57,3 +57,12 @@ type StripeRequest struct {
 type StripeResponse struct {
 	Json string `json:"json"`
 }
+
+type CommandRequest struct {
+	Name string `json:"name"`
+	Params map[string]string `json:"params"`
+}
+
+type CommandResponse struct {
+	Json interface{} `json:"json"`
+}

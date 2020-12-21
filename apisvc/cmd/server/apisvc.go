@@ -15,6 +15,7 @@ import (
 	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
 	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
 	noaa "github.com/flasherup/gradtage.de/noaascrapersvc/impl"
+	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	user "github.com/flasherup/gradtage.de/usersvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -23,6 +24,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
 )
 
 func main() {
@@ -68,6 +70,7 @@ func main() {
 	noaaService := noaa.NewNoaaScraperSVCClient(conf.Clients.HoaaAddr, logger)
 	autocompleteService := autocomplete.NewAutocompleteSCVClient(conf.Clients.AutocompleteAddr, logger)
 	userService := user.NewUsersSCVClient(conf.Clients.UserAddr, logger)
+	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 
 
 	level.Info(logger).Log("msg", "service started", "config", configFile)
@@ -75,7 +78,16 @@ func main() {
 
 	alertService.SendAlert(impl.NewNotificationAlert("service started"))
 
-	svc := impl.NewAPISVC(logger, dailyService, hourlyService, noaaService, autocompleteService, userService, alertService, keyManager)
+	svc := impl.NewAPISVC(
+		logger,
+		dailyService,
+		hourlyService,
+		noaaService,
+		autocompleteService,
+		userService,
+		alertService,
+		stationsService,
+		keyManager)
 	hs := apisvc.NewHTTPTSransport(svc,logger, conf.Static.Folder)
 
 	errs := make(chan error)
