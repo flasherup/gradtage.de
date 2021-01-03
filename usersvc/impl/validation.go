@@ -22,10 +22,10 @@ func ValidateEnd( end time.Time, params usersvc.Parameters) (bool, error) {
 
 func ValidatePlanExpiration(params *usersvc.Parameters) error {
 	current := time.Now().UTC()
-	period := params.User.RenewDate.Sub(current)/(time.Hour*24)
-	fmt.Println("period", period)
+	sub := current.Sub(params.User.RenewDate)
+	period := sub.Hours()/24
 	if int(period) >= params.Plan.Period {
-		return fmt.Errorf("the key: '%s' is expired", params.User.Key)
+		return fmt.Errorf("the key: '%s' for user: '%s' is expired", params.User.Key,  params.User.Name)
 	}
 	return nil
 }

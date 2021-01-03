@@ -241,7 +241,6 @@ func errorToString(err error) string{
 	if err == nil {
 		return "nil"
 	}
-
 	return err.Error()
 }
 

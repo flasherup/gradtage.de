@@ -121,7 +121,7 @@ func (us UserSVC) ValidateSelection(ctx context.Context, selection usersvc.Selec
 	level.Info(us.logger).Log("msg", "Validate Selection", "key", selection.Key)
 	_, err := us.db.GetUserDataByKey(selection.Key)
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Validate Key Error", "err", err)
+		level.Error(us.logger).Log("msg", "Validate Key Error", "err", err.Error())
 		us.sendAlert(NewErrorAlert(err))
 		return false, err
 	}
@@ -202,7 +202,6 @@ func (us UserSVC)validateUserParameters(params *usersvc.Parameters) error {
 		level.Error(us.logger).Log("msg", "Update user request time nad count", "err", err)
 		us.sendAlert(NewErrorAlert(err))
 	}
-
 
 	return nil
 }

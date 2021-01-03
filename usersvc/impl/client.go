@@ -39,7 +39,7 @@ func (us UsersSVCClient) CreateUser(userName string, plan string, email bool) (s
 	})
 
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to create user", "err", err)
+		level.Error(us.logger).Log("msg", "Failed to create user", "err", err.Error())
 		return "", err
 	}
 
@@ -65,7 +65,7 @@ func (us UsersSVCClient) UpdateUser(user usersvc.User, email bool) (string, erro
 	})
 
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to create user", "err", err)
+		level.Error(us.logger).Log("msg", "Failed to create user", "err", err.Error())
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
@@ -88,7 +88,7 @@ func (us UsersSVCClient) AddPlan(plan usersvc.Plan) error {
 	})
 
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to create user", "err", err)
+		level.Error(us.logger).Log("msg", "Failed to create user", "err", err.Error())
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
@@ -111,7 +111,7 @@ func (us UsersSVCClient) ValidateSelection(selection usersvc.Selection) error {
 	})
 
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err.Error())
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
@@ -159,7 +159,7 @@ func (us UsersSVCClient) ValidateName(name string) (usersvc.Parameters, error) {
 	})
 
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err.Error())
 		return usersvc.Parameters{},err
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
@@ -184,7 +184,7 @@ func (us UsersSVCClient) ValidateStripe(stripe string) (usersvc.Parameters, erro
 	})
 
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to validate stripe", "err", err)
+		level.Error(us.logger).Log("msg", "Failed to validate stripe", "err", err.Error())
 		return  usersvc.Parameters{}, err
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)

@@ -57,7 +57,7 @@ func (pg *Postgres) SetUser(user usersvc.User) error {
 		"( '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s')",
 		user.Key,
 		user.Name,
-		user.RequestDate.Format(common.TimeLayout),
+		user.RenewDate.Format(common.TimeLayout),
 		user.RequestDate.Format(common.TimeLayout),
 		user.Requests,
 		user.Plan,
