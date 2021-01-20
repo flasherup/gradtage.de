@@ -8,7 +8,6 @@ import (
 type Temperature struct {
 	Date 		string `json:"date"`
 	Temperature	float64 `json:"temperature"`
-
 }
 
 type Service interface {

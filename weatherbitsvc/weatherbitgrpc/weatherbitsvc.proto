@@ -1,0 +1,31 @@
+syntax = "proto3";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+package weathergrpc;
+
+message Temperature {
+    string date = 1;
+    double  temperature = 2;
+}
+
+message Temperatures {
+    repeated Temperature temps = 1;
+}
+
+message GetPeriodRequest {
+    repeated string ids  = 1;
+    string start         = 2;
+    string end           = 3;
+}
+
+message GetPeriodResponse {
+    map<string, Temperatures> temps = 1;
+    string err                      = 2;
+}
+
+
+service WeatherBitScraperSVC {
+    rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
+}
+
+
