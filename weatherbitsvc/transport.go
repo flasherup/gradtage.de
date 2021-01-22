@@ -3,10 +3,10 @@ package weatherbitsvc
 import (
 	"context"
 	weathergrpc "github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc"
+	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
 	"net/http"
 )
 
