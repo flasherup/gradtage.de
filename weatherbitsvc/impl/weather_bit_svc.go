@@ -7,6 +7,7 @@ import (
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/database"
+	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"io/ioutil"
@@ -81,5 +82,10 @@ func (wb WeatherBitSVC)processUpdate() {
 		return
 	}
 
-	fmt.Println( "contents", string(contents));
+	result, err := parser.ParseWeatherBit(&contents)
+	if (err != nil) {
+		fmt.Println(err)
+	} else {
+		fmt.Println(result)
+	}
 }
