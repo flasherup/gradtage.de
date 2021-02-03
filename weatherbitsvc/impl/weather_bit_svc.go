@@ -58,7 +58,7 @@ func startFetchProcess(wb *WeatherBitSVC) {
 }
 
 func (wb WeatherBitSVC)processUpdate() {
-	url := wb.conf.Sources.UrlWeatherBit + "/current?lat=35.7796&lon=-78.6382&key=" + wb.conf.Sources.KeyWeatherBit + "&include=minutely"
+	url := wb.conf.Sources.UrlWeatherBit + "/current?station=EDDH&key=" + wb.conf.Sources.KeyWeatherBit + "&include=minutely" + "&start_date=2021-01-25&end_date=2021-01-26"
 	level.Info(wb.logger).Log("msg", "weather bit request", "url", url)
 	//url := "https://api.checkwx.com/metar/" + id + "/decoded"
 	client := &http.Client{
@@ -85,7 +85,8 @@ func (wb WeatherBitSVC)processUpdate() {
 	result, err := parser.ParseWeatherBit(&contents)
 	if (err != nil) {
 		fmt.Println(err)
-	} else {
-		fmt.Println(result)
 	}
+
+	wb.db.CreateTable("EDDH")
+	wb.db.PushData("EDDH", result)
 }

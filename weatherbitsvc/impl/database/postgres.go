@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
+	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 	_ "github.com/lib/pq"
+	"time"
 )
 
 //HourlyDB main structure
@@ -40,20 +42,22 @@ func (pg *Postgres) Dispose() {
 }
 
 //PushPeriod write a list of temperatures in to DB
-func (pg *Postgres) PushPeriod(name string, temperatures []hourlysvc.Temperature) error {
+func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 
 	query := fmt.Sprintf("INSERT INTO %s " +
-		"(date, temperature) VALUES", name)
+		"(date, rh, pod) VALUES", stID)
 
-	length := len(temperatures)
-	for i, v := range temperatures {
+	length := len(wbd.Data)
+	for i, v := range wbd.Data {
+		date := time.Unix(int64(v.TS), 0)
 		query += fmt.Sprintf(
-			" ( '%s', %g)",
-			v.Date, v.Temperature)
+			" ( '%s', %g, '%s')",
+			date, v.Rh, v.Pod)
 		if i < length-1 {
 			query += ","
 		}
 	}
+
 
 	query += " ON CONFLICT (date) DO NOTHING;"
 	return writeToDB(pg.db, query)
