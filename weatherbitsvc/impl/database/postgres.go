@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
@@ -44,22 +45,31 @@ func (pg *Postgres) Dispose() {
 //PushPeriod write a list of temperatures in to DB
 func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 
-	query := fmt.Sprintf("INSERT INTO %s " + //.....
+	query := fmt.Sprintf("INSERT INTO %s " +
 		"(date, rh, pod, pres, timezone, on_time, country_code, clouds, vis, wind_cdir, ob_time, solar_rad, wind_spd, " +
 		"state_code, wind_cdir_full, city_name, app_temp, uv, lon, slp, h_angle, dewpt, snow, aqi, wind_dir, elev_angle, " +
-		"ghi, datetime, lat, precip, sunset, temp, station, station, dni, sunrise) VALUES")
+		"ghi, datetime, lat, precip, sunset, temp, station, station, dni, sunrise) VALUES", stID)
 
 	length := len(wbd.Data)
 	for i, v := range wbd.Data {
+		query += "("
+
+
 		date := time.Unix(int64(v.TS), 0)
-		query += fmt.Sprintf(
-			"( %c, %g, %s, %g, %s, %s, %s, %g, %g, %s, %s, %g, %g, %s, %s, %s," +
+		time := date.Format(common.TimeLayout)
+		query += fmt.Sprintf( "%s,", time)
+		query += fmt.Sprintf( "%g,", v.Rh)
+		query += fmt.Sprintf( "%s,", v.Pod)
+		query += fmt.Sprintf( "%g,", v.Pres)
+		query += fmt.Sprintf( "%g,", v.Timezone)
+
+
+
+			/*%s, %s, %s, %g, %g, %s, %s, %g, %g, %s, %s, %s," +
 				   " %g, %c, %s, %g, %g, %g, %g, %g, %g, %g, %g, %s, %g, %g, %s, %g, %s, %g, %s)",    //....
-	date,
-	v.Rh,
-	v.Pod,
-	v.Pres,
-	v.Timezone,
+
+
+	,
 	v.OnTime,
 	v.CountryCode,
 	v.Clouds,
@@ -89,7 +99,9 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	v.Temp,
 	v.Station,
 	v.DNI,
-	v.Sunrise)
+	v.Sunrise*/
+
+		query += ")"
 		if i < length-1 {
 			query += ","
 		}
