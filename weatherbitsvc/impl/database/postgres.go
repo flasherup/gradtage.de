@@ -109,6 +109,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 
 
 	query += " ON CONFLICT (date) DO NOTHING;"
+	fmt.Println("PushData query", query)
 	return writeToDB(pg.db, query)
 }
 
