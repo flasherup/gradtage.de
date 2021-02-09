@@ -44,15 +44,52 @@ func (pg *Postgres) Dispose() {
 //PushPeriod write a list of temperatures in to DB
 func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 
-	query := fmt.Sprintf("INSERT INTO %s " +
-		"(date, rh, pod) VALUES", stID)
+	query := fmt.Sprintf("INSERT INTO %s " + //.....
+		"(date, rh, pod, pres, timezone, on_time, country_code, clouds, vis, wind_cdir, ob_time, solar_rad, wind_spd, " +
+		"state_code, wind_cdir_full, city_name, app_temp, uv, lon, slp, h_angle, dewpt, snow, aqi, wind_dir, elev_angle, " +
+		"ghi, datetime, lat, precip, sunset, temp, station, station, dni, sunrise) VALUES")
 
 	length := len(wbd.Data)
 	for i, v := range wbd.Data {
 		date := time.Unix(int64(v.TS), 0)
 		query += fmt.Sprintf(
-			" ( '%s', %g, '%s')",
-			date, v.Rh, v.Pod)
+			"( %c, %g, %s, %g, %s, %s, %s, %g, %g, %s, %s, %g, %g, %s, %s, %s," +
+				   " %g, %c, %s, %g, %g, %g, %g, %g, %g, %g, %g, %s, %g, %g, %s, %g, %s, %g, %s)",    //....
+	date,
+	v.Rh,
+	v.Pod,
+	v.Pres,
+	v.Timezone,
+	v.OnTime,
+	v.CountryCode,
+	v.Clouds,
+	v.Vis ,
+	v.WindCdir,
+	v.ObTime,
+	v.SolarRad,
+	v.WindSPD,
+	v.StateCode,
+	v.WindCdirFull,
+	v.CityName,
+	v.AppTemp,
+	v.UV,
+	v.Lon,
+	v.SLP,
+	v.HAngle,
+	v.Dewpt,
+	v.Snow,
+	v.AQI,
+	v.WindDir,
+	v.ElevAngle,
+	v.GHI,
+	v.DateTime,
+	v.Lat,
+	v.Precip,
+	v.Sunset,
+	v.Temp,
+	v.Station,
+	v.DNI,
+	v.Sunrise)
 		if i < length-1 {
 			query += ","
 		}
@@ -90,9 +127,43 @@ func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []ho
 
 //CreateTable create a table with name @icao + tPrefix if not exist
 func (pg *Postgres) CreateTable(name string) error {
-	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ("+
+	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ("+ //.......
 		"	date timestamp UNIQUE,"+
-		"	temperature real"+
+		"	temperature real,"+
+		"	rh real,"+
+		"	pod VARCHAR(1),"+
+		"	pres real,"+
+		"	timezone VARCHAR,"+
+		"	on_time timestamp,"+
+		"	country_code,"+
+		"	clouds real,"+
+		"	vis real,"+
+		"	wind_cdir,"+
+		"	ob_time timestamp,"+
+		"	solar_rad real,"+
+		"	wind_spd real,"+
+		"	state_code,"+
+		"	wind_cdir_full real,"+
+		"	city_name real,"+
+		"	app_temp real,"+
+		"	uv int,"+
+		"	lon real,"+
+		"	slp real,"+
+		"	h_angle real,"+
+		"	dewpt real,"+
+		"	snow real,"+
+		"	aqi real,"+
+		"	wind_dir real,"+
+		"	elev_angle real,"+
+		"	ghi real,"+
+		"	datetime timestamp,"+
+		"	lat real,"+
+		"	precip real,"+
+		"	sunset real,"+
+		"	temp real,"+
+		"	station VARCHAR,"+
+		"	dni real,"+
+		"	sunrise,"+
 		");",
 		name)
 	return writeToDB(pg.db, query)
@@ -163,6 +234,29 @@ func writeToDB(db *sql.DB, query string) (err error){
 	row.Close()
 	return
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
