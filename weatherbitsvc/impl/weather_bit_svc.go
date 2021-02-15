@@ -47,18 +47,25 @@ func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start strin
 }
 
 func startFetchProcess(wb *WeatherBitSVC) {
-	wb.processUpdate() //Do it first time
+	wb.precessStations() //Do it first time
 	tick := time.Tick(time.Hour)
 	for {
 		select {
 		case <-tick:
-			wb.processUpdate()
+			wb.precessStations()
 		}
 	}
 }
 
-func (wb WeatherBitSVC)processUpdate() {
-	url := wb.conf.Sources.UrlWeatherBit + "/current?station=EDDH&key=" + wb.conf.Sources.KeyWeatherBit + "&include=minutely" + "&start_date=2021-01-25&end_date=2021-01-26"
+func (wb WeatherBitSVC)precessStations() {
+	stations := []string{"EDDH"}
+	for _,v := range stations {
+		wb.processUpdate(v)
+	}
+}
+
+func (wb WeatherBitSVC)processUpdate(st string) {
+	url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
 	level.Info(wb.logger).Log("msg", "weather bit request", "url", url)
 	//url := "https://api.checkwx.com/metar/" + id + "/decoded"
 	client := &http.Client{
@@ -84,9 +91,18 @@ func (wb WeatherBitSVC)processUpdate() {
 
 	result, err := parser.ParseWeatherBit(&contents)
 	if (err != nil) {
-		fmt.Println(err)
+		level.Error(wb.logger).Log("msg", "weather bit data parse error", "err", err)
+		return
 	}
 
-	wb.db.CreateTable("EDDH")
-	wb.db.PushData("EDDH", result)
+	err = wb.db.CreateTable("EDDH")
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "table create error", "err", err)
+		return
+	}
+	err = wb.db.PushData("EDDH", result)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "data push error", "err", err)
+		return
+	}
 }
