@@ -50,12 +50,6 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	"state_code, wind_cdir_full, city_name, app_temp, uv, lon, slp, h_angle, dewpt, snow, aqi, wind_dir, elev_angle, " +
 	"ghi, datetime, lat, precip, sunset, temp, station, dni, sunrise) VALUES", stID)
 
-
-
-
-
-
-
 	for i, v := range wbd.Data {
 		query += "("
 		length := len(wbd.Data)
