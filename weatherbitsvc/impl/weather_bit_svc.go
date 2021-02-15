@@ -58,13 +58,15 @@ func startFetchProcess(wb *WeatherBitSVC) {
 }
 
 func (wb WeatherBitSVC)precessStations() {
-	stations := []string{"EDDH"}
-	for _,v := range stations {
-		wb.processUpdate(v)
+	stations := map[string]string{
+		"KNYC": "KNYC",
+	}
+	for k,v := range stations {
+		wb.processUpdate(k, v)
 	}
 }
 
-func (wb WeatherBitSVC)processUpdate(st string) {
+func (wb WeatherBitSVC)processUpdate(stID string, st string) {
 	url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
 	level.Info(wb.logger).Log("msg", "weather bit request", "url", url)
 	//url := "https://api.checkwx.com/metar/" + id + "/decoded"
@@ -95,12 +97,12 @@ func (wb WeatherBitSVC)processUpdate(st string) {
 		return
 	}
 
-	err = wb.db.CreateTable("EDDH")
+	err = wb.db.CreateTable(stID)
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "table create error", "err", err)
 		return
 	}
-	err = wb.db.PushData("EDDH", result)
+	err = wb.db.PushData(stID, result)
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "data push error", "err", err)
 		return
