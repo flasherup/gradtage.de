@@ -16,7 +16,7 @@ type Weather struct {
 type Data struct {
 	Rh           float64 `json:"rh"`
 	Pod          string  `json:"pod"`
-	Lon          float64 `json:"lon"`
+	Lon          string `json:"lon"`
 	Pres         float64 `json:"pres"`
 	Timezone     string  `json:"timezone"`
 	OnTime		 string  `json:"on_time"`
@@ -44,7 +44,7 @@ type Data struct {
 	GHI          float64 `json:"ghi"`
 	DHI          float64 `json:"dhi"`
 	AQI          float64 `json:"aqi"`
-	Lat          float64 `json:"lat"`
+	Lat          string  `json:"lat"`
 	Weather      Weather `json:"weather"`
 	DateTime     string  `json:"date_time"`
 	Temp         float64 `json:"temp"`
@@ -55,7 +55,7 @@ type Data struct {
 
 type Minutely struct {
 	TimestampUTC   string  `json:"timestamp_utc"`
-	Snow           int     `json:"snow"`
+	Snow           float64     `json:"snow"`
 	TimestampLocal string  `json:"timestamp_local"`
 	TS             int     `json:"ts"`
 	Precip         float64 `json:"precip"`
