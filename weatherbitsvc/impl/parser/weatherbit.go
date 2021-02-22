@@ -23,7 +23,7 @@ type Data struct {
 	ObTime       string  `json:"ob_time"`
 	CountryCode  string  `json:"country_code"`
 	Clouds       float64 `json:"clouds"`
-	TS           int     `json:"ts"`
+	TS           float64 `json:"ts"`
 	SolarRad     float64 `json:"solar_rad"`
 	StateCode    string  `json:"state_code"`
 	CityName     string  `json:"city_name"`
@@ -53,18 +53,9 @@ type Data struct {
 	AppTemp      float64 `json:"app_temp"`
 }
 
-type Minutely struct {
-	TimestampUTC   string  `json:"timestamp_utc"`
-	Snow           float64     `json:"snow"`
-	TimestampLocal string  `json:"timestamp_local"`
-	TS             int     `json:"ts"`
-	Precip         float64 `json:"precip"`
-}
-
 type WeatherBitData struct {
 	Count    int        `json:"count"`
 	Data     []Data     `json:"data"`
-	Minutely []Minutely `json:"minutely"`
 }
 
 

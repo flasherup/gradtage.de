@@ -8,6 +8,7 @@ import (
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 	_ "github.com/lib/pq"
+	"math"
 	"time"
 )
 
@@ -84,7 +85,9 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	for i, v := range wbd.Data {
 		query += "("
 		length := len(wbd.Data)
-		date := time.Unix(int64(v.TS), 0)
+
+		roundedTs := math.Floor(v.TS)
+		date := time.Unix(int64(roundedTs), 0)
 		time := date.Format(common.TimeLayout)
 		query += fmt.Sprintf( "'%s',", time)
 		query += fmt.Sprintf( "%g,", v.Rh)
@@ -168,14 +171,14 @@ func (pg *Postgres) CreateTable(name string) error {
 		"	pres real,"+
 		"	timezone VARCHAR,"+
 		"	on_time VARCHAR,"+
-		"	country_code VARCHAR(2),"+
+		"	country_code VARCHAR(4),"+
 		"	clouds real,"+
 		"	vis real,"+
-		"	wind_cdir VARCHAR(2),"+
+		"	wind_cdir VARCHAR(4),"+
 		"	ob_time VARCHAR,"+
 		"	solar_rad real,"+
 		"	wind_spd real,"+
-		"	state_code VARCHAR(2),"+
+		"	state_code VARCHAR(4),"+
 		"	wind_cdir_full VARCHAR,"+
 		"	city_name VARCHAR,"+
 		"	app_temp real,"+

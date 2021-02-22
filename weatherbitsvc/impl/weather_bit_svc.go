@@ -57,9 +57,20 @@ func startFetchProcess(wb *WeatherBitSVC) {
 	}
 }
 
-func (wb WeatherBitSVC)precessStations() {
+	func (wb WeatherBitSVC)precessStations() {
 	stations := map[string]string{
 		"KNYC": "KNYC",
+		"WMO7650": "LFML",
+		"KATT": "KATT",
+		"EDDH": "EDDH",
+		"CYYC": "CYYC",
+		"WMO10224": "10224",
+		"LEBL": "LEBL",
+		"WMO8181": "081810",
+		"ESMS":"ESMS",
+		"LFBN":"LFBN",
+		"D4932":"D4932",
+		"W07301399999":"073013-99999",
 	}
 	for k,v := range stations {
 		wb.processUpdate(k, v)
@@ -67,6 +78,13 @@ func (wb WeatherBitSVC)precessStations() {
 }
 
 func (wb WeatherBitSVC)processUpdate(stID string, st string) {
+
+	err := wb.db.CreateTable(stID)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "table create error", "err", err)
+		return
+	}
+
 	url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
 	level.Info(wb.logger).Log("msg", "weather bit request", "url", url)
 	//url := "https://api.checkwx.com/metar/" + id + "/decoded"
@@ -97,11 +115,6 @@ func (wb WeatherBitSVC)processUpdate(stID string, st string) {
 		return
 	}
 
-	err = wb.db.CreateTable(stID)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "table create error", "err", err)
-		return
-	}
 	err = wb.db.PushData(stID, result)
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "data push error", "err", err)
