@@ -16,7 +16,7 @@ type Weather struct {
 type Data struct {
 	Rh           float64 `json:"rh"`
 	Pod          string  `json:"pod"`
-	Lon          string `json:"lon"`
+	Lon          string  `json:"lon"`
 	Pres         float64 `json:"pres"`
 	Timezone     string  `json:"timezone"`
 	OnTime		 string  `json:"on_time"`
@@ -36,7 +36,7 @@ type Data struct {
 	Sunset       string  `json:"sunset"`
 	DNI          float64 `json:"dni"`
 	Dewpt        float64 `json:"dewpt"`
-	Snow         float64  `json:"snow"`
+	Snow         float64 `json:"snow"`
 	UV           float64 `json:"uv"`
 	Precip       float64 `json:"precip"`
 	WindDir      float64 `json:"wind_dir"`

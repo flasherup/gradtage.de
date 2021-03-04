@@ -79,11 +79,7 @@ func startFetchProcess(wb *WeatherBitSVC) {
 
 func (wb WeatherBitSVC)processUpdate(stID string, st string) {
 
-	err := wb.db.CreateTable(stID)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "table create error", "err", err)
-		return
-	}
+
 
 	url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
 	level.Info(wb.logger).Log("msg", "weather bit request", "url", url)
@@ -112,6 +108,12 @@ func (wb WeatherBitSVC)processUpdate(stID string, st string) {
 	result, err := parser.ParseWeatherBit(&contents)
 	if (err != nil) {
 		level.Error(wb.logger).Log("msg", "weather bit data parse error", "err", err)
+		return
+	}
+
+	err = wb.db.CreateTable(stID)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "table create error", "err", err)
 		return
 	}
 

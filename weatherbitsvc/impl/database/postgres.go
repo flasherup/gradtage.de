@@ -47,22 +47,19 @@ func (pg *Postgres) Dispose() {
 func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 
 	query := fmt.Sprintf("INSERT INTO %s " +
-	"(date, " +
+		"(date, " +
 		"rh, " +
 		"pod, " +
 		"pres, " +
 		"timezone, " +
-		"on_time, " +
-		"ob_time, " +
 		"country_code, " +
 		"clouds, " +
 		"vis, " +
-		"wind_cdir, " +
 		"solar_rad, " +
 		"wind_spd, " +
 		"state_code, " +
-		"wind_cdir_full, " +
-		"city_name, app_temp, " +
+		"city_name," +
+		" app_temp, " +
 		"uv, " +
 		"lon, " +
 		"slp, " +
@@ -73,7 +70,6 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		"wind_dir, " +
 		"elev_angle, " +
 		"ghi, " +
-		"datetime, " +
 		"lat, " +
 		"precip, " +
 		"sunset, " +
@@ -81,7 +77,6 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		"station, " +
 		"dni, " +
 		"sunrise) VALUES", stID)
-
 	for i, v := range wbd.Data {
 		query += "("
 		length := len(wbd.Data)
@@ -94,16 +89,12 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		query += fmt.Sprintf( "'%s',", v.Pod)
 		query += fmt.Sprintf( "%g,", v.Pres)
 		query += fmt.Sprintf( "'%s',", v.Timezone)
-		query += fmt.Sprintf( "'%s',", v.OnTime)
-		query += fmt.Sprintf( "'%s',", v.ObTime)
 		query += fmt.Sprintf( "'%s',", v.CountryCode)
 		query += fmt.Sprintf( "%g,", v.Clouds)
 		query += fmt.Sprintf( "%g,", v.Vis)
-		query += fmt.Sprintf( "'%s',", v.WindCdir)
 		query += fmt.Sprintf( "%g,", v.SolarRad)
 		query += fmt.Sprintf( "%g,", v.WindSPD)
 		query += fmt.Sprintf( "'%s',", v.StateCode)
-		query += fmt.Sprintf( "'%s',", v.WindCdirFull)
 		query += fmt.Sprintf( "'%s',", v.CityName)
 		query += fmt.Sprintf( "%g,", v.AppTemp)
 		query += fmt.Sprintf( "%g,", v.UV)
@@ -116,7 +107,6 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		query += fmt.Sprintf( "%g,", v.WindDir)
 		query += fmt.Sprintf( "%g,", v.ElevAngle)
 		query += fmt.Sprintf( "%g,", v.GHI)
-		query += fmt.Sprintf( "'%s',", v.DateTime)
 		query += fmt.Sprintf( "'%s',", v.Lat)
 		query += fmt.Sprintf( "%g,", v.Precip)
 		query += fmt.Sprintf( "'%s',", v.Sunset)
@@ -165,21 +155,16 @@ func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []ho
 func (pg *Postgres) CreateTable(name string) error {
 	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s ("+ //.......
 		"	date timestamp UNIQUE,"+
-		"	temperature real,"+
 		"	rh real,"+
 		"	pod VARCHAR(1),"+
 		"	pres real,"+
 		"	timezone VARCHAR,"+
-		"	on_time VARCHAR,"+
 		"	country_code VARCHAR(4),"+
 		"	clouds real,"+
 		"	vis real,"+
-		"	wind_cdir VARCHAR(4),"+
-		"	ob_time VARCHAR,"+
 		"	solar_rad real,"+
 		"	wind_spd real,"+
 		"	state_code VARCHAR(4),"+
-		"	wind_cdir_full VARCHAR,"+
 		"	city_name VARCHAR,"+
 		"	app_temp real,"+
 		"	uv real,"+
@@ -192,7 +177,6 @@ func (pg *Postgres) CreateTable(name string) error {
 		"	wind_dir real,"+
 		"	elev_angle real,"+
 		"	ghi real,"+
-		"	datetime VARCHAR,"+
 		"	lat real,"+
 		"	precip real,"+
 		"	sunset VARCHAR(5),"+
