@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/config"
-	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/database"
-	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/parser"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/config"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/database"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/parser"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"io/ioutil"

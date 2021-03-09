@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/config"
-	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/parser"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/config"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/parser"
 
 	_ "github.com/lib/pq"
 	"math"
