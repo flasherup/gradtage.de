@@ -2,7 +2,7 @@ package parser
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 )
 
 
@@ -60,7 +60,9 @@ type WeatherBitData struct {
 
 
 func ParseWeatherBit(data *[]byte) (*WeatherBitData, error) {
-	fmt.Println(string(*data))
+	if len(*data) == 0 {
+		return nil, errors.New("data parse error, data is empty")
+	}
 	var wbd WeatherBitData
 	err := json.Unmarshal(*data, &wbd)
 	if err != nil {

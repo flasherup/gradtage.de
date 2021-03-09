@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/config"
 	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/database"
@@ -59,6 +58,16 @@ func precessStations(wbh weatherHistorical, start string, end string) {
 	stations := map[string]string{
 		"KNYC": "KNYC",
 		"WMO7650": "LFML",
+		"KATT": "KATT",
+		"EDDH": "EDDH",
+		"CYYC": "CYYC",
+		"WMO10224": "10224",
+		"LEBL": "LEBL",
+		"WMO8181": "081810",
+		"ESMS":"ESMS",
+		"LFBN":"LFBN",
+		"D4932":"D4932",
+		"W07301399999":"073013-99999",
 	}
 	for k,v := range stations {
 		processUpdate(k, v, start, end, wbh)
@@ -66,7 +75,6 @@ func precessStations(wbh weatherHistorical, start string, end string) {
 }
 
 func processUpdate(stID string, st string, start string, end string, wbh weatherHistorical, ) {
-
 		err := wbh.db.CreateTable(stID)
 		if err != nil {
 			level.Error(wbh.logger).Log("msg", "table create error", "err", err)
@@ -97,7 +105,6 @@ func processUpdate(stID string, st string, start string, end string, wbh weather
 			return
 		}
 
-		fmt.Print(string(contents))
 		result, err := parser.ParseWeatherBit(&contents)
 		if (err != nil) {
 			level.Error(wbh.logger).Log("msg", "weather bit data parse error", "err", err)

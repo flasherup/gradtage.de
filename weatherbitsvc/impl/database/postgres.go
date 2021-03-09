@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
@@ -45,7 +46,9 @@ func (pg *Postgres) Dispose() {
 
 //PushPeriod write a list of temperatures in to DB
 func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
-
+	if len(wbd.Data) == 0 {
+		return errors.New("weather push error, data is empty")
+	}
 	query := fmt.Sprintf("INSERT INTO %s " +
 		"(date, " +
 		"rh, " +
