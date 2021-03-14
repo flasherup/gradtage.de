@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/config"
+	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/csv"
 	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/database"
 	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/parser"
 	"github.com/go-kit/kit/log"
@@ -19,10 +20,12 @@ type weatherHistorical struct {
 	db 			database.WeatherBitDB
 	logger  	log.Logger
 	conf		config.WeatherBitConfig
+	stationlist	map[string]string
 }
 
 func main() {
-	configFile := flag.String("config.file", "config.yml", "Config file name.")
+	configFile := flag.String("config.file", "config.yml", "Config file name. ")
+	csvFile := flag.String("csv.file", "station.csv", "CSV file name. ")
 	flag.Parse()
 
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
@@ -36,16 +39,27 @@ func main() {
 	}
 	level.Info(logger).Log("msg", "config", "value", conf.Sources.UrlWeatherBit)
 
+
 	db, err := database.NewPostgres(conf.Database)
 	if err != nil {
 		level.Error(logger).Log("msg", "database error", "exit", err.Error())
 		return
 	}
+
+	stationList, err := csv.CSVToMap(*csvFile)
+	if err != nil {
+		level.Error(logger).Log("msg", "CSV loading error", "err", err.Error())
+		return
+	}
+
 	 wbh := weatherHistorical{
 	 	 db: db,
 		 logger: logger,
 		 conf: *conf,
+		 stationlist: *stationList,
 	 }
+
+	 fmt.Println(stationList)
 
 	 date := time.Now()
 	 endDate := date.Format(common.TimeLayoutWBH)
@@ -55,7 +69,10 @@ func main() {
 	 precessStations(wbh, startDate, endDate)
 }
 
+
+
 func precessStations(wbh weatherHistorical, start string, end string) {
+	return
 	stations := map[string]string{
 		"KNYC": "KNYC",
 		"WMO7650": "LFML",
