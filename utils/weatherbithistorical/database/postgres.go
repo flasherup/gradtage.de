@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/config"
-	"github.com/flasherup/gradtage.de/utils/weatherbitHistorical/parser"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/config"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/parser"
 
 	_ "github.com/lib/pq"
 	"math"
@@ -78,7 +78,6 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		"station, " +
 		"dni, " +
 		"sunrise) VALUES", stID)
-
 	for i, v := range wbd.Data {
 		query += "("
 		length := len(wbd.Data)

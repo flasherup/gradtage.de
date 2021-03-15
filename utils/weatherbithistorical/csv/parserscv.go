@@ -34,6 +34,7 @@ func CSVToMap(filepath string) (*map[string]string, error) {
 			fmt.Println("err", err)
 			return nil, err
 		}
+
 		innerID := line[0]
 		weatherBitID := line[1]
 
