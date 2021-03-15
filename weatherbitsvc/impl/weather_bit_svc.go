@@ -43,6 +43,14 @@ func NewWeatherBitSVC(
 func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start string, end string) (temps map[string][]hourlysvc.Temperature, err error) {
 	level.Info(wb.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s",len(ids), start, end))
 	temps = make(map[string][]hourlysvc.Temperature)
+
+	for _,id := range ids {
+		t, err := wb.db.GetPeriod(id, start, end)
+		if err != nil {
+			return temps,err
+		}
+		temps[id] = t
+	}
 	return temps,err
 }
 

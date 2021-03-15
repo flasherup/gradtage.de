@@ -199,53 +199,20 @@ func (pg *Postgres) RemoveTable(name string) error {
 	return writeToDB(pg.db, query)
 }
 
-//GetUpdateDate ...
-func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
-		name)
-
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return date,err
-	}
-	defer rows.Close()
 
 
-	for rows.Next() {
-		temp,err := parseRow(rows)
-		if err != nil {
-			return date, err
-		}
+func parseRow(rows *sql.Rows) (temp hourlysvc.Temperature, err error) {
+	bdData := struct {
+		Date string
+		Temp float64
+	}{}
 
-		date = temp.Date
-
-	}
-	return date,err
-}
-
-//GetLatest return latest temperature data
-//for station with name @name
-func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
-		name)
-
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return temp,err
-	}
-	defer rows.Close()
-
-	rows.Next()
-	return parseRow(rows)
-}
-
-
-
-func parseRow(rows *sql.Rows) (row hourlysvc.Temperature, err error) {
 	err = rows.Scan(
-		&row.Date,
-		&row.Temperature,
+		&bdData.Date,
+		&bdData.Temp,
 	)
+	temp.Date = bdData.Date
+	temp.Temperature = bdData.Temp
 	return
 }
 
