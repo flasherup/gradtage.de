@@ -78,10 +78,9 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		"station, " +
 		"dni, " +
 		"sunrise) VALUES", stID)
+	length := len(wbd.Data)
 	for i, v := range wbd.Data {
 		query += "("
-		length := len(wbd.Data)
-
 		roundedTs := math.Floor(v.TS)
 		date := time.Unix(int64(roundedTs), 0)
 		time := date.Format(common.TimeLayout)
@@ -124,6 +123,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	}
 
 	query += " ON CONFLICT (date) DO NOTHING;"
+	fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 

@@ -205,11 +205,67 @@ func parseRow(rows *sql.Rows) (temp hourlysvc.Temperature, err error) {
 	bdData := struct {
 		Date string
 		Temp float64
+		pod string
+		pres float64
+		timezone string
+		country_code string
+		clouds float64
+		vis float64
+		solar_rad float64
+		wind_spd float64
+		state_code string
+		city_name string
+		app_temp float64
+		uv float64
+		lon float64
+		slp float64
+		h_angle float64
+		dewpt float64
+		snow float64
+		aqi float64
+		wind_dir float64
+		elev_angle float64
+		ghi float64
+		lat float64
+		precip float64
+		sunset string
+		temp float64
+		station string
+		dni float64
+		sunrise string
 	}{}
 
 	err = rows.Scan(
 		&bdData.Date,
 		&bdData.Temp,
+		&bdData.pod,
+		&bdData.pres,
+		&bdData.timezone,
+		&bdData.country_code,
+		&bdData.clouds,
+		&bdData.vis,
+		&bdData.solar_rad,
+		&bdData.wind_spd,
+		&bdData.state_code,
+		&bdData.city_name,
+		&bdData.app_temp,
+		&bdData.uv,
+		&bdData.lon,
+		&bdData.slp,
+		&bdData.h_angle,
+		&bdData.dewpt,
+		&bdData.snow,
+		&bdData.aqi,
+		&bdData.wind_dir,
+		&bdData.elev_angle,
+		&bdData.ghi,
+		&bdData.lat,
+		&bdData.precip,
+		&bdData.sunset,
+		&bdData.temp,
+		&bdData.station,
+		&bdData.dni,
+		&bdData.sunrise,
 	)
 	temp.Date = bdData.Date
 	temp.Temperature = bdData.Temp

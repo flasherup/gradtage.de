@@ -26,7 +26,7 @@ func main() {
 	defer level.Info(logger).Log("msg", "client ended")
 
 	//Just for test
-	data, err := client.GetPeriod([]string{"LFBN"}, "2021-03-03T01:00:00", "2021-03-04T23:00:00")
+	data, err := client.GetPeriod([]string{"CYYC"}, "2021-03-20T01:00:00", "2021-03-25T23:00:00")
 	if err != nil {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
 		return
