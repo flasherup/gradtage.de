@@ -69,16 +69,6 @@ func startFetchProcess(wb *WeatherBitSVC) {
 	stations := map[string]string{
 		"KNYC": "KNYC",
 		"WMO7650": "LFML",
-		"KATT": "KATT",
-		"EDDH": "EDDH",
-		"CYYC": "CYYC",
-		"WMO10224": "10224",
-		"LEBL": "LEBL",
-		"WMO8181": "081810",
-		"ESMS":"ESMS",
-		"LFBN":"LFBN",
-		"D4932":"D4932",
-		"W07301399999":"073013-99999",
 	}
 	for k,v := range stations {
 		wb.processUpdate(k, v)
