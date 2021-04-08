@@ -43,49 +43,76 @@ func NewWeatherBitSVC(
 func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start string, end string) (temps map[string][]hourlysvc.Temperature, err error) {
 	level.Info(wb.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s",len(ids), start, end))
 	temps = make(map[string][]hourlysvc.Temperature)
+
+	for _,id := range ids {
+		t, err := wb.db.GetPeriod(id, start, end)
+		if err != nil {
+			return temps,err
+		}
+		temps[id] = t
+	}
 	return temps,err
 }
 
 func startFetchProcess(wb *WeatherBitSVC) {
-	wb.processUpdate() //Do it first time
+	wb.precessStations() //Do it first time
 	tick := time.Tick(time.Hour)
 	for {
 		select {
 		case <-tick:
-			wb.processUpdate()
+			wb.precessStations()
 		}
 	}
 }
 
-func (wb WeatherBitSVC)processUpdate() {
-	url := wb.conf.Sources.UrlWeatherBit + "/current?lat=35.7796&lon=-78.6382&key=" + wb.conf.Sources.KeyWeatherBit + "&include=minutely"
-	level.Info(wb.logger).Log("msg", "weather bit request", "url", url)
-	//url := "https://api.checkwx.com/metar/" + id + "/decoded"
+	func (wb WeatherBitSVC)precessStations() {
+	stations := map[string]string{
+		"KNYC": "KNYC",
+		"WMO7650": "LFML",
+	}
+	for k,v := range stations {
+		wb.processUpdate(k, v)
+	}
+}
+
+func (wb WeatherBitSVC)processUpdate(stID string, st string) {
+	url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "request error", "err", err)
+		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st)
 		return
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "request error", "err", err)
+		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st)
 		return
 	}
 	defer resp.Body.Close()
 
 	contents, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "response read error", "err", err)
+		level.Error(wb.logger).Log("msg", "response read error", "err", err, "id", stID, "station", st)
 		return
 	}
 
 	result, err := parser.ParseWeatherBit(&contents)
-	if (err != nil) {
-		fmt.Println(err)
-	} else {
-		fmt.Println(result)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "weather bit data parse error", "err", err, "id", stID, "station", st)
+		return
+	}
+
+	err = wb.db.CreateTable(stID)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "table create error", "err", err, "id", stID, "station", st)
+		return
+	}
+
+	err = wb.db.PushData(stID, result)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "data push error", "err", err, "id", stID, "station", st)
+		return
 	}
 }

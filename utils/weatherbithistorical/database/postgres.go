@@ -2,12 +2,12 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/config"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/parser"
+
 	_ "github.com/lib/pq"
 	"math"
 	"time"
@@ -46,9 +46,7 @@ func (pg *Postgres) Dispose() {
 
 //PushPeriod write a list of temperatures in to DB
 func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
-	if len(wbd.Data) == 0 {
-		return errors.New("weather push error, data is empty")
-	}
+
 	query := fmt.Sprintf("INSERT INTO %s " +
 		"(date, " +
 		"rh, " +
@@ -80,10 +78,9 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		"station, " +
 		"dni, " +
 		"sunrise) VALUES", stID)
+	length := len(wbd.Data)
 	for i, v := range wbd.Data {
 		query += "("
-		length := len(wbd.Data)
-
 		roundedTs := math.Floor(v.TS)
 		date := time.Unix(int64(roundedTs), 0)
 		time := date.Format(common.TimeLayout)
@@ -91,30 +88,30 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		query += fmt.Sprintf( "%g,", v.Rh)
 		query += fmt.Sprintf( "'%s',", v.Pod)
 		query += fmt.Sprintf( "%g,", v.Pres)
-		query += fmt.Sprintf( "'%s',", v.Timezone)
-		query += fmt.Sprintf( "'%s',", v.CountryCode)
+		query += fmt.Sprintf( "'%s',", wbd.Timezone)
+		query += fmt.Sprintf( "'%s',", wbd.CountryCode)
 		query += fmt.Sprintf( "%g,", v.Clouds)
 		query += fmt.Sprintf( "%g,", v.Vis)
 		query += fmt.Sprintf( "%g,", v.SolarRad)
 		query += fmt.Sprintf( "%g,", v.WindSPD)
-		query += fmt.Sprintf( "'%s',", v.StateCode)
-		query += fmt.Sprintf( "'%s',", v.CityName)
+		query += fmt.Sprintf( "'%s',", wbd.StateCode)
+		query += fmt.Sprintf( "'%s',", wbd.CityName)
 		query += fmt.Sprintf( "%g,", v.AppTemp)
 		query += fmt.Sprintf( "%g,", v.UV)
-		query += fmt.Sprintf( "'%s',", v.Lon)
+		query += fmt.Sprintf( "'%g',", wbd.Lon)
 		query += fmt.Sprintf( "%g,", v.SLP)
 		query += fmt.Sprintf( "%g,", v.HAngle)
 		query += fmt.Sprintf( "%g,", v.Dewpt)
 		query += fmt.Sprintf( "%g,", v.Snow)
-		query += fmt.Sprintf( "%g,", v.AQI)
+		query += fmt.Sprintf( "%g,", wbd.AQI)
 		query += fmt.Sprintf( "%g,", v.WindDir)
 		query += fmt.Sprintf( "%g,", v.ElevAngle)
 		query += fmt.Sprintf( "%g,", v.GHI)
-		query += fmt.Sprintf( "'%s',", v.Lat)
+		query += fmt.Sprintf( "'%g',", wbd.Lat)
 		query += fmt.Sprintf( "%g,", v.Precip)
 		query += fmt.Sprintf( "'%s',", v.Sunset)
 		query += fmt.Sprintf( "%g,", v.Temp)
-		query += fmt.Sprintf( "'%s',", v.Station)
+		query += fmt.Sprintf( "'%s',", wbd.Station)
 		query += fmt.Sprintf( "%g,", v.DNI)
 		query += fmt.Sprintf( "'%s'", v.Sunrise)
 
@@ -126,6 +123,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	}
 
 	query += " ON CONFLICT (date) DO NOTHING;"
+	fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 
@@ -199,76 +197,53 @@ func (pg *Postgres) RemoveTable(name string) error {
 	return writeToDB(pg.db, query)
 }
 
+//GetUpdateDate ...
+func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
+		name)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return date,err
+	}
+	defer rows.Close()
 
 
-func parseRow(rows *sql.Rows) (temp hourlysvc.Temperature, err error) {
-	bdData := struct {
-		Date string
-		Temp float64
-		pod string
-		pres float64
-		timezone string
-		country_code string
-		clouds float64
-		vis float64
-		solar_rad float64
-		wind_spd float64
-		state_code string
-		city_name string
-		app_temp float64
-		uv float64
-		lon float64
-		slp float64
-		h_angle float64
-		dewpt float64
-		snow float64
-		aqi float64
-		wind_dir float64
-		elev_angle float64
-		ghi float64
-		lat float64
-		precip float64
-		sunset string
-		temp float64
-		station string
-		dni float64
-		sunrise string
-	}{}
+	for rows.Next() {
+		temp,err := parseRow(rows)
+		if err != nil {
+			return date, err
+		}
 
+		date = temp.Date
+
+	}
+	return date,err
+}
+
+//GetLatest return latest temperature data
+//for station with name @name
+func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s ORDER BY date::timestamp DESC LIMIT 1;",
+		name)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temp,err
+	}
+	defer rows.Close()
+
+	rows.Next()
+	return parseRow(rows)
+}
+
+
+
+func parseRow(rows *sql.Rows) (row hourlysvc.Temperature, err error) {
 	err = rows.Scan(
-		&bdData.Date,
-		&bdData.Temp,
-		&bdData.pod,
-		&bdData.pres,
-		&bdData.timezone,
-		&bdData.country_code,
-		&bdData.clouds,
-		&bdData.vis,
-		&bdData.solar_rad,
-		&bdData.wind_spd,
-		&bdData.state_code,
-		&bdData.city_name,
-		&bdData.app_temp,
-		&bdData.uv,
-		&bdData.lon,
-		&bdData.slp,
-		&bdData.h_angle,
-		&bdData.dewpt,
-		&bdData.snow,
-		&bdData.aqi,
-		&bdData.wind_dir,
-		&bdData.elev_angle,
-		&bdData.ghi,
-		&bdData.lat,
-		&bdData.precip,
-		&bdData.sunset,
-		&bdData.temp,
-		&bdData.station,
-		&bdData.dni,
-		&bdData.sunrise,
+		&row.Date,
+		&row.Temperature,
 	)
-	temp.Date = bdData.Date
-	temp.Temperature = bdData.Temp
 	return
 }
 

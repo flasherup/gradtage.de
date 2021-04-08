@@ -2,7 +2,7 @@ package database
 
 import (
 	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
+	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/parser"
 )
 
 type WeatherBitDB interface {

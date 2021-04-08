@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -25,8 +26,11 @@ func main() {
 	defer level.Info(logger).Log("msg", "client ended")
 
 	//Just for test
-	_, err := client.GetPeriod([]string{"KBOS"}, "2020-02-03T01:00:00", "2020-02-04T23:00:00")
+	data, err := client.GetPeriod([]string{"CYYC"}, "2021-03-20T01:00:00", "2021-03-25T23:00:00")
 	if err != nil {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
+		return
 	}
+
+	fmt.Println(*data)
 }
