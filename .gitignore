@@ -1,4 +1,8 @@
-*.iml
-*.xml
-*.yml
+.idea/gradtage.de.iml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+utils/weatherbitHistorical/config.yml
+utils/weatherbitHistorical/station.csv
+weatherbitsvc/cmd/server/src/config.yml
 utils/weatherbitHistorical/station.csv
