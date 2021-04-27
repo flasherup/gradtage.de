@@ -23,7 +23,7 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 		httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 	}
 
-	r.Methods("POST").Path("/temperature").Handler(kithttp.NewServer(
+	r.Methods("POST").Path("/degreedays").Handler(kithttp.NewServer(
 		e.GetHDDEndpoint,
 		decodeGetHDDRequest,
 		encodeGetHDDResponse,
@@ -31,7 +31,7 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 	))
 
 
-	r.Methods("GET").Path("/temperature/csv/{" + Method + "}").Handler(kithttp.NewServer(
+	r.Methods("GET").Path("/degreedays/csv/{" + Method + "}").Handler(kithttp.NewServer(
 		e.GetHDDSVEndpoint,
 		decodeGetHDDCSVRequest,
 		encodeGetHDDCSVResponse,

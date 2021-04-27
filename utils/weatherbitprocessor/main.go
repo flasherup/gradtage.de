@@ -71,9 +71,13 @@ func calculateEntries(client *impl.WeatherBitSVCClient, logger log.Logger, stati
 				fmt.Println("Station error: no entries")
 				continue
 			}
+
 			counted := countEntriesPerDay(&temperatures.Temps)
 			for k,v := range counted {
 				fmt.Println(k, v)
+				if v < 24 {
+					fmt.Println("Station error: less the 24 entries")
+				}
 			}
 		}
 	}

@@ -38,6 +38,7 @@ type ApiConfig struct {
 	Users 	 		map[string]string 	`yaml:"users"`
 	AlertsEnable 	bool				`yaml:"alerts_enable"`
 	Static			Static				`yaml:"static"`
+	Domains 		[]string 			`yaml:"domains"`
 }
 
 func LoadConfig(path string) (config *ApiConfig, err error) {

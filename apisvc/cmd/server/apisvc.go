@@ -24,7 +24,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
 )
 
 func main() {
@@ -97,13 +96,9 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	//Run https://rechner.gradtage.de/
-	domains := []string{
-		"rechner.gradtage.de",
-	}
 	mgr := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(domains...),
+		HostPolicy: autocert.HostWhitelist(conf.Domains...),
 		Cache:      autocert.DirCache(conf.GetStaticAddress() + "cert/"), // to store certs
 	}
 
