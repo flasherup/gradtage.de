@@ -11,4 +11,5 @@ const (
 	SrcTypeNOAA 		= "noaa"
 	SrcTypeCheckWX 		= "cwx"
 	SrcTypeMeteostat 	= "mtst"
+	SrcTypeWeatherBit 	= "wbio"
 )

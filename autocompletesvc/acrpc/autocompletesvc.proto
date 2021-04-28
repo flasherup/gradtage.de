@@ -8,6 +8,7 @@ message Source {
     string Icao = 3;
     string Dwd  = 4;
     string Wmo  = 5;
+    string Cwop  = 6;
 }
 
 message Sources {

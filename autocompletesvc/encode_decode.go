@@ -59,6 +59,7 @@ func EncodeSources(sources []Source) []*acrpc.Source {
 			Icao: v.Icao,
 			Dwd: v.Dwd,
 			Wmo: v.Wmo,
+			Cwop: v.Cwop,
 		}
 	}
 	return res
@@ -73,6 +74,7 @@ func DecodeSources(sources []*acrpc.Source) []Source {
 			Icao: v.Icao,
 			Dwd: v.Dwd,
 			Wmo: v.Wmo,
+			Cwop: v.Cwop,
 		}
 	}
 	return res
@@ -89,6 +91,7 @@ func EncodeSourcesMap(sources map[string][]Source) map[string]*acrpc.Sources {
 				Icao: s.Icao,
 				Dwd: s.Dwd,
 				Wmo: s.Wmo,
+				Cwop: s.Cwop,
 			}
 		}
 		res[k] = &acrpc.Sources{Sources:src}
@@ -106,7 +109,7 @@ func DecodeSourcesMap(sources map[string]*acrpc.Sources) map[string][]Source {
 				Name: s.Name,
 				Icao: s.Icao,
 				Dwd: s.Dwd,
-				Wmo: s.Wmo,
+				Cwop: s.Cwop,
 			}
 		}
 		res[k] = src

@@ -13,7 +13,7 @@ type Postgres struct {
 	db *sql.DB
 }
 
-const tableName = "stations"
+const tableName = "stations_wb"
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
@@ -183,11 +183,11 @@ func (pg *Postgres) Dispose() {
 //CreateTable create a "Stations" table if not exist
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			id varchar(8) UNIQUE,
+			id varchar(15) UNIQUE,
 			name varchar(50),
 			timezone varchar(8),
 			source_type varchar(4),
-			source_id varchar(8)
+			source_id varchar(15)
 		);`, tableName)
 	return writeToDB(pg.db, query)
 }
