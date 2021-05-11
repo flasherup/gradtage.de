@@ -1,6 +1,9 @@
 package apisvc
 
-import "context"
+import (
+	"context"
+	"github.com/moosh3/woogo"
+)
 
 type Params struct {
 	Key     string  `json:"key"`
@@ -59,6 +62,32 @@ type StripeEvent struct {
 	Data 				StripeData 	`json:"data"`
 }
 
+type WCLineItems struct {
+	ProductID 				int 		`json:"product_id"`
+}
+
+type WCDeleteEvent struct {
+	ID 				int 		`json:"id"`
+}
+
+type WCUpdateEvent struct {
+	ID 				int 			`json:"id"`
+	ParentId 		int				`json:"parent_id"`
+	Status 			string			`json:"status"`
+	DateCreated 	string 			`json:"date_created"`
+	DateCreatedGMT 	string 			`json:"date_created_gmt"`
+	DateModified 	string 			`json:"date_modified"`
+	DateModifiedGMT string 			`json:"date_modified_gmt"`
+	LineItems 		[]WCLineItems 	`json:"line_items"`
+	Billing   		woogo.Billing 	`json:"billing"`
+}
+
+type WoocommerceEvent struct {
+	Type string
+	DeleteEvent WCDeleteEvent
+	UpdateEvent WCUpdateEvent
+}
+
 type Service interface {
 	GetHDD(ctx context.Context, params Params) (data [][]string, err error)
 	GetHDDCSV(cts context.Context, params Params) (data [][]string, fileName string, err error)
@@ -67,5 +96,6 @@ type Service interface {
 	User(ctx context.Context, params ParamsUser) (data [][]string, err error)
 	Plan(ctx context.Context, params ParamsPlan) (data [][]string, err error)
 	Stripe(ctx context.Context, event StripeEvent) (json string, err error)
+	Woocommerce(ctx context.Context, event WoocommerceEvent) (json string, err error)
 	Command(ctx context.Context, name string, params map[string]string)(json interface{}, err error)
 }

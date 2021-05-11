@@ -99,50 +99,12 @@ func main() {
 	mgr := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(conf.Domains...),
-		Cache:      autocert.DirCache(conf.GetStaticAddress() + "cert/"), // to store certs
+		Cache:      autocert.DirCache(conf.GetHTTPSAddress() + "cert/"), // to store certs
 	}
 
 	go func() {
 		errs <- http.ListenAndServe(":http", mgr.HTTPHandler(nil))
 	}()
-
-	go func() {
-		level.Info(logger).Log("transport", "Static", "addr", conf.GetStaticAddress())
-
-		cfg := &tls.Config{
-			MinVersion:               tls.VersionTLS12,
-			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-			PreferServerCipherSuites: true,
-			CipherSuites: []uint16{
-				tls.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-				tls.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-				tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
-				tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-			},
-			GetCertificate: mgr.GetCertificate,
-		}
-
-		server := &http.Server{
-			Addr:    conf.GetStaticAddress(),
-			Handler: hs,
-			TLSConfig: cfg,
-			TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
-		}
-		errs <- server.ListenAndServeTLS("", "")
-	}()
-
-	/*go func() {
-		level.Info(logger).Log("transport", "HTTPS", "addr", conf.GetHTTPSAddress())
-		errs <- http.ListenAndServeTLS(conf.GetHTTPSAddress(), conf.Security.Cert, conf.Security.Key, hs)
-	}()*/
-
-	//Run https://rechner.gradtage.de:2020/
 
 	go func() {
 		level.Info(logger).Log("transport", "Static", "addr", conf.GetHTTPSAddress())
@@ -181,18 +143,6 @@ func main() {
 		server := &http.Server{
 			Addr:    conf.GetHTTPAddress(),
 			Handler: h,
-		}
-		errs <- server.ListenAndServe()
-	}()
-
-
-	//hs2 := apisvc.NewHTTPTSransport(svc,logger, conf.Static.Folder)
-
-	go func() {
-		level.Info(logger).Log("transport", "HTTP", "addr", ":8022")
-		server := &http.Server{
-			Addr:    ":8022",
-			Handler: hs,
 		}
 		errs <- server.ListenAndServe()
 	}()

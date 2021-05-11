@@ -58,6 +58,14 @@ type StripeResponse struct {
 	Json string `json:"json"`
 }
 
+type WoocommerceRequest struct {
+	Event WoocommerceEvent `json:"event"`
+}
+
+type WoocommerceResponse struct {
+	Json string `json:"json"`
+}
+
 type CommandRequest struct {
 	Name string `json:"name"`
 	Params map[string]string `json:"params"`
