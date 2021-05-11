@@ -10,6 +10,7 @@ type Source struct {
 	Icao 	string
 	Dwd 	string
 	Wmo 	string
+	Cwop 	string
 }
 
 type Service interface {

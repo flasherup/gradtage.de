@@ -13,7 +13,7 @@ type Postgres struct {
 	db *sql.DB
 }
 
-const tableName = "autocomplete"
+const tableName = "autocomplete_wb"
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
@@ -35,41 +35,28 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	return
 }
 
-//Query example
-//(SELECT *, 'icao' as column
-//FROM autocomplete
-//WHERE icao LIKE '%frank%')
-//UNION ALL
-//(SELECT *, 'station' as column
-//FROM autocomplete
-//WHERE station LIKE '%frank%')
-//UNION ALL
-//(SELECT *, 'dwd' as column
-//FROM autocomplete
-//WHERE dwd LIKE '%frank%')
-//UNION ALL
-//(SELECT *, 'wmo' as column
-//FROM autocomplete
-//WHERE wmo LIKE '%frank%');
-
 //AddSources
 func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.Source, error) {
 	result := make(map[string][]autocompletesvc.Source)
 	query := "(SELECT *, 'icao' as column " +
-	"FROM autocomplete " +
+	"FROM " + tableName + " " +
 	"WHERE icao ILIKE '%" + text + "%') " +
 	"UNION ALL " +
 	"(SELECT *, 'station' as column " +
-	"FROM autocomplete " +
+		"FROM " + tableName + " " +
 	"WHERE name ILIKE '%" + text + "%') " +
 	"UNION ALL " +
 	"(SELECT *, 'dwd' as column " +
-	"FROM autocomplete " +
+		"FROM " + tableName + " " +
 	"WHERE dwd ILIKE '%" + text + "%') " +
 	"UNION ALL " +
 	"(SELECT *, 'wmo' as column " +
-	"FROM autocomplete " +
-	"WHERE wmo ILIKE '%" + text + "%');"
+		"FROM " + tableName + " " +
+	"WHERE wmo ILIKE '%" + text + "%')" +
+	"UNION ALL " +
+	"(SELECT *, 'cwop' as column " +
+		"FROM " + tableName + " " +
+	"WHERE cwop ILIKE '%" + text + "%');"
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return result,err
@@ -82,6 +69,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 		Icao 	string
 		Dwd 	string
 		Wmo 	string
+		Cwop 	string
 		Column  string
 	}{}
 
@@ -92,6 +80,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 			&row.Icao,
 			&row.Dwd,
 			&row.Wmo,
+			&row.Cwop,
 			&row.Column,
 		)
 		if err == nil {
@@ -105,6 +94,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 				Icao:row.Icao,
 				Dwd:row.Dwd,
 				Wmo:row.Wmo,
+				Cwop:row.Cwop,
 			})
 		}
 	}
@@ -114,24 +104,29 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.S
 func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Source, error) {
 	result := make(map[string][]autocompletesvc.Source)
 	query := "(SELECT *, 'id' as column " +
-		"FROM autocomplete " +
+		"FROM " + tableName + " " +
 		"WHERE id ILIKE '" + text + "') " +
 		"UNION ALL " +
 		"(SELECT *, 'icao' as column " +
-		"FROM autocomplete " +
+		"FROM " + tableName + " " +
 		"WHERE icao ILIKE '" + text + "') " +
 		"UNION ALL " +
 		"(SELECT *, 'station' as column " +
-		"FROM autocomplete " +
+		"FROM " + tableName + " " +
 		"WHERE name ILIKE '" + text + "') " +
 		"UNION ALL " +
 		"(SELECT *, 'dwd' as column " +
-		"FROM autocomplete " +
+		"FROM " + tableName + " " +
 		"WHERE dwd ILIKE '" + text + "') " +
 		"UNION ALL " +
 		"(SELECT *, 'wmo' as column " +
-		"FROM autocomplete " +
-		"WHERE wmo ILIKE '" + text + "');"
+		"FROM " + tableName + " " +
+		"WHERE wmo ILIKE '" + text + "')" +
+		"UNION ALL " +
+		"(SELECT *, 'cwop' as column " +
+		"FROM " + tableName + " " +
+		"WHERE cwop ILIKE '" + text + "');"
+
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return result,err
@@ -144,6 +139,7 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Sour
 		Icao 	string
 		Dwd 	string
 		Wmo 	string
+		Cwop 	string
 		Column  string
 	}{}
 
@@ -154,6 +150,7 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Sour
 			&row.Icao,
 			&row.Dwd,
 			&row.Wmo,
+			&row.Cwop,
 			&row.Column,
 		)
 		if err == nil {
@@ -167,6 +164,7 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Sour
 				Icao:row.Icao,
 				Dwd:row.Dwd,
 				Wmo:row.Wmo,
+				Cwop:row.Cwop,
 			})
 		}
 	}
@@ -176,19 +174,19 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Sour
 //AddSources
 func (pg *Postgres) AddSources(sources []autocompletesvc.Source) (err error) {
 	query := fmt.Sprintf("INSERT INTO %s " +
-		"(id, name, icao, dwd, wmo) VALUES", tableName)
+		"(id, name, icao, dwd, wmo, cwop) VALUES", tableName)
 
 
 	length := len(sources)
 	for i, v := range sources {
 		query += fmt.Sprintf(
-			" ( '%s', '%s', '%s', '%s', '%s')",
-			v.ID, v.Name, v.Icao, v.Dwd, v.Wmo)
+			" ( '%s', '%s', '%s', '%s', '%s', '%s')",
+			v.ID, v.Name, v.Icao, v.Dwd, v.Wmo, v.Cwop)
 		if i < length-1 {
 			query += ","
 		}
 	}
-	query += ` ON CONFLICT (id) DO UPDATE SET (name, icao, dwd, wmo) = (excluded.name, excluded.icao, excluded.dwd, excluded.wmo);`
+	query += ` ON CONFLICT (id) DO UPDATE SET (name, icao, dwd, wmo, cwop) = (excluded.name, excluded.icao, excluded.dwd, excluded.wmo, excluded.cwop);`
 	return writeToDB(pg.db, query)
 }
 
@@ -201,11 +199,12 @@ func (pg *Postgres) Dispose() {
 //CreateTable create a "Stations" table if not exist
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			id varchar(8) UNIQUE,
+			id varchar(15) UNIQUE,
 			name varchar(50),
 			icao varchar(4),
 			dwd varchar(8),
-			wmo varchar(8)
+			wmo varchar(8),
+			cwop varchar(8)
 		);`, tableName)
 	return writeToDB(pg.db, query)
 }

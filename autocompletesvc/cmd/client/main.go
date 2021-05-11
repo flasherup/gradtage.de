@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"github.com/flasherup/gradtage.de/autocompletesvc/impl"
-	"github.com/flasherup/gradtage.de/localutils/data"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
@@ -21,23 +21,23 @@ func main() {
 		)
 	}
 	//client := impl.NewAutocompleteSCVClient("localhost:8109",logger)
-	client := impl.NewAutocompleteSCVClient("82.165.18.228:8109",logger)
+	client := impl.NewAutocompleteSCVClient("localhost:8109",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	sources := data.AutocompleteStations
+	/*sources := data.AutocompleteStations
 
 	err := client.ResetSources(sources)
 	if err != nil {
 		level.Error(logger).Log("msg", "Reset Sources error", "err", err)
 
-	}
+	}*/
 
-	/*res, err := client.GetAutocomplete("EDB")
+	res, err := client.GetAutocomplete("f3836")
 	if err != nil {
 		level.Error(logger).Log("msg", "Get Autocomplete error", "err", err)
 
 	}
-	fmt.Println("Get Autocomplete response:", res);*/
+	fmt.Println("Get Autocomplete response:", res)
 }

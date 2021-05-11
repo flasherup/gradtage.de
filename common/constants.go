@@ -11,4 +11,13 @@ const (
 	SrcTypeNOAA 		= "noaa"
 	SrcTypeCheckWX 		= "cwx"
 	SrcTypeMeteostat 	= "mtst"
+	SrcTypeWeatherBit 	= "wbio"
+)
+
+//Woocommerce event types
+const (
+	WCDeleteEvent = "deleted"
+	WCUpdateEvent = "updated"
+	WCCreatedEvent = "created"
+	WCUndefinedEvent = "undefined"
 )

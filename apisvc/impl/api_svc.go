@@ -23,6 +23,7 @@ import (
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"math"
+	"strconv"
 	"time"
 )
 
@@ -283,6 +284,25 @@ func (as APISVC) Stripe(ctx context.Context, event apisvc.StripeEvent) (json str
 	} else {
 		level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type, "event", event.Data.Object)
 	}
+	json = "{\"status\":\"ok\"}"
+	return json, err
+}
+
+func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent) (json string, err error) {
+	level.Info(as.logger).Log("msg", "Woocommerce event", "event", event.Type)
+	if event.Type == common.WCUpdateEvent {
+		orderId := strconv.Itoa(event.UpdateEvent.ParentId)
+		productId := strconv.Itoa(event.UpdateEvent.LineItems[0].ProductID)
+		email := event.UpdateEvent.Billing.Email
+		key, err := utils.FinalizeSubscription(orderId, *email, productId)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
+		} else {
+
+			level.Info(as.logger).Log("msg", "Subscription update success", "key", key)
+		}
+	}
+	level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type)
 	json = "{\"status\":\"ok\"}"
 	return json, err
 }

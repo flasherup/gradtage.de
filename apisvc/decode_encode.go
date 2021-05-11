@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -201,6 +203,46 @@ func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{
 
 func encodeStripeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(StripeResponse)
+	bt := new(bytes.Buffer)
+	err := json.NewEncoder(bt).Encode(resp)
+
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write(bt.Bytes())
+	return err
+}
+
+func decodeWoocommerceRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	req := WoocommerceRequest{}
+	fmt.Println("Headers", r.Header)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return req, err
+	}
+	fmt.Println("Body", string(body))
+	eventType := utils.GetWoocommerceEventType(r.Header)
+
+	event := WoocommerceEvent{}
+	event.Type = eventType
+
+	if eventType == common.WCUpdateEvent {
+		if e := json.Unmarshal(body, &event.UpdateEvent); e != nil {
+			return req, e
+		}
+	}
+
+	if eventType == common.WCDeleteEvent {
+		if e := json.Unmarshal(body, &event.DeleteEvent); e != nil {
+			return req, e
+		}
+	}
+
+	req.Event = event;
+	return req, nil
+}
+
+func encodeWoocommerceResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(WoocommerceResponse)
 	bt := new(bytes.Buffer)
 	err := json.NewEncoder(bt).Encode(resp)
 
