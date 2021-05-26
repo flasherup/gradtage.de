@@ -5,17 +5,20 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/hourlysvc"
+	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/database"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"io/ioutil"
+
 	"net/http"
 	"time"
 )
 
 type WeatherBitSVC struct {
+	stations    stationssvc.Client
 	db 			database.WeatherBitDB
 	alert 		alertsvc.Client
 	logger  	log.Logger
@@ -26,11 +29,13 @@ type WeatherBitSVC struct {
 
 func NewWeatherBitSVC(
 	logger 		log.Logger,
+	stations 	stationssvc.Client,
 	db 			database.WeatherBitDB,
 	alert 		alertsvc.Client,
 	conf 		config.WeatherBitConfig,
 ) (*WeatherBitSVC, error) {
 	wb := WeatherBitSVC {
+		stations:stations,
 		db:db,
 		alert:alert,
 		logger:logger,
@@ -65,14 +70,19 @@ func startFetchProcess(wb *WeatherBitSVC) {
 	}
 }
 
-	func (wb WeatherBitSVC)precessStations() {
-	stations := map[string]string{
-		"KNYC": "KNYC",
-		"WMO7650": "LFML",
+func (wb WeatherBitSVC)precessStations() {
+	sts, err := wb.stations.GetAllStations()
+
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "WeatherBit GetStations error", "err", err)
+		return
 	}
-	for k,v := range stations {
-		wb.processUpdate(k, v)
+
+	for _ , station := range sts.Sts {
+		wb.processUpdate(station.Id, station.SourceId)
+		//ids [station.Id] = station.SourceId
 	}
+
 }
 
 func (wb WeatherBitSVC)processUpdate(stID string, st string) {
@@ -82,37 +92,38 @@ func (wb WeatherBitSVC)processUpdate(stID string, st string) {
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st)
+		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st, "url", url)
 		return
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st)
+		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st, "url", url)
 		return
 	}
 	defer resp.Body.Close()
 
 	contents, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "response read error", "err", err, "id", stID, "station", st)
+		level.Error(wb.logger).Log("msg", "response read error", "err", err, "id", stID, "station", st, "url", url)
 		return
 	}
 
 	result, err := parser.ParseWeatherBit(&contents)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "weather bit data parse error", "err", err, "id", stID, "station", st)
+		level.Error(wb.logger).Log("msg", "weather bit data parse error", "err", err, "id", stID, "station", st, "url", url)
 		return
 	}
 
 	err = wb.db.CreateTable(stID)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "table create error", "err", err, "id", stID, "station", st)
+		level.Error(wb.logger).Log("msg", "table create error", "err", err, "id", stID, "station", st, "url", url)
 		return
 	}
 
 	err = wb.db.PushData(stID, result)
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "data push error", "err", err, "id", stID, "station", st)
+		level.Error(wb.logger).Log("msg", "data push error", "err", err, "id", stID, "station", st, "url", url)
 		return
 	}
+
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
+	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
@@ -59,7 +60,7 @@ func main() {
 		alertService = common.NewSilentAlert()
 	}
 
-
+	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
@@ -68,7 +69,7 @@ func main() {
 
 
 	ctx := context.Background()
-	weatherBitService, err := impl.NewWeatherBitSVC(logger, db, alertService, *conf)
+	weatherBitService, err := impl.NewWeatherBitSVC(logger,stationsService , db, alertService, *conf)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return

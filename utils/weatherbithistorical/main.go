@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/config"
 	"github.com/flasherup/gradtage.de/utils/weatherbithistorical/csv"
@@ -59,8 +58,6 @@ func main() {
 		 stationlist: *stationList,
 	 }
 
-	 fmt.Println(stationList)
-
 	 date := time.Now()
 	 endDate := date.Format(common.TimeLayoutWBH)
 	 sDate := date.AddDate(0, 0, -7)
@@ -92,31 +89,31 @@ func processUpdate(stID string, st string, start string, end string, wbh weather
 		}
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			level.Error(wbh.logger).Log("msg", "request error", "err", err)
+			level.Error(wbh.logger).Log("msg", "request error", "err", err, "url", url)
 			return
 		}
 		resp, err := client.Do(req)
 		if err != nil {
-			level.Error(wbh.logger).Log("msg", "request error", "err", err)
+			level.Error(wbh.logger).Log("msg", "request error", "err", err, "url", url)
 			return
 		}
 		defer resp.Body.Close()
 
 		contents, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			level.Error(wbh.logger).Log("msg", "response read error", "err", err)
+			level.Error(wbh.logger).Log("msg", "response read error", "err", err, "url", url)
 			return
 		}
 
 		result, err := parser.ParseWeatherBit(&contents)
 		if (err != nil) {
-			level.Error(wbh.logger).Log("msg", "weather bit data parse error", "err", err)
+			level.Error(wbh.logger).Log("msg", "weather bit data parse error", "err", err, "url", url)
 			return
 		}
 
 		err = wbh.db.PushData(stID, result)
 		if err != nil {
-			level.Error(wbh.logger).Log("msg", "data push error", "err", err)
+			level.Error(wbh.logger).Log("msg", "data push error", "err", err, "url", url)
 			return
 		}
 

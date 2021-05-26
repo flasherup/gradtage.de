@@ -7,3 +7,5 @@ utils/weatherbitHistorical/station.csv
 weatherbitsvc/cmd/server/src/config.yml
 utils/weatherbitHistorical/station.csv
 builds/Makefile
+.idea/
+localutils/configs/promtail.yml
