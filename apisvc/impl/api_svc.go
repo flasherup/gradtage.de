@@ -275,9 +275,6 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 	}
 
 	if event.Type == common.WCUpdateEvent {
-
-
-
 		orderId := strconv.Itoa(event.UpdateEvent.ParentId)
 		productId := strconv.Itoa(event.UpdateEvent.LineItems[0].ProductID)
 		email := *event.UpdateEvent.Billing.Email
@@ -292,19 +289,11 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 				err := CreateWoocommerceUser(as.user, email, key, productId)
 				if err != nil {
 					level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
-
 				}
 				level.Info(as.logger).Log("msg", "Subscription update success", "key", key)
 			}
 		} else {
-			if event.UpdateEvent.Status == common.WCStatusTrash {
-				level.Info(as.logger).Log("msg", "Subscription delete user", "user", p.User.Name)
-				as.user.DeleteUser(p.User)
-			} else {
-				//Update existing user
-				//TODO add update user logic
-				level.Error(as.logger).Log("msg", "Subscription update not implemented yet", "user", p.User.Name)
-			}
+			UpdateWoocommerceUser(as.user, event.UpdateEvent.Status, email, productId, p.User)
 		}
 	}
 

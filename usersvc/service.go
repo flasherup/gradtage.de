@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	PlanCanceled 		= "canceled"
 	PlanAdmin 			= "admin"
 	PlanTrial 			= "trial"
 	PlanStarter 		= "starter"

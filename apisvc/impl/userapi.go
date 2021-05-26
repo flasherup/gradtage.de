@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/usersvc"
 )
 
@@ -14,13 +15,43 @@ const (
 	RenewAction 	= "renew"
 )
 
+var productMapToPlan  = map[string]string{
+	"0": usersvc.PlanStarter,
+	"1010": usersvc.PlanBasic,
+	"1": usersvc.PlanAdvanced,
+	"2": usersvc.PlanProfessional,
+	"3": usersvc.PlanEnterprise,
+}
+
 func CreateWoocommerceUser(client usersvc.Client, email, key, planId string) error {
-	plan := usersvc.PlanBasic
+	plan, ok := productMapToPlan[planId]
+	if !ok {
+		plan = usersvc.PlanTrial
+	}
 
 	_, err := client.CreateUser(email, plan, key ,false)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func UpdateWoocommerceUser(client usersvc.Client, status, email, planId string, user usersvc.User) error {
+	plan, ok := productMapToPlan[planId]
+	if !ok {
+		plan = usersvc.PlanTrial
+	}
+
+	if status == common.WCStatusTrash {
+		client.DeleteUser(user)
+	} else {
+		user.Plan = plan
+		_, err := client.UpdateUser(user, false)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

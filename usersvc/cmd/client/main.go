@@ -27,7 +27,7 @@ func main() {
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	//addPlans(client, logger, data.Plans)
+	addPlans(client, logger, data.Plans)
 	//checkUsers(client, logger)
 	createUser(client, logger)
 
