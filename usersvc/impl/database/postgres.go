@@ -53,16 +53,15 @@ func (pg *Postgres) SetUser(user usersvc.User) error {
 	}
 	stations += "}"
 	query := fmt.Sprintf("INSERT INTO users " +
-		"(key, name, renew, request, req_count, plan, stations, stripe) VALUES " +
-		"( '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s')",
+		"(key, name, renew, request, req_count, plan, stations) VALUES " +
+		"( '%s', '%s', '%s', '%s', %d, '%s', '%s')",
 		user.Key,
 		user.Name,
 		user.RenewDate.Format(common.TimeLayout),
 		user.RequestDate.Format(common.TimeLayout),
 		user.Requests,
 		user.Plan,
-		stations,
-		user.Stripe)
+		stations)
 
 	query += ` ON CONFLICT (name) DO UPDATE SET
 			 (	name,
@@ -70,19 +69,23 @@ func (pg *Postgres) SetUser(user usersvc.User) error {
 			 	request,
 			 	req_count,
 			 	plan,
-			 	stations,
-				stripe
+			 	stations
 			) = (
 				excluded.name,
 			 	excluded.renew,
 			 	excluded.request,
 			 	excluded.req_count,
 			 	excluded.plan,
-			 	excluded.stations,
-			 	excluded.stripe
+			 	excluded.stations
 			);`
 
 	return writeToDB(pg.db, query)
+}
+
+func (pg *Postgres) DeleteUser(user usersvc.User) error {
+	query := fmt.Sprintf("DELETE FROM users WHERE name = '%s';", user.Name)
+	_, err := pg.db.Query(query)
+	return err
 }
 
 //GetUserDataByName(userName string)  (usersvc.Parameters, error)
@@ -105,22 +108,6 @@ func (pg *Postgres) GetUserDataByName(userName string)  (res usersvc.Parameters,
 func (pg *Postgres) GetUserDataByKey(key string)  (res usersvc.Parameters, err error){
 	res = usersvc.Parameters{}
 	res.User, err = pg.getUserByKey(key)
-	if err != nil {
-		return res, err
-	}
-
-	res.Plan, err = pg.GetPlan(res.User.Plan)
-	if err != nil {
-		return res, err
-	}
-
-	return res, err
-}
-
-//GetUserDataByStripe(stripe string)  (res usersvc.Parameters, err error)
-func (pg *Postgres) GetUserDataByStripe(stripe string)  (res usersvc.Parameters, err error){
-	res = usersvc.Parameters{}
-	res.User, err = pg.getUserByStripe(stripe)
 	if err != nil {
 		return res, err
 	}
@@ -245,29 +232,6 @@ func (pg *Postgres) getUserByKey(key string) (usersvc.User, error) {
 	return res, err
 }
 
-func (pg *Postgres) getUserByStripe(stripe string) (usersvc.User, error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE stripe = '%s';", stripe)
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return  usersvc.User{},err
-	}
-	defer rows.Close()
-	var res usersvc.User
-	for rows.Next() {
-		u, err := parseUserRow(rows)
-		if err != nil {
-			return res, err
-		}
-
-		res = u
-	}
-
-	if res.Name == "" {
-		err = errors.New("user not found")
-	}
-	return res, nil
-}
-
 //CreateUserTable() error
 func (pg *Postgres) CreateUserTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS users (
@@ -277,8 +241,7 @@ func (pg *Postgres) CreateUserTable() error {
 			request 	timestamp,
 			req_count	integer,
 			plan 		varchar(15),
-			stations 	varchar(8)[],
-			stripe 		varchar(20)
+			stations 	varchar(8)[]
 		);`, KeyLength)
 	return writeToDB(pg.db, query)
 }
@@ -321,7 +284,6 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 		req_count	int
 		plan 		string
 		stations 	[]uint8
-		stripe		string
 	}{}
 	err = rows.Scan(
 		&u.key,
@@ -331,7 +293,6 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 		&u.req_count,
 		&u.plan,
 		&u.stations,
-		&u.stripe,
 	)
 
 	renew, err := time.Parse(common.TimeLayout, u.renew)
@@ -353,7 +314,6 @@ func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
 	user.Requests = u.req_count
 	user.Plan = u.plan
 	user.Stations = str
-	user.Stripe = u.stripe
 
 	return user, err
 }

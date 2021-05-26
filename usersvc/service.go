@@ -49,15 +49,14 @@ type User struct {
 	Requests 	int //Number of request during hour
 	Plan 		string //Plan name
 	Stations 	[]string //The list of stations
-	Stripe 		string //Stripe id is exist
 }
 
 type Service interface {
-	CreateUser(ctx context.Context, userName string, plan string, email bool) (string, error)
+	CreateUser(ctx context.Context, userName string, plan string, key string, email bool) (string, error)
 	UpdateUser(ctx context.Context, user User, email bool) (string, error)
+	DeleteUser(ctx context.Context, user User) error
 	AddPlan(ctx context.Context, plan Plan) error
 	ValidateSelection(ctx context.Context, selection Selection) (bool, error)
 	ValidateKey(ctx context.Context, key string) (Parameters, error)
 	ValidateName(ctx context.Context, name string) (Parameters, error)
-	ValidateStripe(ctx context.Context, stripe string) (Parameters, error)
 }

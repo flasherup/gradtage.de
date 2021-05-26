@@ -23,7 +23,7 @@ func NewUsersSCVClient(host string, logger log.Logger) *UsersSVCClient {
 }
 
 
-func (us UsersSVCClient) CreateUser(userName string, plan string, email bool) (string, error) {
+func (us UsersSVCClient) CreateUser(userName string, plan string, key string, email bool) (string, error) {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
 		return common.ErrorNilString,err
@@ -35,6 +35,7 @@ func (us UsersSVCClient) CreateUser(userName string, plan string, email bool) (s
 	resp, err := client.CreateUser(context.Background(), &grpcusr.CreateUserRequest{
 		UserName: userName,
 		Plan: plan,
+		Key: key,
 		Email: email,
 	})
 
@@ -71,6 +72,28 @@ func (us UsersSVCClient) UpdateUser(user usersvc.User, email bool) (string, erro
 	}
 
 	return resp.Key, err
+}
+
+func (us UsersSVCClient) DeleteUser(user usersvc.User) error {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := grpcusr.NewUserSVCClient(conn)
+	u := usersvc.EncodeUser(&user)
+	resp, err := client.DeleteUser(context.Background(), &grpcusr.DeleteUserRequest{
+		User:  u,
+	})
+
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Failed to delete user", "err", err.Error())
+	}else if resp.Err != common.ErrorNilString {
+		err = errors.New(resp.Err)
+	}
+
+	return err
 }
 
 //AddPlan(plan Plan) error
@@ -164,31 +187,6 @@ func (us UsersSVCClient) ValidateName(name string) (usersvc.Parameters, error) {
 	}else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 		return usersvc.Parameters{},err
-	}
-
-	p, err := usersvc.DecodeParameters(resp.Parameters)
-	return *p, err
-}
-
-//ValidateName(name string) (Parameters, error)
-func (us UsersSVCClient) ValidateStripe(stripe string) (usersvc.Parameters, error) {
-	conn, err := common.OpenGRPCConnection(us.host)
-	if err != nil {
-		return usersvc.Parameters{}, err
-	}
-	defer conn.Close()
-
-	client := grpcusr.NewUserSVCClient(conn)
-	resp, err := client.ValidateStripe(context.Background(), &grpcusr.ValidateStripeRequest{
-		Stripe:  stripe,
-	})
-
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to validate stripe", "err", err.Error())
-		return  usersvc.Parameters{}, err
-	}else if resp.Err != common.ErrorNilString {
-		err = errors.New(resp.Err)
-		return  usersvc.Parameters{}, err
 	}
 
 	p, err := usersvc.DecodeParameters(resp.Parameters)

@@ -21,23 +21,24 @@ type Clients struct {
 	StationsAddr 		string `yaml:"stations_addr"`
 }
 
-type Security struct {
-	Cert string	`yaml:"cert"`
-	Key  string	`yaml:"key"`
-}
-
 type Static struct {
 	Folder  string `yaml:"folder"`
+}
+
+type Woocommerce struct {
+	Key 			string 		`json:"key"`
+	Secret 			string 		`json:"secret"`
+	WHSecret 		string 		`json:"whsecret"`
 }
 
 type ApiConfig struct {
 	Server   		ServerConfig	    `yaml:"server"`
 	Clients  		Clients				`yaml:"clients"`
-	Security 		Security			`yaml:"security"`
 	Users 	 		map[string]string 	`yaml:"users"`
 	AlertsEnable 	bool				`yaml:"alerts_enable"`
 	Static			Static				`yaml:"static"`
 	Domains 		[]string 			`yaml:"domains"`
+	Woocommerce 	Woocommerce 		`yaml:"woocommerce"`
 }
 
 func LoadConfig(path string) (config *ApiConfig, err error) {

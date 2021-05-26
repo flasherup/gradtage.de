@@ -3,13 +3,13 @@ package database
 import "github.com/flasherup/gradtage.de/usersvc"
 
 
-const KeyLength = 20
+const KeyLength = 36
 
 type UserDB interface {
 	SetUser(user usersvc.User) error
+	DeleteUser(user usersvc.User) error
 	GetUserDataByName(userName string)  (usersvc.Parameters, error)
 	GetUserDataByKey(key string)  (usersvc.Parameters, error)
-	GetUserDataByStripe(stripe string)  (usersvc.Parameters, error)
 	SetPlan(plan usersvc.Plan) error
 	GetPlan(name string) (usersvc.Plan, error)
 	CreateUserTable() error

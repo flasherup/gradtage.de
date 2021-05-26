@@ -10,6 +10,7 @@ import (
 	"github.com/flasherup/gradtage.de/apisvc/config"
 	"github.com/flasherup/gradtage.de/apisvc/impl"
 	"github.com/flasherup/gradtage.de/apisvc/impl/security"
+	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	autocomplete "github.com/flasherup/gradtage.de/autocompletesvc/impl"
 	"github.com/flasherup/gradtage.de/common"
 	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
@@ -71,6 +72,7 @@ func main() {
 	userService := user.NewUsersSCVClient(conf.Clients.UserAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 
+	woocommerce := utils.NewWoocommerce(conf.Woocommerce)
 
 	level.Info(logger).Log("msg", "service started", "config", configFile)
 	defer level.Info(logger).Log("msg", "service ended")
@@ -86,7 +88,8 @@ func main() {
 		userService,
 		alertService,
 		stationsService,
-		keyManager)
+		keyManager,
+		woocommerce)
 	hs := apisvc.NewHTTPTSransport(svc,logger, conf.Static.Folder)
 
 	errs := make(chan error)
@@ -143,6 +146,15 @@ func main() {
 		server := &http.Server{
 			Addr:    conf.GetHTTPAddress(),
 			Handler: h,
+		}
+		errs <- server.ListenAndServe()
+	}()
+
+	go func() {
+		level.Info(logger).Log("transport", "HTTP", "addr", ":8022")
+		server := &http.Server{
+			Addr:    ":8022",
+			Handler: hs,
 		}
 		errs <- server.ListenAndServe()
 	}()

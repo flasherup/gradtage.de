@@ -32,7 +32,6 @@ message User {
     int32           requests    = 5;
     string            plan      = 6;
     repeated string stations    = 7;
-    string          stripe      = 8;
 }
 
 message Parameters {
@@ -43,7 +42,8 @@ message Parameters {
 message CreateUserRequest {
     string      userName    = 1;
     string      plan 	    = 2;
-    bool        email       = 3;
+    string      key 	    = 3;
+    bool        email       = 4;
 }
 
 message CreateUserResponse {
@@ -53,12 +53,20 @@ message CreateUserResponse {
 
 message UpdateUserRequest {
     User    user    = 1;
-    bool    email   = 3;
+    bool    email   = 2;
 }
 
 message UpdateUserResponse {
     string key = 1;
     string Err = 2;
+}
+
+message DeleteUserRequest {
+    User    user    = 1;
+}
+
+message DeleteUserResponse {
+    string Err = 1;
 }
 
 message AddPlanRequest {
@@ -100,19 +108,14 @@ message ValidateStripeRequest {
     string stripe = 1;
 }
 
-message ValidateStripeResponse {
-    Parameters parameters = 1;
-    string err = 2;
-}
-
 service UserSVC {
     rpc CreateUser(CreateUserRequest)                   returns (CreateUserResponse) {}
     rpc UpdateUser(UpdateUserRequest)                   returns (UpdateUserResponse) {}
+    rpc DeleteUser(DeleteUserRequest)                   returns (DeleteUserResponse) {}
     rpc AddPlan(AddPlanRequest)                         returns (AddPlanResponse) {}
     rpc ValidateSelection(ValidateSelectionRequest)     returns (ValidateSelectionResponse) {}
     rpc ValidateKey(ValidateKeyRequest)                 returns (ValidateKeyResponse) {}
     rpc ValidateName(ValidateNameRequest)               returns (ValidateNameResponse) {}
-    rpc ValidateStripe(ValidateStripeRequest)           returns (ValidateStripeResponse) {}
 }
 
 

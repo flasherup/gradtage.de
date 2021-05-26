@@ -40,12 +40,15 @@ func NewUserSVC(logger log.Logger, db database.UserDB, alert alertsvc.Client, us
 	return &st,nil
 }
 
-func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, email bool) (string, error) {
-	level.Info(us.logger).Log("msg", "Create User", "user", userName, "plan", plan)
-	key, err := common.GenerateRandomString(database.KeyLength)
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Key generation error", "err", err)
-		us.sendAlert(NewErrorAlert(err))
+func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, key string, email bool) (string, error) {
+	level.Info(us.logger).Log("msg", "Create User", "user", userName, "plan", plan, "key", key)
+	var err error
+	if key == "" {
+		key, err = common.GenerateRandomString(database.KeyLength)
+		if err != nil {
+			level.Error(us.logger).Log("msg", "Key generation error", "err", err)
+			us.sendAlert(NewErrorAlert(err))
+		}
 	}
 
 	_, err = us.ValidateName(ctx, userName)
@@ -86,6 +89,7 @@ func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, 
 
 func (us UserSVC) UpdateUser(ctx context.Context, user usersvc.User, email bool) (string, error) {
 	level.Info(us.logger).Log("msg", "Update User", "user", user.Name, "email", email)
+
 	err := us.db.SetUser(user)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Update User Error", "err", err)
@@ -104,6 +108,18 @@ func (us UserSVC) UpdateUser(ctx context.Context, user usersvc.User, email bool)
 	}
 
 	return user.Key,err
+}
+
+func (us UserSVC) DeleteUser(ctx context.Context, user usersvc.User) error {
+	level.Info(us.logger).Log("msg", "Delete User", "user", user.Name)
+
+	err := us.db.DeleteUser(user)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Delete User Error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+	}
+
+	return err
 }
 
 func (us UserSVC) AddPlan(ctx context.Context, plan usersvc.Plan) error {
@@ -160,23 +176,6 @@ func (us UserSVC) ValidateName(ctx context.Context, name string) (usersvc.Parame
 	}
 
 	return parameters, us.validateUserParameters(&parameters)
-}
-
-func (us UserSVC) ValidateStripe(ctx context.Context, stripe string) (usersvc.Parameters, error) {
-	level.Info(us.logger).Log("msg", "Validate Stripe", "stripe", stripe)
-	parameters, err := us.db.GetUserDataByStripe(stripe)
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Validate Stripe Error", "err", err)
-		us.sendAlert(NewErrorAlert(err))
-		return parameters, err
-	}
-
-	if parameters.User.Key == "" {
-		level.Error(us.logger).Log("msg", "User not found", "stripe", stripe)
-		return parameters, errors.New("user by stripe id not found")
-	}
-
-	return parameters, err
 }
 
 func (us UserSVC)validateUserParameters(params *usersvc.Parameters) error {

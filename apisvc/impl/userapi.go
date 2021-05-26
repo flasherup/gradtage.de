@@ -14,49 +14,14 @@ const (
 	RenewAction 	= "renew"
 )
 
-func ProcessUpdateStripeUser(client usersvc.Client, name string, stripeId string, plan string) (string, error) {
-	user, err := client.ValidateStripe(stripeId)
+func CreateWoocommerceUser(client usersvc.Client, email, key, planId string) error {
+	plan := usersvc.PlanBasic
+
+	_, err := client.CreateUser(email, plan, key ,false)
 	if err != nil {
-		user, err = client.ValidateName(name)
-		if err != nil {
-			key, err := client.CreateUser(name, plan, true)
-			if err != nil {
-				return "{\"status\":\"error\", \"error\":\"" + err.Error() + "\"}", err
-			}
-
-			user, err = client.ValidateKey(key)
-			if err != nil {
-				return "{\"status\":\"error\", \"error\":\"" + err.Error() + "\"}", err
-			}
-		}
+		return err
 	}
-
-	user.User.Plan = plan
-	user.User.Stripe = stripeId
-
-	_, err = client.UpdateUser(user.User, true)
-	if err != nil {
-		return "{\"status\":\"error\", \"error\":\"" + err.Error() + "\"}", err
-	}
-
-	return "{\"status\":\"ok\"}", nil
-}
-
-func ProcessCancelStripeUser(client usersvc.Client, stripeId string) (string, error) {
-	user, err := client.ValidateStripe(stripeId)
-	if err != nil {
-		return "{\"status\":\"error\", \"error\":\"" + err.Error() + "\"}", err
-	}
-
-	user.User.Plan = usersvc.PlanTrial
-	user.User.Stripe = stripeId
-
-	_, err = client.UpdateUser(user.User, false)
-	if err != nil {
-		return "{\"status\":\"error\", \"error\":\"" + err.Error() + "\"}", err
-	}
-
-	return "{\"status\":\"ok\"}", nil
+	return nil
 }
 
 func CreateUser(client usersvc.Client, req apisvc.ParamsUser, email bool) ([][]string, error){
@@ -73,7 +38,7 @@ func CreateUser(client usersvc.Client, req apisvc.ParamsUser, email bool) ([][]s
 		plan = planp
 	}
 
-	key, err := client.CreateUser(name, plan,email)
+	key, err := client.CreateUser(name, plan, req.Key ,email)
 	if err != nil {
 		return utils.CSVError(err), err
 	}

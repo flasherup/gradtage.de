@@ -7,7 +7,6 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/impl/security"
-	"github.com/flasherup/gradtage.de/apisvc/impl/stripe"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
@@ -28,16 +27,17 @@ import (
 )
 
 type APISVC struct {
-	logger  		log.Logger
-	alert 			alertsvc.Client
-	daily			dailysvc.Client
-	hourly			hourlysvc.Client
-	noaa 			noaascrapersvc.Client
-	autocomplete 	autocompletesvc.Client
-	user 			usersvc.Client
-	stations		stationssvc.Client
-	keyManager 		*security.KeyManager
-	counter 		ktprom.Gauge
+	logger  			log.Logger
+	alert 				alertsvc.Client
+	daily				dailysvc.Client
+	hourly				hourlysvc.Client
+	noaa 				noaascrapersvc.Client
+	autocomplete 		autocompletesvc.Client
+	user 				usersvc.Client
+	stations			stationssvc.Client
+	keyManager 			*security.KeyManager
+	woocommerce			*utils.Woocommerce
+	counter 			ktprom.Gauge
 }
 
 const (
@@ -62,6 +62,7 @@ func NewAPISVC(
 		alert 			alertsvc.Client,
 		stations    	stationssvc.Client,
 		keyManager 		*security.KeyManager,
+		woocommerce 	*utils.Woocommerce,
 	) *APISVC {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
@@ -79,6 +80,7 @@ func NewAPISVC(
 		stations:		stations,
 		keyManager: 	keyManager,
 		counter: 		*guage,
+		woocommerce: 	woocommerce,
 	}
 	return &st
 }
@@ -263,46 +265,49 @@ func (as APISVC) Plan(ctx context.Context, params apisvc.ParamsPlan) (data [][]s
 	return [][]string{}, err
 }
 
-func (as APISVC) Stripe(ctx context.Context, event apisvc.StripeEvent) (json string, err error) {
-	level.Info(as.logger).Log("msg", "Stripe event", "event", event.Type)
-	if event.Type == stripe.InvoiceFinalize {
-		invoiceFinalize, err := stripe.ParseInvoiceFinalize(event.Data.Object)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Invoice Finalize parse error", "err", err)
-		} else {
-			level.Info(as.logger).Log("msg", "Invoice Finalize parsed", "customer", invoiceFinalize.UserID, "email", invoiceFinalize.UserEmail)
-			return ProcessUpdateStripeUser(as.user, invoiceFinalize.UserEmail, invoiceFinalize.UserID, usersvc.PlanStarter)
-		}
-	} else if event.Type == stripe.SubscriptionScheduleCanceled {
-		subscriptionScheduleCanceled, err := stripe.ParseSubscriptionScheduleCanceled(event.Data.Object)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Subscription Schedule Canceled parse error", "err", err)
-		} else {
-			level.Info(as.logger).Log("msg", "Subscription Schedule Canceled parsed", "customer", subscriptionScheduleCanceled.UserID)
-			return ProcessCancelStripeUser(as.user, subscriptionScheduleCanceled.UserID)
-		}
-	} else {
-		level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type, "event", event.Data.Object)
-	}
-	json = "{\"status\":\"ok\"}"
-	return json, err
-}
-
 func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent) (json string, err error) {
-	level.Info(as.logger).Log("msg", "Woocommerce event", "event", event.Type)
+	level.Info(as.logger).Log("msg", "Woocommerce event", "Event", event.Type)
+
+	if !utils.ValidateWoocommerceRequest(event.Signature, event.Body, as.woocommerce.WHSecret) {
+		level.Error(as.logger).Log("msg", "Subscription update error", "err", "invalid signature")
+		json = "{\"status\":\"error\"}"
+		return json, err
+	}
+
 	if event.Type == common.WCUpdateEvent {
+
+
+
 		orderId := strconv.Itoa(event.UpdateEvent.ParentId)
 		productId := strconv.Itoa(event.UpdateEvent.LineItems[0].ProductID)
-		email := event.UpdateEvent.Billing.Email
-		key, err := utils.FinalizeSubscription(orderId, *email, productId)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
-		} else {
+		email := *event.UpdateEvent.Billing.Email
 
-			level.Info(as.logger).Log("msg", "Subscription update success", "key", key)
+		p, err := as.user.ValidateName(email)
+		if err != nil {
+			//Create new user
+			key, err := as.woocommerce.GenerateAPIKey(orderId, email, productId)
+			if err != nil {
+				level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
+			} else {
+				err := CreateWoocommerceUser(as.user, email, key, productId)
+				if err != nil {
+					level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
+
+				}
+				level.Info(as.logger).Log("msg", "Subscription update success", "key", key)
+			}
+		} else {
+			if event.UpdateEvent.Status == common.WCStatusTrash {
+				level.Info(as.logger).Log("msg", "Subscription delete user", "user", p.User.Name)
+				as.user.DeleteUser(p.User)
+			} else {
+				//Update existing user
+				//TODO add update user logic
+				level.Error(as.logger).Log("msg", "Subscription update not implemented yet", "user", p.User.Name)
+			}
 		}
 	}
-	level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type)
+
 	json = "{\"status\":\"ok\"}"
 	return json, err
 }

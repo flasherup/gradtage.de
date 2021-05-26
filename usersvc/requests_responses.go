@@ -3,6 +3,7 @@ package usersvc
 type CreateUserRequest struct {
 	UserName    string 	`json:"user_name"`
 	Plan		string 	`json:"plan"`
+	Key			string 	`json:"key"`
 	Email 		bool 	`json:"email"`
 }
 
@@ -18,6 +19,14 @@ type UpdateUserRequest struct {
 
 type UpdateUserResponse struct {
 	Key 	string `json:"key"`
+	Err    	error `json:"err"`
+}
+
+type DeleteUserRequest struct {
+	User	    User 	`json:"user"`
+}
+
+type DeleteUserResponse struct {
 	Err    	error `json:"err"`
 }
 
@@ -52,15 +61,6 @@ type ValidateNameRequest struct {
 }
 
 type ValidateNameResponse struct {
-	Parameters 	Parameters 	`json:"parameters"`
-	Err    		error 		`json:"err"`
-}
-
-type ValidateStripeRequest struct {
-	Stripe    string 		`json:"stripe"`
-}
-
-type ValidateStripeResponse struct {
 	Parameters 	Parameters 	`json:"parameters"`
 	Err    		error 		`json:"err"`
 }

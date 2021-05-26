@@ -39,7 +39,7 @@ func (m *Selection) Reset()         { *m = Selection{} }
 func (m *Selection) String() string { return proto.CompactTextString(m) }
 func (*Selection) ProtoMessage()    {}
 func (*Selection) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{0}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{0}
 }
 func (m *Selection) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Selection.Unmarshal(m, b)
@@ -114,7 +114,7 @@ func (m *Plan) Reset()         { *m = Plan{} }
 func (m *Plan) String() string { return proto.CompactTextString(m) }
 func (*Plan) ProtoMessage()    {}
 func (*Plan) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{1}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{1}
 }
 func (m *Plan) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Plan.Unmarshal(m, b)
@@ -212,7 +212,6 @@ type User struct {
 	Requests             int32    `protobuf:"varint,5,opt,name=requests,proto3" json:"requests,omitempty"`
 	Plan                 string   `protobuf:"bytes,6,opt,name=plan,proto3" json:"plan,omitempty"`
 	Stations             []string `protobuf:"bytes,7,rep,name=stations,proto3" json:"stations,omitempty"`
-	Stripe               string   `protobuf:"bytes,8,opt,name=stripe,proto3" json:"stripe,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -222,7 +221,7 @@ func (m *User) Reset()         { *m = User{} }
 func (m *User) String() string { return proto.CompactTextString(m) }
 func (*User) ProtoMessage()    {}
 func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{2}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{2}
 }
 func (m *User) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_User.Unmarshal(m, b)
@@ -291,13 +290,6 @@ func (m *User) GetStations() []string {
 	return nil
 }
 
-func (m *User) GetStripe() string {
-	if m != nil {
-		return m.Stripe
-	}
-	return ""
-}
-
 type Parameters struct {
 	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	Plan                 *Plan    `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
@@ -310,7 +302,7 @@ func (m *Parameters) Reset()         { *m = Parameters{} }
 func (m *Parameters) String() string { return proto.CompactTextString(m) }
 func (*Parameters) ProtoMessage()    {}
 func (*Parameters) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{3}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{3}
 }
 func (m *Parameters) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Parameters.Unmarshal(m, b)
@@ -347,7 +339,8 @@ func (m *Parameters) GetPlan() *Plan {
 type CreateUserRequest struct {
 	UserName             string   `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`
 	Plan                 string   `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
-	Email                bool     `protobuf:"varint,3,opt,name=email,proto3" json:"email,omitempty"`
+	Key                  string   `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
+	Email                bool     `protobuf:"varint,4,opt,name=email,proto3" json:"email,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -357,7 +350,7 @@ func (m *CreateUserRequest) Reset()         { *m = CreateUserRequest{} }
 func (m *CreateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateUserRequest) ProtoMessage()    {}
 func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{4}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{4}
 }
 func (m *CreateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserRequest.Unmarshal(m, b)
@@ -391,6 +384,13 @@ func (m *CreateUserRequest) GetPlan() string {
 	return ""
 }
 
+func (m *CreateUserRequest) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
 func (m *CreateUserRequest) GetEmail() bool {
 	if m != nil {
 		return m.Email
@@ -410,7 +410,7 @@ func (m *CreateUserResponse) Reset()         { *m = CreateUserResponse{} }
 func (m *CreateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateUserResponse) ProtoMessage()    {}
 func (*CreateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{5}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{5}
 }
 func (m *CreateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserResponse.Unmarshal(m, b)
@@ -446,7 +446,7 @@ func (m *CreateUserResponse) GetErr() string {
 
 type UpdateUserRequest struct {
 	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	Email                bool     `protobuf:"varint,3,opt,name=email,proto3" json:"email,omitempty"`
+	Email                bool     `protobuf:"varint,2,opt,name=email,proto3" json:"email,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -456,7 +456,7 @@ func (m *UpdateUserRequest) Reset()         { *m = UpdateUserRequest{} }
 func (m *UpdateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserRequest) ProtoMessage()    {}
 func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{6}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{6}
 }
 func (m *UpdateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserRequest.Unmarshal(m, b)
@@ -502,7 +502,7 @@ func (m *UpdateUserResponse) Reset()         { *m = UpdateUserResponse{} }
 func (m *UpdateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserResponse) ProtoMessage()    {}
 func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{7}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{7}
 }
 func (m *UpdateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserResponse.Unmarshal(m, b)
@@ -536,6 +536,82 @@ func (m *UpdateUserResponse) GetErr() string {
 	return ""
 }
 
+type DeleteUserRequest struct {
+	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteUserRequest) Reset()         { *m = DeleteUserRequest{} }
+func (m *DeleteUserRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteUserRequest) ProtoMessage()    {}
+func (*DeleteUserRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{8}
+}
+func (m *DeleteUserRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteUserRequest.Unmarshal(m, b)
+}
+func (m *DeleteUserRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteUserRequest.Marshal(b, m, deterministic)
+}
+func (dst *DeleteUserRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteUserRequest.Merge(dst, src)
+}
+func (m *DeleteUserRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteUserRequest.Size(m)
+}
+func (m *DeleteUserRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteUserRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteUserRequest proto.InternalMessageInfo
+
+func (m *DeleteUserRequest) GetUser() *User {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+type DeleteUserResponse struct {
+	Err                  string   `protobuf:"bytes,1,opt,name=Err,proto3" json:"Err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteUserResponse) Reset()         { *m = DeleteUserResponse{} }
+func (m *DeleteUserResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteUserResponse) ProtoMessage()    {}
+func (*DeleteUserResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{9}
+}
+func (m *DeleteUserResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteUserResponse.Unmarshal(m, b)
+}
+func (m *DeleteUserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteUserResponse.Marshal(b, m, deterministic)
+}
+func (dst *DeleteUserResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteUserResponse.Merge(dst, src)
+}
+func (m *DeleteUserResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteUserResponse.Size(m)
+}
+func (m *DeleteUserResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteUserResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteUserResponse proto.InternalMessageInfo
+
+func (m *DeleteUserResponse) GetErr() string {
+	if m != nil {
+		return m.Err
+	}
+	return ""
+}
+
 type AddPlanRequest struct {
 	Plan                 *Plan    `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -547,7 +623,7 @@ func (m *AddPlanRequest) Reset()         { *m = AddPlanRequest{} }
 func (m *AddPlanRequest) String() string { return proto.CompactTextString(m) }
 func (*AddPlanRequest) ProtoMessage()    {}
 func (*AddPlanRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{8}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{10}
 }
 func (m *AddPlanRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPlanRequest.Unmarshal(m, b)
@@ -585,7 +661,7 @@ func (m *AddPlanResponse) Reset()         { *m = AddPlanResponse{} }
 func (m *AddPlanResponse) String() string { return proto.CompactTextString(m) }
 func (*AddPlanResponse) ProtoMessage()    {}
 func (*AddPlanResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{9}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{11}
 }
 func (m *AddPlanResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPlanResponse.Unmarshal(m, b)
@@ -623,7 +699,7 @@ func (m *ValidateSelectionRequest) Reset()         { *m = ValidateSelectionReque
 func (m *ValidateSelectionRequest) String() string { return proto.CompactTextString(m) }
 func (*ValidateSelectionRequest) ProtoMessage()    {}
 func (*ValidateSelectionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{10}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{12}
 }
 func (m *ValidateSelectionRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateSelectionRequest.Unmarshal(m, b)
@@ -662,7 +738,7 @@ func (m *ValidateSelectionResponse) Reset()         { *m = ValidateSelectionResp
 func (m *ValidateSelectionResponse) String() string { return proto.CompactTextString(m) }
 func (*ValidateSelectionResponse) ProtoMessage()    {}
 func (*ValidateSelectionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{11}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{13}
 }
 func (m *ValidateSelectionResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateSelectionResponse.Unmarshal(m, b)
@@ -707,7 +783,7 @@ func (m *ValidateKeyRequest) Reset()         { *m = ValidateKeyRequest{} }
 func (m *ValidateKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*ValidateKeyRequest) ProtoMessage()    {}
 func (*ValidateKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{12}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{14}
 }
 func (m *ValidateKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateKeyRequest.Unmarshal(m, b)
@@ -746,7 +822,7 @@ func (m *ValidateKeyResponse) Reset()         { *m = ValidateKeyResponse{} }
 func (m *ValidateKeyResponse) String() string { return proto.CompactTextString(m) }
 func (*ValidateKeyResponse) ProtoMessage()    {}
 func (*ValidateKeyResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{13}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{15}
 }
 func (m *ValidateKeyResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateKeyResponse.Unmarshal(m, b)
@@ -791,7 +867,7 @@ func (m *ValidateNameRequest) Reset()         { *m = ValidateNameRequest{} }
 func (m *ValidateNameRequest) String() string { return proto.CompactTextString(m) }
 func (*ValidateNameRequest) ProtoMessage()    {}
 func (*ValidateNameRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{14}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{16}
 }
 func (m *ValidateNameRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateNameRequest.Unmarshal(m, b)
@@ -830,7 +906,7 @@ func (m *ValidateNameResponse) Reset()         { *m = ValidateNameResponse{} }
 func (m *ValidateNameResponse) String() string { return proto.CompactTextString(m) }
 func (*ValidateNameResponse) ProtoMessage()    {}
 func (*ValidateNameResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{15}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{17}
 }
 func (m *ValidateNameResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateNameResponse.Unmarshal(m, b)
@@ -875,7 +951,7 @@ func (m *ValidateStripeRequest) Reset()         { *m = ValidateStripeRequest{} }
 func (m *ValidateStripeRequest) String() string { return proto.CompactTextString(m) }
 func (*ValidateStripeRequest) ProtoMessage()    {}
 func (*ValidateStripeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{16}
+	return fileDescriptor_usersvc_f8f62b2fa9c38bdb, []int{18}
 }
 func (m *ValidateStripeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateStripeRequest.Unmarshal(m, b)
@@ -902,52 +978,6 @@ func (m *ValidateStripeRequest) GetStripe() string {
 	return ""
 }
 
-type ValidateStripeResponse struct {
-	Parameters           *Parameters `protobuf:"bytes,1,opt,name=parameters,proto3" json:"parameters,omitempty"`
-	Err                  string      `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
-}
-
-func (m *ValidateStripeResponse) Reset()         { *m = ValidateStripeResponse{} }
-func (m *ValidateStripeResponse) String() string { return proto.CompactTextString(m) }
-func (*ValidateStripeResponse) ProtoMessage()    {}
-func (*ValidateStripeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{17}
-}
-func (m *ValidateStripeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ValidateStripeResponse.Unmarshal(m, b)
-}
-func (m *ValidateStripeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ValidateStripeResponse.Marshal(b, m, deterministic)
-}
-func (dst *ValidateStripeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ValidateStripeResponse.Merge(dst, src)
-}
-func (m *ValidateStripeResponse) XXX_Size() int {
-	return xxx_messageInfo_ValidateStripeResponse.Size(m)
-}
-func (m *ValidateStripeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ValidateStripeResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ValidateStripeResponse proto.InternalMessageInfo
-
-func (m *ValidateStripeResponse) GetParameters() *Parameters {
-	if m != nil {
-		return m.Parameters
-	}
-	return nil
-}
-
-func (m *ValidateStripeResponse) GetErr() string {
-	if m != nil {
-		return m.Err
-	}
-	return ""
-}
-
 func init() {
 	proto.RegisterType((*Selection)(nil), "grpcusr.Selection")
 	proto.RegisterType((*Plan)(nil), "grpcusr.Plan")
@@ -957,6 +987,8 @@ func init() {
 	proto.RegisterType((*CreateUserResponse)(nil), "grpcusr.CreateUserResponse")
 	proto.RegisterType((*UpdateUserRequest)(nil), "grpcusr.UpdateUserRequest")
 	proto.RegisterType((*UpdateUserResponse)(nil), "grpcusr.UpdateUserResponse")
+	proto.RegisterType((*DeleteUserRequest)(nil), "grpcusr.DeleteUserRequest")
+	proto.RegisterType((*DeleteUserResponse)(nil), "grpcusr.DeleteUserResponse")
 	proto.RegisterType((*AddPlanRequest)(nil), "grpcusr.AddPlanRequest")
 	proto.RegisterType((*AddPlanResponse)(nil), "grpcusr.AddPlanResponse")
 	proto.RegisterType((*ValidateSelectionRequest)(nil), "grpcusr.ValidateSelectionRequest")
@@ -966,7 +998,6 @@ func init() {
 	proto.RegisterType((*ValidateNameRequest)(nil), "grpcusr.ValidateNameRequest")
 	proto.RegisterType((*ValidateNameResponse)(nil), "grpcusr.ValidateNameResponse")
 	proto.RegisterType((*ValidateStripeRequest)(nil), "grpcusr.ValidateStripeRequest")
-	proto.RegisterType((*ValidateStripeResponse)(nil), "grpcusr.ValidateStripeResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -983,11 +1014,11 @@ const _ = grpc.SupportPackageIsVersion4
 type UserSVCClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
+	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	AddPlan(ctx context.Context, in *AddPlanRequest, opts ...grpc.CallOption) (*AddPlanResponse, error)
 	ValidateSelection(ctx context.Context, in *ValidateSelectionRequest, opts ...grpc.CallOption) (*ValidateSelectionResponse, error)
 	ValidateKey(ctx context.Context, in *ValidateKeyRequest, opts ...grpc.CallOption) (*ValidateKeyResponse, error)
 	ValidateName(ctx context.Context, in *ValidateNameRequest, opts ...grpc.CallOption) (*ValidateNameResponse, error)
-	ValidateStripe(ctx context.Context, in *ValidateStripeRequest, opts ...grpc.CallOption) (*ValidateStripeResponse, error)
 }
 
 type userSVCClient struct {
@@ -1010,6 +1041,15 @@ func (c *userSVCClient) CreateUser(ctx context.Context, in *CreateUserRequest, o
 func (c *userSVCClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
 	out := new(UpdateUserResponse)
 	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/UpdateUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userSVCClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
+	out := new(DeleteUserResponse)
+	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1052,24 +1092,15 @@ func (c *userSVCClient) ValidateName(ctx context.Context, in *ValidateNameReques
 	return out, nil
 }
 
-func (c *userSVCClient) ValidateStripe(ctx context.Context, in *ValidateStripeRequest, opts ...grpc.CallOption) (*ValidateStripeResponse, error) {
-	out := new(ValidateStripeResponse)
-	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/ValidateStripe", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // UserSVCServer is the server API for UserSVC service.
 type UserSVCServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
+	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	AddPlan(context.Context, *AddPlanRequest) (*AddPlanResponse, error)
 	ValidateSelection(context.Context, *ValidateSelectionRequest) (*ValidateSelectionResponse, error)
 	ValidateKey(context.Context, *ValidateKeyRequest) (*ValidateKeyResponse, error)
 	ValidateName(context.Context, *ValidateNameRequest) (*ValidateNameResponse, error)
-	ValidateStripe(context.Context, *ValidateStripeRequest) (*ValidateStripeResponse, error)
 }
 
 func RegisterUserSVCServer(s *grpc.Server, srv UserSVCServer) {
@@ -1108,6 +1139,24 @@ func _UserSVC_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserSVCServer).UpdateUser(ctx, req.(*UpdateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserSVC_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserSVCServer).DeleteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpcusr.UserSVC/DeleteUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserSVCServer).DeleteUser(ctx, req.(*DeleteUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1184,24 +1233,6 @@ func _UserSVC_ValidateName_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserSVC_ValidateStripe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateStripeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserSVCServer).ValidateStripe(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/grpcusr.UserSVC/ValidateStripe",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserSVCServer).ValidateStripe(ctx, req.(*ValidateStripeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _UserSVC_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "grpcusr.UserSVC",
 	HandlerType: (*UserSVCServer)(nil),
@@ -1213,6 +1244,10 @@ var _UserSVC_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUser",
 			Handler:    _UserSVC_UpdateUser_Handler,
+		},
+		{
+			MethodName: "DeleteUser",
+			Handler:    _UserSVC_DeleteUser_Handler,
 		},
 		{
 			MethodName: "AddPlan",
@@ -1230,65 +1265,61 @@ var _UserSVC_serviceDesc = grpc.ServiceDesc{
 			MethodName: "ValidateName",
 			Handler:    _UserSVC_ValidateName_Handler,
 		},
-		{
-			MethodName: "ValidateStripe",
-			Handler:    _UserSVC_ValidateStripe_Handler,
-		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "usersvc.proto",
 }
 
-func init() { proto.RegisterFile("usersvc.proto", fileDescriptor_usersvc_8bec226d10d00412) }
+func init() { proto.RegisterFile("usersvc.proto", fileDescriptor_usersvc_f8f62b2fa9c38bdb) }
 
-var fileDescriptor_usersvc_8bec226d10d00412 = []byte{
-	// 760 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xdb, 0x4e, 0x14, 0x4d,
-	0x10, 0x66, 0x97, 0x3d, 0x16, 0x3f, 0xfc, 0x3f, 0x0d, 0x3f, 0x8e, 0x03, 0x22, 0x8c, 0x89, 0xc1,
-	0x0b, 0x17, 0x03, 0x37, 0x5e, 0x99, 0x10, 0x20, 0xc4, 0x63, 0xc8, 0x6c, 0x20, 0x31, 0xc1, 0x98,
-	0x61, 0xbb, 0x5d, 0x26, 0xee, 0x1c, 0xec, 0x9e, 0xd5, 0x10, 0x9f, 0xc8, 0xb7, 0xf1, 0x11, 0x7c,
-	0x14, 0xd3, 0xd5, 0x3d, 0xdd, 0x33, 0xcc, 0xac, 0x87, 0x84, 0xbb, 0xae, 0xd3, 0x57, 0x5f, 0xd5,
-	0x7c, 0xb5, 0x59, 0x58, 0x9c, 0x0a, 0xc6, 0xc5, 0xe7, 0xd1, 0x20, 0xe5, 0x49, 0x96, 0x90, 0xee,
-	0x98, 0xa7, 0xa3, 0xa9, 0xe0, 0xee, 0xe3, 0x71, 0x98, 0x5d, 0x4d, 0x2f, 0x07, 0xa3, 0x24, 0xda,
-	0x1d, 0x27, 0xe3, 0x64, 0x17, 0xe3, 0x97, 0xd3, 0x0f, 0x68, 0xa1, 0x81, 0x2f, 0x55, 0xe7, 0x7d,
-	0x85, 0xfe, 0x90, 0x4d, 0xd8, 0x28, 0x0b, 0x93, 0x98, 0xfc, 0x07, 0xf3, 0x1f, 0xd9, 0xb5, 0xd3,
-	0xd8, 0x6a, 0xec, 0xf4, 0x7d, 0xf9, 0x24, 0x1b, 0xd0, 0x17, 0x59, 0x20, 0x83, 0xcf, 0x8f, 0x9c,
-	0x26, 0xfa, 0xad, 0x83, 0xac, 0x41, 0x27, 0x62, 0xd9, 0x55, 0x42, 0x9d, 0x79, 0x0c, 0x69, 0x8b,
-	0xac, 0x42, 0x7b, 0x98, 0x05, 0x3c, 0x73, 0x5a, 0xe8, 0x56, 0x86, 0x44, 0x3f, 0x8e, 0xa9, 0xd3,
-	0x56, 0xe8, 0xc7, 0x31, 0xf5, 0x7e, 0x34, 0xa0, 0x75, 0x3a, 0x09, 0x62, 0x42, 0xa0, 0x15, 0x07,
-	0x11, 0xd3, 0x9d, 0xf1, 0x4d, 0x5c, 0xe8, 0xe9, 0x4e, 0x02, 0x3b, 0xb7, 0x7d, 0x63, 0x93, 0x4d,
-	0x80, 0x49, 0x18, 0x85, 0xca, 0xc4, 0xe6, 0x6d, 0xbf, 0xe0, 0x91, 0xad, 0xae, 0x28, 0xc5, 0xf6,
-	0x3d, 0x5f, 0x3e, 0xc9, 0x12, 0x34, 0xa9, 0xea, 0xdd, 0xf3, 0x9b, 0x94, 0xca, 0x8c, 0x11, 0xa5,
-	0x4e, 0x47, 0x65, 0x8c, 0x28, 0x92, 0x16, 0x48, 0xba, 0xab, 0x48, 0x8b, 0x9c, 0x34, 0x8b, 0xa9,
-	0xd3, 0x53, 0xa4, 0x59, 0x4c, 0xe5, 0xd0, 0x29, 0xe3, 0x61, 0x42, 0x9d, 0x3e, 0xf6, 0xd5, 0x96,
-	0xac, 0x3f, 0xa0, 0x51, 0x18, 0x3b, 0x80, 0x98, 0xca, 0xf0, 0xbe, 0x37, 0xa0, 0x75, 0x26, 0x18,
-	0xaf, 0x1d, 0x51, 0xef, 0xbb, 0x59, 0xda, 0x37, 0x67, 0x31, 0xfb, 0x72, 0x14, 0x64, 0x4c, 0x2f,
-	0xd5, 0x3a, 0xc8, 0x16, 0x2c, 0x70, 0xf6, 0x69, 0xca, 0x44, 0x86, 0x71, 0xb5, 0xdd, 0xa2, 0x4b,
-	0x2e, 0x4d, 0x9b, 0x02, 0x87, 0x6d, 0xfb, 0xc6, 0x96, 0x0c, 0xd2, 0x49, 0x10, 0xe3, 0xcc, 0x7d,
-	0x1f, 0xdf, 0xa5, 0x25, 0x77, 0xb7, 0xe6, 0x77, 0xfa, 0x85, 0x25, 0xaf, 0x41, 0x47, 0x64, 0x3c,
-	0x4c, 0x99, 0x9e, 0x5e, 0x5b, 0x9e, 0x0f, 0x70, 0x1a, 0xf0, 0x20, 0x62, 0x19, 0xe3, 0x82, 0x6c,
-	0x43, 0x4b, 0x2a, 0x11, 0xe7, 0x5a, 0xd8, 0x5b, 0x1c, 0x68, 0x1d, 0x0e, 0xe4, 0xd0, 0x3e, 0x86,
-	0x64, 0x0a, 0x36, 0x6e, 0xde, 0x48, 0x91, 0x9f, 0x5e, 0xf1, 0xf0, 0xde, 0xc2, 0xf2, 0x21, 0x67,
-	0x41, 0xc6, 0xb0, 0x4c, 0x31, 0x96, 0xe4, 0x64, 0xfd, 0x1b, 0xbb, 0x36, 0x63, 0x9b, 0x61, 0x9a,
-	0x85, 0x61, 0x56, 0xa1, 0xcd, 0xa2, 0x20, 0x9c, 0xe0, 0xe2, 0x7a, 0xbe, 0x32, 0xbc, 0xa7, 0x40,
-	0x8a, 0xd0, 0x22, 0x4d, 0x62, 0xc1, 0x6a, 0xa4, 0x2e, 0xe5, 0xc9, 0x79, 0xfe, 0x31, 0x8e, 0x39,
-	0xf7, 0x5e, 0xc1, 0xf2, 0x59, 0x4a, 0x6f, 0x90, 0xfa, 0x83, 0x79, 0x67, 0xf2, 0x28, 0xa2, 0xfd,
-	0x05, 0x8f, 0x7d, 0x58, 0x3a, 0xa0, 0x14, 0xb7, 0x65, 0x49, 0xfc, 0x6e, 0xa3, 0x0f, 0xe0, 0x5f,
-	0x53, 0x64, 0x7b, 0x31, 0xce, 0xf3, 0x5e, 0x0c, 0x27, 0x74, 0xce, 0x83, 0x49, 0x28, 0x59, 0x99,
-	0x5f, 0x81, 0xbc, 0xc7, 0x13, 0xe8, 0x8b, 0xdc, 0xa7, 0xa7, 0x25, 0xa6, 0x91, 0xcd, 0xb6, 0x49,
-	0xde, 0x09, 0xdc, 0xad, 0x41, 0xd3, 0xcd, 0x1d, 0xe8, 0x86, 0x02, 0xc3, 0x08, 0xd6, 0xf3, 0x73,
-	0x33, 0xa7, 0xd5, 0xb4, 0xb4, 0x1e, 0x02, 0xc9, 0x81, 0x5e, 0xb2, 0xeb, 0x9c, 0x50, 0x65, 0x55,
-	0xde, 0x05, 0xac, 0x94, 0xf2, 0x74, 0xab, 0x7d, 0x80, 0xd4, 0x08, 0x54, 0x53, 0x5f, 0xb1, 0x3b,
-	0x32, 0x21, 0xbf, 0x90, 0x56, 0xc3, 0xe2, 0x91, 0x45, 0x97, 0x92, 0xcb, 0x69, 0xd4, 0x1c, 0xb2,
-	0xf7, 0x0e, 0x56, 0xcb, 0xa9, 0xb7, 0xcb, 0x64, 0x17, 0xfe, 0x37, 0x8b, 0xc5, 0x1b, 0xcc, 0xb9,
-	0xd8, 0x13, 0x6d, 0x94, 0x4e, 0xf4, 0x3d, 0xac, 0xdd, 0x2c, 0xb8, 0x55, 0x46, 0x7b, 0xdf, 0x5a,
-	0xd0, 0x95, 0x3a, 0x1e, 0x9e, 0x1f, 0x92, 0x13, 0x00, 0x7b, 0x60, 0xc4, 0x35, 0x60, 0x95, 0x83,
-	0x76, 0xd7, 0x6b, 0x63, 0x8a, 0x99, 0x37, 0x27, 0x81, 0xec, 0x85, 0x14, 0x80, 0x2a, 0x47, 0x58,
-	0x00, 0xaa, 0x9e, 0x94, 0x37, 0x47, 0x9e, 0x41, 0x57, 0x6b, 0x9f, 0xdc, 0x31, 0x99, 0xe5, 0x13,
-	0x72, 0x9d, 0x6a, 0xc0, 0xd4, 0x5f, 0xc0, 0x72, 0x45, 0xc8, 0x64, 0xdb, 0x14, 0xcc, 0x3a, 0x19,
-	0xd7, 0xfb, 0x55, 0x8a, 0x41, 0x7f, 0x01, 0x0b, 0x05, 0xd5, 0x92, 0xf5, 0x4a, 0x91, 0xd5, 0xbc,
-	0xbb, 0x51, 0x1f, 0x34, 0x58, 0xaf, 0xe1, 0x9f, 0xa2, 0xf0, 0x48, 0x35, 0xbf, 0x20, 0x5d, 0xf7,
-	0xde, 0x8c, 0xa8, 0x81, 0x1b, 0xc2, 0x52, 0x59, 0x37, 0x64, 0xb3, 0x3a, 0x52, 0x51, 0x81, 0xee,
-	0xfd, 0x99, 0xf1, 0x1c, 0xf4, 0xb2, 0x83, 0xff, 0x34, 0xf6, 0x7f, 0x06, 0x00, 0x00, 0xff, 0xff,
-	0x28, 0xac, 0xd6, 0x8e, 0xb2, 0x08, 0x00, 0x00,
+var fileDescriptor_usersvc_f8f62b2fa9c38bdb = []byte{
+	// 764 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0x5d, 0x4f, 0xd4, 0x4c,
+	0x14, 0x66, 0xbb, 0xdf, 0x87, 0x17, 0x5e, 0x77, 0x40, 0xac, 0x05, 0x0d, 0xd4, 0x84, 0xe0, 0x85,
+	0x8b, 0x81, 0xc4, 0x78, 0x65, 0x42, 0x80, 0x10, 0x3f, 0x43, 0x4a, 0xe0, 0x0a, 0x2f, 0xca, 0xce,
+	0xb8, 0x34, 0xec, 0xb6, 0x75, 0xa6, 0xab, 0x21, 0xfe, 0x16, 0xff, 0x87, 0x3f, 0xc7, 0x9f, 0x62,
+	0xe6, 0xcc, 0x74, 0x66, 0x96, 0x2e, 0x2a, 0x89, 0x77, 0x3d, 0x5f, 0xcf, 0xf3, 0x9c, 0x33, 0xe7,
+	0x6c, 0x16, 0x16, 0x26, 0x82, 0x71, 0xf1, 0x65, 0xd0, 0xcf, 0x79, 0x56, 0x64, 0xa4, 0x3d, 0xe4,
+	0xf9, 0x60, 0x22, 0x78, 0xf0, 0x6c, 0x98, 0x14, 0x97, 0x93, 0x8b, 0xfe, 0x20, 0x1b, 0x6f, 0x0f,
+	0xb3, 0x61, 0xb6, 0x8d, 0xf1, 0x8b, 0xc9, 0x27, 0xb4, 0xd0, 0xc0, 0x2f, 0x55, 0x17, 0x7e, 0x83,
+	0xee, 0x09, 0x1b, 0xb1, 0x41, 0x91, 0x64, 0x29, 0xb9, 0x07, 0xf5, 0x2b, 0x76, 0xed, 0xd7, 0xd6,
+	0x6b, 0x5b, 0xdd, 0x48, 0x7e, 0x92, 0x35, 0xe8, 0x8a, 0x22, 0x96, 0xc1, 0xd7, 0x07, 0xbe, 0x87,
+	0x7e, 0xeb, 0x20, 0x2b, 0xd0, 0x1a, 0xb3, 0xe2, 0x32, 0xa3, 0x7e, 0x1d, 0x43, 0xda, 0x22, 0xcb,
+	0xd0, 0x3c, 0x29, 0x62, 0x5e, 0xf8, 0x0d, 0x74, 0x2b, 0x43, 0xa2, 0x1f, 0xa6, 0xd4, 0x6f, 0x2a,
+	0xf4, 0xc3, 0x94, 0x86, 0x3f, 0x6b, 0xd0, 0x38, 0x1e, 0xc5, 0x29, 0x21, 0xd0, 0x48, 0xe3, 0x31,
+	0xd3, 0xcc, 0xf8, 0x4d, 0x02, 0xe8, 0x68, 0x26, 0x81, 0xcc, 0xcd, 0xc8, 0xd8, 0xe4, 0x31, 0xc0,
+	0x28, 0x19, 0x27, 0xca, 0x44, 0xf2, 0x66, 0xe4, 0x78, 0x24, 0xd5, 0x25, 0xa5, 0x48, 0xdf, 0x89,
+	0xe4, 0x27, 0x59, 0x04, 0x8f, 0x2a, 0xee, 0x4e, 0xe4, 0x51, 0x2a, 0x33, 0x06, 0x94, 0xfa, 0x2d,
+	0x95, 0x31, 0xa0, 0x28, 0x5a, 0xa0, 0xe8, 0xb6, 0x12, 0x2d, 0x4a, 0xd1, 0x2c, 0xa5, 0x7e, 0x47,
+	0x89, 0x66, 0x29, 0x95, 0x4d, 0xe7, 0x8c, 0x27, 0x19, 0xf5, 0xbb, 0xc8, 0xab, 0x2d, 0x59, 0xbf,
+	0x47, 0xc7, 0x49, 0xea, 0x03, 0x62, 0x2a, 0x23, 0xfc, 0x51, 0x83, 0xc6, 0xa9, 0x60, 0x7c, 0x66,
+	0x8b, 0x7a, 0xde, 0xde, 0xd4, 0xbc, 0x39, 0x4b, 0xd9, 0xd7, 0x83, 0xb8, 0x60, 0x7a, 0xa8, 0xd6,
+	0x41, 0xd6, 0x61, 0x9e, 0xb3, 0xcf, 0x13, 0x26, 0x0a, 0x8c, 0xab, 0xe9, 0xba, 0x2e, 0x39, 0x34,
+	0x6d, 0x0a, 0x6c, 0xb6, 0x19, 0x19, 0x5b, 0x2a, 0xc8, 0x47, 0x71, 0x8a, 0x3d, 0x77, 0x23, 0xfc,
+	0x9e, 0x1a, 0x72, 0x7b, 0xbd, 0xbe, 0xd5, 0xb5, 0x43, 0x0e, 0x23, 0x80, 0xe3, 0x98, 0xc7, 0x63,
+	0x56, 0x30, 0x2e, 0xc8, 0x06, 0x34, 0xe4, 0xc6, 0xa1, 0xfe, 0xf9, 0x9d, 0x85, 0xbe, 0xde, 0xb7,
+	0xbe, 0x6c, 0x2e, 0xc2, 0x90, 0x4c, 0x41, 0x02, 0xef, 0x46, 0x8a, 0x7c, 0x62, 0xc5, 0x17, 0x5e,
+	0x41, 0x6f, 0x9f, 0xb3, 0xb8, 0x60, 0x58, 0xa6, 0x94, 0x49, 0x11, 0xb2, 0xfe, 0x83, 0x1d, 0x8f,
+	0xb1, 0x8d, 0x68, 0xcf, 0x11, 0xad, 0xc7, 0x56, 0xb7, 0x63, 0x5b, 0x86, 0x26, 0x1b, 0xc7, 0xc9,
+	0x48, 0xbf, 0xb8, 0x32, 0xc2, 0x97, 0x40, 0x5c, 0x32, 0x91, 0x67, 0xa9, 0x60, 0x33, 0x96, 0x5c,
+	0x2e, 0x26, 0xe7, 0xe5, 0x33, 0x1c, 0x72, 0x1e, 0xbe, 0x83, 0xde, 0x69, 0x4e, 0x6f, 0xc8, 0xfc,
+	0x8b, 0x09, 0x18, 0x1d, 0xde, 0x0d, 0x1d, 0x2e, 0xda, 0x1d, 0x74, 0xbc, 0x80, 0xde, 0x01, 0x1b,
+	0xb1, 0xbb, 0xea, 0x08, 0x37, 0x81, 0xb8, 0x75, 0x96, 0x51, 0xe2, 0xd7, 0x2c, 0xfe, 0x2e, 0x2c,
+	0xee, 0x51, 0x8a, 0xef, 0x63, 0xc1, 0xff, 0xf4, 0x86, 0x4f, 0xe0, 0x7f, 0x53, 0x64, 0x91, 0x99,
+	0x45, 0x66, 0x38, 0x41, 0xff, 0x2c, 0x1e, 0x25, 0xb2, 0x6b, 0xf3, 0xfb, 0x52, 0x72, 0x3c, 0x87,
+	0xae, 0x28, 0x7d, 0xba, 0x0b, 0x62, 0x88, 0x6c, 0xb6, 0x4d, 0x0a, 0x8f, 0xe0, 0xe1, 0x0c, 0x34,
+	0x4d, 0xee, 0x43, 0x3b, 0x11, 0x18, 0x46, 0xb0, 0x4e, 0x54, 0x9a, 0xa5, 0x2c, 0xcf, 0xca, 0xda,
+	0x04, 0x52, 0x02, 0xbd, 0x65, 0xd7, 0xa5, 0xa0, 0xca, 0x53, 0x84, 0xe7, 0xb0, 0x34, 0x95, 0xa7,
+	0xa9, 0x76, 0x01, 0x72, 0x73, 0x12, 0x5a, 0xfa, 0x92, 0x9d, 0x91, 0x09, 0x45, 0x4e, 0xda, 0x0c,
+	0x15, 0x4f, 0x2d, 0xba, 0x5c, 0xf2, 0x52, 0xc6, 0x8c, 0x9f, 0x88, 0xf0, 0x23, 0x2c, 0x4f, 0xa7,
+	0xfe, 0x5b, 0x25, 0xdb, 0x70, 0xdf, 0x0c, 0xb6, 0xe0, 0x49, 0x6e, 0xb4, 0xac, 0x40, 0x4b, 0xa0,
+	0x43, 0xab, 0xd1, 0xd6, 0xce, 0xf7, 0x06, 0xb4, 0xe5, 0x52, 0x9d, 0x9c, 0xed, 0x93, 0x23, 0x00,
+	0x7b, 0x5f, 0x24, 0x30, 0xec, 0x95, 0x0b, 0x0f, 0x56, 0x67, 0xc6, 0x54, 0x2b, 0xe1, 0x9c, 0x04,
+	0xb2, 0x07, 0xe2, 0x00, 0x55, 0x6e, 0xd0, 0x01, 0xaa, 0x5e, 0x94, 0x02, 0xb2, 0x7b, 0xef, 0x00,
+	0x55, 0x8e, 0xc8, 0x01, 0xaa, 0x1e, 0x4a, 0x38, 0x47, 0x5e, 0x41, 0x5b, 0xef, 0x38, 0x79, 0x60,
+	0x32, 0xa7, 0x4f, 0x25, 0xf0, 0xab, 0x01, 0x53, 0x7f, 0x0e, 0xbd, 0xca, 0xc2, 0x92, 0x0d, 0x53,
+	0x70, 0xdb, 0x69, 0x04, 0xe1, 0xef, 0x52, 0x0c, 0xfa, 0x1b, 0x98, 0x77, 0xb6, 0x93, 0xac, 0x56,
+	0x8a, 0xec, 0x6e, 0x07, 0x6b, 0xb3, 0x83, 0x06, 0xeb, 0x3d, 0xfc, 0xe7, 0x2e, 0x18, 0xa9, 0xe6,
+	0x3b, 0x2b, 0x1a, 0x3c, 0xba, 0x25, 0x5a, 0xc2, 0x5d, 0xb4, 0xf0, 0x6f, 0xc5, 0xee, 0xaf, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0x93, 0x43, 0x9f, 0xcd, 0x9f, 0x08, 0x00, 0x00,
 }

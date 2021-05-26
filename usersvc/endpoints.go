@@ -8,22 +8,22 @@ import (
 type Endpoints struct {
 	CreateUserEndpoint  		endpoint.Endpoint
 	UpdateUserEndpoint  		endpoint.Endpoint
+	DeleteUserEndpoint  		endpoint.Endpoint
 	AddPlanEndpoint  			endpoint.Endpoint
 	ValidateSelectionEndpoint  	endpoint.Endpoint
 	ValidateKeyEndpoint  		endpoint.Endpoint
 	ValidateNameEndpoint  		endpoint.Endpoint
-	ValidateStripeEndpoint  	endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
 		CreateUserEndpoint:   		MakeCreateUserEndpoint(s),
 		UpdateUserEndpoint:   		MakeUpdateUserEndpoint(s),
+		DeleteUserEndpoint:   		MakeDeleteUserEndpoint(s),
 		AddPlanEndpoint:   			MakeAddPlanEndpoint(s),
 		ValidateSelectionEndpoint:  MakeValidateSelectionEndpoint(s),
 		ValidateKeyEndpoint:   		MakeValidateKeyEndpoint(s),
 		ValidateNameEndpoint:   	MakeValidateNameEndpoint(s),
-		ValidateStripeEndpoint:   	MakeValidateStripeEndpoint(s),
 	}
 }
 
@@ -31,7 +31,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 func MakeCreateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateUserRequest)
-		key, err := s.CreateUser(ctx, req.UserName,req.Plan, req.Email)
+		key, err := s.CreateUser(ctx, req.UserName,req.Plan, req.Key, req.Email)
 		return CreateUserResponse{key, err}, err
 	}
 }
@@ -41,6 +41,14 @@ func MakeUpdateUserEndpoint(s Service) endpoint.Endpoint {
 		req := request.(UpdateUserRequest)
 		key, err := s.UpdateUser(ctx, req.User, req.Email)
 		return UpdateUserResponse{key, err}, err
+	}
+}
+
+func MakeDeleteUserEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(DeleteUserRequest)
+		err := s.DeleteUser(ctx, req.User)
+		return DeleteUserResponse{err}, err
 	}
 }
 
@@ -73,13 +81,5 @@ func MakeValidateNameEndpoint(s Service) endpoint.Endpoint {
 		req := request.(ValidateNameRequest)
 		parameters, err := s.ValidateName(ctx, req.Name)
 		return ValidateNameResponse{ parameters, err}, err
-	}
-}
-
-func MakeValidateStripeEndpoint(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(ValidateStripeRequest)
-		parameters, err := s.ValidateStripe(ctx, req.Stripe)
-		return ValidateStripeResponse{ parameters, err}, err
 	}
 }

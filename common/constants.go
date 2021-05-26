@@ -21,3 +21,8 @@ const (
 	WCCreatedEvent = "created"
 	WCUndefinedEvent = "undefined"
 )
+
+const (
+	WCStatusTrash = "trash"
+	WCStatusActive = "active"
+)

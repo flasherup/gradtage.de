@@ -18,7 +18,7 @@ func EncodeCreateUserResponse(_ context.Context, r interface{}) (interface{}, er
 
 func DecodeCreateUserRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(*grpcusr.CreateUserRequest)
-	return CreateUserRequest{req.UserName, req.Plan, req.Email}, nil
+	return CreateUserRequest{req.UserName, req.Plan, req.Key, req.Email}, nil
 }
 
 func EncodeUpdateUserResponse(_ context.Context, r interface{}) (interface{}, error) {
@@ -36,6 +36,22 @@ func DecodeUpdateUserRequest(_ context.Context, r interface{}) (interface{}, err
 		return UpdateUserRequest{}, err
 	}
 	return UpdateUserRequest{*user, req.Email}, nil
+}
+
+func EncodeDeleteUserResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(DeleteUserResponse)
+	return &grpcusr.DeleteUserResponse {
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeDeleteUserRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.DeleteUserRequest)
+	user, err := DecodeUser(req.User)
+	if err != nil {
+		return DeleteUserRequest{}, err
+	}
+	return DeleteUserRequest{*user}, nil
 }
 
 func EncodeAddPlanResponse(_ context.Context, r interface{}) (interface{}, error) {
@@ -83,20 +99,6 @@ func EncodeValidateNameResponse(_ context.Context, r interface{}) (interface{}, 
 	res := r.(ValidateNameResponse)
 	params:= EncodeParameters(&res.Parameters)
 	return &grpcusr.ValidateNameResponse {
-		Parameters: params,
-		Err: errorToString(res.Err),
-	}, nil
-}
-
-func DecodeValidateStripeRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*grpcusr.ValidateStripeRequest)
-	return ValidateStripeRequest{req.Stripe}, nil
-}
-
-func EncodeValidateStripeResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(ValidateStripeResponse)
-	params:= EncodeParameters(&res.Parameters)
-	return &grpcusr.ValidateStripeResponse {
 		Parameters: params,
 		Err: errorToString(res.Err),
 	}, nil
@@ -164,7 +166,6 @@ func DecodeUser(src *grpcusr.User) (*User, error) {
 		Requests: 		int(src.Requests),
 		Plan: 			src.Plan,
 		Stations: 		src.Stations,
-		Stripe: 		src.Stripe,
 	}, nil
 }
 
@@ -179,7 +180,6 @@ func EncodeUser(src *User) *grpcusr.User {
 		Requests: 		int32(src.Requests),
 		Plan: 			src.Plan,
 		Stations: 		src.Stations,
-		Stripe: 		src.Stripe,
 	}
 }
 

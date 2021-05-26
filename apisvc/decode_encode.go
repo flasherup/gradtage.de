@@ -191,26 +191,6 @@ func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response int
 	return err
 }
 
-func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	req := StripeRequest{}
-
-	body, _ := ioutil.ReadAll(r.Body)
-	if e := json.Unmarshal(body, &req.Event); e != nil {
-		return nil, e
-	}
-	return req, nil
-}
-
-func encodeStripeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(StripeResponse)
-	bt := new(bytes.Buffer)
-	err := json.NewEncoder(bt).Encode(resp)
-
-	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-	w.Write(bt.Bytes())
-	return err
-}
-
 func decodeWoocommerceRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	req := WoocommerceRequest{}
 	fmt.Println("Headers", r.Header)
@@ -224,6 +204,8 @@ func decodeWoocommerceRequest(_ context.Context, r *http.Request) (request inter
 
 	event := WoocommerceEvent{}
 	event.Type = eventType
+	event.Signature = utils.GetWoocommerceSignature(r.Header)
+	event.Body = body
 
 	if eventType == common.WCUpdateEvent {
 		if e := json.Unmarshal(body, &event.UpdateEvent); e != nil {
