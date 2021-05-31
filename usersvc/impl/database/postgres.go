@@ -328,7 +328,6 @@ func parseToStringSlice(slice []uint8) []string {
 	for _,v := range trim {
 		if v == 44 || v == 125 {
 			res = append(res, string(word))
-			fmt.Println("parsed", string(v), v)
 			word = make([]byte, 0)
 			continue
 		}

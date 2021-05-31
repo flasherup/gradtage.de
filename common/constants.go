@@ -25,4 +25,6 @@ const (
 const (
 	WCStatusTrash = "trash"
 	WCStatusActive = "active"
+	WCStatusProcess = "process"
+	WCStatusOnHold = "on-hold"
 )

@@ -183,6 +183,10 @@ func (us UserSVC)validateUserParameters(params *usersvc.Parameters) error {
 		return nil
 	}
 
+	if params.Plan.Name == usersvc.PlanCanceled {
+		return errors.New("plan is canceled")
+	}
+
 	err := ValidatePlanExpiration(params)
 	if err != nil {
 		return err
@@ -198,7 +202,7 @@ func (us UserSVC)validateUserParameters(params *usersvc.Parameters) error {
 	params.User.Requests = requests
 	err = us.db.SetUser(params.User)
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Update user request time nad count", "err", err)
+		level.Error(us.logger).Log("msg", "Update user request time and count", "err", err)
 		us.sendAlert(NewErrorAlert(err))
 	}
 

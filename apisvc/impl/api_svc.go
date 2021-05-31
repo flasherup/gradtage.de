@@ -280,20 +280,26 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 		email := *event.UpdateEvent.Billing.Email
 
 		p, err := as.user.ValidateName(email)
-		if err != nil {
+		if err != nil &&  p.User.Name == "" {
 			//Create new user
 			key, err := as.woocommerce.GenerateAPIKey(orderId, email, productId)
 			if err != nil {
-				level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
+				level.Error(as.logger).Log("msg", "Subscription update error", "orderId", orderId, "email", email, "productId", productId, "err", err)
 			} else {
 				err := CreateWoocommerceUser(as.user, email, key, productId)
 				if err != nil {
-					level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
+					level.Error(as.logger).Log("msg", "Subscription update error", "orderId", orderId, "email", email, "productId", productId, "err", err)
+				} else {
+					level.Info(as.logger).Log("msg", "Subscription update success", "orderId", orderId, "email", email, "productId", productId, "key", key)
 				}
-				level.Info(as.logger).Log("msg", "Subscription update success", "key", key)
 			}
 		} else {
-			UpdateWoocommerceUser(as.user, event.UpdateEvent.Status, email, productId, p.User)
+			updateError := UpdateWoocommerceUser(as.user, event.UpdateEvent.Status, email, productId, p.User)
+			if updateError != nil {
+				level.Error(as.logger).Log("msg", "Subscription update error", "email", email, "orderId", orderId, "productId", productId,  "err", updateError)
+			} else {
+				level.Info(as.logger).Log("msg", "Subscription update success", "orderId", orderId, "email", email, "productId", productId)
+			}
 		}
 	}
 
@@ -528,7 +534,7 @@ func (as APISVC)isRequestValid(params apisvc.Params) (string, error) {
 	p, err := as.validateUser(params.Key)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
-		return p.User.Name, err
+		return params.Key, err
 	}
 
 	err = as.validateRequest(params, p)

@@ -151,20 +151,26 @@ func (us UsersSVCClient) ValidateKey(key string) (usersvc.Parameters, error) {
 	defer conn.Close()
 
 	client := grpcusr.NewUserSVCClient(conn)
-	resp, err := client.ValidateKey(context.Background(), &grpcusr.ValidateKeyRequest{
+	resp, validateError := client.ValidateKey(context.Background(), &grpcusr.ValidateKeyRequest{
 		Key:  key,
 	})
 
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
-		return usersvc.Parameters{}, err
-	}else if resp.Err != common.ErrorNilString {
-		err = errors.New(resp.Err)
-		return usersvc.Parameters{}, err
+	if validateError != nil {
+		return usersvc.Parameters{}, validateError
 	}
 
-	p, err := usersvc.DecodeParameters(resp.Parameters)
-	return *p, err
+	p, decodeError := usersvc.DecodeParameters(resp.Parameters)
+	if decodeError != nil {
+		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err)
+		return *p, decodeError
+	}
+
+	if resp.Err != common.ErrorNilString {
+		return *p, errors.New(resp.Err)
+	}
+
+
+	return *p, nil
 }
 
 
@@ -177,18 +183,22 @@ func (us UsersSVCClient) ValidateName(name string) (usersvc.Parameters, error) {
 	defer conn.Close()
 
 	client := grpcusr.NewUserSVCClient(conn)
-	resp, err := client.ValidateName(context.Background(), &grpcusr.ValidateNameRequest{
+	resp, validateError := client.ValidateName(context.Background(), &grpcusr.ValidateNameRequest{
 		Name:  name,
 	})
 
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err.Error())
-		return usersvc.Parameters{},err
-	}else if resp.Err != common.ErrorNilString {
-		err = errors.New(resp.Err)
-		return usersvc.Parameters{},err
+	if validateError != nil {
+		return usersvc.Parameters{}, validateError
 	}
 
-	p, err := usersvc.DecodeParameters(resp.Parameters)
-	return *p, err
+	p, decodeError := usersvc.DecodeParameters(resp.Parameters)
+	if decodeError != nil {
+		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err.Error())
+		return *p, decodeError
+	}
+
+	if resp.Err != common.ErrorNilString {
+		return *p,errors.New(resp.Err)
+	}
+	return *p, nil
 }

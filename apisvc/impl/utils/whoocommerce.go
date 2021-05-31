@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/apisvc/config"
 	"github.com/flasherup/gradtage.de/common"
@@ -23,7 +22,6 @@ type Woocommerce struct {
 }
 
 func NewWoocommerce(conf config.Woocommerce) *Woocommerce {
-	fmt.Println("conf", conf)
 	return &Woocommerce{
 		Key:      conf.Key,
 		Secret:   conf.Secret,
@@ -75,8 +73,6 @@ func (wc Woocommerce) GenerateAPIKey(order, email, productId string) (apiKey str
 		},
 	})
 
-	fmt.Println("order", order, "email", email, "productId", productId)
-
 	parameters := url.Values{}
 	parameters.Add("wc-api", "software-api")
 	parameters.Add("request", "generate_key")
@@ -86,25 +82,24 @@ func (wc Woocommerce) GenerateAPIKey(order, email, productId string) (apiKey str
 	parameters.Add("order_id", order)
 
 
-	if r, err := c.Get("woocommerce", parameters); err != nil {
-		return  "", err
+	r, err := c.Get("woocommerce", parameters)
+	if err != nil {
+		return "", fmt.Errorf("generate api key error: %s", err.Error())
 	} else if r.StatusCode != http.StatusOK {
-		return "", errors.New("unexpected statusCode:" + r.Status)
+		return "", fmt.Errorf("generate api key error: unexpected statusCode: %v", r.StatusCode )
 	} else {
 		defer r.Body.Close()
 		if bodyBytes, err := ioutil.ReadAll(r.Body); err != nil {
 			return  "", err
 		} else {
-			//{"key":"85c08bd3-fe7f-4174-b294-efed0f1a2e52","key_id":42} Response example
 			jsonResponse := struct {
 				Key string `json:"key"`
-				KeyId string `json:"key"`
+				KeyId int `json:"key_id""`
 			}{}
-
-			if e := json.Unmarshal(bodyBytes, &jsonResponse); e != nil {
-				return "", e
+			e := json.Unmarshal(bodyBytes, &jsonResponse);
+			if e != nil {
+				return "", fmt.Errorf("generate api key error: %s", e.Error())
 			}
-
 			return jsonResponse.Key, nil
 		}
 	}

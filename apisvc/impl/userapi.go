@@ -16,11 +16,9 @@ const (
 )
 
 var productMapToPlan  = map[string]string{
-	"0": usersvc.PlanStarter,
-	"1010": usersvc.PlanBasic,
-	"1": usersvc.PlanAdvanced,
-	"2": usersvc.PlanProfessional,
-	"3": usersvc.PlanEnterprise,
+	"1010": usersvc.PlanLite,
+	"1": usersvc.PlanProfessional,
+	"2": usersvc.PlanEnterprise,
 }
 
 func CreateWoocommerceUser(client usersvc.Client, email, key, planId string) error {
@@ -44,8 +42,14 @@ func UpdateWoocommerceUser(client usersvc.Client, status, email, planId string, 
 
 	if status == common.WCStatusTrash {
 		client.DeleteUser(user)
-	} else {
+	} else if status == common.WCStatusProcess || status == common.WCStatusActive {
 		user.Plan = plan
+		_, err := client.UpdateUser(user, false)
+		if err != nil {
+			return err
+		}
+	} else {
+		user.Plan = usersvc.PlanCanceled
 		_, err := client.UpdateUser(user, false)
 		if err != nil {
 			return err

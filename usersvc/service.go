@@ -6,14 +6,12 @@ import (
 )
 
 const (
-	PlanCanceled 		= "canceled"
-	PlanAdmin 			= "admin"
-	PlanTrial 			= "trial"
-	PlanStarter 		= "starter"
-	PlanBasic 			= "basic"
-	PlanAdvanced 		= "advanced"
-	PlanProfessional	= "professional"
-	PlanEnterprise		= "enterprise"
+	PlanCanceled     = "canceled"
+	PlanAdmin        = "admin"
+	PlanTrial        = "trial"
+	PlanLite         = "lite"
+	PlanProfessional = "professional"
+	PlanEnterprise   = "enterprise"
 )
 
 type Selection struct {

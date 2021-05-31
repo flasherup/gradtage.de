@@ -6,7 +6,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/gorilla/mux"
@@ -127,7 +126,6 @@ func encodeSearchResponse(ctx context.Context, w http.ResponseWriter, response i
 }
 
 func decodeUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	fmt.Println("decodeUserRequest")
 	vars := mux.Vars(r)
 	r.ParseForm()
 	p := map[string]string{
@@ -145,13 +143,10 @@ func decodeUserRequest(_ context.Context, r *http.Request) (request interface{},
 		Action :	vars[UserAction],
 		Params: 	p,
 	}
-
-	fmt.Println(params)
 	return UserRequest{params}, nil
 }
 
 func encodeUserResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	fmt.Println("encodeUserResponse")
 	resp := response.(UserResponse)
 	w.Header().Set("Content-Type", "text/csv")
 	wr := csv.NewWriter(w)
@@ -193,13 +188,10 @@ func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response int
 
 func decodeWoocommerceRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	req := WoocommerceRequest{}
-	fmt.Println("Headers", r.Header)
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return req, err
 	}
-	fmt.Println("Body", string(body))
 	eventType := utils.GetWoocommerceEventType(r.Header)
 
 	event := WoocommerceEvent{}
@@ -239,7 +231,6 @@ func decodeCommandRequest(_ context.Context, r *http.Request) (request interface
 	for k,v := range r.Form {
 		p[k] = v[0]
 	}
-	fmt.Println("params", p)
 	req := CommandRequest{}
 	req.Params = p;
 	if name, ok := p["name"]; ok {

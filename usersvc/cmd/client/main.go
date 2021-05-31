@@ -21,15 +21,16 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewUsersSCVClient("localhost:8110",logger)
-	//client := impl.NewUsersSCVClient("82.165.18.228:8110",logger)
+	//client := impl.NewUsersSCVClient("localhost:8110",logger)
+	//client := impl.NewUsersSCVClient("82.165.18.228:8110",logger)//Old Server
+	client := impl.NewUsersSCVClient("212.227.214.163:8110",logger)//New server
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
 	addPlans(client, logger, data.Plans)
 	//checkUsers(client, logger)
-	createUser(client, logger)
+	//createUser(client, logger)
 
 }
 
@@ -53,7 +54,6 @@ func checkUsers(client *impl.UsersSVCClient, logger log.Logger) error {
 	params, err = client.ValidateKey(data.UserKeys["trial"]);
 	if err != nil {
 		level.Info(logger).Log("msg", "Trial user check ok", "msg", "User id expired", "err", err.Error())
-
 	} else {
 		level.Error(logger).Log("msg", "Trial user check error", "err", "date is not expired", "date", params.User.RenewDate.String())
 	}

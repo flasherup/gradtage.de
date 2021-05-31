@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/utils/weatherbitprocessor/config"
 	"github.com/flasherup/gradtage.de/utils/weatherbitprocessor/csv"
@@ -16,9 +15,9 @@ import (
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name.")
-	startDate := flag.String("start", "2021-03-20", "Start Date.")
-	endDate := flag.String("end", "2021-03-25", "End Date.")
-	csvFile := flag.String("csv.file", "station.csv", "CSV file name. ")
+	startDate := flag.String("start", "2021-05-21", "Start Date.")
+	endDate := flag.String("end", "2021-05-27", "End Date.")
+	csvFile := flag.String("csv.file", "Greece.csv", "CSV file name. ")
 	flag.Parse()
 
 	var logger log.Logger
@@ -26,11 +25,7 @@ func main() {
 		logger = log.NewLogfmtLogger(os.Stderr)
 		logger = log.NewSyncLogger(logger)
 		logger = level.NewFilter(logger, level.AllowDebug())
-		logger = log.With(logger,
-			"svc", "weatherbitprocessor",
-			"ts", log.DefaultTimestampUTC,
-			"caller", log.DefaultCaller,
-		)
+		logger = log.With(logger)
 	}
 
 	//Config
@@ -59,24 +54,24 @@ func calculateEntries(client *impl.WeatherBitSVCClient, logger log.Logger, stati
 	}
 
 	for innerId, stationId := range *stationList {
-		fmt.Println("Station:", stationId, "innerId", innerId)
+		level.Info(logger).Log("Station:", stationId, "innerId", innerId)
 		data, err := client.GetPeriod([]string{innerId}, startDate, endDate)
 		if err != nil {
-			fmt.Println("Station error:", stationId, "innerId", innerId, err)
+			level.Error(logger).Log("Station error:", stationId, "innerId", innerId, "error", err)
 			continue
 		}
 
 		for _,temperatures := range data.Temps {
 			if len(temperatures.Temps) == 0 {
-				fmt.Println("Station error: no entries")
+				level.Error(logger).Log("Error", "no entries", "Station:", stationId, "innerId", innerId)
 				continue
 			}
 
 			counted := countEntriesPerDay(&temperatures.Temps)
 			for k,v := range counted {
-				fmt.Println(k, v)
+				//level.Info(logger).Log("date", k, "hours", v)
 				if v < 24 {
-					fmt.Println("Station error: less the 24 entries")
+					level.Error(logger).Log("Error", "less the 24 entries", "date", k, "hours", v, "Station:", stationId, "innerId", innerId)
 				}
 			}
 		}

@@ -25,7 +25,7 @@ type weatherHistorical struct {
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name. ")
-	csvFile := flag.String("csv.file", "station.csv", "CSV file name. ")
+	csvFile := flag.String("csv.file", "Greece.csv", "CSV file name. ")
 	flag.Parse()
 
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
