@@ -40,7 +40,7 @@ func UpdateWoocommerceOrder(client usersvc.Client, status, email, planId string,
 
 	if status == common.WCStatusTrash {
 		client.DeleteOrder(order.OrderId)
-	} else if status == common.WCStatusProcess || status == common.WCStatusActive {
+	} else if status == common.WCStatusProcess || status == common.WCStatusActive || status == common.WCStatusComplete {
 		order.Plan = plan
 		_, err := client.UpdateOrder(order)
 		if err != nil {

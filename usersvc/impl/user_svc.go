@@ -152,11 +152,23 @@ func (us UserSVC) ValidateSelection(ctx context.Context, selection usersvc.Selec
 
 	order.Stations = stationsList
 
-	err = us.validateUserParameters(&order, &plan)
+	if plan.Name == usersvc.PlanCanceled {
+		return errors.New("plan is canceled")
+	}
+
+	requests, err := ValidateRequestsAvailable(&order, &plan)
 	if err != nil {
 		return err
 	}
 
+	//Update user request time nad count
+	order.RequestDate = time.Now().UTC()
+	order.Requests = requests
+	err = us.db.SetOrder(order)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Update order request time and count error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+	}
 	return err
 }
 
@@ -176,7 +188,7 @@ func (us UserSVC) ValidateKey(ctx context.Context, key string) (usersvc.Order, u
 		return order, usersvc.Plan{}, err
 	}
 
-	return order, plan, us.validateUserParameters(&order, &plan)
+	return order, plan, nil
 }
 
 func (us UserSVC) ValidateOrder(ctx context.Context, orderId int) (usersvc.Order, usersvc.Plan, error) {
@@ -195,7 +207,7 @@ func (us UserSVC) ValidateOrder(ctx context.Context, orderId int) (usersvc.Order
 		return order, usersvc.Plan{}, err
 	}
 
-	return order, plan, us.validateUserParameters(&order, &plan)
+	return order, plan, nil
 }
 
 func (us UserSVC)validateUserParameters(order *usersvc.Order, plan *usersvc.Plan) error {

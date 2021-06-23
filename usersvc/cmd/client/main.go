@@ -35,24 +35,29 @@ func main() {
 	//addPlans(client, logger, data.Plans)
 
 	//createOrder(client, logger)
-	//validateOrder(client, logger)
-	//validateKey(client, logger)
-	validateSelection(client, logger)
+	//validateOrder(client, logger, 1277)
+	//validateKey(client, logger, "fe52a98a-3b04-41d3-bd35-79a31ec3e9b2")
+	for i := 0; i<10; {
+		i++
+		validateSelection(client, logger)
+	}
+	//validateSelection(client, logger)
 	//updateOrder(client, logger)
 	//deleteOrder(client, logger)
 
 }
 
 func createOrder(client *impl.UsersSVCClient, logger log.Logger) {
-	key, err := client.CreateOrder(testOrderId, "test@test.test", "trial", testKey)
+	//key, err := client.CreateOrder(testOrderId, "test@test.test", "trial", testKey)
+	key, err := client.CreateOrder(1251, "nagel.bremen@gmail.com", "lite", "854780a7-b959-443a-a74a-74f3746b8e75")
 	if err !=nil {
 		level.Error(logger).Log("msg", "Order Create error", "err", err.Error())
 	}
 	level.Info(logger).Log("msg", "Order created successfully", "key", key)
 }
 
-func validateOrder(client *impl.UsersSVCClient, logger log.Logger) {
-	order, plan, err := client.ValidateOrder(testOrderId)
+func validateOrder(client *impl.UsersSVCClient, logger log.Logger, orderId int) {
+	order, plan, err := client.ValidateOrder(orderId)
 	if err != nil {
 		level.Error(logger).Log("msg", "Order validation error", "err", err.Error())
 	}
@@ -63,8 +68,8 @@ func validateOrder(client *impl.UsersSVCClient, logger log.Logger) {
 		"plan", plan.Name)
 }
 
-func validateKey(client *impl.UsersSVCClient, logger log.Logger) {
-	order, plan, err := client.ValidateKey(testKey)
+func validateKey(client *impl.UsersSVCClient, logger log.Logger, key string) {
+	order, plan, err := client.ValidateKey(key)
 	if err != nil {
 		level.Error(logger).Log("msg", "Key validation error", "err", err.Error())
 	}
@@ -89,11 +94,12 @@ func validateSelection(client *impl.UsersSVCClient, logger log.Logger) {
 	}
 
 	selection := usersvc.Selection{
-		Key:       testKey,
-		StationID: "WMO10142",
-		Method:    common.HDDType,
-		Start:     start,
-		End:       end,
+		//Key:       testKey,
+		Key: 		"fe52a98a-3b04-41d3-bd35-79a31ec3e9b2",
+		StationID: 	"WMO10142",
+		Method:    	common.HDDType,
+		Start:     	start,
+		End:       	end,
 	}
 
 	err = client.ValidateSelection(selection)
