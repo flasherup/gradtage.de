@@ -39,7 +39,7 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 //GetPlan(name string) (usersvc.Plan, error)
 func (pg *Postgres) GetOrderById(id int) (usersvc.Order, error) {
 	query := fmt.Sprintf("SELECT * FROM orders WHERE order_id = '%d';", id)
-	fmt.Println(query)
+	//fmt.Println(query)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return  usersvc.Order{},err
@@ -57,7 +57,7 @@ func (pg *Postgres) GetOrderById(id int) (usersvc.Order, error) {
 
 func (pg *Postgres) GetOrdersByUser(user string) ([]usersvc.Order, error) {
 	query := fmt.Sprintf("SELECT * FROM orders WHERE email = '%s';", user)
-	fmt.Println(query)
+	//fmt.Println(query)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return  []usersvc.Order{},err
@@ -74,7 +74,7 @@ func (pg *Postgres) GetOrdersByUser(user string) ([]usersvc.Order, error) {
 
 func (pg *Postgres) GetOrderByKey(key string) (usersvc.Order, error) {
 	query := fmt.Sprintf("SELECT * FROM orders WHERE key = '%s';", key)
-	fmt.Println(query)
+	//fmt.Println(query)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return  usersvc.Order{},err
@@ -101,7 +101,7 @@ func (pg *Postgres) GetOrderByKey(key string) (usersvc.Order, error) {
 func (pg *Postgres) DeleteOrders(orderIds []int) error {
 	o := ordersToString(orderIds)
 	query := fmt.Sprintf("DELETE FROM orders WHERE order_id = (%s);", o)
-	fmt.Println(query)
+	//fmt.Println(query)
 	_, err := pg.db.Query(query)
 	return err
 }
@@ -142,7 +142,7 @@ func (pg *Postgres) SetOrder(order usersvc.Order) error {
 				excluded.req_count,
 				excluded.admin
 			);`
-	fmt.Println(query)
+	//fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 
@@ -158,7 +158,7 @@ func (pg *Postgres) CreateOrdersTable() error {
 				req_count	integer,
 				admin 		boolean
 			);`, KeyLength)
-	fmt.Println(query)
+	//fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 
@@ -258,7 +258,7 @@ func (pg *Postgres) SetPlan(plan usersvc.Plan) error {
 				excluded.etime,
 				excluded.period
 			);`
-	fmt.Println(query)
+	//fmt.Println(query)
 
 	return writeToDB(pg.db, query)
 }
@@ -267,7 +267,7 @@ func (pg *Postgres) SetPlan(plan usersvc.Plan) error {
 func (pg *Postgres) GetPlans(plans []string) ([]usersvc.Plan, error) {
 	p := plansToString(plans)
 	query := fmt.Sprintf("SELECT * FROM plans WHERE name in (%s);", p)
-	fmt.Println(query)
+	//fmt.Println(query)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return  []usersvc.Plan{},err
@@ -289,7 +289,7 @@ func (pg *Postgres) CreatePlansTable() error {
 				etime 		timestamp,
 				period		integer
 			);`
-	fmt.Println(query)
+	//fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 

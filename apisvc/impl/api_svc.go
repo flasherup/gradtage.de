@@ -230,7 +230,8 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 	level.Info(as.logger).Log("msg", "User", "action", params.Action, "key", params.Key)
 
 
-	switch params.Action {
+	//TODO restore user creation functionality
+	/*switch params.Action {
 		case CrateAction:
 			return CreateUser(as.user, params, false)
 		case AutoCrateAction:
@@ -239,7 +240,7 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 			return SetUserPlan(as.user, params)
 		case RenewAction:
 			return RenewUser(as.user, params)
-	}
+	}*/
 	return [][]string{}, err
 }
 
@@ -318,7 +319,7 @@ func (as APISVC) Command(ctx context.Context, name string, params map[string]str
 		Response interface{} `json:"response"`
 	}{}
 
-	p, o, err := as.validateUser(params["key"])
+	order, _, err := as.validateUser(params["key"])
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Run command error", "err", err)
 		resp.Status = "error"
@@ -326,7 +327,7 @@ func (as APISVC) Command(ctx context.Context, name string, params map[string]str
 		return resp, err
 	}
 
-	if !p.Plan.Admin {
+	if !order.Admin {
 		level.Error(as.logger).Log("msg", "Run command error", "err", "User validation error")
 		resp.Status = "error"
 		resp.Error = "Not enough rights to run commands"
@@ -439,13 +440,13 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 
 		aTemperature := temp.Temperature
 
-		if params.Output 		== HDDType {
+		if params.Output 		== common.HDDType {
 			degree 	= calculateHDD(params.TB, v.Temperature)
 			degreeA = calculateHDD(params.TB, aTemperature)
-		} else if params.Output == DDType {
+		} else if params.Output == common.DDType {
 			degree 	= calculateDD(params.TB, params.TR, v.Temperature)
 			degreeA = calculateDD(params.TB, params.TR, aTemperature)
-		} else if params.Output == CDDType {
+		} else if params.Output == common.CDDType {
 			degree 	= calculateCDD(params.TB, v.Temperature)
 			degreeA = calculateCDD(params.TB, aTemperature)
 		}
