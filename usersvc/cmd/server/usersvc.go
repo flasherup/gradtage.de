@@ -52,12 +52,12 @@ func main() {
 		return
 	}
 
-	err = db.CreateUserTable()
+	err = db.CreateOrdersTable()
 	if err != nil {
 		level.Error(logger).Log("msg", "user database create error", "exit", err.Error())
 		return
 	}
-	err = db.CreatePlanTable()
+	err = db.CreatePlansTable()
 	if err != nil {
 		level.Error(logger).Log("msg", "plan database create error", "exit", err.Error())
 		return

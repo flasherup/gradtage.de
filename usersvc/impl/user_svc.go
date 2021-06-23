@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/usersvc"
@@ -40,8 +41,9 @@ func NewUserSVC(logger log.Logger, db database.UserDB, alert alertsvc.Client, us
 	return &st,nil
 }
 
-func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, key string, email bool) (string, error) {
-	level.Info(us.logger).Log("msg", "Create User", "user", userName, "plan", plan, "key", key)
+
+func (us UserSVC) CreateOrder(ctx context.Context, orderId int, email, plan, key string) (string, error) {
+	level.Info(us.logger).Log("msg", "Create Order", "id", orderId, "email", email, "plan", plan, "key", key)
 	var err error
 	if key == "" {
 		key, err = common.GenerateRandomString(database.KeyLength)
@@ -51,75 +53,51 @@ func (us UserSVC) CreateUser(ctx context.Context, userName string, plan string, 
 		}
 	}
 
-	_, err = us.ValidateName(ctx, userName)
+	o, _, err := us.ValidateOrder(ctx, orderId)
 	if err == nil {
-		return "", errors.New("user already exist")
+		return o.Key, errors.New("order already exist")
 	}
 
-	user := usersvc.User{
-		Name:        userName,
-		Key: 		 key,
-		RenewDate:   time.Now(),
-		RequestDate: time.Now(),
-		Requests:    0,
-		Plan:        plan,
-		Stations:    us.getDefaultStations(plan),
+	order := usersvc.Order {
+		OrderId:		orderId,
+		Key: 			key,
+		Email:			email,
+		Plan:			plan,
+		Stations: 		us.getDefaultStations(plan),
+		RequestDate:	time.Now(),
+		Requests: 		0,
+		Admin:			false,
 	}
 
-	if userName != "test@test.test" {
-		err = us.db.SetUser(user)
-		if err != nil {
-			level.Error(us.logger).Log("msg", "Create User Error", "err", err)
-			us.sendAlert(NewErrorAlert(err))
-		}
-	}
-
-	if email {
-		us.alert.SendEmail(alertsvc.Email{
-			Name:   "create_user",
-			Email:  userName,
-			Params: map[string]string{
-				"key": key,
-				"plan": plan,
-			},
-		})
+	err = us.db.SetOrder(order)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Create order error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
 	}
 	return key,err
 }
 
-func (us UserSVC) UpdateUser(ctx context.Context, user usersvc.User, email bool) (string, error) {
-	level.Info(us.logger).Log("msg", "Update User", "user", user.Name, "email", email)
+func (us UserSVC) UpdateOrder(ctx context.Context, order usersvc.Order,) (string, error) {
+	level.Info(us.logger).Log("msg", "Update order", "id", order.OrderId,)
 
-	err := us.db.SetUser(user)
+	err := us.db.SetOrder(order)
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Update User Error", "err", err)
+		level.Error(us.logger).Log("msg", "Update order error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
 	}
 
-	if email {
-		us.alert.SendEmail(alertsvc.Email{
-			Name:   "create_user",
-			Email:  user.Name,
-			Params: map[string]string{
-				"key": user.Key,
-				"plan": user.Plan,
-			},
-		})
-	}
-
-	return user.Key,err
+	return order.Key,err
 }
 
-func (us UserSVC) DeleteUser(ctx context.Context, user usersvc.User) error {
-	level.Info(us.logger).Log("msg", "Delete User", "user", user.Name)
-
-	err := us.db.DeleteUser(user)
+func (us UserSVC)  DeleteOrder(ctx context.Context, orderId int) error {
+	err := us.db.DeleteOrders([]int{orderId})
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Delete User Error", "err", err)
+		level.Error(us.logger).Log("msg", "Delete order error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
+		return err
 	}
 
-	return err
+	return nil
 }
 
 func (us UserSVC) AddPlan(ctx context.Context, plan usersvc.Plan) error {
@@ -133,79 +111,115 @@ func (us UserSVC) AddPlan(ctx context.Context, plan usersvc.Plan) error {
 	return err
 }
 
-func (us UserSVC) ValidateSelection(ctx context.Context, selection usersvc.Selection) (bool, error) {
+func (us UserSVC) ValidateSelection(ctx context.Context, selection usersvc.Selection) error {
 	level.Info(us.logger).Log("msg", "Validate Selection", "key", selection.Key)
-	_, err := us.db.GetUserDataByKey(selection.Key)
+	order, err := us.db.GetOrderByKey(selection.Key)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Validate Key Error", "err", err.Error())
 		us.sendAlert(NewErrorAlert(err))
-		return false, err
+		return err
 	}
 
-	/*isValid, err := ValidatePeriod(selection.Start, selection.End, parameters)
-	if !isValid {
-		return false, err
-	}*/
-	return true, err
-}
-
-func (us UserSVC) ValidateKey(ctx context.Context, key string) (usersvc.Parameters, error) {
-	level.Info(us.logger).Log("msg", "Validate Key", "key", key)
-	parameters, err := us.db.GetUserDataByKey(key)
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Validate Key Error", "err", err)
-		us.sendAlert(NewErrorAlert(err))
-		return parameters, err
-	}
-	//valid, err := ValidateUser(params)
-	return parameters, us.validateUserParameters(&parameters)
-}
-
-func (us UserSVC) ValidateName(ctx context.Context, name string) (usersvc.Parameters, error) {
-	level.Info(us.logger).Log("msg", "Validate Name", "name", name)
-	parameters, err := us.db.GetUserDataByName(name)
-	if err != nil {
-		level.Error(us.logger).Log("msg", "Validate Name Error", "err", err)
-		us.sendAlert(NewErrorAlert(err))
-		return parameters, err
-	}
-
-	if parameters.User.Key == "" {
-		level.Error(us.logger).Log("msg", "User not found", "usr", name)
-		return parameters, errors.New("user not found")
-	}
-
-	return parameters, us.validateUserParameters(&parameters)
-}
-
-func (us UserSVC)validateUserParameters(params *usersvc.Parameters) error {
-	if params.Plan.Admin {
+	if order.Admin {
 		return nil
 	}
 
-	if params.Plan.Name == usersvc.PlanCanceled {
-		return errors.New("plan is canceled")
+	plan, err := us.getPlan(order.Plan)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Validate Key Error", "err", err.Error())
+		us.sendAlert(NewErrorAlert(err))
+		return err
 	}
 
-	err := ValidatePlanExpiration(params)
+	isStartValid, err := ValidateStart(selection.Start, plan)
+	if !isStartValid {
+		return err
+	}
+
+	isEndValid, err := ValidateEnd(selection.End, plan)
+	if !isEndValid {
+		return err
+	}
+
+	stationsList, err := ValidateStationId(selection.StationID, &order, &plan)
+	if err != nil {
+		return err
+	}
+	err = ValidateOutput(selection.Method, &plan)
 	if err != nil {
 		return err
 	}
 
-	requests, err := ValidateRequestsAvailable(params)
+	order.Stations = stationsList
+
+	err = us.validateUserParameters(&order, &plan)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (us UserSVC) ValidateKey(ctx context.Context, key string) (usersvc.Order, usersvc.Plan, error) {
+	level.Info(us.logger).Log("msg", "Validate Key", "key", key)
+	order, err := us.db.GetOrderByKey(key)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Validate Key Error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+		return order, usersvc.Plan{}, err
+	}
+
+	plan, err := us.getPlan(order.Plan)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Validate Key Error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+		return order, usersvc.Plan{}, err
+	}
+
+	return order, plan, us.validateUserParameters(&order, &plan)
+}
+
+func (us UserSVC) ValidateOrder(ctx context.Context, orderId int) (usersvc.Order, usersvc.Plan, error) {
+	level.Info(us.logger).Log("msg", "Validate Order", "orderId", orderId)
+	order, err := us.db.GetOrderById(orderId)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Validate order error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+		return order, usersvc.Plan{}, err
+	}
+
+	plan, err := us.getPlan(order.Plan)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Validate order Error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+		return order, usersvc.Plan{}, err
+	}
+
+	return order, plan, us.validateUserParameters(&order, &plan)
+}
+
+func (us UserSVC)validateUserParameters(order *usersvc.Order, plan *usersvc.Plan) error {
+	if order.Admin {
+		return nil
+	}
+
+	if plan.Name == usersvc.PlanCanceled {
+		return errors.New("plan is canceled")
+	}
+
+	requests, err := ValidateRequestsAvailable(order, plan)
 	if err != nil {
 		return err
 	}
 
 	//Update user request time nad count
-	params.User.RequestDate = time.Now().UTC()
-	params.User.Requests = requests
-	err = us.db.SetUser(params.User)
+	order.RequestDate = time.Now().UTC()
+	order.Requests = requests
+	err = us.db.SetOrder(*order)
 	if err != nil {
-		level.Error(us.logger).Log("msg", "Update user request time and count", "err", err)
+		level.Error(us.logger).Log("msg", "Update order request time and count error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
 	}
-
 	return nil
 }
 
@@ -221,4 +235,19 @@ func (us UserSVC)getDefaultStations (sType string) []string {
 		return []string{us.config.Plans.FreeDefault}
 	}
 	return []string{}
+}
+
+func (us UserSVC) getPlan(name string) (usersvc.Plan, error) {
+	plans, err := us.db.GetPlans([]string{name})
+	if err != nil {
+		return usersvc.Plan{}, err
+	}
+
+	if len(plans) != 1 {
+		return usersvc.Plan{}, fmt.Errorf("plan:%s not find", name)
+	}
+
+	plan := plans[0]
+
+	return plan, nil
 }

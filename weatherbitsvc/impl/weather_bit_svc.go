@@ -56,7 +56,7 @@ func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start strin
 
 func startFetchProcess(wb *WeatherBitSVC) {
 	wb.precessStations() //Do it first time
-	tick := time.Tick(time.Hour)
+	tick := time.Tick(time.Hour * 24)
 	for {
 		select {
 		case <-tick:

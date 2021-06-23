@@ -198,6 +198,7 @@ func decodeWoocommerceRequest(_ context.Context, r *http.Request) (request inter
 	event.Type = eventType
 	event.Signature = utils.GetWoocommerceSignature(r.Header)
 	event.Body = body
+	event.Header = r.Header
 
 	if eventType == common.WCUpdateEvent {
 		if e := json.Unmarshal(body, &event.UpdateEvent); e != nil {

@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type Woocommerce struct {
@@ -60,7 +61,7 @@ func genHMAC256(ciphertext, key []byte) []byte {
 	return hmac
 }
 
-func (wc Woocommerce) GenerateAPIKey(order, email, productId string) (apiKey string, err error) {
+func (wc Woocommerce) GenerateAPIKey(orderId int, email, productId string) (apiKey string, err error) {
 	factory := client.Factory{}
 	c := factory.NewClient(options.Basic{
 		URL:    "https://energy-data.io",
@@ -79,7 +80,7 @@ func (wc Woocommerce) GenerateAPIKey(order, email, productId string) (apiKey str
 	parameters.Add("secret_key", "123456789")
 	parameters.Add("email", email)
 	parameters.Add("product_id", productId)
-	parameters.Add("order_id", order)
+	parameters.Add("order_id", strconv.Itoa(orderId))
 
 
 	r, err := c.Get("woocommerce", parameters)

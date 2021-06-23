@@ -3,6 +3,7 @@ package apisvc
 import (
 	"context"
 	"github.com/moosh3/woogo"
+	"net/http"
 )
 
 type Params struct {
@@ -64,6 +65,7 @@ type WoocommerceEvent struct {
 	Type 		string
 	Signature 	string
 	Body 		[]byte
+	Header 	    http.Header
 	DeleteEvent WCDeleteEvent
 	UpdateEvent WCUpdateEvent
 }

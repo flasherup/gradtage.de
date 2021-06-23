@@ -28,3 +28,9 @@ const (
 	WCStatusProcess = "process"
 	WCStatusOnHold = "on-hold"
 )
+
+const (
+	CDDType = "cdd"
+	HDDType = "hdd"
+	DDType  = "dd"
+)

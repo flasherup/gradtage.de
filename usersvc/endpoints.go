@@ -6,49 +6,49 @@ import (
 )
 
 type Endpoints struct {
-	CreateUserEndpoint  		endpoint.Endpoint
-	UpdateUserEndpoint  		endpoint.Endpoint
-	DeleteUserEndpoint  		endpoint.Endpoint
+	CreateOrderEndpoint  		endpoint.Endpoint
+	UpdateOrderEndpoint  		endpoint.Endpoint
+	DeleteOrderEndpoint  		endpoint.Endpoint
 	AddPlanEndpoint  			endpoint.Endpoint
 	ValidateSelectionEndpoint  	endpoint.Endpoint
 	ValidateKeyEndpoint  		endpoint.Endpoint
-	ValidateNameEndpoint  		endpoint.Endpoint
+	ValidateOrderEndpoint  		endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		CreateUserEndpoint:   		MakeCreateUserEndpoint(s),
-		UpdateUserEndpoint:   		MakeUpdateUserEndpoint(s),
-		DeleteUserEndpoint:   		MakeDeleteUserEndpoint(s),
+		CreateOrderEndpoint:   		MakeCreateOrderEndpoint(s),
+		UpdateOrderEndpoint:   		MakeUpdateOrderEndpoint(s),
+		DeleteOrderEndpoint:   		MakeDeleteOrderEndpoint(s),
 		AddPlanEndpoint:   			MakeAddPlanEndpoint(s),
 		ValidateSelectionEndpoint:  MakeValidateSelectionEndpoint(s),
 		ValidateKeyEndpoint:   		MakeValidateKeyEndpoint(s),
-		ValidateNameEndpoint:   	MakeValidateNameEndpoint(s),
+		ValidateOrderEndpoint:   	MakeValidateOrderEndpoint(s),
 	}
 }
 
 
-func MakeCreateUserEndpoint(s Service) endpoint.Endpoint {
+func MakeCreateOrderEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(CreateUserRequest)
-		key, err := s.CreateUser(ctx, req.UserName,req.Plan, req.Key, req.Email)
-		return CreateUserResponse{key, err}, err
+		req := request.(CreateOrderRequest)
+		key, err := s.CreateOrder(ctx, req.OrderId, req.Email,req.Plan, req.Key,)
+		return CreateOrderResponse{key, err}, err
 	}
 }
 
-func MakeUpdateUserEndpoint(s Service) endpoint.Endpoint {
+func MakeUpdateOrderEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(UpdateUserRequest)
-		key, err := s.UpdateUser(ctx, req.User, req.Email)
-		return UpdateUserResponse{key, err}, err
+		req := request.(UpdateOrderRequest)
+		key, err := s.UpdateOrder(ctx, req.Order)
+		return UpdateOrderResponse{key, err}, err
 	}
 }
 
-func MakeDeleteUserEndpoint(s Service) endpoint.Endpoint {
+func MakeDeleteOrderEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(DeleteUserRequest)
-		err := s.DeleteUser(ctx, req.User)
-		return DeleteUserResponse{err}, err
+		req := request.(DeleteOrderRequest)
+		err := s.DeleteOrder(ctx, req.OrderId)
+		return DeleteOrderResponse{err}, err
 	}
 }
 
@@ -63,23 +63,23 @@ func MakeAddPlanEndpoint(s Service) endpoint.Endpoint {
 func MakeValidateSelectionEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(ValidateSelectionRequest)
-		isValid, err := s.ValidateSelection(ctx, req.Selection)
-		return ValidateSelectionResponse{ isValid, err}, err
+		err := s.ValidateSelection(ctx, req.Selection)
+		return ValidateSelectionResponse{ err}, err
 	}
 }
 
 func MakeValidateKeyEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(ValidateKeyRequest)
-		parameters, err := s.ValidateKey(ctx, req.Key)
-		return ValidateKeyResponse{ parameters, err}, err
+		order, plan, err := s.ValidateKey(ctx, req.Key)
+		return ValidateKeyResponse{ order, plan, err}, err
 	}
 }
 
-func MakeValidateNameEndpoint(s Service) endpoint.Endpoint {
+func MakeValidateOrderEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(ValidateNameRequest)
-		parameters, err := s.ValidateName(ctx, req.Name)
-		return ValidateNameResponse{ parameters, err}, err
+		req := request.(ValidateOrderRequest)
+		order, plan, err := s.ValidateOrder(ctx, req.OrderId)
+		return ValidateOrderResponse{ order, plan, err}, err
 	}
 }

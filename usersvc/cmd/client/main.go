@@ -1,13 +1,17 @@
 package main
 
 import (
-	"github.com/flasherup/gradtage.de/localutils/data"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/usersvc"
 	"github.com/flasherup/gradtage.de/usersvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
+	"time"
 )
+
+const testKey = "justtestkeynothingspecial"
+const testOrderId = 102
 
 func main() {
 	var logger log.Logger
@@ -21,46 +25,113 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	//client := impl.NewUsersSCVClient("localhost:8110",logger)
+	client := impl.NewUsersSCVClient("localhost:8110",logger)
 	//client := impl.NewUsersSCVClient("82.165.18.228:8110",logger)//Old Server
-	client := impl.NewUsersSCVClient("212.227.214.163:8110",logger)//New server
+	//client := impl.NewUsersSCVClient("212.227.214.163:8110",logger)//New server
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	addPlans(client, logger, data.Plans)
-	//checkUsers(client, logger)
-	//createUser(client, logger)
+	//addPlans(client, logger, data.Plans)
+
+	//createOrder(client, logger)
+	//validateOrder(client, logger)
+	//validateKey(client, logger)
+	validateSelection(client, logger)
+	//updateOrder(client, logger)
+	//deleteOrder(client, logger)
 
 }
 
-func checkUsers(client *impl.UsersSVCClient, logger log.Logger) error {
-
-	params, err := client.ValidateKey(data.UserKeys["admin"]);
-	if err != nil {
-		level.Error(logger).Log("msg", "Admin user check error", "err", err.Error())
-	} else {
-		level.Info(logger).Log("msg", "Admin user check ok", "Plan name", params.Plan.Name, "User", params.User.Name);
+func createOrder(client *impl.UsersSVCClient, logger log.Logger) {
+	key, err := client.CreateOrder(testOrderId, "test@test.test", "trial", testKey)
+	if err !=nil {
+		level.Error(logger).Log("msg", "Order Create error", "err", err.Error())
 	}
-
-	params, err = client.ValidateKey(data.UserKeys["starter"]);
-	if err != nil {
-		level.Info(logger).Log("msg", "Starter user check ok", "msg", "User should be expired")
-		return err;
-	} else {
-		level.Error(logger).Log("msg", "Starter user check error", "err", "date is not expired", "date", params.User.RenewDate.String())
-
-	}
-	params, err = client.ValidateKey(data.UserKeys["trial"]);
-	if err != nil {
-		level.Info(logger).Log("msg", "Trial user check ok", "msg", "User id expired", "err", err.Error())
-	} else {
-		level.Error(logger).Log("msg", "Trial user check error", "err", "date is not expired", "date", params.User.RenewDate.String())
-	}
-
-
-	return nil
+	level.Info(logger).Log("msg", "Order created successfully", "key", key)
 }
+
+func validateOrder(client *impl.UsersSVCClient, logger log.Logger) {
+	order, plan, err := client.ValidateOrder(testOrderId)
+	if err != nil {
+		level.Error(logger).Log("msg", "Order validation error", "err", err.Error())
+	}
+
+	level.Info(logger).Log(
+		"msg", "Order validated successfully",
+		"orderId", order.OrderId,
+		"plan", plan.Name)
+}
+
+func validateKey(client *impl.UsersSVCClient, logger log.Logger) {
+	order, plan, err := client.ValidateKey(testKey)
+	if err != nil {
+		level.Error(logger).Log("msg", "Key validation error", "err", err.Error())
+	}
+
+	level.Info(logger).Log(
+		"msg", "Order validated successfully",
+		"orderId", order.OrderId,
+		"plan", plan.Name)
+}
+
+func validateSelection(client *impl.UsersSVCClient, logger log.Logger) {
+	start, err := time.Parse(common.TimeLayoutWBH, "2012-01-01")
+	if err != nil {
+		level.Error(logger).Log("msg", "Start time validation error", "err", err)
+		return
+	}
+
+	end, err := time.Parse(common.TimeLayoutWBH, "2012-02-01")
+	if err != nil {
+		level.Error(logger).Log("msg", "End time validation error", "err", err)
+		return
+	}
+
+	selection := usersvc.Selection{
+		Key:       testKey,
+		StationID: "WMO10142",
+		Method:    common.HDDType,
+		Start:     start,
+		End:       end,
+	}
+
+	err = client.ValidateSelection(selection)
+	if err != nil {
+		level.Error(logger).Log("msg", "Selection validation error", "err", err.Error())
+		return
+	}
+
+	level.Info(logger).Log("msg", "Selection validated successfully")
+}
+
+
+func updateOrder(client *impl.UsersSVCClient, logger log.Logger) {
+	order, _, err := client.ValidateOrder(testOrderId)
+	if err != nil {
+		level.Error(logger).Log("msg", "Order update error", "err", err.Error())
+	}
+
+	order.Admin = true
+
+	key, err := client.UpdateOrder(order)
+	if err != nil {
+		level.Error(logger).Log("msg", "Order update error", "err", err.Error())
+	}
+
+	level.Info(logger).Log(
+		"msg", "Order updated successfully",
+		"key", key)
+}
+
+func deleteOrder(client *impl.UsersSVCClient, logger log.Logger) {
+	err := client.DeleteOrder(testOrderId)
+	if err !=nil {
+		level.Error(logger).Log("msg", "Order delete error", "err", err.Error())
+	}
+	level.Info(logger).Log("msg", "Order delete successfully", "orderId", testOrderId)
+}
+
 
 func addPlans(client *impl.UsersSVCClient, logger log.Logger, plans []usersvc.Plan) {
 	for _, plan := range plans {
@@ -70,38 +141,4 @@ func addPlans(client *impl.UsersSVCClient, logger log.Logger, plans []usersvc.Pl
 			break
 		}
 	}
-}
-
-func createUser(client *impl.UsersSVCClient, logger log.Logger) {
-	key, err := client.CreateUser("flasherup@gmail.com", "trial",  "85c08bd3-fe7f-4174-b294-efed0f1a2e52", false)
-	if err != nil {
-		level.Error(logger).Log("msg", "Create User Error", "err", err)
-	}
-
-	key, err = client.CreateUser("admin@gradtage.de", "trial", "", false)
-	if err != nil {
-		level.Error(logger).Log("msg", "Create User Error", "err", err)
-	}
-	level.Info(logger).Log("msg", "Users Created", "key", key)
-
-	/*params, err := client.ValidateName("flasherup@gmail.com")
-	if err != nil {
-		level.Error(logger).Log("msg", "Validate User Error", "err", err)
-	}
-	level.Info(logger).Log("msg", "User Valid", "key", params.User.Key)
-	*/
-
-	params, err := client.ValidateName("admin@gradtage.de")
-	if err != nil {
-		level.Error(logger).Log("msg", "Validate User Error", "err", err)
-	}
-	level.Info(logger).Log("msg", "User Valid", "name", params.User.Name)
-
-	user := params.User
-	user.Plan = "admin"
-	key, err = client.UpdateUser(user, false)
-	if err != nil {
-		level.Error(logger).Log("msg", "Update User Error", "err", err)
-	}
-	level.Info(logger).Log("msg", "User Updated", "name", key)
 }
