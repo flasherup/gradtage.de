@@ -553,6 +553,11 @@ func (as APISVC)validateUser(key string) (usersvc.Order, usersvc.Plan, error) {
 }
 
 func (as APISVC)validateRequest(params apisvc.Params) error {
+	_, err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	if err == nil {
+		return nil
+	}
+
 	start, err := time.Parse(common.TimeLayoutWBH, params.Start)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Start time validation error", "err", err)
