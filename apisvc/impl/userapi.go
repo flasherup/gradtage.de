@@ -15,7 +15,10 @@ const (
 var productMapToPlan  = map[string]string{
 	"1010": usersvc.PlanLite,
 	"25": usersvc.PlanLite,
+	"1286": usersvc.PlanLite,
+	"1299": usersvc.PlanProfessional,
 	"32": usersvc.PlanProfessional,
+	"1305": usersvc.PlanEnterprise,
 	"394": usersvc.PlanEnterprise,
 }
 
