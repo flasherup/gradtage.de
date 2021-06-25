@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
@@ -41,6 +42,11 @@ func NewWeatherBitSVC(
 		logger:logger,
 		conf:conf,
 	}
+
+
+
+	//processUpdate(wb, startDate, endDate)
+
 	go startFetchProcess(&wb)
 	return &wb,nil
 }
@@ -61,7 +67,7 @@ func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start strin
 
 func startFetchProcess(wb *WeatherBitSVC) {
 	wb.precessStations() //Do it first time
-	tick := time.Tick(time.Hour)
+	tick := time.Tick(time.TwoDays)
 	for {
 		select {
 		case <-tick:
@@ -80,13 +86,18 @@ func (wb WeatherBitSVC)precessStations() {
 
 	for _ , station := range sts.Sts {
 		wb.processUpdate(station.Id, station.SourceId)
-		//ids [station.Id] = station.SourceId
 	}
 
 }
 
 func (wb WeatherBitSVC)processUpdate(stID string, st string) {
-	url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
+	date := time.Now()
+	endDate := date.Format(common.TimeLayoutWBH)
+	sDate := date.AddDate(0, 0, -2 )
+	startDate := sDate.Format(common.TimeLayoutWBH)
+
+	url := wb.conf.Sources.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit + "&start_date=" + startDate + "&end_date=" + endDate
+	//url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
