@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-type weatherHistorical struct {
+type WeatherHistorical struct {
 	db 			database.WeatherBitDB
 	logger  	log.Logger
 	conf		config.WeatherBitConfig
@@ -51,7 +51,7 @@ func main() {
 		return
 	}
 
-	 wbh := weatherHistorical{
+	 wbh := WeatherHistorical{
 	 	 db: db,
 		 logger: logger,
 		 conf: *conf,
@@ -59,62 +59,94 @@ func main() {
 	 }
 
 	 date := time.Now()
-	 endDate := date.Format(common.TimeLayoutWBH)
-	 sDate := date.AddDate(0, 0, -7)
-	 startDate := sDate.Format(common.TimeLayoutWBH)
-
-	 precessStations(wbh, startDate, endDate)
+	 wbh.precessStations(date)
 }
 
+func (wbh WeatherHistorical)processRequest(stID string, st string, end time.Time) error {
 
+	dailyRequestCounter := 0
+	secondsRequestCounter := 0
+	startDate := end
+	for {
+		start := end.AddDate(0, 0, -14)
+		sDate := start.Format(common.TimeLayoutWBH)
+		eDate := end.Format(common.TimeLayoutWBH)
+		wbh.processUpdate(stID, st, sDate, eDate)
+		dailyRequestCounter++
+		secondsRequestCounter++
+		secondsRequestCounter = sleepCheck(wbh.conf.WeatherBit.NumberOfRequestPerSecond, secondsRequestCounter, time.Second)
+		dailyRequestCounter = sleepCheck(wbh.conf.WeatherBit.NumberOfRequestPerDay, dailyRequestCounter, time.Second * 5)
+		end = start
+		if !yearCheck(startDate, end, wbh.conf.WeatherBit.NumberOfYears) {
+			break
+		}
+	}
+	return nil
+}
 
-func precessStations(wbh weatherHistorical, start string, end string) {
+func sleepCheck(numberOfRequests, counter int, duration time.Duration) int {
+	if counter >= numberOfRequests{
+		time.Sleep(duration)
+		return 0
+	}
+	return counter
+}
+
+func (wbh WeatherHistorical)precessStations(date time.Time) {
+	time.Now()
 	for k,v := range wbh.stationlist {
-		processUpdate(k, v, start, end, wbh)
+		wbh.processRequest(k, v, date)
 	}
 }
 
-func processUpdate(stID string, st string, start string, end string, wbh weatherHistorical, ) {
-		err := wbh.db.CreateTable(stID)
-		if err != nil {
-			level.Error(wbh.logger).Log("msg", "table create error", "err", err)
-			return
-		}
+func yearCheck(start, end time.Time, yearsCount int) bool {
+	if start.Year() - end.Year() >= yearsCount && start.Month() >= end.Month() && start.Day() >= end.Day() && start.Hour() >= end.Hour(){
+		return false
+	}
+	return true
+}
 
-		url := wbh.conf.Sources.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wbh.conf.Sources.KeyWeatherBit + "&start_date=" + start + "&end_date=" + end
-		level.Info(wbh.logger).Log("msg", "weather bit request", "url", url)
+func (wbh WeatherHistorical)processUpdate(stID string, st string, start string, end string) error {
+	err := wbh.db.CreateTable(stID)
+	if err != nil {
+		level.Error(wbh.logger).Log("msg", "table create error", "err", err)
+		return err
+	}
 
-		client := &http.Client{
-			Timeout: time.Second * 10,
-		}
-		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			level.Error(wbh.logger).Log("msg", "request error", "err", err, "url", url)
-			return
-		}
-		resp, err := client.Do(req)
-		if err != nil {
-			level.Error(wbh.logger).Log("msg", "request error", "err", err, "url", url)
-			return
-		}
-		defer resp.Body.Close()
+	url := wbh.conf.Sources.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wbh.conf.Sources.KeyWeatherBit + "&start_date=" + start + "&end_date=" + end
+	level.Info(wbh.logger).Log("msg", "weather bit request", "url", url)
 
-		contents, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			level.Error(wbh.logger).Log("msg", "response read error", "err", err, "url", url)
-			return
-		}
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		level.Error(wbh.logger).Log("msg", "request error", "err", err, "url", url)
+		return err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		level.Error(wbh.logger).Log("msg", "request error", "err", err, "url", url)
+		return err
+	}
+	defer resp.Body.Close()
 
-		result, err := parser.ParseWeatherBit(&contents)
-		if (err != nil) {
-			level.Error(wbh.logger).Log("msg", "weather bit data parse error", "err", err, "url", url)
-			return
-		}
+	contents, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		level.Error(wbh.logger).Log("msg", "response read error", "err", err, "url", url)
+		return err
+	}
 
-		err = wbh.db.PushData(stID, result)
-		if err != nil {
-			level.Error(wbh.logger).Log("msg", "data push error", "err", err, "url", url)
-			return
-		}
+	result, err := parser.ParseWeatherBit(&contents)
+	if err != nil {
+		level.Error(wbh.logger).Log("msg", "weather bit data parse error", "err", err, "url", url)
+		return err
+	}
 
+	err = wbh.db.PushData(stID, result)
+	if err != nil {
+		level.Error(wbh.logger).Log("msg", "data push error", "err", err, "url", url)
+		return err
+	}
+	return nil
 }

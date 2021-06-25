@@ -1,4 +1,4 @@
-package database
+ package database
 
 import (
 	"database/sql"
@@ -123,7 +123,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	}
 
 	query += " ON CONFLICT (date) DO NOTHING;"
-	fmt.Println(query)
+
 	return writeToDB(pg.db, query)
 }
 
