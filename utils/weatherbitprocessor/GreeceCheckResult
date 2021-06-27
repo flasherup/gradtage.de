@@ -1,0 +1,464 @@
+level=info msg="client started"
+level=info Station:=166421-99999 innerId=GR_166421X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166421-99999 innerId=GR_166421X
+level=info Station:=166820-99999 innerId=GR_166820X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166820-99999 innerId=GR_166820X
+level=info Station:=LGKL innerId=GR_LGKL
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKL innerId=GR_LGKL
+level=info Station:=166250-99999 innerId=GR_166250X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166250-99999 innerId=GR_166250X
+level=info Station:=166720-99999 innerId=GR_166720X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166720-99999 innerId=GR_166720X
+level=info Station:=167471-99999 innerId=GR_167471X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167471-99999 innerId=GR_167471X
+level=info Station:=166560-99999 innerId=GR_166560X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166560-99999 innerId=GR_166560X
+level=info Station:=167341-99999 innerId=GR_167341X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167341-99999 innerId=GR_167341X
+level=info Station:=LGKF innerId=GR_LGKF
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKF innerId=GR_LGKF
+level=info Station:=166651-99999 innerId=GR_166651X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166651-99999 innerId=GR_166651X
+level=info Station:=166691-99999 innerId=GR_166691X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166691-99999 innerId=GR_166691X
+level=info Station:=167180-99999 innerId=GR_167180X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167180-99999 innerId=GR_167180X
+level=info Station:=F4803 innerId=GR_F4803
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4803 innerId=GR_F4803
+level=info Station:=167470-99999 innerId=GR_167470X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167470-99999 innerId=GR_167470X
+level=info Station:=AU610 innerId=GR_AU610
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AU610 innerId=GR_AU610
+level=info Station:=LGKA innerId=GR_LGKA
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKA innerId=GR_LGKA
+level=info Station:=167460-99999 innerId=GR_167460X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167460-99999 innerId=GR_167460X
+level=info Station:=167570-99999 innerId=GR_167570X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167570-99999 innerId=GR_167570X
+level=info Station:=LGTP innerId=GR_LGTP
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGTP innerId=GR_LGTP
+level=info Station:=LGEL innerId=GR_LGEL
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGEL innerId=GR_LGEL
+level=info Station:=LGLR innerId=GR_LGLR
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGLR innerId=GR_LGLR
+level=info Station:=LGTS innerId=GR_LGTS
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGTS innerId=GR_LGTS
+level=info Station:=VQIB9 innerId=GR_VQIB9
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=VQIB9 innerId=GR_VQIB9
+level=info Station:=166200-99999 innerId=GR_166200X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166200-99999 innerId=GR_166200X
+level=info Station:=167140-99999 innerId=GR_167140X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167140-99999 innerId=GR_167140X
+level=info Station:=167160-99999 innerId=GR_167160X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167160-99999 innerId=GR_167160X
+level=info Station:=167543-99999 innerId=GR_167543X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167543-99999 innerId=GR_167543X
+level=info Station:=167650-99999 innerId=GR_167650X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167650-99999 innerId=GR_167650X
+level=info Station:=E0908 innerId=GR_E0908
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E0908 innerId=GR_E0908
+level=info Station:=OXOS2 innerId=GR_OXOS2
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=OXOS2 innerId=GR_OXOS2
+level=info Station:=D9381 innerId=GR_D9381
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D9381 innerId=GR_D9381
+level=info Station:=E3486 innerId=GR_E3486
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E3486 innerId=GR_E3486
+level=info Station:=LGAD innerId=GR_LGAD
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGAD innerId=GR_LGAD
+level=info Station:=166840-99999 innerId=GR_166840X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166840-99999 innerId=GR_166840X
+level=info Station:=167443-99999 innerId=GR_167443X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167443-99999 innerId=GR_167443X
+level=info Station:=LGSA innerId=GR_LGSA
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGSA innerId=GR_LGSA
+level=info Station:=166270-99999 innerId=GR_166270X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166270-99999 innerId=GR_166270X
+level=info Station:=166870-99999 innerId=GR_166870X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166870-99999 innerId=GR_166870X
+level=info Station:=AU777 innerId=GR_AU777
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AU777 innerId=GR_AU777
+level=info Station:=D3649 innerId=GR_D3649
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D3649 innerId=GR_D3649
+level=info Station:=DJCE2 innerId=GR_DJCE2
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=DJCE2 innerId=GR_DJCE2
+level=info Station:=V7OE6 innerId=GR_V7OE6
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=V7OE6 innerId=GR_V7OE6
+level=info Station:=166100-99999 innerId=GR_166100X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166100-99999 innerId=GR_166100X
+level=info Station:=167230-99999 innerId=GR_167230X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167230-99999 innerId=GR_167230X
+level=info Station:=BATFR01 innerId=GR_BATFR01
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=BATFR01 innerId=GR_BATFR01
+level=info Station:=F4545 innerId=GR_F4545
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4545 innerId=GR_F4545
+level=info Station:=167050-99999 innerId=GR_167050X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167050-99999 innerId=GR_167050X
+level=info Station:=167170-99999 innerId=GR_167170X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167170-99999 innerId=GR_167170X
+level=info Station:=95392 innerId=GR_95392
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=95392 innerId=GR_95392
+level=info Station:=166220-99999 innerId=GR_166220X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166220-99999 innerId=GR_166220X
+level=info Station:=167120-99999 innerId=GR_167120X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167120-99999 innerId=GR_167120X
+level=info Station:=167560-99999 innerId=GR_167560X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167560-99999 innerId=GR_167560X
+level=info Station:=E3752 innerId=GR_E3752
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E3752 innerId=GR_E3752
+level=info Station:=166181-99999 innerId=GR_166181X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166181-99999 innerId=GR_166181X
+level=info Station:=166540-99999 innerId=GR_166540X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166540-99999 innerId=GR_166540X
+level=info Station:=AS453 innerId=GR_AS453
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AS453 innerId=GR_AS453
+level=info Station:=F4027 innerId=GR_F4027
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4027 innerId=GR_F4027
+level=info Station:=166130-99999 innerId=GR_166130X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166130-99999 innerId=GR_166130X
+level=info Station:=167330-99999 innerId=GR_167330X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167330-99999 innerId=GR_167330X
+level=info Station:=F4804 innerId=GR_F4804
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4804 innerId=GR_F4804
+level=info Station:=166740-99999 innerId=GR_166740X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166740-99999 innerId=GR_166740X
+level=info Station:=A8DM9 innerId=GR_A8DM9
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=A8DM9 innerId=GR_A8DM9
+level=info Station:=A8UX4 innerId=GR_A8UX4
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=A8UX4 innerId=GR_A8UX4
+level=info Station:=C8081 innerId=GR_C8081
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=C8081 innerId=GR_C8081
+level=info Station:=E6913 innerId=GR_E6913
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E6913 innerId=GR_E6913
+level=info Station:=D8452 innerId=GR_D8452
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D8452 innerId=GR_D8452
+level=info Station:=F4421 innerId=GR_F4421
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4421 innerId=GR_F4421
+level=info Station:=LGKP innerId=GR_LGKP
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKP innerId=GR_LGKP
+level=info Station:=LGSK innerId=GR_LGSK
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGSK innerId=GR_LGSK
+level=info Station:=167150-99999 innerId=GR_167150X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167150-99999 innerId=GR_167150X
+level=info Station:=167410-99999 innerId=GR_167410X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167410-99999 innerId=GR_167410X
+level=info Station:=AV365 innerId=GR_AV365
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AV365 innerId=GR_AV365
+level=info Station:=167131-99999 innerId=GR_167131X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167131-99999 innerId=GR_167131X
+level=info Station:=167494-99999 innerId=GR_167494X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167494-99999 innerId=GR_167494X
+level=info Station:=VRMY5 innerId=GR_VRMY5
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=VRMY5 innerId=GR_VRMY5
+level=info Station:=166510-99999 innerId=GR_166510X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166510-99999 innerId=GR_166510X
+level=info Station:=166750-99999 innerId=GR_166750X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166750-99999 innerId=GR_166750X
+level=info Station:=166990-99999 innerId=GR_166990X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166990-99999 innerId=GR_166990X
+level=info Station:=AT160 innerId=GR_AT160
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AT160 innerId=GR_AT160
+level=info Station:=D6214 innerId=GR_D6214
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D6214 innerId=GR_D6214
+level=info Station:=LGKZ innerId=GR_LGKZ
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKZ innerId=GR_LGKZ
+level=info Station:=LGSR innerId=GR_LGSR
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGSR innerId=GR_LGSR
+level=info Station:=AS852 innerId=GR_AS852
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AS852 innerId=GR_AS852
+level=info Station:=AT686 innerId=GR_AT686
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AT686 innerId=GR_AT686
+level=info Station:=CQFQ innerId=GR_CQFQ
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=CQFQ innerId=GR_CQFQ
+level=info Station:=E8605 innerId=GR_E8605
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E8605 innerId=GR_E8605
+level=info Station:=166060-99999 innerId=GR_166060X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166060-99999 innerId=GR_166060X
+level=info Station:=167540-99999 innerId=GR_167540X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167540-99999 innerId=GR_167540X
+level=info Station:=E0407 innerId=GR_E0407
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E0407 innerId=GR_E0407
+level=info Station:=LGKV innerId=GR_LGKV
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKV innerId=GR_LGKV
+level=info Station:=AV280 innerId=GR_AV280
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AV280 innerId=GR_AV280
+level=info Station:=LGMK innerId=GR_LGMK
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGMK innerId=GR_LGMK
+level=info Station:=LGPA innerId=GR_LGPA
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGPA innerId=GR_LGPA
+level=info Station:=LGRP innerId=GR_LGRP
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGRP innerId=GR_LGRP
+level=info Station:=SYSV innerId=GR_SYSV
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=SYSV innerId=GR_SYSV
+level=info Station:=167320-99999 innerId=GR_167320X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167320-99999 innerId=GR_167320X
+level=info Station:=167590-99999 innerId=GR_167590X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167590-99999 innerId=GR_167590X
+level=info Station:=E4039 innerId=GR_E4039
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E4039 innerId=GR_E4039
+level=info Station:=167264-99999 innerId=GR_167264X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167264-99999 innerId=GR_167264X
+level=info Station:=9HJB9 innerId=GR_9HJB9
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=9HJB9 innerId=GR_9HJB9
+level=info Station:=LGAL innerId=GR_LGAL
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGAL innerId=GR_LGAL
+level=info Station:=167010-99999 innerId=GR_167010X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167010-99999 innerId=GR_167010X
+level=info Station:=167480-99999 innerId=GR_167480X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167480-99999 innerId=GR_167480X
+level=info Station:=D5678 innerId=GR_D5678
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D5678 innerId=GR_D5678
+level=info Station:=D7938 innerId=GR_D7938
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D7938 innerId=GR_D7938
+level=info Station:=LGIO innerId=GR_LGIO
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGIO innerId=GR_LGIO
+level=info Station:=LGNX innerId=GR_LGNX
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGNX innerId=GR_LGNX
+level=info Station:=166140-99999 innerId=GR_166140X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166140-99999 innerId=GR_166140X
+level=info Station:=166970-99999 innerId=GR_166970X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166970-99999 innerId=GR_166970X
+level=info Station:=D7009 innerId=GR_D7009
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D7009 innerId=GR_D7009
+level=info Station:=167190-99999 innerId=GR_167190X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167190-99999 innerId=GR_167190X
+level=info Station:=166240-99999 innerId=GR_166240X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166240-99999 innerId=GR_166240X
+level=info Station:=166931-99999 innerId=GR_166931X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166931-99999 innerId=GR_166931X
+level=info Station:=A8VG3 innerId=GR_A8VG3
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=A8VG3 innerId=GR_A8VG3
+level=info Station:=D5751 innerId=GR_D5751
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D5751 innerId=GR_D5751
+level=info Station:=D7880 innerId=GR_D7880
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D7880 innerId=GR_D7880
+level=info Station:=F4805 innerId=GR_F4805
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4805 innerId=GR_F4805
+level=info Station:=167040-99999 innerId=GR_167040X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167040-99999 innerId=GR_167040X
+level=info Station:=WSNU innerId=GR_WSNU
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=WSNU innerId=GR_WSNU
+level=info Station:=167211-99999 innerId=GR_167211X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167211-99999 innerId=GR_167211X
+level=info Station:=E6070 innerId=GR_E6070
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E6070 innerId=GR_E6070
+level=info Station:=LGKO innerId=GR_LGKO
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKO innerId=GR_LGKO
+level=info Station:=OWTW2 innerId=GR_OWTW2
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=OWTW2 innerId=GR_OWTW2
+level=info Station:=167440-99999 innerId=GR_167440X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167440-99999 innerId=GR_167440X
+level=info Station:=F3157 innerId=GR_F3157
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F3157 innerId=GR_F3157
+level=info Station:=F4505 innerId=GR_F4505
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4505 innerId=GR_F4505
+level=info Station:=166830-99999 innerId=GR_166830X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166830-99999 innerId=GR_166830X
+level=info Station:=167210-99999 innerId=GR_167210X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167210-99999 innerId=GR_167210X
+level=info Station:=167490-99999 innerId=GR_167490X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167490-99999 innerId=GR_167490X
+level=info Station:=9HJG9 innerId=GR_9HJG9
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=9HJG9 innerId=GR_9HJG9
+level=info Station:=9V5241 innerId=GR_9V5241
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=9V5241 innerId=GR_9V5241
+level=info Station:=C6FW9 innerId=GR_C6FW9
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=C6FW9 innerId=GR_C6FW9
+level=info Station:=V7DJ5 innerId=GR_V7DJ5
+level=error Error="no entries" Station:=V7DJ5 innerId=GR_V7DJ5
+level=info Station:=166480-99999 innerId=GR_166480X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166480-99999 innerId=GR_166480X
+level=info Station:=167100-99999 innerId=GR_167100X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167100-99999 innerId=GR_167100X
+level=info Station:=167464-33209 innerId=GR_16746433209
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167464-33209 innerId=GR_16746433209
+level=info Station:=AP157 innerId=GR_AP157
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AP157 innerId=GR_AP157
+level=info Station:=IBJD innerId=GR_IBJD
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=IBJD innerId=GR_IBJD
+level=info Station:=LGSO innerId=GR_LGSO
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGSO innerId=GR_LGSO
+level=info Station:=166430-99999 innerId=GR_166430X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166430-99999 innerId=GR_166430X
+level=info Station:=A8RF9 innerId=GR_A8RF9
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=A8RF9 innerId=GR_A8RF9
+level=info Station:=E1806 innerId=GR_E1806
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E1806 innerId=GR_E1806
+level=info Station:=166650-99999 innerId=GR_166650X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166650-99999 innerId=GR_166650X
+level=info Station:=166670-99999 innerId=GR_166670X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166670-99999 innerId=GR_166670X
+level=info Station:=166690-99999 innerId=GR_166690X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166690-99999 innerId=GR_166690X
+level=info Station:=167420-99999 innerId=GR_167420X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167420-99999 innerId=GR_167420X
+level=info Station:=LGAV innerId=GR_LGAV
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGAV innerId=GR_LGAV
+level=info Station:=LGKC innerId=GR_LGKC
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKC innerId=GR_LGKC
+level=info Station:=167400-99999 innerId=GR_167400X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167400-99999 innerId=GR_167400X
+level=info Station:=AT275 innerId=GR_AT275
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AT275 innerId=GR_AT275
+level=info Station:=D0215 innerId=GR_D0215
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D0215 innerId=GR_D0215
+level=info Station:=E5562 innerId=GR_E5562
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E5562 innerId=GR_E5562
+level=info Station:=E9606 innerId=GR_E9606
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E9606 innerId=GR_E9606
+level=info Station:=E9696 innerId=GR_E9696
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E9696 innerId=GR_E9696
+level=info Station:=BAREU65 innerId=GR_BAREU65
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=BAREU65 innerId=GR_BAREU65
+level=info Station:=E4115 innerId=GR_E4115
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E4115 innerId=GR_E4115
+level=info Station:=KQNC innerId=GR_KQNC
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=KQNC innerId=GR_KQNC
+level=info Station:=166410-99999 innerId=GR_166410X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166410-99999 innerId=GR_166410X
+level=info Station:=AR031 innerId=GR_AR031
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AR031 innerId=GR_AR031
+level=info Station:=DIGX2 innerId=GR_DIGX2
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=DIGX2 innerId=GR_DIGX2
+level=info Station:=LGSY innerId=GR_LGSY
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGSY innerId=GR_LGSY
+level=info Station:=167110-99999 innerId=GR_167110X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167110-99999 innerId=GR_167110X
+level=info Station:=3EMR8 innerId=GR_3EMR8
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=3EMR8 innerId=GR_3EMR8
+level=info Station:=F4691 innerId=GR_F4691
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F4691 innerId=GR_F4691
+level=info Station:=166420-99999 innerId=GR_166420X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166420-99999 innerId=GR_166420X
+level=info Station:=166620-99999 innerId=GR_166620X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166620-99999 innerId=GR_166620X
+level=info Station:=167340-99999 innerId=GR_167340X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167340-99999 innerId=GR_167340X
+level=info Station:=F0446 innerId=GR_F0446
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F0446 innerId=GR_F0446
+level=info Station:=VRGM8 innerId=GR_VRGM8
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=VRGM8 innerId=GR_VRGM8
+level=info Station:=C6UA2 innerId=GR_C6UA2
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=C6UA2 innerId=GR_C6UA2
+level=info Station:=E1134 innerId=GR_E1134
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E1134 innerId=GR_E1134
+level=info Station:=E3950 innerId=GR_E3950
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E3950 innerId=GR_E3950
+level=info Station:=LGLM innerId=GR_LGLM
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGLM innerId=GR_LGLM
+level=info Station:=LGAT innerId=GR_LGAT
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGAT innerId=GR_LGAT
+level=info Station:=166610-99999 innerId=GR_166610X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166610-99999 innerId=GR_166610X
+level=info Station:=AS451 innerId=GR_AS451
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AS451 innerId=GR_AS451
+level=info Station:=LGMT innerId=GR_LGMT
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGMT innerId=GR_LGMT
+level=info Station:=167263-99999 innerId=GR_167263X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167263-99999 innerId=GR_167263X
+level=info Station:=167380-99999 innerId=GR_167380X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167380-99999 innerId=GR_167380X
+level=info Station:=CQIT6 innerId=GR_CQIT6
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=CQIT6 innerId=GR_CQIT6
+level=info Station:=F2557 innerId=GR_F2557
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F2557 innerId=GR_F2557
+level=info Station:=166653-99999 innerId=GR_166653X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166653-99999 innerId=GR_166653X
+level=info Station:=167060-99999 innerId=GR_167060X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167060-99999 innerId=GR_167060X
+level=info Station:=E6644 innerId=GR_E6644
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E6644 innerId=GR_E6644
+level=info Station:=F1602 innerId=GR_F1602
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F1602 innerId=GR_F1602
+level=info Station:=LGIR innerId=GR_LGIR
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGIR innerId=GR_LGIR
+level=info Station:=AR032 innerId=GR_AR032
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AR032 innerId=GR_AR032
+level=info Station:=AR035 innerId=GR_AR035
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AR035 innerId=GR_AR035
+level=info Station:=D7760 innerId=GR_D7760
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D7760 innerId=GR_D7760
+level=info Station:=LGKR innerId=GR_LGKR
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGKR innerId=GR_LGKR
+level=info Station:=SYQO innerId=GR_SYQO
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=SYQO innerId=GR_SYQO
+level=info Station:=167300-99999 innerId=GR_167300X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167300-99999 innerId=GR_167300X
+level=info Station:=E7512 innerId=GR_E7512
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E7512 innerId=GR_E7512
+level=info Station:=LGTG innerId=GR_LGTG
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGTG innerId=GR_LGTG
+level=info Station:=D2373 innerId=GR_D2373
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D2373 innerId=GR_D2373
+level=info Station:=167240-99999 innerId=GR_167240X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167240-99999 innerId=GR_167240X
+level=info Station:=167500-99999 innerId=GR_167500X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167500-99999 innerId=GR_167500X
+level=info Station:=LGRX innerId=GR_LGRX
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGRX innerId=GR_LGRX
+level=info Station:=VRRP8 innerId=GR_VRRP8
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=VRRP8 innerId=GR_VRRP8
+level=info Station:=167193-99999 innerId=GR_167193X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167193-99999 innerId=GR_167193X
+level=info Station:=AR036 innerId=GR_AR036
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AR036 innerId=GR_AR036
+level=info Station:=166320-99999 innerId=GR_166320X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166320-99999 innerId=GR_166320X
+level=info Station:=9HA5029 innerId=GR_9HA5029
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=9HA5029 innerId=GR_9HA5029
+level=info Station:=D5560 innerId=GR_D5560
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D5560 innerId=GR_D5560
+level=info Station:=E1514 innerId=GR_E1514
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=E1514 innerId=GR_E1514
+level=info Station:=LGTT innerId=GR_LGTT
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGTT innerId=GR_LGTT
+level=info Station:=166500-99999 innerId=GR_166500X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166500-99999 innerId=GR_166500X
+level=info Station:=D4782 innerId=GR_D4782
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D4782 innerId=GR_D4782
+level=info Station:=F5422 innerId=GR_F5422
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=F5422 innerId=GR_F5422
+level=info Station:=LGPZ innerId=GR_LGPZ
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGPZ innerId=GR_LGPZ
+level=info Station:=LGSM innerId=GR_LGSM
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGSM innerId=GR_LGSM
+level=info Station:=166850-99999 innerId=GR_166850X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166850-99999 innerId=GR_166850X
+level=info Station:=166890-99999 innerId=GR_166890X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166890-99999 innerId=GR_166890X
+level=info Station:=167161-99999 innerId=GR_167161X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167161-99999 innerId=GR_167161X
+level=info Station:=167260-99999 innerId=GR_167260X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167260-99999 innerId=GR_167260X
+level=info Station:=AS632 innerId=GR_AS632
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AS632 innerId=GR_AS632
+level=info Station:=C7313 innerId=GR_C7313
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=C7313 innerId=GR_C7313
+level=info Station:=166900-99999 innerId=GR_166900X
+level=error Error="no entries" Station:=166900-99999 innerId=GR_166900X
+level=info Station:=167600-99999 innerId=GR_167600X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167600-99999 innerId=GR_167600X
+level=info Station:=167430-99999 innerId=GR_167430X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167430-99999 innerId=GR_167430X
+level=info Station:=AR545 innerId=GR_AR545
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AR545 innerId=GR_AR545
+level=info Station:=CQIH5 innerId=GR_CQIH5
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=CQIH5 innerId=GR_CQIH5
+level=info Station:=LGHI innerId=GR_LGHI
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGHI innerId=GR_LGHI
+level=info Station:=LGZA innerId=GR_LGZA
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGZA innerId=GR_LGZA
+level=info Station:=167580-99999 innerId=GR_167580X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=167580-99999 innerId=GR_167580X
+level=info Station:=D0494 innerId=GR_D0494
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=D0494 innerId=GR_D0494
+level=info Station:=LXLK innerId=GR_LXLK
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LXLK innerId=GR_LXLK
+level=info Station:=166450-99999 innerId=GR_166450X
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=166450-99999 innerId=GR_166450X
+level=info Station:=AT300 innerId=GR_AT300
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AT300 innerId=GR_AT300
+level=info Station:=AU606 innerId=GR_AU606
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=AU606 innerId=GR_AU606
+level=info Station:=LGBL innerId=GR_LGBL
+level=error Error="less the 24 entries" date=2021-05-21 hours=21 Station:=LGBL innerId=GR_LGBL
+level=info msg="client ended"

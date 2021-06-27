@@ -7,7 +7,6 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/impl/security"
-	"github.com/flasherup/gradtage.de/apisvc/impl/stripe"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
@@ -17,7 +16,6 @@ import (
 	"github.com/flasherup/gradtage.de/noaascrapersvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/usersvc"
-	"github.com/flasherup/gradtage.de/usersvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
@@ -28,23 +26,18 @@ import (
 )
 
 type APISVC struct {
-	logger  		log.Logger
-	alert 			alertsvc.Client
-	daily			dailysvc.Client
-	hourly			hourlysvc.Client
-	noaa 			noaascrapersvc.Client
-	autocomplete 	autocompletesvc.Client
-	user 			usersvc.Client
-	stations		stationssvc.Client
-	keyManager 		*security.KeyManager
-	counter 		ktprom.Gauge
+	logger  			log.Logger
+	alert 				alertsvc.Client
+	daily				dailysvc.Client
+	hourly				hourlysvc.Client
+	noaa 				noaascrapersvc.Client
+	autocomplete 		autocompletesvc.Client
+	user 				usersvc.Client
+	stations			stationssvc.Client
+	keyManager 			*security.KeyManager
+	woocommerce			*utils.Woocommerce
+	counter 			ktprom.Gauge
 }
-
-const (
-	CDDType = "cdd"
-	HDDType = "hdd"
-	DDType  = "dd"
-)
 
 const (
 	Hourly 	= "hourly"
@@ -62,6 +55,7 @@ func NewAPISVC(
 		alert 			alertsvc.Client,
 		stations    	stationssvc.Client,
 		keyManager 		*security.KeyManager,
+		woocommerce 	*utils.Woocommerce,
 	) *APISVC {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
@@ -79,17 +73,18 @@ func NewAPISVC(
 		stations:		stations,
 		keyManager: 	keyManager,
 		counter: 		*guage,
+		woocommerce: 	woocommerce,
 	}
 	return &st
 }
 
 func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
-	userName, err := as.isRequestValid(params)
+	err = as.validateRequest(params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
 		return utils.CSVError(err), err
 	}
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "user", userName)
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
@@ -108,7 +103,7 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]str
 }
 
 func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	userName, err := as.isRequestValid(params)
+	err = as.validateRequest(params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
 		return utils.CSVError(err), "error", err
@@ -126,7 +121,7 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	}
 	params.Station = id
 
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "userId", userName)
+	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
@@ -140,11 +135,11 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	}
 
 	var headerCSV []string
-	if params.Output == DDType {
+	if params.Output == common.DDType {
 		headerCSV = []string{ "ID", "Date", "DD", "DDAverage" }
-	} else if  params.Output == HDDType {
+	} else if  params.Output ==  common.HDDType {
 		headerCSV = []string{ "ID","Date","HDD","HDDAverage" }
-	} else if  params.Output == CDDType {
+	} else if  params.Output ==  common.CDDType {
 		headerCSV = []string{ "ID","Date","CDD","CDDAverage" }
 	}
 
@@ -159,12 +154,12 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 }
 
 func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {
-	p, err := as.validateUser(params.Key)
+	order, _, err := as.validateUser(params.Key)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		level.Error(as.logger).Log("msg", "Get source data error", "err", err)
 		return utils.CSVError(err), "error", err
 	}
-	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "userId", p.User.Name, "start", params.Start, "end", params.End, "type", params.Type)
+	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "user", order.Email, "start", params.Start, "end", params.End, "type", params.Type)
 
 	var temps []hourlysvc.Temperature
 	if params.Type == Daily {
@@ -202,13 +197,13 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 }
 
 func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [][]string, err error) {
-	p, err := as.validateUser(params.Key)
+	order, _, err := as.validateUser(params.Key)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
 		return utils.CSVError(err), err
 	}
 
-	level.Info(as.logger).Log("msg", "Search", "text", params.Text, "user", p.User.Name)
+	level.Info(as.logger).Log("msg", "Search", "text", params.Text, "user", order.Email)
 	sources, err := as.autocomplete.GetAutocomplete(params.Text)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Search error", "err", err)
@@ -221,13 +216,13 @@ func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [
 }
 
 func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]string, err error) {
-	p, err := as.validateUser(params.Key)
+	order, _, err := as.validateUser(params.Key)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
 		return utils.CSVError(err), err
 	}
 
-	if !p.Plan.Admin {
+	if !order.Admin {
 		err := errors.New("not enough rights to create a user")
 		return utils.CSVError(err), err
 	}
@@ -235,7 +230,8 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 	level.Info(as.logger).Log("msg", "User", "action", params.Action, "key", params.Key)
 
 
-	switch params.Action {
+	//TODO restore user creation functionality
+	/*switch params.Action {
 		case CrateAction:
 			return CreateUser(as.user, params, false)
 		case AutoCrateAction:
@@ -244,18 +240,18 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 			return SetUserPlan(as.user, params)
 		case RenewAction:
 			return RenewUser(as.user, params)
-	}
+	}*/
 	return [][]string{}, err
 }
 
 func (as APISVC) Plan(ctx context.Context, params apisvc.ParamsPlan) (data [][]string, err error) {
-	p, err := as.validateUser(params.Key)
+	order, _, err := as.validateUser(params.Key)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
 		return utils.CSVError(err), err
 	}
 
-	if !p.Plan.Admin {
+	if !order.Admin {
 		err := errors.New("not enough rights to create user")
 		return utils.CSVError(err), err
 	}
@@ -263,46 +259,53 @@ func (as APISVC) Plan(ctx context.Context, params apisvc.ParamsPlan) (data [][]s
 	return [][]string{}, err
 }
 
-func (as APISVC) Stripe(ctx context.Context, event apisvc.StripeEvent) (json string, err error) {
-	level.Info(as.logger).Log("msg", "Stripe event", "event", event.Type)
-	if event.Type == stripe.InvoiceFinalize {
-		invoiceFinalize, err := stripe.ParseInvoiceFinalize(event.Data.Object)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Invoice Finalize parse error", "err", err)
-		} else {
-			level.Info(as.logger).Log("msg", "Invoice Finalize parsed", "customer", invoiceFinalize.UserID, "email", invoiceFinalize.UserEmail)
-			return ProcessUpdateStripeUser(as.user, invoiceFinalize.UserEmail, invoiceFinalize.UserID, usersvc.PlanStarter)
-		}
-	} else if event.Type == stripe.SubscriptionScheduleCanceled {
-		subscriptionScheduleCanceled, err := stripe.ParseSubscriptionScheduleCanceled(event.Data.Object)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Subscription Schedule Canceled parse error", "err", err)
-		} else {
-			level.Info(as.logger).Log("msg", "Subscription Schedule Canceled parsed", "customer", subscriptionScheduleCanceled.UserID)
-			return ProcessCancelStripeUser(as.user, subscriptionScheduleCanceled.UserID)
-		}
-	} else {
-		level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type, "event", event.Data.Object)
-	}
-	json = "{\"status\":\"ok\"}"
-	return json, err
-}
-
 func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent) (json string, err error) {
-	level.Info(as.logger).Log("msg", "Woocommerce event", "event", event.Type)
-	if event.Type == common.WCUpdateEvent {
-		orderId := strconv.Itoa(event.UpdateEvent.ParentId)
-		productId := strconv.Itoa(event.UpdateEvent.LineItems[0].ProductID)
-		email := event.UpdateEvent.Billing.Email
-		key, err := utils.FinalizeSubscription(orderId, *email, productId)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Subscription update error", "err", err)
-		} else {
+	level.Info(as.logger).Log("msg", "Woocommerce event", "Event", event.Type)
+	//level.Info(as.logger).Log("msg", "Woocommerce header", "Header", fmt.Sprintf("%v", event.Header))
+	//level.Info(as.logger).Log("msg", "Woocommerce header", "Body", fmt.Sprintf("%q", event.Body))
+	fmt.Println("Header:", event.Header)
+	fmt.Println("Body:", string(event.Body))
 
-			level.Info(as.logger).Log("msg", "Subscription update success", "key", key)
+	if !utils.ValidateWoocommerceRequest(event.Signature, event.Body, as.woocommerce.WHSecret) {
+		level.Error(as.logger).Log("msg", "Subscription update error", "err", "invalid signature")
+		json = "{\"status\":\"error\"}"
+		return json, err
+	}
+
+	if event.Type == common.WCUpdateEvent {
+		orderId := event.UpdateEvent.ID
+		productId := strconv.Itoa(event.UpdateEvent.LineItems[0].ProductID)
+		email := *event.UpdateEvent.Billing.Email
+
+		order, _, err := as.user.ValidateOrder(orderId)
+		if err != nil {
+			//Create new user
+			key, err := as.woocommerce.GenerateAPIKey(orderId, email, productId)
+			if err != nil {
+				level.Error(as.logger).Log("msg", "Subscription update error", "orderId", orderId, "email", email, "productId", productId, "err", err)
+			} else {
+				err := CreateWoocommerceOrder(as.user, orderId, email, key, productId)
+				if err != nil {
+					level.Error(as.logger).Log("msg", "Subscription update error", "orderId", orderId, "email", email, "productId", productId, "err", err)
+				} else {
+					level.Info(as.logger).Log("msg", "Subscription update success", "orderId", orderId, "email", email, "productId", productId, "key", key)
+				}
+			}
+		} else {
+			updateError := UpdateWoocommerceOrder(as.user, event.UpdateEvent.Status, email, productId, order)
+			if updateError != nil {
+				level.Error(as.logger).Log("msg", "Subscription update error", "email", email, "orderId", orderId, "productId", productId,  "err", updateError)
+			} else {
+				level.Info(as.logger).Log("msg", "Subscription update success", "orderId", orderId, "email", email, "productId", productId)
+			}
+		}
+	} else if event.Type == common.WCDeleteEvent {
+		deleteError := as.user.DeleteOrder( event.DeleteEvent.ID)
+		if deleteError != nil {
+			level.Error(as.logger).Log("msg", "Delete order error", "orderId", event.DeleteEvent.ID, "err", err)
 		}
 	}
-	level.Info(as.logger).Log("msg", "Unrecognized event", "type", event.Type)
+
 	json = "{\"status\":\"ok\"}"
 	return json, err
 }
@@ -316,7 +319,7 @@ func (as APISVC) Command(ctx context.Context, name string, params map[string]str
 		Response interface{} `json:"response"`
 	}{}
 
-	p, err := as.validateUser(params["key"])
+	order, _, err := as.validateUser(params["key"])
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Run command error", "err", err)
 		resp.Status = "error"
@@ -324,7 +327,7 @@ func (as APISVC) Command(ctx context.Context, name string, params map[string]str
 		return resp, err
 	}
 
-	if !p.Plan.Admin {
+	if !order.Admin {
 		level.Error(as.logger).Log("msg", "Run command error", "err", "User validation error")
 		resp.Status = "error"
 		resp.Error = "Not enough rights to run commands"
@@ -437,13 +440,13 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 
 		aTemperature := temp.Temperature
 
-		if params.Output 		== HDDType {
+		if params.Output 		== common.HDDType {
 			degree 	= calculateHDD(params.TB, v.Temperature)
 			degreeA = calculateHDD(params.TB, aTemperature)
-		} else if params.Output == DDType {
+		} else if params.Output == common.DDType {
 			degree 	= calculateDD(params.TB, params.TR, v.Temperature)
 			degreeA = calculateDD(params.TB, params.TR, aTemperature)
-		} else if params.Output == CDDType {
+		} else if params.Output == common.CDDType {
 			degree 	= calculateCDD(params.TB, v.Temperature)
 			degreeA = calculateCDD(params.TB, aTemperature)
 		}
@@ -530,62 +533,54 @@ func (as APISVC)sendAlert(alert alertsvc.Alert) {
 	}
 }
 
-func (as APISVC)isRequestValid(params apisvc.Params) (string, error) {
-	p, err := as.validateUser(params.Key)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation error", "err", err)
-		return p.User.Name, err
-	}
 
-	err = as.validateRequest(params, p)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "Request validation error", "err", err)
-		return p.User.Name, err
-	}
-
-	return p.User.Name, nil
-}
-
-func (as APISVC)validateUser(key string) (*usersvc.Parameters, error) {
-	_,err := as.keyManager.KeyGuard.APIKeyValid([]byte(key))
+func (as APISVC)validateUser(key string) (usersvc.Order, usersvc.Plan, error) {
+	_, err := as.keyManager.KeyGuard.APIKeyValid([]byte(key))
 	if err == nil {
-		user := "admin@gradtage.de"
+		/*user := "admin@gradtage.de"
 		params, err := as.user.ValidateName(user)
 		if err != nil {
 			level.Error(as.logger).Log("msg", "User validation name is invalid", "err", err)
 			return nil, err
 		}
-		return &params, nil
+		return &params, nil*/
+		return usersvc.Order{
+			Email: "admin@gradtage.de",
+			Admin: true,
+		}, usersvc.Plan{}, nil
 	}
-
-	params, err := as.user.ValidateKey(key)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation key is invalid", "err", err)
-		return nil, err
-	}
-
-	return &params, nil
+	return as.user.ValidateKey(key)
 }
 
-func (as APISVC)validateRequest(request apisvc.Params, params *usersvc.Parameters) error {
-	err := impl.ValidateStationId(request.Station, params)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "Station ID is invalid", "err", err)
-		err = impl.ValidateStationsCount(request.Station, params)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Station Count is full", "err", err)
-			return err
-		}
-
-		params.User.Stations = append(params.User.Stations, request.Station)
-		_, err = UpdateUser(as.user, params.User)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "User stations update error", "err", err)
-			return err
-		}
+func (as APISVC)validateRequest(params apisvc.Params) error {
+	_, err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
+	if err == nil {
 		return nil
 	}
-	return nil
+
+	start, err := time.Parse(common.TimeLayoutWBH, params.Start)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Start time validation error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
+		return err
+	}
+
+	end, err := time.Parse(common.TimeLayoutWBH, params.End)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "End time validation error", "err", err)
+		as.sendAlert(NewErrorAlert(err))
+		return err
+	}
+
+	selection := usersvc.Selection{
+		Key:       params.Key,
+		StationID: params.Station,
+		Method:    params.Output,
+		Start:     start,
+		End:       end,
+	}
+
+	return as.user.ValidateSelection(selection)
 }
 
 

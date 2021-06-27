@@ -1,23 +1,31 @@
 package usersvc
 
-type CreateUserRequest struct {
-	UserName    string 	`json:"user_name"`
+type CreateOrderRequest struct {
+	OrderId		int 	`json:"order_id"`
+	Email    	string 	`json:"email"`
 	Plan		string 	`json:"plan"`
-	Email 		bool 	`json:"email"`
+	Key			string 	`json:"key"`
 }
 
-type CreateUserResponse struct {
+type CreateOrderResponse struct {
 	Key 	string `json:"key"`
 	Err    	error `json:"err"`
 }
 
-type UpdateUserRequest struct {
-	User	    User 	`json:"user"`
-	Email 		bool 	`json:"email"`
+type UpdateOrderRequest struct {
+	Order	 Order 	`json:"order"`
 }
 
-type UpdateUserResponse struct {
+type UpdateOrderResponse struct {
 	Key 	string `json:"key"`
+	Err    	error `json:"err"`
+}
+
+type DeleteOrderRequest struct {
+	OrderId	    int 	`json:"order_id"`
+}
+
+type DeleteOrderResponse struct {
 	Err    	error `json:"err"`
 }
 
@@ -34,7 +42,6 @@ type ValidateSelectionRequest struct {
 }
 
 type ValidateSelectionResponse struct {
-	IsValid 	bool `json:"is_valid"`
 	Err    		error 		`json:"err"`
 }
 
@@ -43,24 +50,17 @@ type ValidateKeyRequest struct {
 }
 
 type ValidateKeyResponse struct {
-	Parameters 	Parameters 	`json:"parameters"`
+	Order		Order 		`json:"order"`
+	Plan		Plan 		`json:"plan"`
 	Err    		error 		`json:"err"`
 }
 
-type ValidateNameRequest struct {
-	Name    string 		`json:"name"`
+type ValidateOrderRequest struct {
+	OrderId    int 		`json:"order_id"`
 }
 
-type ValidateNameResponse struct {
-	Parameters 	Parameters 	`json:"parameters"`
-	Err    		error 		`json:"err"`
-}
-
-type ValidateStripeRequest struct {
-	Stripe    string 		`json:"stripe"`
-}
-
-type ValidateStripeResponse struct {
-	Parameters 	Parameters 	`json:"parameters"`
+type ValidateOrderResponse struct {
+	Order		Order 		`json:"order"`
+	Plan		Plan 		`json:"plan"`
 	Err    		error 		`json:"err"`
 }

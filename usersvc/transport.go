@@ -11,29 +11,37 @@ import (
 )
 
 type GRPCServer struct {
-	createUser    		gt.Handler
-	updateUser			gt.Handler
-	addPlan   			gt.Handler
-	validateSelection	gt.Handler
-	validateKey			gt.Handler
-	validateName		gt.Handler
-	validateStripe		gt.Handler
+	createOrder       gt.Handler
+	updateOrder       gt.Handler
+	deleteOrder       gt.Handler
+	addPlan           gt.Handler
+	validateSelection gt.Handler
+	validateKey       gt.Handler
+	validateOrder     gt.Handler
 }
 
-func (s *GRPCServer) CreateUser(ctx context.Context, req *grpcusr.CreateUserRequest) (*grpcusr.CreateUserResponse, error) {
-	_, resp, err := s.createUser.ServeGRPC(ctx, req)
+func (s *GRPCServer) CreateOrder(ctx context.Context, req *grpcusr.CreateOrderRequest) (*grpcusr.CreateOrderResponse, error) {
+	_, resp, err := s.createOrder.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpcusr.CreateUserResponse), err
+	return resp.(*grpcusr.CreateOrderResponse), err
 }
 
-func (s *GRPCServer) UpdateUser(ctx context.Context, req *grpcusr.UpdateUserRequest) (*grpcusr.UpdateUserResponse, error) {
-	_, resp, err := s.updateUser.ServeGRPC(ctx, req)
+func (s *GRPCServer) UpdateOrder(ctx context.Context, req *grpcusr.UpdateOrderRequest) (*grpcusr.UpdateOrderResponse, error) {
+	_, resp, err := s.updateOrder.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpcusr.UpdateUserResponse), err
+	return resp.(*grpcusr.UpdateOrderResponse), err
+}
+
+func (s *GRPCServer) DeleteOrder(ctx context.Context, req *grpcusr.DeleteOrderRequest) (*grpcusr.DeleteOrderResponse, error) {
+	_, resp, err := s.deleteOrder.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpcusr.DeleteOrderResponse), err
 }
 
 func (s *GRPCServer) AddPlan(ctx context.Context, req *grpcusr.AddPlanRequest) (*grpcusr.AddPlanResponse, error) {
@@ -60,36 +68,31 @@ func (s *GRPCServer) ValidateKey(ctx context.Context, req *grpcusr.ValidateKeyRe
 	return resp.(*grpcusr.ValidateKeyResponse), err
 }
 
-func (s *GRPCServer) ValidateName(ctx context.Context, req *grpcusr.ValidateNameRequest) (*grpcusr.ValidateNameResponse, error) {
-	_, resp, err := s.validateName.ServeGRPC(ctx, req)
+func (s *GRPCServer) ValidateOrder(ctx context.Context, req *grpcusr.ValidateOrderRequest) (*grpcusr.ValidateOrderResponse, error) {
+	_, resp, err := s.validateOrder.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*grpcusr.ValidateNameResponse), err
+	return resp.(*grpcusr.ValidateOrderResponse), err
 }
-
-func (s *GRPCServer) ValidateStripe(ctx context.Context, req *grpcusr.ValidateStripeRequest) (*grpcusr.ValidateStripeResponse, error) {
-	_, resp, err := s.validateStripe.ServeGRPC(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	return resp.(*grpcusr.ValidateStripeResponse), err
-}
-
-
 
 
 func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer {
 	server := GRPCServer{
-		createUser: gt.NewServer(
-			endpoint.CreateUserEndpoint,
-			DecodeCreateUserRequest,
-			EncodeCreateUserResponse,
+		createOrder: gt.NewServer(
+			endpoint.CreateOrderEndpoint,
+			DecodeCreateOrderRequest,
+			EncodeCreateOrderResponse,
 		),
-		updateUser: gt.NewServer(
-			endpoint.UpdateUserEndpoint,
-			DecodeUpdateUserRequest,
-			EncodeUpdateUserResponse,
+		updateOrder: gt.NewServer(
+			endpoint.UpdateOrderEndpoint,
+			DecodeUpdateOrderRequest,
+			EncodeUpdateOrderResponse,
+		),
+		deleteOrder: gt.NewServer(
+			endpoint.DeleteOrderEndpoint,
+			DecodeDeleteOrderRequest,
+			EncodeDeleteOrderResponse,
 		),
 		addPlan: gt.NewServer(
 			endpoint.AddPlanEndpoint,
@@ -106,15 +109,10 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer 
 			DecodeValidateKeyRequest,
 			EncodeValidateKeyResponse,
 		),
-		validateName: gt.NewServer(
-			endpoint.ValidateNameEndpoint,
-			DecodeValidateNameRequest,
-			EncodeValidateNameResponse,
-		),
-		validateStripe: gt.NewServer(
-			endpoint.ValidateStripeEndpoint,
-			DecodeValidateStripeRequest,
-			EncodeValidateStripeResponse,
+		validateOrder: gt.NewServer(
+			endpoint.ValidateOrderEndpoint,
+			DecodeValidateOrderRequest,
+			EncodeValidateOrderResponse,
 		),
 	}
 	return &server

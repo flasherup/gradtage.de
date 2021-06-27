@@ -3,6 +3,7 @@ package apisvc
 import (
 	"context"
 	"github.com/moosh3/woogo"
+	"net/http"
 )
 
 type Params struct {
@@ -40,28 +41,6 @@ type ParamsPlan struct {
 	Params 	map[string]string `json:"params"`
 }
 
-type StripeData struct {
-	Object 		interface{}  			`json:"object"`
-}
-
-
-type Request struct {
-	ID 				string 			`json:"id"`
-	IdempotencyKey 	string 			`json:"idempotency_key"`
-}
-
-type StripeEvent struct {
-	Created 			int 		`json:"created"`
-	LiveMode 			bool 		`json:"livemode"`
-	ID 					string 		`json:"id"`
-	Type 				string 		`json:"type"`
-	Object 				string 		`json:"object"`
-	Request 			Request 	`json:"request"`
-	PendingWebHooks 	int 		`json:"pending_webhooks"`
-	ApiVersion 			string 		`json:"api_version"`
-	Data 				StripeData 	`json:"data"`
-}
-
 type WCLineItems struct {
 	ProductID 				int 		`json:"product_id"`
 }
@@ -83,7 +62,10 @@ type WCUpdateEvent struct {
 }
 
 type WoocommerceEvent struct {
-	Type string
+	Type 		string
+	Signature 	string
+	Body 		[]byte
+	Header 	    http.Header
 	DeleteEvent WCDeleteEvent
 	UpdateEvent WCUpdateEvent
 }
@@ -95,7 +77,6 @@ type Service interface {
 	Search(ctx context.Context, params ParamsSearch) (data [][]string, err error)
 	User(ctx context.Context, params ParamsUser) (data [][]string, err error)
 	Plan(ctx context.Context, params ParamsPlan) (data [][]string, err error)
-	Stripe(ctx context.Context, event StripeEvent) (json string, err error)
 	Woocommerce(ctx context.Context, event WoocommerceEvent) (json string, err error)
 	Command(ctx context.Context, name string, params map[string]string)(json interface{}, err error)
 }

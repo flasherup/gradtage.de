@@ -6,13 +6,12 @@ import (
 )
 
 const (
-	PlanAdmin 			= "admin"
-	PlanTrial 			= "trial"
-	PlanStarter 		= "starter"
-	PlanBasic 			= "basic"
-	PlanAdvanced 		= "advanced"
-	PlanProfessional	= "professional"
-	PlanEnterprise		= "enterprise"
+	PlanCanceled     = "canceled"
+	PlanAdmin        = "admin"
+	PlanTrial        = "trial"
+	PlanLite         = "lite"
+	PlanProfessional = "professional"
+	PlanEnterprise   = "enterprise"
 )
 
 type Selection struct {
@@ -21,11 +20,6 @@ type Selection struct {
 	Method 		string
 	Start 		time.Time
 	End 		time.Time
-}
-
-type Parameters struct {
-	User User
-	Plan Plan
 }
 
 type Plan struct {
@@ -38,26 +32,25 @@ type Plan struct {
 	Start  		time.Time //Start time of data that user can get
 	End 		time.Time //End time of data that user can get
 	Period 		int //Period of days that key is valid
-	Admin 		bool //Administrator rights
 }
 
-type User struct {
-	Name 		string
-	Key 		string
-	RenewDate  	time.Time //Time the key was activated
+type Order struct {
+	OrderId 	int
+	Key			string
+	Email		string
+	Plan 		string
+	Stations 	[]string
 	RequestDate time.Time //Latest request time
 	Requests 	int //Number of request during hour
-	Plan 		string //Plan name
-	Stations 	[]string //The list of stations
-	Stripe 		string //Stripe id is exist
+	Admin		bool //True if user is administrator
 }
 
 type Service interface {
-	CreateUser(ctx context.Context, userName string, plan string, email bool) (string, error)
-	UpdateUser(ctx context.Context, user User, email bool) (string, error)
+	CreateOrder(ctx context.Context, orderId int, email, plan, key string) (string, error)
+	UpdateOrder(ctx context.Context, order Order) (string, error)
+	DeleteOrder(ctx context.Context, orderId int) error
 	AddPlan(ctx context.Context, plan Plan) error
-	ValidateSelection(ctx context.Context, selection Selection) (bool, error)
-	ValidateKey(ctx context.Context, key string) (Parameters, error)
-	ValidateName(ctx context.Context, name string) (Parameters, error)
-	ValidateStripe(ctx context.Context, stripe string) (Parameters, error)
+	ValidateSelection(ctx context.Context, selection Selection) error
+	ValidateKey(ctx context.Context, key string) (Order, Plan, error)
+	ValidateOrder(ctx context.Context, orderId int) (Order, Plan, error)
 }

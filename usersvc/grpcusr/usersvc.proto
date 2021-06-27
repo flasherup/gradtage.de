@@ -21,44 +21,46 @@ message Plan {
     string  start       = 7;
     string  end         = 8;
     int32   period      = 9;
-    bool    Admin       = 10;
 }
 
-message User {
-    string          name        = 1;
+message Order {
+    int32           order_id    = 1;
     string          key         = 2;
-    string          renewDate   = 3;
-    string          requestDate = 4;
-    int32           requests    = 5;
-    string            plan      = 6;
-    repeated string stations    = 7;
-    string          stripe      = 8;
+    string          email       = 3;
+    string          plan        = 4;
+    repeated string stations    = 5;
+    string          requestDate = 6;
+    int32           requests    = 7;
+    bool            admin       = 8;
 }
 
-message Parameters {
-    User user = 1;
-    Plan plan = 2;
+message CreateOrderRequest {
+    int32       order_id    = 1;
+    string      email 	    = 2;
+    string      plan 	    = 3;
+    string      key 	    = 4;
 }
 
-message CreateUserRequest {
-    string      userName    = 1;
-    string      plan 	    = 2;
-    bool        email       = 3;
-}
-
-message CreateUserResponse {
+message CreateOrderResponse {
     string key = 1;
     string Err = 2;
 }
 
-message UpdateUserRequest {
-    User    user    = 1;
-    bool    email   = 3;
+message UpdateOrderRequest {
+    Order   order    = 1;
 }
 
-message UpdateUserResponse {
+message UpdateOrderResponse {
     string key = 1;
     string Err = 2;
+}
+
+message DeleteOrderRequest {
+    int32    order_id   = 1;
+}
+
+message DeleteOrderResponse {
+    string Err = 1;
 }
 
 message AddPlanRequest {
@@ -74,8 +76,7 @@ message ValidateSelectionRequest {
 }
 
 message ValidateSelectionResponse {
-    bool isValid = 1;
-    string err = 2;
+    string err = 1;
 }
 
 message ValidateKeyRequest {
@@ -83,36 +84,29 @@ message ValidateKeyRequest {
 }
 
 message ValidateKeyResponse {
-    Parameters parameters = 1;
-    string err = 2;
+    Order   order = 1;
+    Plan    plan = 2;
+    string  err = 3;
 }
 
-message ValidateNameRequest {
-    string name = 1;
+message ValidateOrderRequest {
+    int32 order_id = 1;
 }
 
-message ValidateNameResponse {
-    Parameters parameters = 1;
-    string err = 2;
-}
-
-message ValidateStripeRequest {
-    string stripe = 1;
-}
-
-message ValidateStripeResponse {
-    Parameters parameters = 1;
-    string err = 2;
+message ValidateOrderResponse {
+    Order   order = 1;
+    Plan    plan = 2;
+    string  err = 3;
 }
 
 service UserSVC {
-    rpc CreateUser(CreateUserRequest)                   returns (CreateUserResponse) {}
-    rpc UpdateUser(UpdateUserRequest)                   returns (UpdateUserResponse) {}
+    rpc CreateOrder(CreateOrderRequest)                 returns (CreateOrderResponse) {}
+    rpc UpdateOrder(UpdateOrderRequest)                 returns (UpdateOrderResponse) {}
+    rpc DeleteOrder(DeleteOrderRequest)                 returns (DeleteOrderResponse) {}
     rpc AddPlan(AddPlanRequest)                         returns (AddPlanResponse) {}
     rpc ValidateSelection(ValidateSelectionRequest)     returns (ValidateSelectionResponse) {}
     rpc ValidateKey(ValidateKeyRequest)                 returns (ValidateKeyResponse) {}
-    rpc ValidateName(ValidateNameRequest)               returns (ValidateNameResponse) {}
-    rpc ValidateStripe(ValidateStripeRequest)           returns (ValidateStripeResponse) {}
+    rpc ValidateOrder(ValidateOrderRequest)             returns (ValidateOrderResponse) {}
 }
 
 

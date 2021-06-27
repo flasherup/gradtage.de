@@ -139,8 +139,6 @@ func (pg Postgres) GetStationsBySrcType(types []string) ([]stationssvc.Station,e
 	}
 	query += ";"
 
-	fmt.Println(query)
-
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return sts, err

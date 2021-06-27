@@ -6,7 +6,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/gorilla/mux"
@@ -127,7 +126,6 @@ func encodeSearchResponse(ctx context.Context, w http.ResponseWriter, response i
 }
 
 func decodeUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	fmt.Println("decodeUserRequest")
 	vars := mux.Vars(r)
 	r.ParseForm()
 	p := map[string]string{
@@ -145,13 +143,10 @@ func decodeUserRequest(_ context.Context, r *http.Request) (request interface{},
 		Action :	vars[UserAction],
 		Params: 	p,
 	}
-
-	fmt.Println(params)
 	return UserRequest{params}, nil
 }
 
 func encodeUserResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	fmt.Println("encodeUserResponse")
 	resp := response.(UserResponse)
 	w.Header().Set("Content-Type", "text/csv")
 	wr := csv.NewWriter(w)
@@ -191,39 +186,19 @@ func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response int
 	return err
 }
 
-func decodeStripeRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	req := StripeRequest{}
-
-	body, _ := ioutil.ReadAll(r.Body)
-	if e := json.Unmarshal(body, &req.Event); e != nil {
-		return nil, e
-	}
-	return req, nil
-}
-
-func encodeStripeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(StripeResponse)
-	bt := new(bytes.Buffer)
-	err := json.NewEncoder(bt).Encode(resp)
-
-	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-	w.Write(bt.Bytes())
-	return err
-}
-
 func decodeWoocommerceRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	req := WoocommerceRequest{}
-	fmt.Println("Headers", r.Header)
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return req, err
 	}
-	fmt.Println("Body", string(body))
 	eventType := utils.GetWoocommerceEventType(r.Header)
 
 	event := WoocommerceEvent{}
 	event.Type = eventType
+	event.Signature = utils.GetWoocommerceSignature(r.Header)
+	event.Body = body
+	event.Header = r.Header
 
 	if eventType == common.WCUpdateEvent {
 		if e := json.Unmarshal(body, &event.UpdateEvent); e != nil {
@@ -257,7 +232,6 @@ func decodeCommandRequest(_ context.Context, r *http.Request) (request interface
 	for k,v := range r.Form {
 		p[k] = v[0]
 	}
-	fmt.Println("params", p)
 	req := CommandRequest{}
 	req.Params = p;
 	if name, ok := p["name"]; ok {

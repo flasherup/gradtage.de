@@ -2,7 +2,6 @@ package apisvc
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
 )
 
@@ -14,7 +13,6 @@ type Endpoints struct {
 	SearchEndpoint			endpoint.Endpoint
 	UserEndpoint			endpoint.Endpoint
 	PlanEndpoint			endpoint.Endpoint
-	StripeEndpoint			endpoint.Endpoint
 	WoocommerceEndpoint		endpoint.Endpoint
 	CommandEndpoint			endpoint.Endpoint
 }
@@ -27,7 +25,6 @@ func MakeServerEndpoints(s Service) Endpoints {
 		SearchEndpoint:  		MakeSearchEndpoint(s),
 		UserEndpoint:  			MakeUserEndpoint(s),
 		PlanEndpoint:  			MakePlanEndpoint(s),
-		StripeEndpoint:  		MakeStripeEndpoint(s),
 		WoocommerceEndpoint:  	MakeWoocommerceEndpoint(s),
 		CommandEndpoint:  		MakeCommandEndpoint(s),
 	}
@@ -67,7 +64,6 @@ func MakeSearchEndpoint(s Service) endpoint.Endpoint {
 
 func MakeUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		fmt.Println("MakeUserEndpoint")
 		req := request.(UserRequest)
 		data, err := s.User(ctx, req.Params)
 		return UserResponse{ data}, err
@@ -79,14 +75,6 @@ func MakePlanEndpoint(s Service) endpoint.Endpoint {
 		req := request.(PlanRequest)
 		data, err := s.Plan(ctx, req.Params)
 		return PlanResponse{ data}, err
-	}
-}
-
-func MakeStripeEndpoint(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(StripeRequest)
-		data, err := s.Stripe(ctx, req.Event)
-		return StripeResponse{ data}, err
 	}
 }
 
