@@ -166,7 +166,7 @@ func (pg *Postgres) CreateTable(name string) error {
 		"	vis real,"+
 		"	solar_rad real,"+
 		"	wind_spd real,"+
-		"	state_code VARCHAR(4),"+
+		"	state_code VARCHAR(8),"+
 		"	city_name VARCHAR,"+
 		"	app_temp real,"+
 		"	uv real,"+

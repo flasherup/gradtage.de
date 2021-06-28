@@ -95,6 +95,7 @@ func sleepCheck(numberOfRequests, counter int, duration time.Duration) int {
 func (wbh WeatherHistorical)precessStations(date time.Time) {
 	time.Now()
 	for k,v := range wbh.stationlist {
+		level.Info(wbh.logger).Log("msg", "Process station", "innerId", k, "station", v)
 		wbh.processRequest(k, v, date)
 	}
 }
