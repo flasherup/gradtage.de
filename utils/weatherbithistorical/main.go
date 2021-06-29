@@ -16,10 +16,14 @@ import (
 )
 
 type WeatherHistorical struct {
-	db 			database.WeatherBitDB
-	logger  	log.Logger
-	conf		config.WeatherBitConfig
-	stationlist	map[string]string
+	db                    database.WeatherBitDB
+	logger                log.Logger
+	conf                  config.WeatherBitConfig
+	stationList           map[string]string
+	dailyRequestCounter   int
+	secondsRequestCounter int
+	dailyStartTime        time.Time
+	secondsStartTime      time.Time
 }
 
 func main() {
@@ -52,59 +56,47 @@ func main() {
 	}
 
 	 wbh := WeatherHistorical{
-	 	 db: db,
-		 logger: logger,
-		 conf: *conf,
-		 stationlist: *stationList,
+	 	 db:                    db,
+		 logger:                logger,
+		 conf:                  *conf,
+		 stationList:           *stationList,
+		 dailyRequestCounter:   0,
+		 secondsRequestCounter: 0,
 	 }
 
-	 date := time.Now()
-	 wbh.precessStations(date)
-}
-
-func (wbh WeatherHistorical)processRequest(stID string, st string, end time.Time) error {
-
-	dailyRequestCounter := 0
-	secondsRequestCounter := 0
-	startDate := end
-	for {
-		start := end.AddDate(0, 0, -14)
-		sDate := start.Format(common.TimeLayoutWBH)
-		eDate := end.Format(common.TimeLayoutWBH)
-		wbh.processUpdate(stID, st, sDate, eDate)
-		dailyRequestCounter++
-		secondsRequestCounter++
-		secondsRequestCounter = sleepCheck(wbh.conf.WeatherBit.NumberOfRequestPerSecond, secondsRequestCounter, time.Second)
-		dailyRequestCounter = sleepCheck(wbh.conf.WeatherBit.NumberOfRequestPerDay, dailyRequestCounter, time.Second * 5)
-		end = start
-		if !yearCheck(startDate, end, wbh.conf.WeatherBit.NumberOfYears) {
-			break
-		}
-	}
-	return nil
-}
-
-func sleepCheck(numberOfRequests, counter int, duration time.Duration) int {
-	if counter >= numberOfRequests{
-		time.Sleep(duration)
-		return 0
-	}
-	return counter
+	 wbh.precessStations(time.Now())
 }
 
 func (wbh WeatherHistorical)precessStations(date time.Time) {
-	time.Now()
-	for k,v := range wbh.stationlist {
+	wbh.dailyStartTime = date
+	wbh.secondsStartTime = date
+	for k,v := range wbh.stationList {
 		level.Info(wbh.logger).Log("msg", "Process station", "innerId", k, "station", v)
 		wbh.processRequest(k, v, date)
 	}
 }
 
-func yearCheck(start, end time.Time, yearsCount int) bool {
-	if start.Year() - end.Year() >= yearsCount && start.Month() >= end.Month() && start.Day() >= end.Day() && start.Hour() >= end.Hour(){
-		return false
+func (wbh WeatherHistorical)processRequest(stID string, st string, end time.Time) error {
+	startDate := end
+	requestsPerSecond := wbh.conf.WeatherBit.NumberOfRequestPerSecond
+	requestsPerDay := wbh.conf.WeatherBit.NumberOfRequestPerDay
+	for {
+		start := end.AddDate(0, 0, -14)
+		sDate := start.Format(common.TimeLayoutWBH)
+		eDate := end.Format(common.TimeLayoutWBH)
+		if yearCheck(startDate, end, wbh.conf.WeatherBit.NumberOfYears) {
+			break
+		}
+		end = start
+		if wbh.checkPeriod(stID, sDate, eDate) {
+			level.Info(wbh.logger).Log("msg", "Skip Exist Period", "station", stID, "starts", sDate, "eDate", eDate)
+			continue
+		}
+		wbh.processUpdate(stID, st, sDate, eDate)
+		wbh.secondsRequestCounter, wbh.secondsStartTime = sleepCheck(requestsPerSecond, wbh.secondsRequestCounter, wbh.secondsStartTime, time.Second)
+		wbh.dailyRequestCounter, wbh.dailyStartTime 	= sleepCheck(requestsPerDay, wbh.dailyRequestCounter, wbh.dailyStartTime, time.Hour * 24)
 	}
-	return true
+	return nil
 }
 
 func (wbh WeatherHistorical)processUpdate(stID string, st string, start string, end string) error {
@@ -151,3 +143,32 @@ func (wbh WeatherHistorical)processUpdate(stID string, st string, start string, 
 	}
 	return nil
 }
+
+func (wbh WeatherHistorical)checkPeriod(stID string, start string, end string) bool {
+	_, err := wbh.db.GetPeriod(stID, start, end)
+	if err == nil {
+		return true
+	}
+	return false
+}
+
+func sleepCheck(numberOfRequests, counter int, startTime time.Time, duration time.Duration) (int, time.Time) {
+	now := time.Now()
+	dif := now.Sub(startTime)
+	if dif >= duration {
+		return 0, now
+	}
+
+	counter++
+	if counter >= numberOfRequests{
+		time.Sleep(duration - dif)
+		return 0, time.Now()
+	}
+	return counter, startTime
+}
+
+func yearCheck(start, end time.Time, yearsCount int) bool {
+	return 	start.Year() - end.Year() >= yearsCount &&
+		start.Month() > end.Month()
+}
+
