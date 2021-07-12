@@ -6,7 +6,7 @@ import (
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"time"
 )
-const checkWXTimeTemplate = "2006-01-02T15:04:05.000Z"
+const checkWXTimeTemplate = "2006-01-02T15:04Z"
 
 type Temperature struct {
 	Celsius float64 `json:"celsius"`
