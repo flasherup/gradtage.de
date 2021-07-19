@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
+	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/collectroes"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
+	"time"
 )
 
 func main() {
@@ -20,17 +23,34 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
+	client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	//Just for test
-	data, err := client.GetPeriod([]string{"CYYC"}, "2021-03-20T01:00:00", "2021-03-25T23:00:00")
+	err := getPeriod(client, logger);
 	if err != nil {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
-		return
 	}
 
+}
+
+func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+	//Just for test
+	data, err := client.GetPeriod([]string{"at_av222"}, "2020-03-20T00:00:00", "2021-03-25T20:00:00")
+	if err != nil {
+		return err
+	}
 	fmt.Println(*data)
+	daysCollector :=  collectroes.NewDays()
+	for _,v := range data.Temps {
+		for _,t :=  range v.Temps {
+			date, err := time.Parse(common.TimeLayout, t.Date)
+			if err != nil {
+				return err
+			}
+			daysCollector.Push(date.YearDay(), date.Hour(), t.Temperature)
+		}
+	}
+	return nil
 }

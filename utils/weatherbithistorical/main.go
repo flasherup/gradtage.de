@@ -28,7 +28,7 @@ type WeatherHistorical struct {
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name. ")
-	csvFile := flag.String("csv.file", "stations.csv", "CSV file name. ")
+	csvFile := flag.String("csv.file", "stationsR.csv", "CSV file name. ")
 	flag.Parse()
 
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
@@ -91,7 +91,7 @@ func (wbh WeatherHistorical)processRequest(stID string, st string, end time.Time
 		if wbh.checkPeriod(stID, sDate, eDate) {
 			continue
 		}
-		wbh.processUpdate(stID, st, sDate, eDate)
+		go wbh.processUpdate(stID, st, sDate, eDate)
 		wbh.secondsRequestCounter, wbh.secondsStartTime = sleepCheck(requestsPerSecond, wbh.secondsRequestCounter, wbh.secondsStartTime, time.Second)
 		wbh.dailyRequestCounter, wbh.dailyStartTime 	= sleepCheck(requestsPerDay, wbh.dailyRequestCounter, wbh.dailyStartTime, time.Hour * 24)
 	}
