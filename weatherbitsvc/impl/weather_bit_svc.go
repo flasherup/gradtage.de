@@ -47,7 +47,7 @@ func NewWeatherBitSVC(
 
 	//processUpdate(wb, startDate, endDate)
 
-	go startFetchProcess(&wb)
+	//go startFetchProcess(&wb)
 	return &wb,nil
 }
 

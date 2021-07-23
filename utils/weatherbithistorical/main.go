@@ -28,7 +28,7 @@ type WeatherHistorical struct {
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name. ")
-	csvFile := flag.String("csv.file", "Greece.csv", "CSV file name. ")
+	csvFile := flag.String("csv.file", "stationsR.csv", "CSV file name. ")
 	flag.Parse()
 
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
@@ -89,10 +89,9 @@ func (wbh WeatherHistorical)processRequest(stID string, st string, end time.Time
 		}
 		end = start
 		if wbh.checkPeriod(stID, sDate, eDate) {
-			level.Info(wbh.logger).Log("msg", "Skip Exist Period", "station", stID, "starts", sDate, "eDate", eDate)
 			continue
 		}
-		wbh.processUpdate(stID, st, sDate, eDate)
+		go wbh.processUpdate(stID, st, sDate, eDate)
 		wbh.secondsRequestCounter, wbh.secondsStartTime = sleepCheck(requestsPerSecond, wbh.secondsRequestCounter, wbh.secondsStartTime, time.Second)
 		wbh.dailyRequestCounter, wbh.dailyStartTime 	= sleepCheck(requestsPerDay, wbh.dailyRequestCounter, wbh.dailyStartTime, time.Hour * 24)
 	}
@@ -145,9 +144,9 @@ func (wbh WeatherHistorical)processUpdate(stID string, st string, start string, 
 }
 
 func (wbh WeatherHistorical)checkPeriod(stID string, start string, end string) bool {
-	_, err := wbh.db.GetPeriod(stID, start, end)
+	temps, err := wbh.db.GetPeriod(stID, start, end)
 	if err == nil {
-		return true
+		return len(temps) != 0
 	}
 	return false
 }
