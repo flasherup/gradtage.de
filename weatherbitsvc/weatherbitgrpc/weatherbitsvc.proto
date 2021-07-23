@@ -23,9 +23,19 @@ message GetPeriodResponse {
     string err                      = 2;
 }
 
+message GetUpdateDateRequest {
+    repeated string ids = 1 [(gogoproto.nullable) = false];
+}
+
+message GetUpdateDateResponse {
+    map<string,string> dates = 1;
+    string err = 2;
+}
+
 
 service WeatherBitScraperSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
+    rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
 }
 
 

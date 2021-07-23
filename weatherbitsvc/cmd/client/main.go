@@ -32,5 +32,14 @@ func main() {
 		return
 	}
 
-	fmt.Println(*data)
+	dates, err := client.GetUpdateDate([]string{"KBOS"})
+	if err != nil {
+		level.Error(logger).Log("msg", "Get Update Dates Error", "err", dates.Err)
+	} else {
+		for k, v := range dates.Dates {
+			level.Info(logger).Log("msg", "Update Date ", "id", k, "date:", v)
+		}
+
+		fmt.Println(*data)
+	}
 }

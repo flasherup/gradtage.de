@@ -37,6 +37,19 @@ func toGRPCTemps(src map[string][]hourlysvc.Temperature)  map[string]*weathergrp
 	return res
 }
 
+func EncodeGetUpdateDateResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetUpdateDateResponse)
+	return &weathergrpc.GetUpdateDateResponse {
+		Dates: res.Dates,
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeGetUpdateDateRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*weathergrpc.GetUpdateDateRequest)
+	return GetUpdateDateRequest{req.Ids}, nil
+}
+
 func errorToString(err error) string{
 	if err == nil {
 		return "nil"
