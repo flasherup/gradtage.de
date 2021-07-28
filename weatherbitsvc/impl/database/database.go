@@ -12,5 +12,6 @@ type WeatherBitDB interface {
 	GetUpdateDate(stID string) (date string, err error)
 	GetUpdateDateList(names []string) (temps map[string]string, err error)
 	PushData(stID string, data *parser.WeatherBitData) (err error)
+	GetWBData(name string, start string, end string) (wbd *parser.WeatherBitData, err error)
 	Dispose()
 }

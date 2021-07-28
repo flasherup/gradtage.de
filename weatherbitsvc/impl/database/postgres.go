@@ -132,6 +132,35 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	return writeToDB(pg.db, query)
 }
 
+func (pg *Postgres) GetWBData(name string, start string, end string) (wbd *parser.WeatherBitData, err error) {
+	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
+		name, start, end)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return wbd,err
+	}
+	defer rows.Close()
+	wbd = &parser.WeatherBitData{}
+	wbd.Data = []parser.Data{}
+
+	for rows.Next() {
+		dbWBD, err := parseDataRow(rows)
+		if err != nil {
+			return wbd, err
+		}
+		wbd.Timezone = dbWBD.Timezone
+		wbd.CountryCode = dbWBD.CountryCode
+		wbd.StateCode = dbWBD.StateCode
+		wbd.CityName = dbWBD.CityName
+		wbd.Lon = dbWBD.Lon
+		wbd.AQI = dbWBD.AQI
+		wbd.Station = dbWBD.Station
+		wbd.Data = append(wbd.Data, dbWBD.Data...)
+	}
+
+	return wbd,err
+}
 
 //GetPeriod get a list of temperatures form table @name (station Id)
 func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []hourlysvc.Temperature, err error) {
@@ -146,7 +175,7 @@ func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []ho
 
 
 	for rows.Next() {
-		st,err := parseRow(rows)
+		st,err := parseTempRow(rows)
 		if err != nil {
 			return temps, err
 		}
@@ -169,7 +198,7 @@ func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
 
 
 	for rows.Next() {
-		temp,err := parseRow(rows)
+		temp,err := parseTempRow(rows)
 		if err != nil {
 			return date, err
 		}
@@ -226,42 +255,91 @@ func (pg *Postgres) RemoveTable(name string) error {
 	return writeToDB(pg.db, query)
 }
 
+type DBRow struct {
+	Date string
+	Temp float64
+	pod string
+	pres float64
+	timezone string
+	country_code string
+	clouds float64
+	vis float64
+	solar_rad float64
+	wind_spd float64
+	state_code string
+	city_name string
+	app_temp float64
+	uv float64
+	lon float64
+	slp float64
+	h_angle float64
+	dewpt float64
+	snow float64
+	aqi float64
+	wind_dir float64
+	elev_angle float64
+	ghi float64
+	lat float64
+	precip float64
+	sunset string
+	temp float64
+	station string
+	dni float64
+	sunrise string
+}
+
+func parseTempRow(rows *sql.Rows) (hourlysvc.Temperature, error) {
+	bdData, err := parseRow(rows)
+	temp := hourlysvc.Temperature{}
+	temp.Date = bdData.Date
+	temp.Temperature = bdData.Temp
+	return temp, err
+}
 
 
-func parseRow(rows *sql.Rows) (temp hourlysvc.Temperature, err error) {
-	bdData := struct {
-		Date string
-		Temp float64
-		pod string
-		pres float64
-		timezone string
-		country_code string
-		clouds float64
-		vis float64
-		solar_rad float64
-		wind_spd float64
-		state_code string
-		city_name string
-		app_temp float64
-		uv float64
-		lon float64
-		slp float64
-		h_angle float64
-		dewpt float64
-		snow float64
-		aqi float64
-		wind_dir float64
-		elev_angle float64
-		ghi float64
-		lat float64
-		precip float64
-		sunset string
-		temp float64
-		station string
-		dni float64
-		sunrise string
-	}{}
+func parseDataRow(rows *sql.Rows) (parser.WeatherBitData, error) {
+	bdData, err := parseRow(rows)
 
+	data := parser.Data{}
+	wbd := parser.WeatherBitData{}
+	wbd.Data = []parser.Data{data}
+	date, dateErr := time.Parse(common.TimeLayout, bdData.Date)
+	if dateErr != nil {
+		date = time.Now()
+	}
+	data.TS = float64(date.Unix())
+	data.Temp = bdData.Temp
+	data.Pod = bdData.pod
+	data.Pres = bdData.pres
+	wbd.Timezone = bdData.timezone
+	wbd.CountryCode = bdData.country_code
+	data.Clouds = bdData.clouds
+	data.Vis = bdData.vis
+	data.SolarRad = bdData.solar_rad
+	data.WindSPD = bdData.wind_spd
+	wbd.StateCode = bdData.state_code
+	wbd.CityName = bdData.city_name
+	data.AppTemp = bdData.app_temp
+	data.UV = bdData.uv
+	wbd.Lon = bdData.lon
+	data.SLP = bdData.slp
+	data.HAngle = bdData.h_angle
+	data.Dewpt = bdData.dewpt
+	data.Snow = bdData.snow
+	wbd.AQI = bdData.aqi
+	data.WindDir = bdData.wind_dir
+	data.ElevAngle = bdData.elev_angle
+	data.GHI = bdData.ghi
+	data.Precip = bdData.precip
+	data.Sunset = bdData.sunset
+	data.Temp = bdData.temp
+	wbd.Station = bdData.station
+	data.DNI = bdData.dni
+	data.Sunrise = bdData.sunrise
+	return wbd,err
+}
+
+func parseRow(rows *sql.Rows) (bdData DBRow, err error) {
 	err = rows.Scan(
 		&bdData.Date,
 		&bdData.Temp,
@@ -294,9 +372,7 @@ func parseRow(rows *sql.Rows) (temp hourlysvc.Temperature, err error) {
 		&bdData.dni,
 		&bdData.sunrise,
 	)
-	temp.Date = bdData.Date
-	temp.Temperature = bdData.Temp
-	return
+	return bdData, err
 }
 
 func writeToDB(db *sql.DB, query string) (err error){
