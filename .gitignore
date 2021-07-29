@@ -16,3 +16,5 @@ dlyaggregatorsvc/cmd/server/src/config.yml
 usersvc/cmd/server/src/config.yml
 *.exe
 go.sum
+utils/weatherbitcheck/config.yml
+*.csv
