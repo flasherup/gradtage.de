@@ -25,6 +25,7 @@ require (
 	github.com/tomogoma/go-typed-errors v0.0.0-20181222204503-0532faf740be // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985
+	golang.org/x/tools v0.1.2
 	google.golang.org/grpc v1.39.0
 	gopkg.in/yaml.v2 v2.4.0
 )
