@@ -17,7 +17,7 @@ func EncodeGetPeriodResponse(_ context.Context, r interface{}) (interface{}, err
 
 func DecodeGetWBPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(*weathergrpc.GetWBPeriodRequest)
-	return GetWBPeriodRequest{req.Ids, req.Start, req.End}, nil
+	return GetWBPeriodRequest{req.Id, req.Start, req.End}, nil
 }
 
 func EncodeGetWBPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
