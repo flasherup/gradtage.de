@@ -38,7 +38,7 @@ func main() {
 }
 
 func getPeriod(db *database.Postgres, logger log.Logger) {
-	period, err := db.GetPeriod("us_kduj", "2020-03-20T00:00:00", "2021-03-25T20:00:00")
+	period, err := db.GetWBData("us_kduj", "2020-03-20T00:00:00", "2021-03-25T20:00:00")
 	if err != nil {
 		fmt.Println("get period error", err)
 	} else {

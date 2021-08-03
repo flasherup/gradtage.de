@@ -12,6 +12,36 @@ message Temperatures {
     repeated Temperature temps = 1;
 }
 
+message WBData {
+    string  Date         = 1;
+    double  Temp         = 2;
+    string  Pod          = 3;
+    double	Pres         = 4;
+    string	Timezone     = 5;
+    string	CountryCode  = 6;
+    double	Clouds       = 7;
+    double	Vis          = 8;
+    double	SolarRad     = 9;
+    double	WindSpd      = 10;
+    string	StateCode    = 11;
+    string	CityName     = 12;
+    double	AppTemp      = 13;
+    double	Lon          = 14;
+    double	HAngle       = 15;
+    double	Dewpt        = 16;
+    double	Snow         = 17;
+    double	Aqi          = 18;
+    double	WindDir      = 19;
+    double	ElevAngle    = 20;
+    double	Ghi          = 21;
+    double	Lat          = 22;
+    double	Precip       = 23;
+    string	Sunset       = 24;
+    string	Station      = 25;
+    double	Dni          = 26;
+    string	Sunrise      = 27;
+}
+
 message GetPeriodRequest {
     repeated string ids  = 1;
     string start         = 2;
@@ -21,6 +51,16 @@ message GetPeriodRequest {
 message GetPeriodResponse {
     map<string, Temperatures> temps = 1;
     string err                      = 2;
+}
+
+message GetWBPeriodRequest {
+    string id            = 1;
+    string start         = 2;
+    string end           = 3;
+}
+
+message GetWBPeriodResponse {
+    repeated string temps  = 1;
 }
 
 message GetUpdateDateRequest {
@@ -35,6 +75,7 @@ message GetUpdateDateResponse {
 
 service WeatherBitScraperSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
+    rpc GetWBPeriod(GetWBPeriodRequest) returns (GetWBPeriodResponse) {}
     rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
 }
 

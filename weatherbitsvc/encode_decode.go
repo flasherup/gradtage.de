@@ -15,6 +15,20 @@ func EncodeGetPeriodResponse(_ context.Context, r interface{}) (interface{}, err
 	}, nil
 }
 
+func DecodeGetWBPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*weathergrpc.GetWBPeriodRequest)
+	return GetWBPeriodRequest{req.Ids, req.Start, req.End}, nil
+}
+
+func EncodeGetWBPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetPeriodResponse)
+	encTemp := toGRPCTemps(res.Temps)
+	return &weathergrpc.GetPeriodResponse {
+		Temps: encTemp,
+		Err: errorToString(res.Err),
+	}, nil
+}
+
 func DecodeGetPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(*weathergrpc.GetPeriodRequest)
 	return GetPeriodRequest{req.Ids, req.Start, req.End}, nil

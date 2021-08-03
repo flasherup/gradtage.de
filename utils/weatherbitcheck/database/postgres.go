@@ -133,7 +133,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	return writeToDB(pg.db, query)
 }
 
-func (pg *Postgres) GetWBData(name string, start string, end string) (wbd *parser.WeatherBitData, err error) {
+func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weatherbitsvc.WBData, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
 
@@ -142,22 +142,14 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd *parse
 		return wbd,err
 	}
 	defer rows.Close()
-	wbd = &parser.WeatherBitData{}
-	wbd.Data = []parser.Data{}
+	wbd = make([]weatherbitsvc.WBData, 0)
 
 	for rows.Next() {
-		dbWBD, err := parseDataRow(rows)
+		dbWBD, err := parseRow(rows)
 		if err != nil {
 			return wbd, err
 		}
-		wbd.Timezone = dbWBD.Timezone
-		wbd.CountryCode = dbWBD.CountryCode
-		wbd.StateCode = dbWBD.StateCode
-		wbd.CityName = dbWBD.CityName
-		wbd.Lon = dbWBD.Lon
-		wbd.AQI = dbWBD.AQI
-		wbd.Station = dbWBD.Station
-		wbd.Data = append(wbd.Data, dbWBD.Data...)
+		wbd = append(wbd, dbWBD)
 	}
 
 	return wbd,err
