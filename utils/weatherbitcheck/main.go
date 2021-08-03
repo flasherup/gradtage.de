@@ -43,7 +43,7 @@ func getPeriod(db *database.Postgres, logger log.Logger) {
 		fmt.Println("get period error", err)
 	} else {
 		for i,v := range period {
-			println(i, v.Date, v.Temperature)
+			println(i, v.Date)
 		}
 	}
 }
