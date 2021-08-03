@@ -14,7 +14,7 @@ type Endpoints struct {
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
 		GetPeriodEndpoint:   	MakeGetPeriodEndpoint(s),
-		GetWBPeriod:			MakeGetWBPeriodendpoint(s),
+		GetWBPeriod:			MakeGetWBPeriodEndpoint(s),
 		GetUpdateDateEndpoint:	MakeGetUpdateDateEndpoint(s),
 	}
 }
@@ -31,7 +31,7 @@ func MakeGetPeriodEndpoint(s Service) endpoint.Endpoint {
 func MakeGetWBPeriodEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetWBPeriodRequest)
-		temps, err := s.GetWBPeriod(cxt, req.id, req.Start, req.end)
+		temps, err := s.GetWBPeriod(ctx, req.Id, req.Start, req.End)
 		return GetWBPeriodResponse{temps, err}, err
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
+	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/database"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
@@ -65,18 +66,14 @@ func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start strin
 	return temps,err
 }
 
-func (wb WeatherBitSVC) GetWBPeriod(ctx context.Context, id string, start string, end string) (temps []WBData, err error) {
-	level.Info(wb.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s",len(ids), start, end))
-	temps = make([]WBData,)
+func (wb WeatherBitSVC) GetWBPeriod(ctx context.Context, id string, start string, end string) (temps []weatherbitsvc.WBData, err error) {
+	level.Info(wb.logger).Log("msg", "GetWBPeriod", "id", id, "start", start, "end",  end)
 
-	for _,id := range id {
-		t, err := wb.db.GetPeriod(id, start, end)
+		temps, err = wb.db.GetWBData(id, start, end)
 		if err != nil {
-			return temps,err
+			return temps, err
 		}
-		temps[id] = t
-	}
-	return temps,err
+		return
 }
 
 func startFetchProcess(wb *WeatherBitSVC) {

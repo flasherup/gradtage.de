@@ -69,7 +69,7 @@ func main() {
 
 
 	ctx := context.Background()
-	weatherBitService, err := impl.NewWeatherBitSVC(logger,stationsService , db, alertService, *conf)
+	weatherBitService, err := impl.NewWeatherBitSVC(logger, stationsService , db, alertService, *conf)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return

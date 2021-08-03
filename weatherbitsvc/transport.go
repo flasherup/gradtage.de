@@ -24,12 +24,12 @@ func (s *GRPCServer) GetPeriod(ctx context.Context, req *weathergrpc.GetPeriodRe
 	return resp.(*weathergrpc.GetPeriodResponse), err
 }
 
-func (s *GRPCServer) GetWBPeriod(ctx context.Context, req *weathergrpc.GetWbPediodRequst) (*weathergrpc.GetWbPediodRequst, err error) {
+func (s *GRPCServer) GetWBPeriod(ctx context.Context, req *weathergrpc.GetWBPeriodRequest) (request *weathergrpc.GetWBPeriodResponse, err error) {
 	_, resp, err := s.getWbPeriod.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*weathergrpc.GetWbPediodRequst), err
+	return resp.(*weathergrpc.GetWBPeriodResponse), err
 }
 
 func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *weathergrpc.GetUpdateDateRequest) (*weathergrpc.GetUpdateDateResponse, error) {
@@ -48,7 +48,7 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 			EncodeGetPeriodResponse,
 		),
 		getWbPeriod: gt.NewServer(
-			Endpoint.GetWBPeriodEndpoint,
+			endpoint.GetWBPeriod,
 			DecodeGetWBPeriodRequest,
 			EncodeGetWBPeriodResponse,
 		),

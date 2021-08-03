@@ -61,6 +61,7 @@ message GetWBPeriodRequest {
 
 message GetWBPeriodResponse {
     repeated string temps  = 1;
+    string err             = 2;
 }
 
 message GetUpdateDateRequest {

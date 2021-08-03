@@ -28,9 +28,14 @@ func main() {
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	err := getPeriod(client, logger);
+	/*err := getPeriod(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
+	}*/
+
+	err := getWBPeriod(client, logger)
+	if err != nil {
+		level.Error(logger).Log("msg", "GetWBPeriod Error", "err", err)
 	}
 }
 
@@ -51,5 +56,16 @@ func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 			daysCollector.Push(date.YearDay(), date.Hour(), t.Temperature)
 		}
 	}
+	return nil
+}
+
+func getWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+	//Just for test
+	data, err := client.GetWBPeriod("at_av222", "2020-03-20T00:00:00", "2021-03-25T20:00:00")
+	if err != nil {
+		return err
+	}
+	fmt.Println(*data)
+
 	return nil
 }
