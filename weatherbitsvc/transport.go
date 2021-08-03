@@ -12,6 +12,7 @@ import (
 
 type GRPCServer struct {
 	getPeriod    	gt.Handler
+	getUpdateDate   gt.Handler
 }
 
 func (s *GRPCServer) GetPeriod(ctx context.Context, req *weathergrpc.GetPeriodRequest) (*weathergrpc.GetPeriodResponse, error) {
@@ -22,14 +23,26 @@ func (s *GRPCServer) GetPeriod(ctx context.Context, req *weathergrpc.GetPeriodRe
 	return resp.(*weathergrpc.GetPeriodResponse), err
 }
 
+func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *weathergrpc.GetUpdateDateRequest) (*weathergrpc.GetUpdateDateResponse, error) {
+	_, resp, err := s.getUpdateDate.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*weathergrpc.GetUpdateDateResponse), err
+}
 
-
-func NewGRPCServer(_ context.Context, endpoint Endpoints) weathergrpc.WeatherBitScraperSVCServer{
+func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 	server := GRPCServer{
 		getPeriod: gt.NewServer(
 			endpoint.GetPeriodEndpoint,
 			DecodeGetPeriodRequest,
 			EncodeGetPeriodResponse,
+
+		),
+		getUpdateDate: gt.NewServer(
+			endpoint.GetUpdateDateEndpoint,
+			DecodeGetUpdateDateRequest,
+			EncodeGetUpdateDateResponse,
 		),
 	}
 	return &server

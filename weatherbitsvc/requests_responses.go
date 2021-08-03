@@ -12,3 +12,12 @@ type GetPeriodResponse struct {
 	Temps 	map[string][]hourlysvc.Temperature 	`json:"temps"`
 	Err  	error 								`json:"err"`
 }
+
+type GetUpdateDateRequest struct {
+	IDs 	[]string `json:"ids"`
+}
+
+type GetUpdateDateResponse struct {
+	Dates  map[string]string `json:"dates"`
+	Err  error `json:"err"`
+}

@@ -6,4 +6,5 @@ import (
 
 type Client interface {
 	GetPeriod		(ids []string, start string, end string) 		(resp *weathergrpc.GetPeriodResponse, err error)
+	GetUpdateDate	(ids []string) 									(resp *weathergrpc.GetUpdateDateResponse, err error)
 }

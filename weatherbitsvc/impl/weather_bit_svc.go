@@ -47,7 +47,7 @@ func NewWeatherBitSVC(
 
 	//processUpdate(wb, startDate, endDate)
 
-	go startFetchProcess(&wb)
+	//go startFetchProcess(&wb)
 	return &wb,nil
 }
 
@@ -88,6 +88,16 @@ func (wb WeatherBitSVC)precessStations() {
 		wb.processUpdate(station.Id, station.SourceId)
 	}
 
+}
+
+func (wb *WeatherBitSVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
+	level.Info(wb.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
+	dates, err = wb.db.GetUpdateDateList(ids)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "Get Update Date List error", "err", err)
+		//hs.sendAlert(NewErrorAlert(err))
+	}
+	return dates, err
 }
 
 func (wb WeatherBitSVC)processUpdate(stID string, st string) {
