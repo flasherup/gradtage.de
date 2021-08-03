@@ -13,6 +13,17 @@ type GetPeriodResponse struct {
 	Err  	error 								`json:"err"`
 }
 
+type GetWBPeriodRequest struct {
+	Id string `json:"id"`
+	Start string`json:"start"`
+	End   string `json:"end"`
+}
+
+type GetWBPeriodResponse struct {
+	Temps []WBData `json:"temps"`
+	Err error
+}
+
 type GetUpdateDateRequest struct {
 	IDs 	[]string `json:"ids"`
 }

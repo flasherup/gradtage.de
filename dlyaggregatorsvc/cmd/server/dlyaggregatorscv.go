@@ -21,8 +21,8 @@ import (
 
 	alert "github.com/flasherup/gradtage.de/alertsvc/impl"
 	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
-	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
+	weatherbit "github.com/flasherup/gradtage.de/weatherbitsvc/impl"
 	googlerpc "google.golang.org/grpc"
 )
 
@@ -55,7 +55,7 @@ func main() {
 		alertService = common.NewSilentAlert()
 	}
 
-	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
+	hourlyService := weatherbit.NewWeatherBitSVCClient(conf.Clients.WeatherBit, logger)
 	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
 	sourceHourly := source.NewHourly(logger, hourlyService, dailyService)

@@ -65,6 +65,20 @@ func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start strin
 	return temps,err
 }
 
+func (wb WeatherBitSVC) GetWBPeriod(ctx context.Context, id string, start string, end string) (temps []WBData, err error) {
+	level.Info(wb.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s",len(ids), start, end))
+	temps = make([]WBData,)
+
+	for _,id := range id {
+		t, err := wb.db.GetPeriod(id, start, end)
+		if err != nil {
+			return temps,err
+		}
+		temps[id] = t
+	}
+	return temps,err
+}
+
 func startFetchProcess(wb *WeatherBitSVC) {
 	wb.precessStations() //Do it first time
 	tick := time.Tick(time.Hour * 24)
