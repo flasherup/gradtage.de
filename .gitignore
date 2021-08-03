@@ -9,3 +9,11 @@ utils/weatherbitHistorical/station.csv
 builds/Makefile
 .idea/
 localutils/configs/promtail.yml
+dailysvc/cmd/server/src/config.yml
+dailysvc/dlygrpc/dailysvc.pb.go
+*.exe
+dlyaggregatorsvc/cmd/server/src/config.yml
+dlyaggregatorsvc/dagrpc/dlyaggregatorsvc.pb.go
+localutils/
+stationssvc/cmd/server/src/config.yml
+weatherbitsvc/weatherbitgrpc/weatherbitsvc.pb.go

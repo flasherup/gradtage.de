@@ -18,9 +18,47 @@ type Postgres struct {
 	db  *sql.DB
 }
 
-func (pg *Postgres) GetUpdateDateList(names []string) (temps map[string]string, err error) {
-	panic("implement me")
+func (pg *Postgres)GetUpdateDateList(names []string) (temps map[string]string, err error) {
+	query := ""
+	for i,v := range names {
+		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
+			v, v)
+
+		if i < len(names)-1 {
+			query += " UNION ALL "
+		} else {
+			query += ";"
+		}
+	}
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return temps,err
+	}
+	defer rows.Close()
+
+	temps = map[string]string{}
+
+	row := struct {
+		Date 		string
+		Temperature float64
+		Name 		string
+	}{}
+
+	for rows.Next() {
+		err = rows.Scan(
+			&row.Date,
+			&row.Temperature,
+			&row.Name,
+		)
+
+		if err == nil {
+			temps[row.Name] = row.Date
+		}
+	}
+	return temps, nil
 }
+
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
