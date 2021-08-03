@@ -133,7 +133,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 	return writeToDB(pg.db, query)
 }
 
-func (pg *Postgres) GetWBData(name string, start string, end string) (wbd *parser.WeatherBitData, err error) {
+func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weatherbitsvc.WBData, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
 
@@ -142,22 +142,14 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd *parse
 		return wbd,err
 	}
 	defer rows.Close()
-	wbd = &parser.WeatherBitData{}
-	wbd.Data = []parser.Data{}
+	wbd = make([]weatherbitsvc.WBData, 0)
 
 	for rows.Next() {
-		dbWBD, err := parseDataRow(rows)
+		dbWBD, err := parseRow(rows)
 		if err != nil {
 			return wbd, err
 		}
-		wbd.Timezone = dbWBD.Timezone
-		wbd.CountryCode = dbWBD.CountryCode
-		wbd.StateCode = dbWBD.StateCode
-		wbd.CityName = dbWBD.CityName
-		wbd.Lon = dbWBD.Lon
-		wbd.AQI = dbWBD.AQI
-		wbd.Station = dbWBD.Station
-		wbd.Data = append(wbd.Data, dbWBD.Data...)
+		wbd = append(wbd, dbWBD)
 	}
 
 	return wbd,err
@@ -306,39 +298,6 @@ func (pg *Postgres) GetListOfTables() ([]string, error) {
 
 	return list,nil
 }
-
-/*type DBRow struct {
-	Date string
-	Temp float64
-	pod string
-	pres float64
-	timezone string
-	country_code string
-	clouds float64
-	vis float64
-	solar_rad float64
-	wind_spd float64
-	state_code string
-	city_name string
-	app_temp float64
-	uv float64
-	lon float64
-	slp float64
-	h_angle float64
-	dewpt float64
-	snow float64
-	aqi float64
-	wind_dir float64
-	elev_angle float64
-	ghi float64
-	lat float64
-	precip float64
-	sunset string
-	temp float64
-	station string
-	dni float64
-	sunrise string
-}*/
 
 func parseTempRow(rows *sql.Rows) (hourlysvc.Temperature, error) {
 	bdData, err := parseRow(rows)

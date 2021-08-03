@@ -19,3 +19,4 @@ go.sum
 utils/weatherbitcheck/config.yml
 *.csv
 weatherbitsvc/weatherbitgrpc/weatherbitsvc.pb.go
+weatherbitsvc/weatherbitgrpc/weatherbitsvc_grpc.pb.go
