@@ -16,6 +16,7 @@ import (
 	"time"
 )
 const veryFirstTime = "2000-01-02T01:01:01.00Z"
+const specificTime = "2021-01-01T00:00:00.00Z"
 
 type Hourly struct {
 	hrlService 	weatherbitsvc.Client
@@ -38,7 +39,7 @@ func (h Hourly) FetchLatestTemperature(ch chan *parser.StationDaily, ids []strin
 		close(ch)
 		return
 	}
-	dailyUpdates, err := h.dlyService.GetUpdateDate(ids)
+	//dailyUpdates, err := h.dlyService.GetUpdateDate(ids)
 	if err != nil {
 		level.Error(h.logger).Log("msg", "GetUpdateDate daily error", "err", err)
 		close(ch)
@@ -62,11 +63,13 @@ func (h Hourly) FetchLatestTemperature(ch chan *parser.StationDaily, ids []strin
 			level.Warn(h.logger).Log("msg", "Daily update warning", "warn", "Station is not presented in hourly db", "station", v)
 		}
 
-		if date, ok := dailyUpdates.Dates[v]; ok {
+		dlyUpdate = specificTime
+
+		/*if date, ok := dailyUpdates.Dates[v]; ok {
 			dlyUpdate = date
 		} else {
 			level.Warn(h.logger).Log("msg", "Daily update warning", "warn", "Station is not presented in daily db", "station", v)
-		}
+		}*/
 
 		h.fetchStation(v, ch, dlyUpdate, hrlUpdate)
 	}

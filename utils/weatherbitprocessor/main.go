@@ -15,9 +15,9 @@ import (
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name.")
-	startDate := flag.String("start", "2021-05-21", "Start Date.")
-	endDate := flag.String("end", "2021-05-27", "End Date.")
-	csvFile := flag.String("csv.file", "Greece.csv", "CSV file name. ")
+	startDate := flag.String("start", "2021-07-12", "Start Date.")
+	endDate := flag.String("end", "2021-07-18", "End Date.")
+	csvFile := flag.String("csv.file", "stationsR.csv", "CSV file name. ")
 	flag.Parse()
 
 	var logger log.Logger

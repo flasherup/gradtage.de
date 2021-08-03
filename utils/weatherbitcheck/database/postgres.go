@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
+	"github.com/flasherup/gradtage.de/utils/weatherbitcheck/config"
+	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 	_ "github.com/lib/pq"
 	"math"
@@ -18,47 +19,9 @@ type Postgres struct {
 	db  *sql.DB
 }
 
-func (pg *Postgres)GetUpdateDateList(names []string) (temps map[string]string, err error) {
-	query := ""
-	for i,v := range names {
-		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
-			v, v)
-
-		if i < len(names)-1 {
-			query += " UNION ALL "
-		} else {
-			query += ";"
-		}
-	}
-
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return temps,err
-	}
-	defer rows.Close()
-
-	temps = map[string]string{}
-
-	row := struct {
-		Date 		string
-		Temperature float64
-		Name 		string
-	}{}
-
-	for rows.Next() {
-		err = rows.Scan(
-			&row.Date,
-			&row.Temperature,
-			&row.Name,
-		)
-
-		if err == nil {
-			temps[row.Name] = row.Date
-		}
-	}
-	return temps, nil
+func (pg *Postgres) GetUpdateDateList(names []string) (temps map[string]string, err error) {
+	panic("implement me")
 }
-
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
@@ -293,7 +256,58 @@ func (pg *Postgres) RemoveTable(name string) error {
 	return writeToDB(pg.db, query)
 }
 
-type DBRow struct {
+//RemoveTable remove stations table from BD
+func (pg *Postgres) CountTableRows(name string) (int, error) {
+	query := fmt.Sprintf("SELECT count(*) AS exact_count FROM %s;",
+		name)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return 0,err
+	}
+	defer rows.Close()
+
+	var count int
+	for rows.Next() {
+		err = rows.Scan(
+			&count,
+		)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return count,nil
+}
+
+//RemoveTable remove stations table from BD
+func (pg *Postgres) GetListOfTables() ([]string, error) {
+	query := "SELECT table_name FROM information_schema.tables WHERE table_schema='public'"
+
+	list := []string{}
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return list,err
+	}
+	defer rows.Close()
+
+	var station string
+	for rows.Next() {
+		err = rows.Scan(
+			&station,
+		)
+		if err != nil {
+			return list, err
+		}
+
+		list = append(list, station)
+	}
+
+	return list,nil
+}
+
+/*type DBRow struct {
 	Date string
 	Temp float64
 	pod string
@@ -324,7 +338,7 @@ type DBRow struct {
 	station string
 	dni float64
 	sunrise string
-}
+}*/
 
 func parseTempRow(rows *sql.Rows) (hourlysvc.Temperature, error) {
 	bdData, err := parseRow(rows)
@@ -347,68 +361,68 @@ func parseDataRow(rows *sql.Rows) (parser.WeatherBitData, error) {
 	}
 	data.TS = float64(date.Unix())
 	data.Temp = bdData.Temp
-	data.Pod = bdData.pod
-	data.Pres = bdData.pres
-	wbd.Timezone = bdData.timezone
-	wbd.CountryCode = bdData.country_code
-	data.Clouds = bdData.clouds
-	data.Vis = bdData.vis
-	data.SolarRad = bdData.solar_rad
-	data.WindSPD = bdData.wind_spd
-	wbd.StateCode = bdData.state_code
-	wbd.CityName = bdData.city_name
-	data.AppTemp = bdData.app_temp
-	data.UV = bdData.uv
-	wbd.Lon = bdData.lon
-	data.SLP = bdData.slp
-	data.HAngle = bdData.h_angle
-	data.Dewpt = bdData.dewpt
-	data.Snow = bdData.snow
-	wbd.AQI = bdData.aqi
-	data.WindDir = bdData.wind_dir
-	data.ElevAngle = bdData.elev_angle
-	data.GHI = bdData.ghi
-	data.Precip = bdData.precip
-	data.Sunset = bdData.sunset
-	data.Temp = bdData.temp
-	wbd.Station = bdData.station
-	data.DNI = bdData.dni
-	data.Sunrise = bdData.sunrise
+	data.Pod = bdData.Pod
+	data.Pres = bdData.Pres
+	wbd.Timezone = bdData.Timezone
+	wbd.CountryCode = bdData.CountryCode
+	data.Clouds = bdData.Clouds
+	data.Vis = bdData.Vis
+	data.SolarRad = bdData.SolarRad
+	data.WindSPD = bdData.WindSpd
+	wbd.StateCode = bdData.StateCode
+	wbd.CityName = bdData.CityName
+	data.AppTemp = bdData.AppTemp
+	data.UV = bdData.Uv
+	wbd.Lon = bdData.Lon
+	data.SLP = bdData.Slp
+	data.HAngle = bdData.HAngle
+	data.Dewpt = bdData.Dewpt
+	data.Snow = bdData.Snow
+	wbd.AQI = bdData.Aqi
+	data.WindDir = bdData.WindDir
+	data.ElevAngle = bdData.ElevAngle
+	data.GHI = bdData.Ghi
+	data.Precip = bdData.Precip
+	data.Sunset = bdData.Sunset
+	data.Temp = bdData.Temp
+	wbd.Station = bdData.Station
+	data.DNI = bdData.Dni
+	data.Sunrise = bdData.Sunrise
 	return wbd,err
 }
 
-func parseRow(rows *sql.Rows) (bdData DBRow, err error) {
+func parseRow(rows *sql.Rows) (bdData weatherbitsvc.WBData, err error) {
 	err = rows.Scan(
 		&bdData.Date,
 		&bdData.Temp,
-		&bdData.pod,
-		&bdData.pres,
-		&bdData.timezone,
-		&bdData.country_code,
-		&bdData.clouds,
-		&bdData.vis,
-		&bdData.solar_rad,
-		&bdData.wind_spd,
-		&bdData.state_code,
-		&bdData.city_name,
-		&bdData.app_temp,
-		&bdData.uv,
-		&bdData.lon,
-		&bdData.slp,
-		&bdData.h_angle,
-		&bdData.dewpt,
-		&bdData.snow,
-		&bdData.aqi,
-		&bdData.wind_dir,
-		&bdData.elev_angle,
-		&bdData.ghi,
-		&bdData.lat,
-		&bdData.precip,
-		&bdData.sunset,
-		&bdData.temp,
-		&bdData.station,
-		&bdData.dni,
-		&bdData.sunrise,
+		&bdData.Pod,
+		&bdData.Pres,
+		&bdData.Timezone,
+		&bdData.CountryCode,
+		&bdData.Clouds,
+		&bdData.Vis,
+		&bdData.SolarRad,
+		&bdData.WindSpd,
+		&bdData.StateCode,
+		&bdData.CityName,
+		&bdData.AppTemp,
+		&bdData.Uv,
+		&bdData.Lon,
+		&bdData.Slp,
+		&bdData.HAngle,
+		&bdData.Dewpt,
+		&bdData.Snow,
+		&bdData.Aqi,
+		&bdData.WindDir,
+		&bdData.ElevAngle,
+		&bdData.Ghi,
+		&bdData.Lat,
+		&bdData.Precip,
+		&bdData.Sunset,
+		&bdData.Temp,
+		&bdData.Station,
+		&bdData.Dni,
+		&bdData.Sunrise,
 	)
 	return bdData, err
 }

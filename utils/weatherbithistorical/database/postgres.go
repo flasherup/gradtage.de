@@ -46,7 +46,6 @@ func (pg *Postgres) Dispose() {
 
 //PushPeriod write a list of temperatures in to DB
 func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
-
 	query := fmt.Sprintf("INSERT INTO %s " +
 		"(date, " +
 		"rh, " +
@@ -239,10 +238,72 @@ func (pg *Postgres)GetLatest(name string) (temp hourlysvc.Temperature, err error
 
 
 func parseRow(rows *sql.Rows) (row hourlysvc.Temperature, err error) {
+	r := struct {
+		date string
+		rh float64
+		pod string
+		pres float64
+		timezone string
+		country_code string
+		clouds float64
+		vis float64
+		solar_rad float64
+		wind_spd float64
+		state_code string
+		city_name string
+		app_temp float64
+		uv float64
+		lon float64
+		slp float64
+		h_angle float64
+		dewpt float64
+		snow float64
+		aqi float64
+		wind_dir float64
+		elev_angle float64
+		ghi float64
+		lat float64
+		precip float64
+		sunset string
+		temp float64
+		station string
+		dni float64
+		sunrise string
+	}{}
 	err = rows.Scan(
-		&row.Date,
-		&row.Temperature,
+		&r.date,
+		&r.rh,
+		&r.pod,
+		&r.pres,
+		&r.timezone,
+		&r.country_code,
+		&r.clouds,
+		&r.vis,
+		&r.solar_rad,
+		&r.wind_spd,
+		&r.state_code,
+		&r.city_name,
+		&r.app_temp,
+		&r.uv,
+		&r.lon,
+		&r.slp,
+		&r.h_angle,
+		&r.dewpt,
+		&r.snow,
+		&r.aqi,
+		&r.wind_dir,
+		&r.elev_angle,
+		&r.ghi,
+		&r.lat,
+		&r.precip,
+		&r.sunset,
+		&r.temp,
+		&r.station,
+		&r.dni,
+		&r.sunrise,
 	)
+	row.Date = r.date
+	row.Temperature = r.temp
 	return
 }
 
