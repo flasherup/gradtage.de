@@ -1,5 +1,5 @@
 syntax = "proto3";
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+option  go_package = "github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc;weatherbitgrpc";
 
 package weatherbitgrpc;
 
@@ -64,7 +64,7 @@ message GetWBPeriodResponse {
 }
 
 message GetUpdateDateRequest {
-    repeated string ids = 1 [(gogoproto.nullable) = false];
+    repeated string ids = 1;
 }
 
 message GetUpdateDateResponse {

@@ -70,7 +70,7 @@ func (wb WeatherBitSVC) GetWBPeriod(ctx context.Context, id string, start string
 	temps = make([]WBData,)
 
 	for _,id := range id {
-		t, err := wb.db.GetPeriod(id, start, end)
+		t, err := wb.db.GetWBPeriod(id, start, end)
 		if err != nil {
 			return temps,err
 		}
