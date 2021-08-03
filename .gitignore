@@ -18,3 +18,4 @@ usersvc/cmd/server/src/config.yml
 go.sum
 utils/weatherbitcheck/config.yml
 *.csv
+weatherbitsvc/weatherbitgrpc/weatherbitsvc.pb.go
