@@ -90,8 +90,8 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		query += "("
 		roundedTs := math.Floor(v.TS)
 		date := time.Unix(int64(roundedTs), 0)
-		time := date.Format(common.TimeLayout)
-		query += fmt.Sprintf( "'%s',", time)
+		dateStr := date.Format(common.TimeLayout)
+		query += fmt.Sprintf( "'%s',", dateStr)
 		query += fmt.Sprintf( "%g,", v.Rh)
 		query += fmt.Sprintf( "'%s',", v.Pod)
 		query += fmt.Sprintf( "%g,", v.Pres)
@@ -153,6 +153,86 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weat
 	}
 
 	return wbd,err
+}
+
+func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err error) {
+	if len(wbd) == 0 {
+		return errors.New("weather push error, data is empty")
+	}
+	query := fmt.Sprintf("INSERT INTO %s " +
+		"(date, " +
+		"rh, " +
+		"pod, " +
+		"pres, " +
+		"timezone, " +
+		"country_code, " +
+		"clouds, " +
+		"vis, " +
+		"solar_rad, " +
+		"wind_spd, " +
+		"state_code, " +
+		"city_name," +
+		" app_temp, " +
+		"uv, " +
+		"lon, " +
+		"slp, " +
+		"h_angle, " +
+		"dewpt, " +
+		"snow, " +
+		"aqi, " +
+		"wind_dir, " +
+		"elev_angle, " +
+		"ghi, " +
+		"lat, " +
+		"precip, " +
+		"sunset, " +
+		"temp, " +
+		"station, " +
+		"dni, " +
+		"sunrise) VALUES", stID)
+	length := len(wbd)
+	for i, v := range wbd {
+		query += "("
+		query += fmt.Sprintf( "'%s',", v.Date)
+		query += fmt.Sprintf( "%g,", v.Rh)
+		query += fmt.Sprintf( "'%s',", v.Pod)
+		query += fmt.Sprintf( "%g,", v.Pres)
+		query += fmt.Sprintf( "'%s',", v.Timezone)
+		query += fmt.Sprintf( "'%s',", v.CountryCode)
+		query += fmt.Sprintf( "%g,", v.Clouds)
+		query += fmt.Sprintf( "%g,", v.Vis)
+		query += fmt.Sprintf( "%g,", v.SolarRad)
+		query += fmt.Sprintf( "%g,", v.WindSpd)
+		query += fmt.Sprintf( "'%s',", v.StateCode)
+		query += fmt.Sprintf( "'%s',", v.CityName)
+		query += fmt.Sprintf( "%g,", v.AppTemp)
+		query += fmt.Sprintf( "%g,", v.Uv)
+		query += fmt.Sprintf( "'%g',", v.Lon)
+		query += fmt.Sprintf( "%g,", v.Slp)
+		query += fmt.Sprintf( "%g,", v.HAngle)
+		query += fmt.Sprintf( "%g,", v.Dewpt)
+		query += fmt.Sprintf( "%g,", v.Snow)
+		query += fmt.Sprintf( "%g,", v.Aqi)
+		query += fmt.Sprintf( "%g,", v.WindDir)
+		query += fmt.Sprintf( "%g,", v.ElevAngle)
+		query += fmt.Sprintf( "%g,", v.Ghi)
+		query += fmt.Sprintf( "'%g',", v.Lat)
+		query += fmt.Sprintf( "%g,", v.Precip)
+		query += fmt.Sprintf( "'%s',", v.Sunset)
+		query += fmt.Sprintf( "%g,", v.Temp)
+		query += fmt.Sprintf( "'%s',", v.Station)
+		query += fmt.Sprintf( "%g,", v.Dni)
+		query += fmt.Sprintf( "'%s'", v.Sunrise)
+
+		query += ")"
+		if i < length-1 {
+			query += ","
+
+		}
+	}
+
+	query += " ON CONFLICT (date) DO NOTHING;"
+	return writeToDB(pg.db, query)
 }
 
 //GetPeriod get a list of temperatures form table @name (station Id)
@@ -307,53 +387,10 @@ func parseTempRow(rows *sql.Rows) (hourlysvc.Temperature, error) {
 	return temp, err
 }
 
-
-func parseDataRow(rows *sql.Rows) (parser.WeatherBitData, error) {
-	bdData, err := parseRow(rows)
-
-	data := parser.Data{}
-	wbd := parser.WeatherBitData{}
-	wbd.Data = []parser.Data{data}
-	date, dateErr := time.Parse(common.TimeLayout, bdData.Date)
-	if dateErr != nil {
-		date = time.Now()
-	}
-	data.TS = float64(date.Unix())
-	data.Temp = bdData.Temp
-	data.Pod = bdData.Pod
-	data.Pres = bdData.Pres
-	wbd.Timezone = bdData.Timezone
-	wbd.CountryCode = bdData.CountryCode
-	data.Clouds = bdData.Clouds
-	data.Vis = bdData.Vis
-	data.SolarRad = bdData.SolarRad
-	data.WindSPD = bdData.WindSpd
-	wbd.StateCode = bdData.StateCode
-	wbd.CityName = bdData.CityName
-	data.AppTemp = bdData.AppTemp
-	data.UV = bdData.Uv
-	wbd.Lon = bdData.Lon
-	data.SLP = bdData.Slp
-	data.HAngle = bdData.HAngle
-	data.Dewpt = bdData.Dewpt
-	data.Snow = bdData.Snow
-	wbd.AQI = bdData.Aqi
-	data.WindDir = bdData.WindDir
-	data.ElevAngle = bdData.ElevAngle
-	data.GHI = bdData.Ghi
-	data.Precip = bdData.Precip
-	data.Sunset = bdData.Sunset
-	data.Temp = bdData.Temp
-	wbd.Station = bdData.Station
-	data.DNI = bdData.Dni
-	data.Sunrise = bdData.Sunrise
-	return wbd,err
-}
-
 func parseRow(rows *sql.Rows) (bdData weatherbitsvc.WBData, err error) {
 	err = rows.Scan(
 		&bdData.Date,
-		&bdData.Temp,
+		&bdData.Rh,
 		&bdData.Pod,
 		&bdData.Pres,
 		&bdData.Timezone,

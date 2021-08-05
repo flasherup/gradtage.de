@@ -39,7 +39,7 @@ type WBData struct {
 }
 
 type Service interface {
-	GetPeriod(ctx context.Context, ids []string, start string, end string) (temps map[string][]hourlysvc.Temperature, err error)
-	GetWBPeriod(ctx context.Context, id string, start string, end string) (temps []WBData, err error)
-	GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error)
+	GetPeriod(ctx context.Context, ids []string, start string, end string) (map[string][]hourlysvc.Temperature, error)
+	GetWBPeriod(ctx context.Context, id string, start string, end string) ([]WBData, error)
+	GetUpdateDate(ctx context.Context, ids []string) (map[string]string, error)
 }

@@ -3,6 +3,8 @@ package impl
 import (
 	"context"
 	"errors"
+	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	weathergrpc "github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -36,16 +38,18 @@ func (wb WeatherBitSVCClient) GetPeriod(ids []string, start string, end string) 
 	return resp, err
 }
 
-func (wb WeatherBitSVCClient) GetWBPeriod( id string, start string, end string) (resp *weathergrpc.GetWBPeriodResponse, err error) {
+func (wb WeatherBitSVCClient) GetWBPeriod( id string, start string, end string) (resp *[]weatherbitsvc.WBData, err error) {
 	conn := wb.openConn()
 	defer conn.Close()
 
 	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
-	resp, err = client.GetWBPeriod(context.Background(), &weathergrpc.GetWBPeriodRequest{ Id:id, Start:start, End:end })
+	grpc, err := client.GetWBPeriod(context.Background(), &weathergrpc.GetWBPeriodRequest{ Id:id, Start:start, End:end })
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get WB period", "err", err)
-	}else if resp.Err != "nil" {
-		err = errors.New(resp.Err)
+	} else if grpc.Err != common.ErrorNilString {
+		err = common.ErrorFromString(grpc.Err);
+	} else {
+		resp = weatherbitsvc.ToWBData(grpc.Temps)
 	}
 
 	return resp, err

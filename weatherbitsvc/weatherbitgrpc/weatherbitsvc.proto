@@ -13,33 +13,36 @@ message Temperatures {
 }
 
 message WBData {
-    string  Date         = 1;
-    double  Temp         = 2;
-    string  Pod          = 3;
-    double	Pres         = 4;
-    string	Timezone     = 5;
-    string	CountryCode  = 6;
-    double	Clouds       = 7;
-    double	Vis          = 8;
-    double	SolarRad     = 9;
-    double	WindSpd      = 10;
-    string	StateCode    = 11;
-    string	CityName     = 12;
-    double	AppTemp      = 13;
-    double	Lon          = 14;
-    double	HAngle       = 15;
-    double	Dewpt        = 16;
-    double	Snow         = 17;
-    double	Aqi          = 18;
-    double	WindDir      = 19;
-    double	ElevAngle    = 20;
-    double	Ghi          = 21;
-    double	Lat          = 22;
-    double	Precip       = 23;
-    string	Sunset       = 24;
-    string	Station      = 25;
-    double	Dni          = 26;
-    string	Sunrise      = 27;
+    string  Date            = 1;
+    double  Rh              = 2;
+    string  Pod             = 3;
+    double	Pres            = 4;
+    string	Timezone        = 5;
+    string	CountryCode     = 6;
+    double	Clouds          = 7;
+    double	Vis             = 8;
+    double	SolarRad        = 9;
+    double	WindSpd         = 10;
+    string	StateCode       = 11;
+    string	CityName        = 12;
+    double	AppTemp         = 13;
+    double  Uv              = 14;
+    double	Lon             = 15;
+    double  Slp             = 16;
+    double	HAngle          = 17;
+    double	Dewpt           = 18;
+    double	Snow            = 19;
+    double	Aqi             = 20;
+    double	WindDir         = 21;
+    double	ElevAngle       = 22;
+    double	Ghi             = 23;
+    double	Lat             = 24;
+    double	Precip          = 25;
+    string	Sunset          = 26;
+    double  Temp            = 27;
+    string	Station         = 28;
+    double	Dni             = 29;
+    string	Sunrise         = 30;
 }
 
 message GetPeriodRequest {
@@ -60,7 +63,7 @@ message GetWBPeriodRequest {
 }
 
 message GetWBPeriodResponse {
-    repeated string temps  = 1;
+    repeated WBData temps  = 1;
     string err             = 2;
 }
 
