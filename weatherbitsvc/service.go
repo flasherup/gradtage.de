@@ -7,7 +7,7 @@ import (
 
 type WBData struct {
 	Date        string  `json:"date"`
-	Temp        float64 `json:"temp"`
+	Rh		 	float64 `json:"rh"`
 	Pod         string  `json:"pod"`
 	Pres        float64 `json:"pres"`
 	Timezone    string  `json:"timezone"`
@@ -32,6 +32,7 @@ type WBData struct {
 	Lat         float64 `json:"lat"`
 	Precip      float64 `json:"precip"`
 	Sunset      string  `json:"sunset"`
+	Temp        float64 `json:"temp"`
 	Station     string  `json:"station"`
 	Dni         float64 `json:"dni"`
 	Sunrise     string  `json:"sunrise"`
