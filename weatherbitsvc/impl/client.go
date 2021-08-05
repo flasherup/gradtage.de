@@ -55,6 +55,21 @@ func (wb WeatherBitSVCClient) GetWBPeriod( id string, start string, end string) 
 	return resp, err
 }
 
+func (wb WeatherBitSVCClient) PushWBPeriod( id string, data []weatherbitsvc.WBData) (err error) {
+	conn := wb.openConn()
+	defer conn.Close()
+	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	grpcData := weatherbitsvc.ToGRPCWBData(data)
+	grpc, errRequest := client.PushWBPeriod(context.Background(), &weathergrpc.PushWBPeriodRequest{ Id:id, Data:grpcData })
+	if errRequest != nil {
+		level.Error(wb.logger).Log("msg", "Failed to get WB period", "err", errRequest)
+		err = errRequest
+	} else if grpc.Err != common.ErrorNilString {
+		err = common.ErrorFromString(grpc.Err);
+	}
+	return
+}
+
 func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error) {
 	conn := wb.openConn()
 	defer conn.Close()

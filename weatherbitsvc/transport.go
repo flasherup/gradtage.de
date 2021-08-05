@@ -13,6 +13,7 @@ import (
 type GRPCServer struct {
 	getPeriod       gt.Handler
 	getWbPeriod     gt.Handler
+	pushWbPeriod    gt.Handler
 	getUpdateDate   gt.Handler
 	getStationsList gt.Handler
 }
@@ -31,6 +32,14 @@ func (s *GRPCServer) GetWBPeriod(ctx context.Context, req *weathergrpc.GetWBPeri
 		return nil, err
 	}
 	return resp.(*weathergrpc.GetWBPeriodResponse), err
+}
+
+func (s *GRPCServer) PushWBPeriod(ctx context.Context, req *weathergrpc.PushWBPeriodRequest) (request *weathergrpc.PushWBPeriodResponse, err error) {
+	_, resp, err := s.pushWbPeriod.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*weathergrpc.PushWBPeriodResponse), err
 }
 
 func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *weathergrpc.GetUpdateDateRequest) (*weathergrpc.GetUpdateDateResponse, error) {
@@ -60,6 +69,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 			endpoint.GetWBPeriod,
 			DecodeGetWBPeriodRequest,
 			EncodeGetWBPeriodResponse,
+		),
+		pushWbPeriod: gt.NewServer(
+			endpoint.PushWBPeriod,
+			DecodePushWBPeriodRequest,
+			EncodePushWBPeriodResponse,
 		),
 		getUpdateDate: gt.NewServer(
 			endpoint.GetUpdateDateEndpoint,

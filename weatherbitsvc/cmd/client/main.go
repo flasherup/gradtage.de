@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/collectroes"
 	"github.com/go-kit/kit/log"
@@ -23,8 +24,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
-	//client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
+	//client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
+	client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -39,10 +40,15 @@ func main() {
 		level.Error(logger).Log("msg", "GetWBPeriod Error", "err", err)
 	}*/
 
-	err := getStationsList(client, logger)
+	err := pushWBPeriod(client, logger)
+	if err != nil {
+		level.Error(logger).Log("msg", "PushWBPeriod Error", "err", err)
+	}
+
+	/*err := getStationsList(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "getStationsList Error", "err", err)
-	}
+	}*/
 }
 
 func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
@@ -75,6 +81,51 @@ func getWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 		fmt.Println(v)
 	}
 
+	return nil
+}
+
+func pushWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+	data := weatherbitsvc.WBData{
+		Date: "2020-03-25T00:00:00Z" ,
+		Rh: 67 ,
+		Pod: "n" ,
+		Pres: 952 ,
+		Timezone: "America/New_York" ,
+		CountryCode: "US" ,
+		Clouds: 0 ,
+		Vis: 16 ,
+		SolarRad: 0 ,
+		WindSpd: 6.8 ,
+		StateCode: "PA" ,
+		CityName: "Allens Mills" ,
+		AppTemp: 2 ,
+		Uv: 0 ,
+		Lon: -78.9 ,
+		Slp: 1018.3 ,
+		HAngle: 0 ,
+		Dewpt: 0.6 ,
+		Snow: 0 ,
+		Aqi: 0 ,
+		WindDir: 110 ,
+		ElevAngle: -5.96 ,
+		Ghi: 0 ,
+		Lat: 41.18 ,
+		Precip: 0 ,
+		Sunset: "" ,
+		Temp: 6.1 ,
+		Station: "" ,
+		Dni: 0 ,
+		Sunrise: "" ,
+	}
+
+	stID := "us_kduj";
+	//Just for test
+	err := client.PushWBPeriod(stID, []weatherbitsvc.WBData{data})
+	if err != nil {
+		return err
+	}
+
+	level.Info(logger).Log("msg", "Push WB data success")
 	return nil
 }
 

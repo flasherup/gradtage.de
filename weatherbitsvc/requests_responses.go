@@ -24,6 +24,15 @@ type GetWBPeriodResponse struct {
 	Err error
 }
 
+type PushWBPeriodRequest struct {
+	Id string `json:"id"`
+	Data []WBData `json:"data"`
+}
+
+type PushWBPeriodResponse struct {
+	Err error
+}
+
 type GetUpdateDateRequest struct {
 	IDs 	[]string `json:"ids"`
 }

@@ -67,6 +67,15 @@ message GetWBPeriodResponse {
     string err             = 2;
 }
 
+message PushWBPeriodRequest {
+    string id             = 1;
+    repeated WBData data  = 2;
+}
+
+message PushWBPeriodResponse {
+    string err             = 2;
+}
+
 message GetUpdateDateRequest {
     repeated string ids = 1;
 }
@@ -88,6 +97,7 @@ message GetStationsListResponse {
 service WeatherBitScraperSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
     rpc GetWBPeriod(GetWBPeriodRequest) returns (GetWBPeriodResponse) {}
+    rpc PushWBPeriod(PushWBPeriodRequest) returns (PushWBPeriodResponse) {}
     rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
     rpc GetStationsList(GetStationsListRequest) returns (GetStationsListResponse) {}
 }

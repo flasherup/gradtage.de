@@ -77,6 +77,21 @@ func (wb WeatherBitSVC) GetWBPeriod(ctx context.Context, id string, start string
 		return
 }
 
+func (wb WeatherBitSVC) PushWBPeriod(ctx context.Context, id string, data []weatherbitsvc.WBData) (err error) {
+	level.Info(wb.logger).Log("msg", "PushWBPeriod", "id", id, "length", len(data))
+
+	err = wb.db.CreateTable(id)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "PushWBPeriod table create error", "err", err)
+	}
+
+	err = wb.db.PushWBData(id, data)
+	if err != nil {
+		return err
+	}
+	return
+}
+
 func startFetchProcess(wb *WeatherBitSVC) {
 	wb.precessStations() //Do it first time
 	tick := time.Tick(time.Hour * 24)

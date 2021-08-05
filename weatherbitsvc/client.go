@@ -5,8 +5,9 @@ import (
 )
 
 type Client interface {
-	GetPeriod		(ids []string, start string, end string) 		(resp *weathergrpc.GetPeriodResponse, err error)
-	GetWBPeriod		(id string, start string, end string) 			(resp *[]WBData, err error)
-	GetUpdateDate	(ids []string) 									(resp *weathergrpc.GetUpdateDateResponse, err error)
-	GetStationsList	() 												(resp *[]string, err error)
+	GetPeriod(ids []string, start string, end string) (resp *weathergrpc.GetPeriodResponse, err error)
+	GetWBPeriod(id string, start string, end string) (resp *[]WBData, err error)
+	PushWBPeriod(id string, data []WBData) (err error)
+	GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error)
+	GetStationsList() (resp *[]string, err error)
 }

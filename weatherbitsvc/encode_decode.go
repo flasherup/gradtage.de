@@ -23,9 +23,21 @@ func DecodeGetWBPeriodRequest(_ context.Context, r interface{}) (interface{}, er
 
 func EncodeGetWBPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetWBPeriodResponse)
-	encTemp := toGRPCWBData(res.Temps)
+	encTemp := ToGRPCWBData(res.Temps)
 	return &weathergrpc.GetWBPeriodResponse {
 		Temps: encTemp,
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
+func DecodePushWBPeriodRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*weathergrpc.PushWBPeriodRequest)
+	return PushWBPeriodRequest{req.Id, *ToWBData(req.Data)}, nil
+}
+
+func EncodePushWBPeriodResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(PushWBPeriodResponse)
+	return &weathergrpc.PushWBPeriodResponse {
 		Err: common.ErrorToString(res.Err),
 	}, nil
 }
@@ -60,7 +72,7 @@ func DecodeGetStationsListRequest(_ context.Context, r interface{}) (interface{}
 	return GetStationsListRequest{}, nil
 }
 
-func toGRPCWBData(src []WBData)  []*weathergrpc.WBData {
+func ToGRPCWBData(src []WBData)  []*weathergrpc.WBData {
 	res := make([]*weathergrpc.WBData, len(src))
 	for i,v := range src {
 		res[i] = &weathergrpc.WBData {
