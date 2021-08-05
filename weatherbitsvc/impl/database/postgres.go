@@ -352,7 +352,7 @@ func (pg *Postgres) CountTableRows(name string) (int, error) {
 	return count,nil
 }
 
-//RemoveTable remove stations table from BD
+//GetListOfTables return a list of all stations
 func (pg *Postgres) GetListOfTables() ([]string, error) {
 	query := "SELECT table_name FROM information_schema.tables WHERE table_schema='public'"
 

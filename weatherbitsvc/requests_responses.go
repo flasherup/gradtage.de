@@ -32,3 +32,11 @@ type GetUpdateDateResponse struct {
 	Dates  map[string]string `json:"dates"`
 	Err  error `json:"err"`
 }
+
+type GetStationsListRequest struct {
+}
+
+type GetStationsListResponse struct {
+	List []string `json:"list"`
+	Err  error `json:"err"`
+}

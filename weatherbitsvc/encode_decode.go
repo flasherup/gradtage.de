@@ -35,6 +35,31 @@ func DecodeGetPeriodRequest(_ context.Context, r interface{}) (interface{}, erro
 	return GetPeriodRequest{req.Ids, req.Start, req.End}, nil
 }
 
+func EncodeGetUpdateDateResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetUpdateDateResponse)
+	return &weathergrpc.GetUpdateDateResponse {
+		Dates: res.Dates,
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
+func DecodeGetUpdateDateRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*weathergrpc.GetUpdateDateRequest)
+	return GetUpdateDateRequest{req.Ids}, nil
+}
+
+func EncodeGetStationsListResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetStationsListResponse)
+	return &weathergrpc.GetStationsListResponse {
+		List: res.List,
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
+func DecodeGetStationsListRequest(_ context.Context, r interface{}) (interface{}, error) {
+	return GetStationsListRequest{}, nil
+}
+
 func toGRPCWBData(src []WBData)  []*weathergrpc.WBData {
 	res := make([]*weathergrpc.WBData, len(src))
 	for i,v := range src {
@@ -128,17 +153,4 @@ func toGRPCTemps(src map[string][]hourlysvc.Temperature)  map[string]*weathergrp
 		}
 	}
 	return res
-}
-
-func EncodeGetUpdateDateResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(GetUpdateDateResponse)
-	return &weathergrpc.GetUpdateDateResponse {
-		Dates: res.Dates,
-		Err: common.ErrorToString(res.Err),
-	}, nil
-}
-
-func DecodeGetUpdateDateRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*weathergrpc.GetUpdateDateRequest)
-	return GetUpdateDateRequest{req.Ids}, nil
 }

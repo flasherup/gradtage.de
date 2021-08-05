@@ -76,11 +76,20 @@ message GetUpdateDateResponse {
     string err = 2;
 }
 
+message GetStationsListRequest {
+}
+
+message GetStationsListResponse {
+    repeated string list = 1;
+    string err = 2;
+}
+
 
 service WeatherBitScraperSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
     rpc GetWBPeriod(GetWBPeriodRequest) returns (GetWBPeriodResponse) {}
     rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
+    rpc GetStationsList(GetStationsListRequest) returns (GetStationsListResponse) {}
 }
 
 

@@ -112,6 +112,15 @@ func (wb *WeatherBitSVC) GetUpdateDate(ctx context.Context, ids []string) (dates
 	return dates, err
 }
 
+func (wb *WeatherBitSVC) GetStationsList(ctx context.Context) (stations []string, err error) {
+	level.Info(wb.logger).Log("msg", "GetStationsList")
+	stations, err = wb.db.GetListOfTables()
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "Get list fo stations error", "err", err)
+	}
+	return stations, err
+}
+
 func (wb WeatherBitSVC)processUpdate(stID string, st string) {
 	date := time.Now()
 	endDate := date.Format(common.TimeLayoutWBH)

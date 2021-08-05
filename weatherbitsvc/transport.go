@@ -11,9 +11,10 @@ import (
 )
 
 type GRPCServer struct {
-	getPeriod    	gt.Handler
+	getPeriod       gt.Handler
 	getWbPeriod     gt.Handler
 	getUpdateDate   gt.Handler
+	getStationsList gt.Handler
 }
 
 func (s *GRPCServer) GetPeriod(ctx context.Context, req *weathergrpc.GetPeriodRequest) (*weathergrpc.GetPeriodResponse, error) {
@@ -40,6 +41,14 @@ func (s *GRPCServer) GetUpdateDate(ctx context.Context, req *weathergrpc.GetUpda
 	return resp.(*weathergrpc.GetUpdateDateResponse), err
 }
 
+func (s *GRPCServer) GetStationsList(ctx context.Context, req *weathergrpc.GetStationsListRequest) (*weathergrpc.GetStationsListResponse, error) {
+	_, resp, err := s.getStationsList.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*weathergrpc.GetStationsListResponse), err
+}
+
 func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 	server := GRPCServer{
 		getPeriod: gt.NewServer(
@@ -57,11 +66,16 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 			DecodeGetUpdateDateRequest,
 			EncodeGetUpdateDateResponse,
 		),
+		getStationsList: gt.NewServer(
+			endpoint.GetStationsListEndpoint,
+			DecodeGetStationsListRequest,
+			EncodeGetStationsListResponse,
+		),
 	}
 	return &server
 }
 
-func NewMetricsTransport(s Service, logger log.Logger,) http.Handler {
+func NewMetricsTransport(s Service, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 	return r

@@ -42,4 +42,5 @@ type Service interface {
 	GetPeriod(ctx context.Context, ids []string, start string, end string) (map[string][]hourlysvc.Temperature, error)
 	GetWBPeriod(ctx context.Context, id string, start string, end string) ([]WBData, error)
 	GetUpdateDate(ctx context.Context, ids []string) (map[string]string, error)
+	GetStationsList(ctx context.Context) ([]string, error)
 }

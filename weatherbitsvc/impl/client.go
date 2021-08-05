@@ -69,6 +69,22 @@ func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.Get
 	return resp, err
 }
 
+func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) {
+	conn := wb.openConn()
+	defer conn.Close()
+
+	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	grpc, err := client.GetStationsList(context.Background(), &weathergrpc.GetStationsListRequest{})
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "Failed to get stations list", "err", err)
+	} else if grpc.Err != common.ErrorNilString {
+		err = common.ErrorFromString(grpc.Err);
+	} else {
+		stations = &grpc.List
+	}
+	return stations, err
+}
+
 func (wb WeatherBitSVCClient) openConn() *googlerpc.ClientConn {
 	cc, err := googlerpc.Dial(wb.host, googlerpc.WithInsecure())
 	if err != nil {
