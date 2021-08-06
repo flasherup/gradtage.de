@@ -35,3 +35,9 @@ const (
 	HDDType = "hdd"
 	DDType  = "dd"
 )
+
+//GRPC
+const (
+	MaxMessageSendSize = 1024*1024*20
+	MaxMessageReceiveSize = 1024*1024*20
+)

@@ -101,7 +101,11 @@ func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) 
 }
 
 func (wb WeatherBitSVCClient) openConn() *googlerpc.ClientConn {
-	cc, err := googlerpc.Dial(wb.host, googlerpc.WithInsecure())
+	options := googlerpc.WithDefaultCallOptions(
+			googlerpc.MaxCallRecvMsgSize(common.MaxMessageReceiveSize),
+			googlerpc.MaxCallSendMsgSize(common.MaxMessageSendSize),
+		)
+	cc, err := googlerpc.Dial(wb.host, googlerpc.WithInsecure(), options)
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to start gRPC connection", "err", err)
 	}

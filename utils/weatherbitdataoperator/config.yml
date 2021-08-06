@@ -1,0 +1,3 @@
+clients:
+  src_addr: "212.227.214.163:8111"
+  rcvr_addr: "localhost:8111"

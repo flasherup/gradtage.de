@@ -24,8 +24,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	//client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
-	client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
+	client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
+	//client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -35,15 +35,15 @@ func main() {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
 	}*/
 
-	/*err := getWBPeriod(client, logger)
+	err := getWBPeriod(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "GetWBPeriod Error", "err", err)
-	}*/
+	}
 
-	err := pushWBPeriod(client, logger)
+	/*err := pushWBPeriod(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "PushWBPeriod Error", "err", err)
-	}
+	}*/
 
 	/*err := getStationsList(client, logger)
 	if err != nil {
@@ -73,7 +73,7 @@ func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 
 func getWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	//Just for test
-	temps, err := client.GetWBPeriod("us_koak", "2021-03-25T00:00:00", "2021-03-25T20:00:00")
+	temps, err := client.GetWBPeriod("it_liee", "2000-01-01T00:00:00", "2021-08-01T00:00:00")
 	if err != nil {
 		return err
 	}

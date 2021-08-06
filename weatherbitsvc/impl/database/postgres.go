@@ -156,83 +156,91 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weat
 }
 
 func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err error) {
-	if len(wbd) == 0 {
+	length := len(wbd)
+	if length == 0 {
 		return errors.New("weather push error, data is empty")
 	}
-	query := fmt.Sprintf("INSERT INTO %s " +
-		"(date, " +
-		"rh, " +
-		"pod, " +
-		"pres, " +
-		"timezone, " +
-		"country_code, " +
-		"clouds, " +
-		"vis, " +
-		"solar_rad, " +
-		"wind_spd, " +
-		"state_code, " +
-		"city_name," +
-		" app_temp, " +
-		"uv, " +
-		"lon, " +
-		"slp, " +
-		"h_angle, " +
-		"dewpt, " +
-		"snow, " +
-		"aqi, " +
-		"wind_dir, " +
-		"elev_angle, " +
-		"ghi, " +
-		"lat, " +
-		"precip, " +
-		"sunset, " +
-		"temp, " +
-		"station, " +
-		"dni, " +
-		"sunrise) VALUES", stID)
-	length := len(wbd)
-	for i, v := range wbd {
-		query += "("
-		query += fmt.Sprintf( "'%s',", v.Date)
-		query += fmt.Sprintf( "%g,", v.Rh)
-		query += fmt.Sprintf( "'%s',", v.Pod)
-		query += fmt.Sprintf( "%g,", v.Pres)
-		query += fmt.Sprintf( "'%s',", v.Timezone)
-		query += fmt.Sprintf( "'%s',", v.CountryCode)
-		query += fmt.Sprintf( "%g,", v.Clouds)
-		query += fmt.Sprintf( "%g,", v.Vis)
-		query += fmt.Sprintf( "%g,", v.SolarRad)
-		query += fmt.Sprintf( "%g,", v.WindSpd)
-		query += fmt.Sprintf( "'%s',", v.StateCode)
-		query += fmt.Sprintf( "'%s',", v.CityName)
-		query += fmt.Sprintf( "%g,", v.AppTemp)
-		query += fmt.Sprintf( "%g,", v.Uv)
-		query += fmt.Sprintf( "'%g',", v.Lon)
-		query += fmt.Sprintf( "%g,", v.Slp)
-		query += fmt.Sprintf( "%g,", v.HAngle)
-		query += fmt.Sprintf( "%g,", v.Dewpt)
-		query += fmt.Sprintf( "%g,", v.Snow)
-		query += fmt.Sprintf( "%g,", v.Aqi)
-		query += fmt.Sprintf( "%g,", v.WindDir)
-		query += fmt.Sprintf( "%g,", v.ElevAngle)
-		query += fmt.Sprintf( "%g,", v.Ghi)
-		query += fmt.Sprintf( "'%g',", v.Lat)
-		query += fmt.Sprintf( "%g,", v.Precip)
-		query += fmt.Sprintf( "'%s',", v.Sunset)
-		query += fmt.Sprintf( "%g,", v.Temp)
-		query += fmt.Sprintf( "'%s',", v.Station)
-		query += fmt.Sprintf( "%g,", v.Dni)
-		query += fmt.Sprintf( "'%s'", v.Sunrise)
+	iterationStep := 100;
+	for i:=iterationStep; i<length; i+=iterationStep{
+		query := fmt.Sprintf("INSERT INTO %s " +
+			"(date, " +
+			"rh, " +
+			"pod, " +
+			"pres, " +
+			"timezone, " +
+			"country_code, " +
+			"clouds, " +
+			"vis, " +
+			"solar_rad, " +
+			"wind_spd, " +
+			"state_code, " +
+			"city_name," +
+			" app_temp, " +
+			"uv, " +
+			"lon, " +
+			"slp, " +
+			"h_angle, " +
+			"dewpt, " +
+			"snow, " +
+			"aqi, " +
+			"wind_dir, " +
+			"elev_angle, " +
+			"ghi, " +
+			"lat, " +
+			"precip, " +
+			"sunset, " +
+			"temp, " +
+			"station, " +
+			"dni, " +
+			"sunrise) VALUES", stID)
+		for j := i-iterationStep; j<i; j++  {
+			v := wbd[j]
+			query += "("
+			query += fmt.Sprintf( "'%s',", v.Date)
+			query += fmt.Sprintf( "%g,", v.Rh)
+			query += fmt.Sprintf( "'%s',", v.Pod)
+			query += fmt.Sprintf( "%g,", v.Pres)
+			query += fmt.Sprintf( "'%s',", v.Timezone)
+			query += fmt.Sprintf( "'%s',", v.CountryCode)
+			query += fmt.Sprintf( "%g,", v.Clouds)
+			query += fmt.Sprintf( "%g,", v.Vis)
+			query += fmt.Sprintf( "%g,", v.SolarRad)
+			query += fmt.Sprintf( "%g,", v.WindSpd)
+			query += fmt.Sprintf( "'%s',", v.StateCode)
+			query += fmt.Sprintf( "'%s',", v.CityName)
+			query += fmt.Sprintf( "%g,", v.AppTemp)
+			query += fmt.Sprintf( "%g,", v.Uv)
+			query += fmt.Sprintf( "'%g',", v.Lon)
+			query += fmt.Sprintf( "%g,", v.Slp)
+			query += fmt.Sprintf( "%g,", v.HAngle)
+			query += fmt.Sprintf( "%g,", v.Dewpt)
+			query += fmt.Sprintf( "%g,", v.Snow)
+			query += fmt.Sprintf( "%g,", v.Aqi)
+			query += fmt.Sprintf( "%g,", v.WindDir)
+			query += fmt.Sprintf( "%g,", v.ElevAngle)
+			query += fmt.Sprintf( "%g,", v.Ghi)
+			query += fmt.Sprintf( "'%g',", v.Lat)
+			query += fmt.Sprintf( "%g,", v.Precip)
+			query += fmt.Sprintf( "'%s',", v.Sunset)
+			query += fmt.Sprintf( "%g,", v.Temp)
+			query += fmt.Sprintf( "'%s',", v.Station)
+			query += fmt.Sprintf( "%g,", v.Dni)
+			query += fmt.Sprintf( "'%s'", v.Sunrise)
+			query += ")"
 
-		query += ")"
-		if i < length-1 {
-			query += ","
+			if j < i-1 {
+				query += ","
+			}
 
+		}
+		query += " ON CONFLICT (date) DO NOTHING;"
+		err = writeToDB(pg.db, query)
+		if err != nil{
+			return err
 		}
 	}
 
-	query += " ON CONFLICT (date) DO NOTHING;"
-	return writeToDB(pg.db, query)
+	return nil
 }
 
 //GetPeriod get a list of temperatures form table @name (station Id)
