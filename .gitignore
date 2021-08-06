@@ -26,3 +26,4 @@ utils/weatherbitcheck/config.yml
 weatherbitsvc/weatherbitgrpc/weatherbitsvc.pb.go
 weatherbitsvc/weatherbitgrpc/weatherbitsvc_grpc.pb.go
 build/weatherbitsvc
+utils/weatherbitdataoperator/build/weatherbitdataoperator
