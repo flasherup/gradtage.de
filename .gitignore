@@ -31,3 +31,5 @@ utils/weatherbitdataoperator/build/wdoConfig.yml
 utils/weatherbitcheck/stationsAll_filter.xls
 utils/weatherbithistorical/build/weatherbithistory
 utils/weatherbithistorical/build/configwbh.yml
+apisvc/cmd/server/src/config.yml
+dailysvc/dlygrpc/dailysvc_grpc.pb.go
