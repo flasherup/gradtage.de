@@ -3,4 +3,5 @@ build:
 
 
 upload_to_coloud:
-	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app/utils
+	pscp weatherbitdataoperator flasherup@82.165.119.83:/home/flasherup/app/utils
+	pscp wdoConfig.yml flasherup@82.165.119.83:/home/flasherup/app/utils
