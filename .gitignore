@@ -28,3 +28,6 @@ weatherbitsvc/weatherbitgrpc/weatherbitsvc_grpc.pb.go
 build/weatherbitsvc
 utils/weatherbitdataoperator/build/weatherbitdataoperator
 utils/weatherbitdataoperator/build/wdoConfig.yml
+utils/weatherbitcheck/stationsAll_filter.xls
+utils/weatherbithistorical/build/weatherbithistory
+utils/weatherbithistorical/build/configwbh.yml
