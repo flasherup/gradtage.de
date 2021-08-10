@@ -7,3 +7,10 @@ upload_weatherbit:
 
 update_weatherbit:
 	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_weatherbitsvc $*"
+
+
+upload_cloud_weatherbit:
+	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app
+
+update_cloud_weatherbit:
+	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && make update_weatherbitsvc $*"

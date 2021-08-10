@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
@@ -244,7 +243,7 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 }
 
 //GetPeriod get a list of temperatures form table @name (station Id)
-func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []hourlysvc.Temperature, err error) {
+func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []common.Temperature, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
 
@@ -387,11 +386,11 @@ func (pg *Postgres) GetListOfTables() ([]string, error) {
 	return list,nil
 }
 
-func parseTempRow(rows *sql.Rows) (hourlysvc.Temperature, error) {
+func parseTempRow(rows *sql.Rows) (common.Temperature, error) {
 	bdData, err := parseRow(rows)
-	temp := hourlysvc.Temperature{}
+	temp := common.Temperature{}
 	temp.Date = bdData.Date
-	temp.Temperature = bdData.Temp
+	temp.Temp= bdData.Temp
 	return temp, err
 }
 

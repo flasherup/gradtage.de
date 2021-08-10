@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/flasherup/gradtage.de/hourlysvc"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 )
@@ -9,7 +9,7 @@ import (
 type WeatherBitDB interface {
 	CreateTable(name string) (err error)
 	RemoveTable(name string) (err error)
-	GetPeriod(stID, start string, end string) (temps []hourlysvc.Temperature, err error)
+	GetPeriod(stID, start string, end string) (temps []common.Temperature, err error)
 	GetUpdateDate(stID string) (date string, err error)
 	GetUpdateDateList(names []string) (temps map[string]string, err error)
 	PushData(stID string, data *parser.WeatherBitData) (err error)

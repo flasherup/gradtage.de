@@ -23,19 +23,21 @@ func NewWeatherBitSVCClient(host string, logger log.Logger) *WeatherBitSVCClient
 	}
 }
 
-func (wb WeatherBitSVCClient) GetPeriod(ids []string, start string, end string) (resp *weathergrpc.GetPeriodResponse, err error) {
+func (wb WeatherBitSVCClient) GetPeriod(ids []string, start string, end string) (*map[string][]common.Temperature, error) {
 	conn := wb.openConn()
 	defer conn.Close()
 
 	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
-	resp, err = client.GetPeriod(context.Background(), &weathergrpc.GetPeriodRequest{ Ids: ids, Start:start, End:end })
+	resp, err := client.GetPeriod(context.Background(), &weathergrpc.GetPeriodRequest{ Ids: ids, Start:start, End:end })
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get period", "err", err)
 	}else if resp.Err != "nil" {
 		err = errors.New(resp.Err)
 	}
 
-	return resp, err
+	temps := weatherbitsvc.ToCommonTemps(resp.Temps)
+
+	return &temps, err
 }
 
 func (wb WeatherBitSVCClient) GetWBPeriod( id string, start string, end string) (resp *[]weatherbitsvc.WBData, err error) {
