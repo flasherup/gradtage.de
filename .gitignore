@@ -34,3 +34,5 @@ utils/weatherbithistorical/build/configwbh.yml
 apisvc/cmd/server/src/config.yml
 dailysvc/dlygrpc/dailysvc_grpc.pb.go
 utils/weatherbitprocessor/config.yml
+build/apisvc
+build/usersvc
