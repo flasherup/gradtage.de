@@ -55,3 +55,9 @@ const (
 	PeriodMonth
 	PeriodYear
 )
+
+const (
+	DayCalcInt = 1 + iota
+	DayCalcMean
+	DayCalcMima
+)

@@ -34,8 +34,8 @@ func main() {
 		return
 	}
 
-	getPeriod(db, logger)
-	pushPeriod(db, logger)
+	//getPeriod(db, logger)
+	//pushPeriod(db, logger)
 	getStationsData(db, logger)
 
 }
@@ -148,9 +148,6 @@ func getStationsData(db *database.Postgres, logger log.Logger) {
 
 	csvwriter := csv.NewWriter(csvFile)
 
-	defer csvwriter.Flush()
-	defer csvFile.Close()
-
 	for i,v := range stationList {
 		count, err := db.CountTableRows(v)
 		if err != nil {
@@ -164,5 +161,7 @@ func getStationsData(db *database.Postgres, logger log.Logger) {
 			fmt.Println(i, v, "Error:", err)
 		}
 	}
+	csvwriter.Flush()
+	csvFile.Close()
 }
 

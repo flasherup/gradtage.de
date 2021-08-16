@@ -9,6 +9,11 @@ type Temperature struct {
 	Temp		float64 `json:"temp"`
 }
 
+type TempGroup struct {
+	Temps []Temperature
+	Date time.Time
+}
+
 func CalculateCDDegree(temps []Temperature, baseCDD float64, outputPeriod int) (res *[]Temperature) {
 	cb := func(temp float64) float64 {
 		return  calculateCDD(baseCDD, temp)
@@ -31,24 +36,69 @@ func CalculateHDDDegree(temps []Temperature, baseHDD float64, outputPeriod int) 
 }
 
 func calculateDegree(temps []Temperature, outputPeriod int, calcFunc func(float64) float64) *[]Temperature {
+	daily := groupByPeriod(&temps, PeriodDay)
+	dailyTemps := make([]Temperature, len(*daily))
+	for i,v := range *daily {
+		temp := calculateDayDegree(&v.Temps, DayCalcInt, calcFunc)
+		dStr := getDateString(v.Date, PeriodDay)
+		dailyTemps[i] = Temperature{
+			dStr,
+			temp,
+		}
+	}
+
+	if outputPeriod > PeriodDay {
+		return sumPeriod(&dailyTemps, outputPeriod, TimeLayoutDay)
+	}
+
+	return &dailyTemps;
+}
+
+func sumPeriod(temps *[]Temperature, outputPeriod int, tLayout string) *[]Temperature {
 	res := make([]Temperature, 0)
 	var lastDate time.Time
-	var p []float64
-	for i,temp := range temps {
+	sum := 0.0
+	latestIndex := len(*temps)-1
+	for i,temp := range *temps {
+		currentDate, err := time.Parse(tLayout, temp.Date)
+		if err != nil {
+			continue
+		}
+
+		if !isTheSamePeriod(lastDate, currentDate, outputPeriod) || i == latestIndex {
+			if !lastDate.IsZero() {
+				dStr := getDateString(lastDate, outputPeriod)
+				sum = ToFixedFloat64(sum, 2)
+				res = append(res, Temperature{Date: dStr, Temp: sum})
+			}
+			sum = temp.Temp
+			lastDate = currentDate
+		} else {
+			sum += temp.Temp
+		}
+	}
+
+	return &res
+}
+
+
+func groupByPeriod(temps *[]Temperature, outputPeriod int) *[]TempGroup {
+	res := make([]TempGroup, 0)
+	var lastDate time.Time
+	var period = make([]Temperature, 0)
+	latestIndex := len(*temps)-1
+	for i,temp := range *temps {
 		currentDate, err := time.Parse(TimeLayout, temp.Date)
 		if err != nil {
 			continue
 		}
-		if isTheSemePeriod(lastDate, currentDate, outputPeriod) && i != len(temps)-1 {
-			dDegree := calcFunc(temp.Temp)
-			p = append(p, dDegree)
+		if isTheSamePeriod(lastDate, currentDate, outputPeriod) && i != latestIndex {
+			period = append(period, temp)
 		} else {
-			if len(p) > 0 {
-				avg := getAverageFloat64(p)
-				avg = ToFixedFloat64(avg, 2)
-				dStr := getDateString(lastDate, outputPeriod)
-				res = append(res, Temperature{Date: dStr, Temp: avg})
+			if len(period) > 0 {
+				res = append(res, TempGroup{period, lastDate})
 			}
+			period = []Temperature{temp}
 			lastDate = currentDate
 		}
 	}
@@ -71,7 +121,7 @@ func getDateString(date time.Time, period int) string {
 	return date.Format(TimeLayout)
 }
 
-func isTheSemePeriod(last, current time.Time, period int) bool {
+func isTheSamePeriod(last, current time.Time, period int) bool {
 	if last.IsZero() {
 		return false
 	}
@@ -115,4 +165,30 @@ func calculateCDD(baseCDD float64, value float64) float64 {
 		return 0
 	}
 	return value-baseCDD
+}
+func calculateDayDegree(data *[]Temperature, dayCalcType int, calcFunc func(float64) float64) float64 {
+	res := 0.0
+	if dayCalcType == DayCalcInt {
+		daily := make([]float64, len(*data))
+		for i,v := range *data {
+			daily[i] = calcFunc(v.Temp)
+			res = getAverageFloat64(daily)
+		}
+	} else if dayCalcType == DayCalcMean {
+		daily := make([]float64, len(*data))
+		for i,v := range *data {
+			daily[i] = v.Temp
+			a := getAverageFloat64(daily)
+			res = calcFunc(a)
+		}
+	} else if dayCalcType == DayCalcMima {
+		daily := make([]float64, len(*data))
+		for i,v := range *data {
+			daily[i] = v.Temp
+			min,max := getMinMaxFloat64(daily)
+			a := getAverageFloat64([]float64{min,max})
+			res = calcFunc(a)
+		}
+	}
+	return ToFixedFloat64(res, 2)
 }
