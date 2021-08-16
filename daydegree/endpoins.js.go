@@ -1,4 +1,4 @@
-package weatherbitsvc
+package daydegree
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package weatherbitsvc
+package daydegree
 
 import (
 	"github.com/flasherup/gradtage.de/common"
