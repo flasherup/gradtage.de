@@ -1,6 +1,8 @@
 package weatherbitsvc
 
-import "github.com/flasherup/gradtage.de/hourlysvc"
+import (
+	"github.com/flasherup/gradtage.de/common"
+)
 
 type GetPeriodRequest struct {
 	IDs   []string `json:"ids"`
@@ -9,7 +11,7 @@ type GetPeriodRequest struct {
 }
 
 type GetPeriodResponse struct {
-	Temps 	map[string][]hourlysvc.Temperature 	`json:"temps"`
+	Temps 	map[string][]common.Temperature 	`json:"temps"`
 	Err  	error 								`json:"err"`
 }
 

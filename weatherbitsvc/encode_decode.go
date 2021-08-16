@@ -3,7 +3,6 @@ package weatherbitsvc
 import (
 	"context"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/hourlysvc"
 	weathergrpc "github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc"
 )
 
@@ -150,19 +149,34 @@ func ToWBData(src []*weathergrpc.WBData) *[]WBData {
 	return &res
 }
 
-func toGRPCTemps(src map[string][]hourlysvc.Temperature)  map[string]*weathergrpc.Temperatures {
+func toGRPCTemps(src map[string][]common.Temperature)  map[string]*weathergrpc.Temperatures {
 	res := make(map[string]*weathergrpc.Temperatures)
 	for k,v := range src {
 		temps := make([]*weathergrpc.Temperature, len(v))
 		for i,t := range v {
 			temps[i] = &weathergrpc.Temperature{
 				Date: 			t.Date,
-				Temperature: 	t.Temperature,
+				Temp: 	t.Temp,
 			}
 		}
 		res[k] = &weathergrpc.Temperatures {
 			Temps: temps,
 		}
+	}
+	return res
+}
+
+func ToCommonTemps(src map[string]*weathergrpc.Temperatures) map[string][]common.Temperature {
+	res := make(map[string][]common.Temperature)
+	for k,v := range src {
+		temps := make([]common.Temperature, len(v.Temps))
+		for i,t := range v.Temps {
+			temps[i] = common.Temperature{
+				Date: 	t.Date,
+				Temp: 	t.Temp,
+			}
+		}
+		res[k] = temps
 	}
 	return res
 }

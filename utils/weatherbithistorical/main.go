@@ -28,7 +28,7 @@ type WeatherHistorical struct {
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name. ")
-	csvFile := flag.String("csv.file", "stationsR.csv", "CSV file name. ")
+	csvFile := flag.String("csv.file", "station.csv", "CSV file name. ")
 	flag.Parse()
 
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
@@ -67,7 +67,7 @@ func main() {
 	 wbh.precessStations(time.Now())
 }
 
-func (wbh WeatherHistorical)precessStations(date time.Time) {
+func (wbh *WeatherHistorical)precessStations(date time.Time) {
 	wbh.dailyStartTime = date
 	wbh.secondsStartTime = date
 	for k,v := range wbh.stationList {
@@ -76,7 +76,7 @@ func (wbh WeatherHistorical)precessStations(date time.Time) {
 	}
 }
 
-func (wbh WeatherHistorical)processRequest(stID string, st string, end time.Time) error {
+func (wbh *WeatherHistorical)processRequest(stID string, st string, end time.Time) error {
 	startDate := end
 	requestsPerSecond := wbh.conf.WeatherBit.NumberOfRequestPerSecond
 	requestsPerDay := wbh.conf.WeatherBit.NumberOfRequestPerDay

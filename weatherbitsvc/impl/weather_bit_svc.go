@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/hourlysvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
@@ -52,9 +51,9 @@ func NewWeatherBitSVC(
 	return &wb,nil
 }
 
-func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start string, end string) (temps map[string][]hourlysvc.Temperature, err error) {
+func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start string, end string) (temps map[string][]common.Temperature, err error) {
 	level.Info(wb.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s",len(ids), start, end))
-	temps = make(map[string][]hourlysvc.Temperature)
+	temps = make(map[string][]common.Temperature)
 
 	for _,id := range ids {
 		t, err := wb.db.GetPeriod(id, start, end)

@@ -5,7 +5,7 @@ package weatherbitgrpc;
 
 message Temperature {
     string date = 1;
-    double  temperature = 2;
+    double  temp = 2;
 }
 
 message Temperatures {

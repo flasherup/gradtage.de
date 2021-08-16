@@ -2,7 +2,7 @@ package weatherbitsvc
 
 import (
 	"context"
-	"github.com/flasherup/gradtage.de/hourlysvc"
+	"github.com/flasherup/gradtage.de/common"
 )
 
 type WBData struct {
@@ -39,7 +39,7 @@ type WBData struct {
 }
 
 type Service interface {
-	GetPeriod(ctx context.Context, ids []string, start string, end string) (map[string][]hourlysvc.Temperature, error)
+	GetPeriod(ctx context.Context, ids []string, start string, end string) (map[string][]common.Temperature, error)
 	GetWBPeriod(ctx context.Context, id string, start string, end string) ([]WBData, error)
 	PushWBPeriod(ctx context.Context, id string, data []WBData) error
 	GetUpdateDate(ctx context.Context, ids []string) (map[string]string, error)

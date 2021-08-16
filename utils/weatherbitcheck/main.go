@@ -34,8 +34,9 @@ func main() {
 		return
 	}
 
-	//getPeriod(db, logger)
-	pushPeriod(db, logger);
+	getPeriod(db, logger)
+	pushPeriod(db, logger)
+	getStationsData(db, logger)
 
 }
 
@@ -139,7 +140,7 @@ func getStationsData(db *database.Postgres, logger log.Logger) {
 
 
 	//File save logic
-	csvFile, err := os.Create("stationsICAO.csv")
+	csvFile, err := os.Create("stationsAll.csv")
 
 	if err != nil {
 		fmt.Printf("failed creating file: %s", err.Error())
