@@ -5,8 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/hourlysvc"
-	config2 "github.com/flasherup/gradtage.de/utils/databackup/config"
+	"github.com/flasherup/gradtage.de/utils/databackup/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 	_ "github.com/lib/pq"
@@ -24,7 +23,7 @@ func (pg *Postgres) GetUpdateDateList(names []string) (temps map[string]string, 
 }
 
 //NewPostgres create and initialize database and return it or error
-func NewPostgres(config config2.DatabaseConfig) (pg *Postgres, err error) {
+func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	dataSourceName := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		config.Host,
@@ -160,7 +159,7 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 	if length == 0 {
 		return errors.New("weather push error, data is empty")
 	}
-	iterationStep := 100;
+	iterationStep := 100
 	for i:=iterationStep; i<length; i+=iterationStep{
 		query := fmt.Sprintf("INSERT INTO %s " +
 			"(date, " +
@@ -244,7 +243,7 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 }
 
 //GetPeriod get a list of temperatures form table @name (station Id)
-func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []hourlysvc.Temperature, err error) {
+func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []common.Temperature, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
 
@@ -387,11 +386,11 @@ func (pg *Postgres) GetListOfTables() ([]string, error) {
 	return list,nil
 }
 
-func parseTempRow(rows *sql.Rows) (hourlysvc.Temperature, error) {
+func parseTempRow(rows *sql.Rows) (common.Temperature, error) {
 	bdData, err := parseRow(rows)
-	temp := hourlysvc.Temperature{}
+	temp := common.Temperature{}
 	temp.Date = bdData.Date
-	temp.Temperature = bdData.Temp
+	temp.Temp= bdData.Temp
 	return temp, err
 }
 
@@ -439,29 +438,3 @@ func writeToDB(db *sql.DB, query string) (err error){
 	row.Close()
 	return
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

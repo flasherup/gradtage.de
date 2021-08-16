@@ -7,7 +7,6 @@ import (
 
 type Clients struct {
 	SRCAddr 		string `yaml:"src_addr"`
-	RCVRAddr 		string `yaml:"rcvr_addr"`
 }
 
 type DatabaseConfig struct {

@@ -44,21 +44,20 @@ func main() {
 
 
 	source := impl.NewWeatherBitSVCClient(conf.Clients.SRCAddr, logger)
-	receiver := impl.NewWeatherBitSVCClient(conf.Clients.RCVRAddr, logger)
 
 	level.Info(logger).Log("msg", "Data backup client start")
 	defer level.Info(logger).Log("msg", "client end")
 
 
 
-	moveData(db, source, receiver, logger)
+	moveData(db, source, logger)
 
 }
 
-func moveData(db *database.Postgres, source, receiver weatherbitsvc.Client, logger log.Logger)  {
+func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Logger)  {
 	level.Info(logger).Log("msg", "Getting data")
 	//currentTime := time.Now()
-	stations, err := receiver.GetStationsList()
+	stations, err := source.GetStationsList()
 	if err != nil {
 		level.Error(logger).Log("msg", "Getting stations list error", "error", err.Error())
 		return

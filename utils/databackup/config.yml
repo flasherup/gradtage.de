@@ -6,5 +6,4 @@ database:
   password: "Newpass@29"
 clients:
   src_addr: "localhost:8111"
-  rcvr_addr: "localhost:8111"
 
