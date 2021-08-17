@@ -28,7 +28,7 @@ func main() {
 		)
 	}
 
-	filesList := map[string]string {
+	/*filesList := map[string]string {
 		"addon_icao_prioa.csv": "CET",
 		"addon_icao_priob.csv": "CET",
 		"addon_icao_prioc.csv": "CET",
@@ -55,6 +55,10 @@ func main() {
 		"priob_gr.csv": "WET",
 		"priob_ie.csv": "WET",
 		"prioc_us.csv": "WET",
+	}*/
+
+	filesList := map[string]string {
+		"PrioD.csv": "CET",
 	}
 
  	//fromCSVListToStations("./data", filesList, logger)

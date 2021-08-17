@@ -7,7 +7,7 @@ import (
 func NewErrorAlert(err error) alertsvc.Alert {
 	return alertsvc.Alert{
 		Name: "Error",
-		Desc: "WeatherBit Service Service error",
+		Desc: "Day Degree Service error",
 		Params: map[string]string{ "Err":err.Error() },
 	}
 }
@@ -15,7 +15,7 @@ func NewErrorAlert(err error) alertsvc.Alert {
 func NewNotificationAlert(notification string) alertsvc.Alert {
 	return alertsvc.Alert{
 		Name: "Notification",
-		Desc: "WeatherBit Service notification",
+		Desc: "Day Degree notification",
 		Params: map[string]string{ "note":notification },
 	}
 }

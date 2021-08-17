@@ -14,32 +14,32 @@ type TempGroup struct {
 	Date time.Time
 }
 
-func CalculateCDDegree(temps []Temperature, baseCDD float64, outputPeriod int) (res *[]Temperature) {
+func CalculateCDDegree(temps []Temperature, baseCDD float64, outputPeriod int, dayCalc int) (res *[]Temperature) {
 	cb := func(temp float64) float64 {
 		return  calculateCDD(baseCDD, temp)
 	}
-	return calculateDegree(temps, outputPeriod, cb)
+	return calculateDegree(temps, outputPeriod, dayCalc, cb)
 }
 
-func CalculateDDegree(temps []Temperature, baseHDD, baseDD float64, outputPeriod int) (res *[]Temperature) {
+func CalculateDDegree(temps []Temperature, baseHDD, baseDD float64, outputPeriod int, dayCalc int) (res *[]Temperature) {
 	cb := func(temp float64) float64 {
 		return  calculateDD(baseHDD, baseDD, temp)
 	}
-	return calculateDegree(temps, outputPeriod, cb)
+	return calculateDegree(temps, outputPeriod, dayCalc, cb)
 }
 
-func CalculateHDDDegree(temps []Temperature, baseHDD float64, outputPeriod int) (res *[]Temperature) {
+func CalculateHDDDegree(temps []Temperature, baseHDD float64, outputPeriod int, dayCalc int) (res *[]Temperature) {
 	cb := func(temp float64) float64 {
 		return  calculateHDD(baseHDD, temp)
 	}
-	return calculateDegree(temps, outputPeriod, cb)
+	return calculateDegree(temps, outputPeriod, dayCalc, cb)
 }
 
-func calculateDegree(temps []Temperature, outputPeriod int, calcFunc func(float64) float64) *[]Temperature {
+func calculateDegree(temps []Temperature, outputPeriod int, dayCalc int, calcFunc func(float64) float64) *[]Temperature {
 	daily := groupByPeriod(&temps, PeriodDay)
 	dailyTemps := make([]Temperature, len(*daily))
 	for i,v := range *daily {
-		temp := calculateDayDegree(&v.Temps, DayCalcInt, calcFunc)
+		temp := calculateDayDegree(&v.Temps, dayCalc, calcFunc)
 		dStr := getDateString(v.Date, PeriodDay)
 		dailyTemps[i] = Temperature{
 			dStr,
