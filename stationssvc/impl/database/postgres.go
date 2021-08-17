@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/stationssvc/config"
@@ -13,7 +14,7 @@ type Postgres struct {
 	db *sql.DB
 }
 
-const tableName = "stations_wb"
+const tableName = "stations"
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
@@ -42,16 +43,19 @@ func (pg Postgres) AddStation(station stationssvc.Station) error {
 		(id, name, timezone, source_type, source_id) 
 		VALUES ( '%s', '%s', '%s', '%s', '%s') `,
 		tableName, station.ID, station.Name, station.Timezone, station.SourceType, station.SourceID)
-
+	fmt.Println("query", query)
 	return writeToDB(pg.db, query)
 }
 
 //AddStations write stations data into DB
 func (pg Postgres) AddStations(stations []stationssvc.Station) error {
+	length := len(stations)
+	if length == 0 {
+		return errors.New("add stations error, stations list is empty")
+	}
 	query := fmt.Sprintf(`INSERT INTO %s 
 		(id, name, timezone, source_type, source_id) VALUES`, tableName)
 
-	length := len(stations)
 	for i, v := range stations {
 		query += fmt.Sprintf(
 			"( '%s', '%s', '%s', '%s', '%s') ",
@@ -62,6 +66,7 @@ func (pg Postgres) AddStations(stations []stationssvc.Station) error {
 	}
 	query += ` ON CONFLICT (id) DO UPDATE SET 
 		(name, timezone, source_type, source_id) = (excluded.name, excluded.timezone, excluded.source_type, excluded.source_id);`
+	fmt.Println("query", query)
 	return writeToDB(pg.db, query)
 }
 
@@ -182,7 +187,7 @@ func (pg *Postgres) Dispose() {
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 			id varchar(15) UNIQUE,
-			name varchar(50),
+			name varchar(100),
 			timezone varchar(8),
 			source_type varchar(4),
 			source_id varchar(15)

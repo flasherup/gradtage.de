@@ -8,9 +8,9 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/localutils/stations/stationsfromcsv/parsers"
 	"github.com/flasherup/gradtage.de/stationssvc"
-	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
+
 	//"github.com/flasherup/gradtage.de/stationssvc"
-	//stations "github.com/flasherup/gradtage.de/stationssvc/impl"
+	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
@@ -57,43 +57,111 @@ func main() {
 		"prioc_us.csv": "WET",
 	}*/
 
-	filesList := map[string]string {
-		"PrioD.csv": "CET",
+	filesList := []string {
+		"EDG_Stationlist_Masterfile.csv",
+		/*"PrioD.csv",
+		"addon_icao_prioa.csv",
+		"addon_icao_priob.csv",
+		"addon_icao_prioc.csv",
+		"prioa_ch.csv",
+		"prioa_es.csv",
+		"prioa_fr.csv",
+		"prioa_gb.csv",
+		"prioa_it.csv",
+		"prioa_li.csv",
+		"prioa_lu.csv",
+		"prioa_nl.csv",
+		"Prioa_no.csv",
+		"prioa_pl.csv",
+		"prioa_pt.csv",
+		"prioa_se.csv",
+		"priob_at.csv",
+		"priob_au.csv",
+		"priob_be.csv",
+		"priob_by.csv",
+		"priob_ca.csv",
+		"priob_de.csv",
+		"priob_dk.csv",
+		"priob_fi.csv",
+		"priob_gr.csv",
+		"priob_ie.csv",
+		"prioc_us.csv",*/
 	}
 
- 	//fromCSVListToStations("./data", filesList, logger)
+ 	fromCSVListToStations("./data", filesList, logger)
 	//fromCSVListToAutocomplete("data", filesList, logger)
-	fromCSVToList("./data", filesList, logger)
+	//fromCSVToList("./data", filesList, logger)
 }
 
 
-func fromCSVListToStations(path string, filesList map[string]string, logger log.Logger) {
+func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 	stationsLocal := stations.NewStationsSCVClient("localhost:8102", logger)
 
-	allStation := make([]stationssvc.Station, 0)
-	for fileName,timeZone := range filesList {
-		stsl, error := parsers.CSVToStationsList(path + "/" + fileName)
+	//allStation := make([]stationssvc.Station, 0)
+	for _,fileName := range filesList {
+		fmt.Println("Process", fileName)
+		stsl, error := parsers.ParseStationsCSV(path + "/" + fileName)
 		if error != nil {
 			println("Error", error.Error())
 			continue
 		}
 
-		for i,_ := range stsl {
-			stsl[i].Timezone = timeZone;
-			stsl[i].SourceType = common.SrcTypeWeatherBit
-			//fmt.Println(i,v)
+		sts := make([]stationssvc.Station, len(stsl))
+
+		_,err := stationsLocal.ResetStations([]stationssvc.Station{})
+		if err != nil {
+			level.Error(logger).Log("msg", "AddStations error", "err", err)
 		}
 
 		for i,v := range stsl {
-			fmt.Println(i,v)
+
+			tz,err := common.GetTimezoneFormLatLon(v.Latitude, v.Longitude)
+			if err != nil {
+				fmt.Println("Get timezone error", err)
+			}
+
+			st := stationssvc.Station{
+				ID: v.ID,
+				Name: v.CityNameEnglish,
+				Timezone: tz,
+				SourceType: common.SrcTypeWeatherBit,
+				SourceID: v.SourceID,
+			}
+
+			sts[i] = st
+
+
+			/*fmt.Println("=========================", i)
+			fmt.Println("ID",v.ID)
+			fmt.Println("SourceID",v.SourceID)
+			fmt.Println("Latitude",v.Latitude)
+			fmt.Println("Longitude",v.Longitude)
+			fmt.Println("Source",v.Source)
+			fmt.Println("Reports",v.Reports)
+			fmt.Println("ISO2Country",v.ISO2Country)
+			fmt.Println("ISO3Country",v.ISO3Country)
+			fmt.Println("Prio",v.Prio)
+			fmt.Println("CityNameEnglish",v.CityNameEnglish)
+			fmt.Println("CityNameNative",v.CityNameNative)
+			fmt.Println("CountryNameEnglish",v.CountryNameEnglish)
+			fmt.Println("CountryNameNative",v.CountryNameNative)
+			fmt.Println("ICAO",v.ICAO)
+			fmt.Println("WMO",v.WMO)
+			fmt.Println("CWOP",v.CWOP)
+			fmt.Println("Maslib",v.Maslib)
+			fmt.Println("National_ID",v.National_ID)
+			fmt.Println("IATA",v.IATA)
+			fmt.Println("USAF_WBAN",v.USAF_WBAN)
+			fmt.Println("GHCN",v.GHCN)
+			fmt.Println("NWSLI",v.NWSLI)
+			fmt.Println("Elevation",v.Elevation)*/
+		}
+		_,err = stationsLocal.AddStations(sts)
+		if err != nil {
+			level.Error(logger).Log("msg", "AddStations error", "err", err)
 		}
 
-		allStation = append(allStation, stsl...)
-	}
-
-	_,err := stationsLocal.ResetStations(allStation)
-	if err != nil {
-		level.Error(logger).Log("msg", "AddStations error", "err", err)
+		//allStation = append(allStation, sts...)
 	}
 }
 
