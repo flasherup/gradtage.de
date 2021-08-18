@@ -91,3 +91,10 @@ deploy_cloud_daydegree:
 	make build_daydegree
 	make upload_cloud_daydegree
 	make update_cloud_daydegree
+
+update_grpcs:
+	make -C ../autocompletesvc/acrpc/ regenerate
+	make -C ../daydegreesvc/ddgrpc/ regenerate
+	make -C ../stationssvc/stsgrpc regenerate
+	make -C ../usersvc/grpcusr regenerate
+	make -C ../weatherbitsvc/weatherbitgrpc regenerate
