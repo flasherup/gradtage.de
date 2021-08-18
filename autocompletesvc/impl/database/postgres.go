@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/config"
@@ -16,7 +17,7 @@ type Postgres struct {
 const tableName = "autocomplete_wb"
 
 //NewPostgres create and initialize database and return it or error
-func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
+func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		config.Host,
@@ -30,7 +31,7 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	}
 
 	pg = &Postgres{
-		db:db,
+		db: db,
 	}
 	return
 }
@@ -39,63 +40,68 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.Source, error) {
 	result := make(map[string][]autocompletesvc.Source)
 	query := "(SELECT *, 'icao' as column " +
-	"FROM " + tableName + " " +
-	"WHERE icao ILIKE '%" + text + "%') " +
-	"UNION ALL " +
-	"(SELECT *, 'station' as column " +
 		"FROM " + tableName + " " +
-	"WHERE name ILIKE '%" + text + "%') " +
-	"UNION ALL " +
-	"(SELECT *, 'dwd' as column " +
+		"WHERE icao ILIKE '%" + text + "%') " +
+		"UNION ALL " +
+		"(SELECT *, 'station' as column " +
 		"FROM " + tableName + " " +
-	"WHERE dwd ILIKE '%" + text + "%') " +
-	"UNION ALL " +
-	"(SELECT *, 'wmo' as column " +
+		"WHERE name ILIKE '%" + text + "%') " +
+		"UNION ALL " +
+		"(SELECT *, 'dwd' as column " +
 		"FROM " + tableName + " " +
-	"WHERE wmo ILIKE '%" + text + "%')" +
-	"UNION ALL " +
-	"(SELECT *, 'cwop' as column " +
+		"WHERE dwd ILIKE '%" + text + "%') " +
+		"UNION ALL " +
+		"(SELECT *, 'wmo' as column " +
 		"FROM " + tableName + " " +
-	"WHERE cwop ILIKE '%" + text + "%');"
+		"WHERE wmo ILIKE '%" + text + "%')" +
+		"UNION ALL " +
+		"(SELECT *, 'cwop' as column " +
+		"FROM " + tableName + " " +
+		"WHERE cwop ILIKE '%" + text + "%');"
 	rows, err := pg.db.Query(query)
 	if err != nil {
-		return result,err
+		return result, err
 	}
 	defer rows.Close()
 
 	row := struct {
-		ID 		string
-		Name	string
-		Icao 	string
-		Dwd 	string
-		Wmo 	string
-		Cwop 	string
-		Column  string
+		autocompletesvc.Source
+		Column string
 	}{}
 
 	for rows.Next() {
 		err = rows.Scan(
 			&row.ID,
-			&row.Name,
-			&row.Icao,
-			&row.Dwd,
-			&row.Wmo,
-			&row.Cwop,
+			&row.SourceID,
+			&row.Latitude,
+			&row.Longitude,
+			&row.Source,
+			&row.Reports,
+			&row.ISO2Country,
+			&row.ISO3Country,
+			&row.Prio,
+			&row.CityNameEnglish,
+			&row.CityNameNative,
+			&row.CountryNameEnglish,
+			&row.CountryNameNative,
+			&row.ICAO,
+			&row.WMO,
+			&row.CWOP,
+			&row.Maslib,
+			&row.National_ID,
+			&row.IATA,
+			&row.USAF_WBAN,
+			&row.GHCN,
+			&row.NWSLI,
+			&row.Elevation,
 			&row.Column,
 		)
 		if err == nil {
-			_,ok := result[row.Column]
+			_, ok := result[row.Column]
 			if !ok {
 				result[row.Column] = make([]autocompletesvc.Source, 0)
 			}
-			result[row.Column] = append(result[row.Column],autocompletesvc.Source{
-				ID:row.ID,
-				Name:row.Name,
-				Icao:row.Icao,
-				Dwd:row.Dwd,
-				Wmo:row.Wmo,
-				Cwop:row.Cwop,
-			})
+			result[row.Column] = append(result[row.Column], row.Source)
 		}
 	}
 	return result, err
@@ -129,43 +135,48 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Sour
 
 	rows, err := pg.db.Query(query)
 	if err != nil {
-		return result,err
+		return result, err
 	}
 	defer rows.Close()
 
 	row := struct {
-		ID 		string
-		Name	string
-		Icao 	string
-		Dwd 	string
-		Wmo 	string
-		Cwop 	string
-		Column  string
+		autocompletesvc.Source
+		Column string
 	}{}
 
 	for rows.Next() {
-		err = rows.Scan(
+			err = rows.Scan(
 			&row.ID,
-			&row.Name,
-			&row.Icao,
-			&row.Dwd,
-			&row.Wmo,
-			&row.Cwop,
+			&row.SourceID,
+			&row.Latitude,
+			&row.Longitude,
+			&row.Source,
+			&row.Reports,
+			&row.ISO2Country,
+			&row.ISO3Country,
+			&row.Prio,
+			&row.CityNameEnglish,
+			&row.CityNameNative,
+			&row.CountryNameEnglish,
+			&row.CountryNameNative,
+			&row.ICAO,
+			&row.WMO,
+			&row.CWOP,
+			&row.Maslib,
+			&row.National_ID,
+			&row.IATA,
+			&row.USAF_WBAN,
+			&row.GHCN,
+			&row.NWSLI,
+			&row.Elevation,
 			&row.Column,
 		)
 		if err == nil {
-			_,ok := result[row.Column]
+			_, ok := result[row.Column]
 			if !ok {
 				result[row.Column] = make([]autocompletesvc.Source, 0)
 			}
-			result[row.Column] = append(result[row.Column],autocompletesvc.Source{
-				ID:row.ID,
-				Name:row.Name,
-				Icao:row.Icao,
-				Dwd:row.Dwd,
-				Wmo:row.Wmo,
-				Cwop:row.Cwop,
-			})
+			result[row.Column] = append(result[row.Column], row.Source)
 		}
 	}
 	return result, err
@@ -173,21 +184,127 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Sour
 
 //AddSources
 func (pg *Postgres) AddSources(sources []autocompletesvc.Source) (err error) {
-	query := fmt.Sprintf("INSERT INTO %s " +
-		"(id, name, icao, dwd, wmo, cwop) VALUES", tableName)
-
-
 	length := len(sources)
-	for i, v := range sources {
-		query += fmt.Sprintf(
-			" ( '%s', '%s', '%s', '%s', '%s', '%s')",
-			v.ID, v.Name, v.Icao, v.Dwd, v.Wmo, v.Cwop)
-		if i < length-1 {
+	if length == 0 {
+		return errors.New("add sources error, sources list is empty")
+	}
+
+	var query string
+	iterationStep := 100
+	for i:=0; i<length; i++ {
+		if i%iterationStep == 0  {
+			query = fmt.Sprintf("INSERT INTO %s ("+
+				"id,"+
+				"source_id,"+
+				"latitude,"+
+				"longitude,"+
+				"source,"+
+				"reports,"+
+				"iso_2_country,"+
+				"iso_3_country,"+
+				"prio,"+
+				"city_name_english,"+
+				"city_name_native,"+
+				"country_name_english,"+
+				"country_name_native,"+
+				"icao,"+
+				"wmo,"+
+				"cwop,"+
+				"maslib,"+
+				"national_id,"+
+				"iata,"+
+				"usaf_wban,"+
+				"ghcn,"+
+				"nwsli,"+
+				"elevation"+
+				") VALUES", tableName)
+		}
+		v := sources[i]
+		query += "("
+		query += fmt.Sprintf("'%s',", v.ID)
+		query += fmt.Sprintf("'%s',", v.SourceID)
+		query += fmt.Sprintf("'%g',", v.Latitude)
+		query += fmt.Sprintf("'%g',", v.Longitude)
+		query += fmt.Sprintf("'%s',", v.Source)
+		query += fmt.Sprintf("'%s',", v.Reports)
+		query += fmt.Sprintf("'%s',", v.ISO2Country)
+		query += fmt.Sprintf("'%s',", v.ISO3Country)
+		query += fmt.Sprintf("'%s',", v.Prio)
+		query += fmt.Sprintf("'%s',", v.CityNameEnglish)
+		query += fmt.Sprintf("'%s',", v.CityNameNative)
+		query += fmt.Sprintf("'%s',", v.CountryNameEnglish)
+		query += fmt.Sprintf("'%s',", v.CountryNameNative)
+		query += fmt.Sprintf("'%s',", v.ICAO)
+		query += fmt.Sprintf("'%s',", v.WMO)
+		query += fmt.Sprintf("'%s',", v.CWOP)
+		query += fmt.Sprintf("'%s',", v.Maslib)
+		query += fmt.Sprintf("'%s',", v.National_ID)
+		query += fmt.Sprintf("'%s',", v.IATA)
+		query += fmt.Sprintf("'%s',", v.USAF_WBAN)
+		query += fmt.Sprintf("'%s',", v.GHCN)
+		query += fmt.Sprintf("'%s',", v.NWSLI)
+		query += fmt.Sprintf("'%g'", v.Elevation)
+		query += ")"
+
+		if (i+1)%iterationStep != 0 && i < length -1 {
 			query += ","
+		} else {
+			query += ` ON CONFLICT (id) DO UPDATE SET (
+					id,
+					source_id,
+					latitude,
+					longitude,
+					source,
+					reports,
+					iso_2_country,
+					iso_3_country,
+					prio,
+					city_name_english,
+					city_name_native,
+					country_name_english,
+					country_name_native,
+					icao,
+					wmo,
+					cwop,
+					maslib,
+					national_id,
+					iata,
+					usaf_wban,
+					ghcn,
+					nwsli,
+					elevation
+				) = (
+					excluded.id,
+					excluded.source_id,
+					excluded.latitude,
+					excluded.longitude,
+					excluded.source,
+					excluded.reports,
+					excluded.iso_2_country,
+					excluded.iso_3_country,
+					excluded.prio,
+					excluded.city_name_english,
+					excluded.city_name_native,
+					excluded.country_name_english,
+					excluded.country_name_native,
+					excluded.icao,
+					excluded.wmo,
+					excluded.cwop,
+					excluded.maslib,
+					excluded.national_id,
+					excluded.iata,
+					excluded.usaf_wban,
+					excluded.ghcn,
+					excluded.nwsli,
+					excluded.elevation
+				);`
+			err := writeToDB(pg.db, query)
+			if err != nil {
+				return err
+			}
 		}
 	}
-	query += ` ON CONFLICT (id) DO UPDATE SET (name, icao, dwd, wmo, cwop) = (excluded.name, excluded.icao, excluded.dwd, excluded.wmo, excluded.cwop);`
-	return writeToDB(pg.db, query)
+	return nil
 }
 
 //Dispose and disconnect
@@ -199,12 +316,29 @@ func (pg *Postgres) Dispose() {
 //CreateTable create a "Stations" table if not exist
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
-			id varchar(15) UNIQUE,
-			name varchar(50),
-			icao varchar(4),
-			dwd varchar(8),
-			wmo varchar(8),
-			cwop varchar(8)
+			id varchar(15) UNIQUE,  
+			source_id varchar(15),  
+			latitude real, 
+			longitude real, 
+			source varchar(8),  
+			reports varchar(15),  
+			iso_2_country varchar(3),  
+			iso_3_country varchar(3),  
+			prio varchar(1),  
+			city_name_english varchar(50),  
+			city_name_native varchar(50),  
+			country_name_english varchar(50),  
+			country_name_native varchar(50),  
+			icao varchar(4),  
+			wmo varchar(8),  
+			cwop varchar(8),  
+			maslib varchar(8),  
+			national_id varchar(15),  
+			iata varchar(4),  
+			usaf_wban varchar(15),  
+			ghcn varchar(15),  
+			nwsli varchar(8),  
+			elevation real 
 		);`, tableName)
 	return writeToDB(pg.db, query)
 }
@@ -215,7 +349,7 @@ func (pg *Postgres) RemoveTable() error {
 	return writeToDB(pg.db, query)
 }
 
-func writeToDB(db *sql.DB, query string) (err error){
+func writeToDB(db *sql.DB, query string) (err error) {
 	rows, err := db.Query(query)
 	if err != nil {
 		return

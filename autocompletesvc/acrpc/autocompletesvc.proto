@@ -1,14 +1,33 @@
 syntax = "proto3";
+option  go_package = "github.com/flasherup/gradtage.de/autocompletesvc/acrpc;acrpc";
 
 package acrpc;
 
+
 message Source {
-    string ID   = 1;
-    string Name = 2;
-    string Icao = 3;
-    string Dwd  = 4;
-    string Wmo  = 5;
-    string Cwop  = 6;
+    string ID = 1;
+    string SourceID = 2;
+    double Latitude = 3;
+    double Longitude = 4;
+    string Source = 5;
+    string Reports = 6;
+    string ISO2Country = 7;
+    string ISO3Country = 8;
+    string Prio = 9;
+    string CityNameEnglish = 10;
+    string CityNameNative = 11;
+    string CountryNameEnglish = 12;
+    string CountryNameNative = 13;
+    string ICAO = 14;
+    string WMO = 15;
+    string CWOP = 16;
+    string Maslib = 17;
+    string National_ID = 18;
+    string IATA = 19;
+    string USAF_WBAN = 20;
+    string GHCN = 21;
+    string NWSLI = 22;
+    double Elevation = 23;
 }
 
 message Sources {
@@ -20,8 +39,8 @@ message GetAutocompleteRequest {
 }
 
 message GetAutocompleteResponse {
-    map<string,Sources> result = 1;
-    string err                = 2;
+    map<string, Sources> result = 1;
+    string err = 2;
 }
 
 message AddSourcesRequest {

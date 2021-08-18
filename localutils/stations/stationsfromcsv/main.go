@@ -88,14 +88,14 @@ func main() {
 		"prioc_us.csv",*/
 	}
 
- 	fromCSVListToStations("./data", filesList, logger)
-	//fromCSVListToAutocomplete("data", filesList, logger)
+ 	//fromCSVListToStations("./data", filesList, logger)
+	fromCSVListToAutocomplete("data", filesList, logger)
 	//fromCSVToList("./data", filesList, logger)
 }
 
 
 func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
-	stationsLocal := stations.NewStationsSCVClient("localhost:8102", logger)
+	stationsLocal := stations.NewStationsSCVClient("212.227.214.163:8102", logger)
 
 	//allStation := make([]stationssvc.Station, 0)
 	for _,fileName := range filesList {
@@ -165,27 +165,55 @@ func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 	}
 }
 
-func fromCSVListToAutocomplete(path string, filesList map[string]string, logger log.Logger) {
-	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
+func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logger) {
+	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.214.163:8109", logger)
 
-	allStation := make([]autocompletesvc.Source, 0)
-	for fileName,_ := range filesList {
-		stsl, error := parsers.CSVToAutocompleteList(path + "/" + fileName)
+	for _,fileName := range filesList {
+		fmt.Println("Process", fileName)
+		stsl, error := parsers.ParseStationsCSV(path + "/" + fileName)
 		if error != nil {
 			println("Error", error.Error())
 			continue
 		}
 
-		for i,v := range stsl {
-			fmt.Println(i,v)
+		sts := make([]autocompletesvc.Source, len(stsl))
+
+		err := autocompleteLocal.ResetSources([]autocompletesvc.Source{})
+		if err != nil {
+			level.Error(logger).Log("msg", "Seset Source error", "err", err)
 		}
 
-		allStation = append(allStation, stsl...)
-	}
-
-	err := autocompleteLocal.ResetSources(allStation)
-	if err != nil {
-		level.Error(logger).Log("msg", "AddAutocomplete error", "err", err)
+		for i,v := range stsl {
+			sts[i] = autocompletesvc.Source{
+				ID: v.ID,
+				SourceID: v.SourceID,
+				Latitude: v.Latitude,
+				Longitude: v.Longitude,
+				Source: v.Source,
+				Reports: v.Reports,
+				ISO2Country: v.ISO2Country,
+				ISO3Country: v.ISO3Country,
+				Prio: v.Prio,
+				CityNameEnglish: v.CityNameEnglish,
+				CityNameNative: v.CityNameNative,
+				CountryNameEnglish: v.CountryNameEnglish,
+				CountryNameNative: v.CountryNameNative,
+				ICAO: v.ICAO,
+				WMO: v.WMO,
+				CWOP: v.CWOP,
+				Maslib: v.Maslib,
+				National_ID: v.National_ID,
+				IATA: v.IATA,
+				USAF_WBAN: v.USAF_WBAN,
+				GHCN: v.GHCN,
+				NWSLI: v.NWSLI,
+				Elevation: v.Elevation,
+			}
+		}
+		err = autocompleteLocal.AddSources(sts)
+		if err != nil {
+			level.Error(logger).Log("msg", "AddAutocomplete error", "err", err)
+		}
 	}
 }
 
