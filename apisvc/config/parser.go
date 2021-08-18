@@ -9,6 +9,8 @@ import (
 type ServerConfig struct {
 	PortHTTPS 	int `yaml:"https_port"`
 	PortHTTP  	int `yaml:"http_port"`
+	PortHTTPTest  	int `yaml:"http_test_port"`
+	PortHTTPStatic 	int `yaml:"http_static_port"`
 }
 
 type Clients struct {
@@ -61,4 +63,12 @@ func (tc *ApiConfig)GetHTTPAddress() string {
 
 func (tc *ApiConfig)GetHTTPSAddress() string {
 	return fmt.Sprintf("%s:%d", "", tc.Server.PortHTTPS)
+}
+
+func (tc *ApiConfig)GetHTTPTestAddress() string {
+	return fmt.Sprintf("%s:%d", "", tc.Server.PortHTTPTest)
+}
+
+func (tc *ApiConfig)GetHTTPStaticAddress() string {
+	return fmt.Sprintf("%s:%d", "", tc.Server.PortHTTPStatic)
 }

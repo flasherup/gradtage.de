@@ -63,6 +63,11 @@ deploy_stations:
 	make upload_stations
 	make update_stations
 
+deploy_weatherbit:
+	make build_weatherbit
+	make upload_weatherbit
+	make update_weatherbit
+
 
 upload_cloud_weatherbit:
 	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app

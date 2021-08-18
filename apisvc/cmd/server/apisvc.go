@@ -93,11 +93,12 @@ func main() {
 	}
 
 	go func() {
-		errs <- http.ListenAndServe(":http", mgr.HTTPHandler(nil))
+		level.Info(logger).Log("transport", "Static", "addr", conf.GetHTTPStaticAddress())
+		errs <- http.ListenAndServe(conf.GetHTTPStaticAddress(), mgr.HTTPHandler(nil))
 	}()
 
 	go func() {
-		level.Info(logger).Log("transport", "Static", "addr", conf.GetHTTPSAddress())
+		level.Info(logger).Log("transport", "HTTPS", "addr", conf.GetHTTPSAddress())
 
 		cfg := &tls.Config{
 			MinVersion:               tls.VersionTLS12,
@@ -138,9 +139,9 @@ func main() {
 	}()
 
 	go func() {
-		level.Info(logger).Log("transport", "HTTP", "addr", ":8022")
+		level.Info(logger).Log("transport", "HTTP", "addr", conf.GetHTTPTestAddress())
 		server := &http.Server{
-			Addr:    ":8022",
+			Addr:    conf.GetHTTPTestAddress(),
 			Handler: hs,
 		}
 		errs <- server.ListenAndServe()
