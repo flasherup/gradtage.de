@@ -10,6 +10,9 @@ build_users:
 build_autocomplete:
 	env GOOS=linux GOARCH=amd64 go build -o autocompletesvc github.com\flasherup\gradtage.de\autocompletesvc\cmd\server
 
+build_daydegree:
+	env GOOS=linux GOARCH=amd64 go build -o daydegreesvc github.com\flasherup\gradtage.de\daydegreesvc\cmd\server
+
 
 upload_weatherbit:
 	pscp weatherbitsvc flasherup@212.227.214.163:/home/flasherup/app
@@ -44,6 +47,10 @@ deploy_autocomplete:
 
 upload_cloud_weatherbit:
 	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app
+
+upload_cloud_daydegree:
+	pscp daydegreesvc flasherup@82.165.119.83:/home/flasherup/app
+
 
 update_cloud_weatherbit:
 	ssh flasherup@82.165.119.83 "cd /h ome/flasherup/app && make update_weatherbitsvc $*"

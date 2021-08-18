@@ -24,3 +24,4 @@ build/usersvc
 *.pb.go
 *config.yml
 build/autocompletesvc
+build/daydegreesvc
