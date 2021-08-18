@@ -136,7 +136,7 @@ func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 			fmt.Println("SourceID",v.SourceID)
 			fmt.Println("Latitude",v.Latitude)
 			fmt.Println("Longitude",v.Longitude)
-			fmt.Println("Source",v.Source)
+			fmt.Println("Autocomplete",v.Autocomplete)
 			fmt.Println("Reports",v.Reports)
 			fmt.Println("ISO2Country",v.ISO2Country)
 			fmt.Println("ISO3Country",v.ISO3Country)
@@ -176,15 +176,15 @@ func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logge
 			continue
 		}
 
-		sts := make([]autocompletesvc.Source, len(stsl))
+		sts := make([]autocompletesvc.Autocomplete, len(stsl))
 
-		err := autocompleteLocal.ResetSources([]autocompletesvc.Source{})
+		err := autocompleteLocal.ResetSources([]autocompletesvc.Autocomplete{})
 		if err != nil {
-			level.Error(logger).Log("msg", "Seset Source error", "err", err)
+			level.Error(logger).Log("msg", "Seset Autocomplete error", "err", err)
 		}
 
 		for i,v := range stsl {
-			sts[i] = autocompletesvc.Source{
+			sts[i] = autocompletesvc.Autocomplete{
 				ID: v.ID,
 				SourceID: v.SourceID,
 				Latitude: v.Latitude,

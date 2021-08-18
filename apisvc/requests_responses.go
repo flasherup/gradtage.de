@@ -42,14 +42,6 @@ type UserResponse struct {
 	Data [][]string `json:"data"`
 }
 
-type PlanRequest struct {
-	Params ParamsPlan `json:"params"`
-}
-
-type PlanResponse struct {
-	Data [][]string `json:"data"`
-}
-
 type StripeResponse struct {
 	Json string `json:"json"`
 }

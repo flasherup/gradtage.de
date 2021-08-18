@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type Source struct {
+type Autocomplete struct {
 	ID                 string  `json:"id"`
 	SourceID           string  `json:"source_id"`
 	Latitude           float64 `json:"latitude"`
@@ -31,7 +31,7 @@ type Source struct {
 }
 
 type Service interface {
-	GetAutocomplete(ctx context.Context, text string) (result map[string][]Source, err error)
-	AddSources(ctx context.Context, sources []Source) (err error)
-	ResetSources(ctx context.Context, sources []Source) (err error)
+	GetAutocomplete(ctx context.Context, text string) (result map[string][]Autocomplete, err error)
+	AddSources(ctx context.Context, sources []Autocomplete) (err error)
+	ResetSources(ctx context.Context, sources []Autocomplete) (err error)
 }

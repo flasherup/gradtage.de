@@ -11,6 +11,7 @@ import (
 )
 
 const Method = "method"
+const DayCalc = "day_calc"
 const UserAction = "userAction"
 const PlanAction = "planAction"
 
@@ -31,7 +32,7 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 	))
 
 
-	r.Methods("GET").Path("/degreedays/csv/{" + Method + "}").Handler(kithttp.NewServer(
+	r.Methods("GET").Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").Handler(kithttp.NewServer(
 		e.GetHDDSVEndpoint,
 		decodeGetHDDCSVRequest,
 		encodeGetHDDCSVResponse,
@@ -56,13 +57,6 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 		e.UserEndpoint,
 		decodeUserRequest,
 		encodeUserResponse,
-		options...,
-	))
-
-	r.Methods("GET").Path("/plan/{" + PlanAction + "}").Handler(kithttp.NewServer(
-		e.PlanEndpoint,
-		decodePlanRequest,
-		encodePlanResponse,
 		options...,
 	))
 

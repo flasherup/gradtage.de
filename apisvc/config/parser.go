@@ -12,13 +12,12 @@ type ServerConfig struct {
 }
 
 type Clients struct {
-	DailyAddr 			string `yaml:"daily_addr"`
-	HourlyAddr 			string `yaml:"hourly_addr"`
-	HoaaAddr 			string `yaml:"noaa_addr"`
 	AutocompleteAddr 	string `yaml:"autocomplete_addr"`
 	UserAddr 			string `yaml:"user_addr"`
 	AlertAddr 			string `yaml:"alert_addr"`
 	StationsAddr 		string `yaml:"stations_addr"`
+	DaydegreeAddr 		string `yaml:"daydegree_addr"`
+	WeatherbitAddr 		string `yaml:"weatherbit_addr"`
 }
 
 type Static struct {
@@ -34,7 +33,6 @@ type Woocommerce struct {
 type ApiConfig struct {
 	Server   		ServerConfig	    `yaml:"server"`
 	Clients  		Clients				`yaml:"clients"`
-	Users 	 		map[string]string 	`yaml:"users"`
 	AlertsEnable 	bool				`yaml:"alerts_enable"`
 	Static			Static				`yaml:"static"`
 	Domains 		[]string 			`yaml:"domains"`

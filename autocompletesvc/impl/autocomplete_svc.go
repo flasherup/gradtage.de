@@ -29,7 +29,7 @@ func NewAutocompleteSVC(logger log.Logger, db database.AutocompleteDB, alert ale
 	return &st,nil
 }
 
-func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (result map[string][]autocompletesvc.Source, err error) {
+func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (result map[string][]autocompletesvc.Autocomplete, err error) {
 	level.Info(ss.logger).Log("msg", "GetAutocomplete", "text", text)
 	result, err = ss.db.GetStationId(text)
 	if err != nil {
@@ -40,7 +40,7 @@ func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (res
 	return result, nil
 }
 
-func (ss AutocompleteSVC) AddSources(ctx context.Context, sources []autocompletesvc.Source) (err error) {
+func (ss AutocompleteSVC) AddSources(ctx context.Context, sources []autocompletesvc.Autocomplete) (err error) {
 	level.Info(ss.logger).Log("msg", "AddSource", "length", len(sources))
 	err = ss.db.AddSources(sources)
 	if err != nil {
@@ -51,7 +51,7 @@ func (ss AutocompleteSVC) AddSources(ctx context.Context, sources []autocomplete
 	return nil
 }
 
-func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocompletesvc.Source) (err error) {
+func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocompletesvc.Autocomplete) (err error) {
 	level.Info(ss.logger).Log("msg", "ResetSource", "length", len(sources))
 	err = ss.db.RemoveTable()
 	if err != nil {

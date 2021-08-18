@@ -13,6 +13,9 @@ build_autocomplete:
 build_daydegree:
 	env GOOS=linux GOARCH=amd64 go build -o daydegreesvc github.com\flasherup\gradtage.de\daydegreesvc\cmd\server
 
+build_stations:
+	env GOOS=linux GOARCH=amd64 go build -o stationssvc github.com\flasherup\gradtage.de\stationssvc\cmd\server
+
 
 upload_weatherbit:
 	pscp weatherbitsvc flasherup@212.227.214.163:/home/flasherup/app
@@ -25,6 +28,9 @@ upload_users:
 
 upload_autocomplete:
 	pscp autocompletesvc flasherup@212.227.214.163:/home/flasherup/app
+
+upload_stations:
+	pscp stationssvc flasherup@212.227.214.163:/home/flasherup/app
 
 
 update_weatherbit:
@@ -39,10 +45,23 @@ update_users:
 update_autocomplete:
 	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_autocompletesvc $*"
 
+update_stations:
+	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_stationssvc $*"
+
 deploy_autocomplete:
 	make build_autocomplete
 	make upload_autocomplete
 	make update_autocomplete
+
+deploy_users:
+	make build_users
+	make upload_users
+	make update_users
+
+deploy_stations:
+	make build_stations
+	make upload_stations
+	make update_stations
 
 
 upload_cloud_weatherbit:
@@ -53,4 +72,17 @@ upload_cloud_daydegree:
 
 
 update_cloud_weatherbit:
-	ssh flasherup@82.165.119.83 "cd /h ome/flasherup/app && make update_weatherbitsvc $*"
+	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && make update_weatherbitsvc $*"
+
+update_cloud_daydegree:
+	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && make update_daydegreesvc $*"
+
+deploy_cloud_weatherbit:
+	make build_weatherbit
+	make upload_cloud_weatherbit
+	make update_cloud_weatherbit
+
+deploy_cloud_daydegree:
+	make build_daydegree
+	make upload_cloud_daydegree
+	make update_cloud_daydegree

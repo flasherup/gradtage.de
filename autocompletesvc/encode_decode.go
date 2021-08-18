@@ -50,7 +50,7 @@ func DecodeResetSourcesRequest(_ context.Context, r interface{}) (interface{}, e
 	}, nil
 }
 
-func EncodeSources(sources []Source) []*acrpc.Source {
+func EncodeSources(sources []Autocomplete) []*acrpc.Source {
 	res := make([]*acrpc.Source, len(sources))
 	for i,v := range sources {
 		res[i] = &acrpc.Source {
@@ -82,10 +82,10 @@ func EncodeSources(sources []Source) []*acrpc.Source {
 	return res
 }
 
-func DecodeSources(sources []*acrpc.Source) []Source {
-	res := make([]Source, len(sources))
+func DecodeSources(sources []*acrpc.Source) []Autocomplete {
+	res := make([]Autocomplete, len(sources))
 	for i,v := range sources {
-		res[i] = Source {
+		res[i] = Autocomplete{
 			ID:v.ID,
 			SourceID:v.SourceID,
 			Latitude:v.Latitude,
@@ -114,7 +114,7 @@ func DecodeSources(sources []*acrpc.Source) []Source {
 	return res
 }
 
-func EncodeSourcesMap(sources map[string][]Source) map[string]*acrpc.Sources {
+func EncodeSourcesMap(sources map[string][]Autocomplete) map[string]*acrpc.Sources {
 	res := make(map[string]*acrpc.Sources)
 	for k,s := range sources {
 		src := make([]*acrpc.Source, len(s))
@@ -150,12 +150,12 @@ func EncodeSourcesMap(sources map[string][]Source) map[string]*acrpc.Sources {
 	return res
 }
 
-func DecodeSourcesMap(sources map[string]*acrpc.Sources) map[string][]Source {
-	res := make(map[string][]Source)
+func DecodeSourcesMap(sources map[string]*acrpc.Sources) map[string][]Autocomplete {
+	res := make(map[string][]Autocomplete)
 	for k,s := range sources {
-		src := make([]Source, len(s.Sources))
+		src := make([]Autocomplete, len(s.Sources))
 		for i,v := range s.Sources{
-			src[i] = Source {
+			src[i] = Autocomplete{
 				ID:v.ID,
 				SourceID:v.SourceID,
 				Latitude:v.Latitude,

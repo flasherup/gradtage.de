@@ -9,7 +9,6 @@ const TimeLayoutDay = "2006-01-02"
 const TimeLayoutMonth = "2006-01"
 const TimeLayoutYear = "2006"
 
-
 //Data source types
 const (
 	SrcTypeDWD        = "dwd"
@@ -41,23 +40,20 @@ const (
 	DDType  = "dd"
 )
 
+const (
+	BreakdownDaily   = "daily"
+	BreakdownMonthly = "monthly"
+	BreakdownYearly  = "yearly"
+)
+
+const (
+	DayCalcInt = "int"
+	DayCalcMean = "mean"
+	DayCalcMima = "mima"
+)
+
 //GRPC
 const (
 	MaxMessageSendSize    = 1024 * 1024 * 20
 	MaxMessageReceiveSize = 1024 * 1024 * 20
-)
-
-//Degree Period
-
-const (
-	PeriodNotSet = 1 + iota
-	PeriodDay
-	PeriodMonth
-	PeriodYear
-)
-
-const (
-	DayCalcInt = 1 + iota
-	DayCalcMean
-	DayCalcMima
 )

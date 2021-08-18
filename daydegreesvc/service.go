@@ -8,11 +8,11 @@ type Params struct {
 	Station string
 	Start string
 	End string
-	Breakdown int
+	Breakdown string
 	Tb float64
 	Tr float64
 	Method string
-	DayCalc int
+	DayCalc string
 }
 
 type Degree struct {

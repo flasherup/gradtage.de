@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/daydegreesvc"
 	"github.com/flasherup/gradtage.de/daydegreesvc/impl"
 	"github.com/go-kit/kit/log"
@@ -21,7 +22,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewDayDegreeSVCClient("localhost:8112",logger)
+	//client := impl.NewDayDegreeSVCClient("localhost:8112",logger)
+	client := impl.NewDayDegreeSVCClient("82.165.119.83:8112",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -37,11 +39,11 @@ func getDegree(client *impl.DayDegreeSVCClient, logger log.Logger) error {
 		Station: "us_koak",
 		Start: "2020-01-01",
 		End: "2020-12-31",
-		Breakdown: 3,
+		Breakdown: common.BreakdownDaily,
 		Tb: 15,
 		Tr: 20,
 		Method: "hdd",
-		DayCalc: 3,
+		DayCalc: common.DayCalcMean,
 
 	}
 	//Just for test

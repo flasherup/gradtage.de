@@ -5,12 +5,12 @@ type GetAutocompleteRequest struct {
 }
 
 type GetAutocompleteResponse struct {
-	Result 	map[string][]Source `json:"result"`
-	Err     error  `json:"err"`
+	Result 	map[string][]Autocomplete `json:"result"`
+	Err     error                       `json:"err"`
 }
 
 type  AddSourcesRequest struct {
-	Sources []Source `json:"sources"`
+	Sources []Autocomplete `json:"sources"`
 }
 
 type AddSourcesResponse struct {
@@ -18,7 +18,7 @@ type AddSourcesResponse struct {
 }
 
 type ResetSourcesRequest struct {
-	Sources []Source `json:"sources"`
+	Sources []Autocomplete `json:"sources"`
 }
 
 type ResetSourcesResponse struct {
