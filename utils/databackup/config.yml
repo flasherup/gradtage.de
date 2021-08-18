@@ -1,0 +1,9 @@
+database:
+  name: "hdd-databackup"
+  host: "localhost"
+  port: 5432
+  user: "dbStorageUser"
+  password: "Newpass@29"
+clients:
+  src_addr: "localhost:8111"
+
