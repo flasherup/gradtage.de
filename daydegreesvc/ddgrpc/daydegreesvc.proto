@@ -1,0 +1,35 @@
+syntax = "proto3";
+option  go_package = "github.com/flasherup/gradtage.de/daydegreesvc/ddgrpc";
+
+package ddgrpc;
+
+message Params {
+    string  Station = 1;
+    string  Start = 2;
+    string  End = 3;
+    int32   Breakdown = 4;
+    double  Tb = 5;
+    double  Tr = 6;
+    string  Method = 7;
+    int32   DayCalc = 8;
+}
+
+message Degree {
+    string Date = 1;
+    double Temp = 2;
+}
+
+message GetDegreeRequest {
+    Params params = 1;
+}
+
+message GetDegreeResponse {
+    repeated Degree degrees = 1;
+    string err = 2;
+}
+
+service DayDegreeSVC {
+    rpc GetDegree(GetDegreeRequest)  returns (GetDegreeResponse) {}
+}
+
+

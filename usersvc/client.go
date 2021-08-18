@@ -1,10 +1,11 @@
 package usersvc
 
 type Client interface {
-	CreateUser(userName string, plan string, email bool) (string, error)
-	UpdateUser(user User, email bool) (string, error)
+	CreateOrder(orderId int, email, plan, key string) (string, error)
+	UpdateOrder(order Order) (string, error)
+	DeleteOrder(orderId int) error
 	AddPlan(plan Plan) error
-	ValidateKey(key string) (Parameters, error)
-	ValidateName(name string) (Parameters, error)
-	ValidateStripe(stripe string) (Parameters, error)
+	ValidateSelection(selection Selection) error
+	ValidateKey(key string) (Order, Plan, error)
+	ValidateOrder(orderId int) (Order, Plan, error)
 }

@@ -67,8 +67,6 @@ func (pg *Postgres) PushPeriod(name string, temperatures []dailysvc.Temperature)
 func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []dailysvc.Temperature, err error) {
 	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
-
-	fmt.Print(query)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return temps,err

@@ -1,15 +1,48 @@
 syntax = "proto3";
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+option  go_package = "github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc;weatherbitgrpc";
 
 package weatherbitgrpc;
 
 message Temperature {
     string date = 1;
-    double  temperature = 2;
+    double  temp = 2;
 }
 
 message Temperatures {
     repeated Temperature temps = 1;
+}
+
+message WBData {
+    string  Date            = 1;
+    double  Rh              = 2;
+    string  Pod             = 3;
+    double	Pres            = 4;
+    string	Timezone        = 5;
+    string	CountryCode     = 6;
+    double	Clouds          = 7;
+    double	Vis             = 8;
+    double	SolarRad        = 9;
+    double	WindSpd         = 10;
+    string	StateCode       = 11;
+    string	CityName        = 12;
+    double	AppTemp         = 13;
+    double  Uv              = 14;
+    double	Lon             = 15;
+    double  Slp             = 16;
+    double	HAngle          = 17;
+    double	Dewpt           = 18;
+    double	Snow            = 19;
+    double	Aqi             = 20;
+    double	WindDir         = 21;
+    double	ElevAngle       = 22;
+    double	Ghi             = 23;
+    double	Lat             = 24;
+    double	Precip          = 25;
+    string	Sunset          = 26;
+    double  Temp            = 27;
+    string	Station         = 28;
+    double	Dni             = 29;
+    string	Sunrise         = 30;
 }
 
 message GetPeriodRequest {
@@ -23,9 +56,50 @@ message GetPeriodResponse {
     string err                      = 2;
 }
 
+message GetWBPeriodRequest {
+    string id            = 1;
+    string start         = 2;
+    string end           = 3;
+}
+
+message GetWBPeriodResponse {
+    repeated WBData temps  = 1;
+    string err             = 2;
+}
+
+message PushWBPeriodRequest {
+    string id             = 1;
+    repeated WBData data  = 2;
+}
+
+message PushWBPeriodResponse {
+    string err             = 2;
+}
+
+message GetUpdateDateRequest {
+    repeated string ids = 1;
+}
+
+message GetUpdateDateResponse {
+    map<string,string> dates = 1;
+    string err = 2;
+}
+
+message GetStationsListRequest {
+}
+
+message GetStationsListResponse {
+    repeated string list = 1;
+    string err = 2;
+}
+
 
 service WeatherBitScraperSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
+    rpc GetWBPeriod(GetWBPeriodRequest) returns (GetWBPeriodResponse) {}
+    rpc PushWBPeriod(PushWBPeriodRequest) returns (PushWBPeriodResponse) {}
+    rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
+    rpc GetStationsList(GetStationsListRequest) returns (GetStationsListResponse) {}
 }
 
 

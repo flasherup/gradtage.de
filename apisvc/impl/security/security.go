@@ -3,7 +3,6 @@ package security
 import (
 	"crypto/rand"
 	"errors"
-	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/tomogoma/go-api-guard"
 )
@@ -40,7 +39,6 @@ func (s Store)APIKeyByUserIDVal(userID string, key []byte) (api.Key, error) {
 	if k, ok := s.Keys[userID]; ok {
 		return k,nil
 	}
-	fmt.Println("Key not found", userID)
 	s.InsertAPIKey(userID, key)
 	return s.Keys[userID],errors.New(notFoundError)
 }

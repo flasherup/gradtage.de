@@ -66,10 +66,10 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 		options...,
 	))
 
-	r.Methods("POST").Path("/stripe").Handler(kithttp.NewServer(
-		e.StripeEndpoint,
-		decodeStripeRequest,
-		encodeStripeResponse,
+	r.Methods("POST").Path("/woocommerce").Handler(kithttp.NewServer(
+		e.WoocommerceEndpoint,
+		decodeWoocommerceRequest,
+		encodeWoocommerceResponse,
 		options...,
 	))
 

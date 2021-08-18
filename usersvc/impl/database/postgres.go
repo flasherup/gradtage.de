@@ -2,12 +2,12 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/usersvc"
 	"github.com/flasherup/gradtage.de/usersvc/config"
 	_ "github.com/lib/pq"
+	"strconv"
 	"time"
 )
 
@@ -36,119 +36,205 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	return
 }
 
-//Dispose and disconnect
-func (pg *Postgres) Dispose() {
-	pg.db.Close()
-	pg.db = nil
+//GetPlan(name string) (usersvc.Plan, error)
+func (pg *Postgres) GetOrderById(id int) (usersvc.Order, error) {
+	query := fmt.Sprintf("SELECT * FROM orders WHERE order_id = '%d';", id)
+	//fmt.Println(query)
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return  usersvc.Order{},err
+	}
+	defer rows.Close()
+	orders, err := parseOrdersRows(rows)
+	if err != nil {
+		return usersvc.Order{}, err
+	}
+	if len(orders) == 0 {
+		return usersvc.Order{}, fmt.Errorf("oder %d not found", id)
+	}
+	return orders[0], nil
 }
 
-//SetUser(user usersvc.User) error
-func (pg *Postgres) SetUser(user usersvc.User) error {
-	stations := "{"
-	for i,v := range user.Stations {
-		stations += v
-		if i < len(user.Stations)-1 {
-			stations += ","
-		}
+func (pg *Postgres) GetOrdersByUser(user string) ([]usersvc.Order, error) {
+	query := fmt.Sprintf("SELECT * FROM orders WHERE email = '%s';", user)
+	//fmt.Println(query)
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return  []usersvc.Order{},err
 	}
-	stations += "}"
-	query := fmt.Sprintf("INSERT INTO users " +
-		"(key, name, renew, request, req_count, plan, stations, stripe) VALUES " +
-		"( '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s')",
-		user.Key,
-		user.Name,
-		user.RenewDate.Format(common.TimeLayout),
-		user.RequestDate.Format(common.TimeLayout),
-		user.Requests,
-		user.Plan,
-		stations,
-		user.Stripe)
+	defer rows.Close()
 
-	query += ` ON CONFLICT (name) DO UPDATE SET
-			 (	name,
-			 	renew,
-			 	request,
-			 	req_count,
-			 	plan,
-			 	stations,
-				stripe
+	orders, err := parseOrdersRows(rows)
+	if err != nil {
+		return []usersvc.Order{}, err
+	}
+
+	return orders, nil
+}
+
+func (pg *Postgres) GetOrderByKey(key string) (usersvc.Order, error) {
+	query := fmt.Sprintf("SELECT * FROM orders WHERE key = '%s';", key)
+	//fmt.Println(query)
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return  usersvc.Order{},err
+	}
+	defer rows.Close()
+
+	orders, err := parseOrdersRows(rows)
+	if err != nil {
+		return usersvc.Order{}, err
+	}
+
+	if len(orders) == 0 {
+		return usersvc.Order{}, fmt.Errorf("oder for key %s, not found", key)
+	}
+
+	return orders[0], nil
+}
+
+/*
+*Orders
+*/
+
+//Delete orders
+func (pg *Postgres) DeleteOrders(orderIds []int) error {
+	o := ordersToString(orderIds)
+	query := fmt.Sprintf("DELETE FROM orders WHERE order_id = (%s);", o)
+	//fmt.Println(query)
+	_, err := pg.db.Query(query)
+	return err
+}
+
+//Set/update order
+func (pg *Postgres) SetOrder(order usersvc.Order) error {
+	station := stationsToString(order.Stations)
+	query := fmt.Sprintf("INSERT INTO orders " +
+		"(order_id, key, email, plan, stations, request, req_count, admin) VALUES " +
+		"( %d, '%s', '%s', '%s', '{%s}', '%s', %d, %t )",
+		order.OrderId,
+		order.Key,
+		order.Email,
+		order.Plan,
+		station,
+		order.RequestDate.Format(common.TimeLayout),
+		order.Requests,
+		order.Admin,
+		)
+
+	query += ` ON CONFLICT (order_id) DO UPDATE SET
+			 (	
+				order_id,
+				key,
+				email,
+				plan,
+				stations,
+				request,
+				req_count,
+				admin
 			) = (
-				excluded.name,
-			 	excluded.renew,
-			 	excluded.request,
-			 	excluded.req_count,
-			 	excluded.plan,
-			 	excluded.stations,
-			 	excluded.stripe
+				excluded.order_id,
+				excluded.key,
+				excluded.email,
+				excluded.plan,
+				excluded.stations,
+				excluded.request,
+				excluded.req_count,
+				excluded.admin
 			);`
-
+	//fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 
-//GetUserDataByName(userName string)  (usersvc.Parameters, error)
-func (pg *Postgres) GetUserDataByName(userName string)  (res usersvc.Parameters, err error){
-	res = usersvc.Parameters{}
-	res.User, err = pg.getUserByName(userName)
-	if err != nil {
-		return res, err
-	}
-
-	res.Plan, err = pg.GetPlan(res.User.Plan)
-	if err != nil {
-		return res, err
-	}
-
-	return res, err
+//Create Orders Table
+func (pg *Postgres) CreateOrdersTable() error {
+	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS orders (
+				order_id 	integer UNIQUE,
+				key 		varchar(%d),
+				email 		varchar(50),
+				plan 		varchar(15),
+				stations 	varchar(15)[],
+				request 	timestamp,
+				req_count	integer,
+				admin 		boolean
+			);`, KeyLength)
+	//fmt.Println(query)
+	return writeToDB(pg.db, query)
 }
 
-//GetUserDataByKey(key string)  (res usersvc.Parameters, err error)
-func (pg *Postgres) GetUserDataByKey(key string)  (res usersvc.Parameters, err error){
-	res = usersvc.Parameters{}
-	res.User, err = pg.getUserByKey(key)
-	if err != nil {
-		return res, err
-	}
-
-	res.Plan, err = pg.GetPlan(res.User.Plan)
-	if err != nil {
-		return res, err
-	}
-
-	return res, err
+//Remove Orders table
+func (pg *Postgres) RemoveOrdersTable() error {
+	query := "DROP TABLE IF EXISTS orders CASCADE;"
+	return writeToDB(pg.db, query)
 }
 
-//GetUserDataByStripe(stripe string)  (res usersvc.Parameters, err error)
-func (pg *Postgres) GetUserDataByStripe(stripe string)  (res usersvc.Parameters, err error){
-	res = usersvc.Parameters{}
-	res.User, err = pg.getUserByStripe(stripe)
-	if err != nil {
-		return res, err
-	}
+func parseOrdersRows(rows *sql.Rows) ([]usersvc.Order, error) {
+	var err error
+	u := struct {
+		order_id 	int
+		key			string
+		email		string
+		plan 		string
+		stations 	[]uint8
+		request 	string
+		req_count	int
+		admin 		bool
+	}{}
 
-	res.Plan, err = pg.GetPlan(res.User.Plan)
-	if err != nil {
-		return res, err
-	}
+	orders := make([]usersvc.Order, 0)
 
-	return res, err
+	for rows.Next() {
+		err = rows.Scan(
+			&u.order_id,
+			&u.key,
+			&u.email,
+			&u.plan,
+			&u.stations,
+			&u.request,
+			&u.req_count,
+			&u.admin,
+		)
+
+		stations := parseToStringSlice(u.stations)
+
+		request, err := time.Parse(common.TimeLayout, u.request)
+		if err != nil {
+			return orders,err
+		}
+
+		order := usersvc.Order{
+			OrderId: u.order_id,
+			Key: u.key,
+			Email: u.email,
+			Plan: u.plan,
+			Stations: stations,
+			RequestDate: request,
+			Requests: u.req_count,
+			Admin: u.admin,
+		}
+		orders = append(orders, order)
+	}
+	return orders, err
 }
 
+/*
+* Plans
+*/
 //SetPlan(plan usersvc.Plan) error
 func (pg *Postgres) SetPlan(plan usersvc.Plan) error {
 	query := fmt.Sprintf("INSERT INTO plans " +
-		"(name, stations, limitation, hdd, dd, cdd, stime, etime, period, admin) VALUES " +
-		"( '%s', '%d', '%d', '%t', %t, '%t', '%s', '%s', %d, %t)",
-			plan.Name,
-			plan.Stations,
-			plan.Limitation,
-			plan.HDD,
-			plan.DD,
-			plan.CDD,
-			plan.Start.Format(common.TimeLayout),
-			plan.End.Format(common.TimeLayout),
-			plan.Period,
-			plan.Admin,
-		)
+		"(name, stations, limitation, hdd, dd, cdd, stime, etime, period) VALUES " +
+		"( '%s', '%d', '%d', '%t', %t, '%t', '%s', '%s', %d)",
+		plan.Name,
+		plan.Stations,
+		plan.Limitation,
+		plan.HDD,
+		plan.DD,
+		plan.CDD,
+		plan.Start.Format(common.TimeLayout),
+		plan.End.Format(common.TimeLayout),
+		plan.Period,
+	)
 
 	query += ` ON CONFLICT (name) DO UPDATE SET
 			 (	
@@ -160,8 +246,7 @@ func (pg *Postgres) SetPlan(plan usersvc.Plan) error {
 				cdd,
 				stime,
 				etime,
-				period,
-				admin
+				period
 			) = (
 				excluded.name,
 				excluded.stations,
@@ -171,120 +256,28 @@ func (pg *Postgres) SetPlan(plan usersvc.Plan) error {
 				excluded.cdd,
 				excluded.stime,
 				excluded.etime,
-				excluded.period,
-				excluded.admin
+				excluded.period
 			);`
+	//fmt.Println(query)
+
 	return writeToDB(pg.db, query)
 }
 
 //GetPlan(name string) (usersvc.Plan, error)
-func (pg *Postgres) GetPlan(name string) (usersvc.Plan, error) {
-	query := fmt.Sprintf("SELECT * FROM plans WHERE name = '%s';", name)
+func (pg *Postgres) GetPlans(plans []string) ([]usersvc.Plan, error) {
+	p := plansToString(plans)
+	query := fmt.Sprintf("SELECT * FROM plans WHERE name in (%s);", p)
+	//fmt.Println(query)
 	rows, err := pg.db.Query(query)
 	if err != nil {
-		return  usersvc.Plan{},err
+		return  []usersvc.Plan{},err
 	}
 	defer rows.Close()
-	var res usersvc.Plan
-	for rows.Next() {
-		p, err := parsePlanRow(rows)
-		if err != nil {
-			return res, err
-		}
-
-		res = p
-	}
-	return res, nil
-}
-
-func (pg *Postgres) getUserByName(userName string) (usersvc.User, error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE name = '%s';", userName)
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return  usersvc.User{},err
-	}
-	defer rows.Close()
-	var res usersvc.User
-	for rows.Next() {
-		u, err := parseUserRow(rows)
-		if err != nil {
-			return res, err
-		}
-
-		res = u
-	}
-
-	if res.Name == "" {
-		err = errors.New("user not found")
-	}
-	return res, nil
-}
-
-
-func (pg *Postgres) getUserByKey(key string) (usersvc.User, error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE key = '%s';", key)
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return  usersvc.User{},err
-	}
-
-	defer rows.Close()
-	var res usersvc.User
-	for rows.Next() {
-		u, err := parseUserRow(rows)
-		if err != nil {
-			return res, err
-		}
-
-		res = u
-	}
-
-	if res.Name == "" {
-		err = errors.New("user not found")
-	}
-	return res, err
-}
-
-func (pg *Postgres) getUserByStripe(stripe string) (usersvc.User, error) {
-	query := fmt.Sprintf("SELECT * FROM users WHERE stripe = '%s';", stripe)
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return  usersvc.User{},err
-	}
-	defer rows.Close()
-	var res usersvc.User
-	for rows.Next() {
-		u, err := parseUserRow(rows)
-		if err != nil {
-			return res, err
-		}
-
-		res = u
-	}
-
-	if res.Name == "" {
-		err = errors.New("user not found")
-	}
-	return res, nil
-}
-
-//CreateUserTable() error
-func (pg *Postgres) CreateUserTable() error {
-	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS users (
-			key 		varchar(%d),
-			name 		varchar(50) UNIQUE,
-			renew 		timestamp,
-			request 	timestamp,
-			req_count	integer,
-			plan 		varchar(15),
-			stations 	varchar(8)[],
-			stripe 		varchar(20)
-		);`, KeyLength)
-	return writeToDB(pg.db, query)
+	return parsePlanRows(rows)
 }
 
 //CreatePlanTable() error
-func (pg *Postgres) CreatePlanTable() error {
+func (pg *Postgres) CreatePlansTable() error {
 	query := `CREATE TABLE IF NOT EXISTS plans (
 				name 		varchar(15) UNIQUE,
 				stations 	integer,
@@ -294,68 +287,79 @@ func (pg *Postgres) CreatePlanTable() error {
 				cdd			bool,
 				stime 		timestamp,
 				etime 		timestamp,
-				period		integer,
-				admin		bool
+				period		integer
 			);`
-	return writeToDB(pg.db, query)
-}
-
-//RemoveUserTable remove users table from BD
-func (pg *Postgres) RemoveUserTable() error {
-	query := "DROP TABLE IF EXISTS users CASCADE;"
+	//fmt.Println(query)
 	return writeToDB(pg.db, query)
 }
 
 //RemovePlanTable remove plan table from BD
-func (pg *Postgres) RemovePlanTable() error {
+func (pg *Postgres) RemovePlansTable() error {
 	query := "DROP TABLE IF EXISTS plans CASCADE;"
 	return writeToDB(pg.db, query)
 }
 
-func parseUserRow(rows *sql.Rows) (user usersvc.User, err error) {
-	u := struct {
-		key 		string
+func parsePlanRows(rows *sql.Rows) ([]usersvc.Plan, error) {
+	var err error
+	p := struct {
 		name 		string
-		renew 		string
-		request 	string
-		req_count	int
-		plan 		string
-		stations 	[]uint8
-		stripe		string
+		stations 	int
+		limitation 	int
+		hdd 		bool
+		dd			bool
+		cdd 		bool
+		stime 		string
+		etime		string
+		period 		int
 	}{}
-	err = rows.Scan(
-		&u.key,
-		&u.name,
-		&u.renew,
-		&u.request,
-		&u.req_count,
-		&u.plan,
-		&u.stations,
-		&u.stripe,
-	)
 
-	renew, err := time.Parse(common.TimeLayout, u.renew)
-	if err != nil {
-		return user,err
+	plans := make([]usersvc.Plan, 0)
+
+	for rows.Next() {
+		err = rows.Scan(
+			&p.name,
+			&p.stations,
+			&p.limitation,
+			&p.hdd,
+			&p.dd,
+			&p.cdd,
+			&p.stime,
+			&p.etime,
+			&p.period,
+		)
+
+		start, err := time.Parse(common.TimeLayout, p.stime)
+		if err != nil {
+			return []usersvc.Plan{},err
+		}
+
+		end, err := time.Parse(common.TimeLayout, p.etime)
+		if err != nil {
+			return []usersvc.Plan{},err
+		}
+
+		plan := usersvc.Plan{
+			Name:p.name,
+			Stations:p.stations,
+			Limitation:p.limitation,
+			HDD:p.hdd,
+			DD:p.dd,
+			CDD:p.cdd,
+			Start:start,
+			End:end,
+			Period:p.period,
+		}
+		plans = append(plans, plan)
+
 	}
 
-	request, err := time.Parse(common.TimeLayout, u.request)
-	if err != nil {
-		return user,err
-	}
+	return plans, err
+}
 
-	str := parseToStringSlice(u.stations)
-
-	user.Key = u.key
-	user.Name = u.name
-	user.RenewDate = renew
-	user.RequestDate = request
-	user.Requests = u.req_count
-	user.Plan = u.plan
-	user.Stations = str
-	user.Stripe = u.stripe
-
-	return user, err
+//Dispose and disconnect
+func (pg *Postgres) Dispose() {
+	pg.db.Close()
+	pg.db = nil
 }
 
 func parseToStringSlice(slice []uint8) []string {
@@ -368,7 +372,6 @@ func parseToStringSlice(slice []uint8) []string {
 	for _,v := range trim {
 		if v == 44 || v == 125 {
 			res = append(res, string(word))
-			fmt.Println("parsed", string(v), v)
 			word = make([]byte, 0)
 			continue
 		}
@@ -377,55 +380,6 @@ func parseToStringSlice(slice []uint8) []string {
 	return res
 }
 
-func parsePlanRow(rows *sql.Rows) (plan usersvc.Plan, err error) {
-	p := struct {
-		name 		string
-		stations 	int
-		limitation 	int
-		hdd 		bool
-		dd			bool
-		cdd 		bool
-		stime 		string
-		etime		string
-		period 		int
-		admin		bool
-	}{}
-	err = rows.Scan(
-		&p.name,
-		&p.stations,
-		&p.limitation,
-		&p.hdd,
-		&p.dd,
-		&p.cdd,
-		&p.stime,
-		&p.etime,
-		&p.period,
-		&p.admin,
-	)
-
-	start, err := time.Parse(common.TimeLayout, p.stime)
-	if err != nil {
-		return plan,err
-	}
-
-	end, err := time.Parse(common.TimeLayout, p.etime)
-	if err != nil {
-		return plan,err
-	}
-
-	plan.Name = p.name
-	plan.Stations = p.stations
-	plan.Limitation = p.limitation
-	plan.HDD = p.hdd
-	plan.DD = p.dd
-	plan.CDD = p.cdd
-	plan.Start = start
-	plan.End = end
-	plan.Period = p.period
-	plan.Admin = p.admin
-
-	return plan, err
-}
 
 func writeToDB(db *sql.DB, query string) (err error){
 	row, err := db.Query(query)
@@ -434,6 +388,42 @@ func writeToDB(db *sql.DB, query string) (err error){
 	}
 	row.Close()
 	return
+}
+
+func ordersToString(orders []int) string {
+	ordersCount := len(orders)-1
+	res := ""
+	for i,v := range orders {
+		res += strconv.Itoa(v)
+		if i < ordersCount {
+			res += ","
+		}
+	}
+	return res
+}
+
+func stationsToString(stations []string) string {
+	stationsCount := len(stations)-1
+	res := ""
+	for i,v := range stations {
+		res += v
+		if i < stationsCount {
+			res += ","
+		}
+	}
+	return res
+}
+
+func plansToString(plans []string) string {
+	count := len(plans)-1
+	res := ""
+	for i,v := range plans {
+		res += "'" + v + "'"
+		if i < count {
+			res += ","
+		}
+	}
+	return res
 }
 
 

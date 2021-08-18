@@ -8,34 +8,51 @@ import (
 )
 
 
-func EncodeCreateUserResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(CreateUserResponse)
-	return &grpcusr.CreateUserResponse {
+func EncodeCreateOrderResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(CreateOrderResponse)
+	return &grpcusr.CreateOrderResponse {
 		Key: res.Key,
 		Err: errorToString(res.Err),
 	}, nil
 }
 
-func DecodeCreateUserRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*grpcusr.CreateUserRequest)
-	return CreateUserRequest{req.UserName, req.Plan, req.Email}, nil
+func DecodeCreateOrderRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.CreateOrderRequest)
+	return CreateOrderRequest {
+		int(req.OrderId),
+		req.Email,
+		req.Plan,
+		req.Key,
+	}, nil
 }
 
-func EncodeUpdateUserResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(UpdateUserResponse)
-	return &grpcusr.UpdateUserResponse {
+func EncodeUpdateOrderResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(UpdateOrderResponse)
+	return &grpcusr.UpdateOrderResponse {
 		Key: res.Key,
 		Err: errorToString(res.Err),
 	}, nil
 }
 
-func DecodeUpdateUserRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*grpcusr.UpdateUserRequest)
-	user, err := DecodeUser(req.User)
+func DecodeUpdateOrderRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.UpdateOrderRequest)
+	Order, err := DecodeOrder(req.Order)
 	if err != nil {
-		return UpdateUserRequest{}, err
+		return UpdateOrderRequest{}, err
 	}
-	return UpdateUserRequest{*user, req.Email}, nil
+	return UpdateOrderRequest{*Order}, nil
+}
+
+func EncodeDeleteOrderResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(DeleteOrderResponse)
+	return &grpcusr.DeleteOrderResponse {
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeDeleteOrderRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.DeleteOrderRequest)
+	return DeleteOrderRequest{int(req.OrderId)}, nil
 }
 
 func EncodeAddPlanResponse(_ context.Context, r interface{}) (interface{}, error) {
@@ -54,7 +71,6 @@ func DecodeAddPlanRequest(_ context.Context, r interface{}) (interface{}, error)
 func EncodeValidateSelectionResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(ValidateSelectionResponse)
 	return &grpcusr.ValidateSelectionResponse {
-		IsValid: res.IsValid,
 		Err: errorToString(res.Err),
 	}, nil
 }
@@ -67,9 +83,11 @@ func DecodeValidateSelectionRequest(_ context.Context, r interface{}) (interface
 
 func EncodeValidateKeyResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(ValidateKeyResponse)
-	params:= EncodeParameters(&res.Parameters)
+	order := EncodeOrder(&res.Order)
+	plan := EncodePlan(&res.Plan)
 	return &grpcusr.ValidateKeyResponse {
-		Parameters: params,
+		Order:order,
+		Plan:plan,
 		Err: errorToString(res.Err),
 	}, nil
 }
@@ -79,32 +97,20 @@ func DecodeValidateKeyRequest(_ context.Context, r interface{}) (interface{}, er
 	return ValidateKeyRequest{req.Key}, nil
 }
 
-func EncodeValidateNameResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(ValidateNameResponse)
-	params:= EncodeParameters(&res.Parameters)
-	return &grpcusr.ValidateNameResponse {
-		Parameters: params,
+func EncodeValidateOrderResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(ValidateOrderResponse)
+	order := EncodeOrder(&res.Order)
+	plan := EncodePlan(&res.Plan)
+	return &grpcusr.ValidateOrderResponse {
+		Order: order,
+		Plan: plan,
 		Err: errorToString(res.Err),
 	}, nil
 }
 
-func DecodeValidateStripeRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*grpcusr.ValidateStripeRequest)
-	return ValidateStripeRequest{req.Stripe}, nil
-}
-
-func EncodeValidateStripeResponse(_ context.Context, r interface{}) (interface{}, error) {
-	res := r.(ValidateStripeResponse)
-	params:= EncodeParameters(&res.Parameters)
-	return &grpcusr.ValidateStripeResponse {
-		Parameters: params,
-		Err: errorToString(res.Err),
-	}, nil
-}
-
-func DecodeValidateNameRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(*grpcusr.ValidateNameRequest)
-	return ValidateNameRequest{req.Name}, nil
+func DecodeValidateOrderRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.ValidateOrderRequest)
+	return ValidateOrderRequest{int(req.OrderId)}, nil
 }
 
 func DecodePlan(src *grpcusr.Plan) (*Plan, error) {
@@ -126,7 +132,6 @@ func DecodePlan(src *grpcusr.Plan) (*Plan, error) {
 		Start: 		start,
 		End:   		end,
 		Period: 	int(src.Period),
-		Admin: src.Admin,
 	}, nil
 }
 
@@ -143,67 +148,37 @@ func EncodePlan(src *Plan) (*grpcusr.Plan) {
 		Start: 		start,
 		End:   		end,
 		Period: 	int32(src.Period),
-		Admin: src.Admin,
 	}
 }
 
-func DecodeUser(src *grpcusr.User) (*User, error) {
-	renew, err := time.Parse(common.TimeLayout, src.RenewDate)
-	if err != nil {
-		return nil, err
-	}
+func DecodeOrder(src *grpcusr.Order) (*Order, error) {
 	requests, err := time.Parse(common.TimeLayout, src.RequestDate)
 	if err != nil {
 		return nil, err
 	}
-	return &User{
-		Name:  			src.Name,
+	return &Order{
+		OrderId:  		int(src.OrderId),
 		Key: 			src.Key,
-		RequestDate: 	renew,
-		RenewDate: 		requests,
+		Email: 			src.Email,
+		Plan: 			src.Plan,
+		Stations: 		src.Stations,
+		RequestDate: 	requests,
 		Requests: 		int(src.Requests),
-		Plan: 			src.Plan,
-		Stations: 		src.Stations,
-		Stripe: 		src.Stripe,
+		Admin:			src.Admin,
 	}, nil
 }
 
-func EncodeUser(src *User) *grpcusr.User {
-	renew := src.RenewDate.Format(common.TimeLayout)
+func EncodeOrder(src *Order) *grpcusr.Order {
 	requests := src.RequestDate.Format(common.TimeLayout)
-	return &grpcusr.User{
-		Name:  			src.Name,
+	return &grpcusr.Order{
+		OrderId:  		int32(src.OrderId),
 		Key: 			src.Key,
-		RequestDate: 	renew,
-		RenewDate: 		requests,
-		Requests: 		int32(src.Requests),
+		Email: 			src.Email,
 		Plan: 			src.Plan,
 		Stations: 		src.Stations,
-		Stripe: 		src.Stripe,
-	}
-}
-
-func DecodeParameters(src *grpcusr.Parameters) (*Parameters, error) {
-	user, err := DecodeUser(src.User)
-	if err != nil {
-		return nil, err
-	}
-	plan, err := DecodePlan(src.Plan)
-	if err != nil {
-		return nil, err
-	}
-	return &Parameters{
-		User: *user,
-		Plan: *plan,
-	}, nil
-}
-
-func EncodeParameters(src *Parameters) *grpcusr.Parameters {
-	user := EncodeUser(&src.User)
-	plan := EncodePlan(&src.Plan)
-	return &grpcusr.Parameters{
-		User: user,
-		Plan: plan,
+		RequestDate: 	requests,
+		Requests: 		int32(src.Requests),
+		Admin: 			src.Admin,
 	}
 }
 

@@ -19,9 +19,17 @@ type SourcesConfig struct {
 	KeyWeatherBit	string `yaml:"key_weather_bit"`
 }
 
+type WeatherConfig struct{
+	NumberOfRequestPerSecond int `yaml:"number_of_request_per_second"`
+	NumberOfRequestPerDay	 int `yaml:"number_of_request_per_day"`
+	NumberOfYears 			 int `yaml:"number_of_years"`
+	NumberOfDaysPerRequest   int `yaml:"number_of_days_per_request"`
+}
+
 type WeatherBitConfig struct {
 	Database 		DatabaseConfig	`yaml:"database"`
 	Sources  		SourcesConfig	`yaml:"sources"`
+	WeatherBit      WeatherConfig   `yaml:"weatherbit"`
 }
 
 func LoadConfig(path string) (config *WeatherBitConfig, err error) {

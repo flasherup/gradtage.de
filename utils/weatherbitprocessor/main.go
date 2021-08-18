@@ -7,7 +7,6 @@ import (
 	"github.com/flasherup/gradtage.de/utils/weatherbitprocessor/config"
 	"github.com/flasherup/gradtage.de/utils/weatherbitprocessor/csv"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
@@ -16,9 +15,9 @@ import (
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name.")
-	startDate := flag.String("start", "2021-03-20", "Start Date.")
-	endDate := flag.String("end", "2021-03-25", "End Date.")
-	csvFile := flag.String("csv.file", "station.csv", "CSV file name. ")
+	//startDate := flag.String("start", "2021-07-12", "Start Date.")
+	//endDate := flag.String("end", "2021-07-18", "End Date.")
+	//csvFile := flag.String("csv.file", "stationsR.csv", "CSV file name. ")
 	flag.Parse()
 
 	var logger log.Logger
@@ -26,11 +25,7 @@ func main() {
 		logger = log.NewLogfmtLogger(os.Stderr)
 		logger = log.NewSyncLogger(logger)
 		logger = level.NewFilter(logger, level.AllowDebug())
-		logger = log.With(logger,
-			"svc", "weatherbitprocessor",
-			"ts", log.DefaultTimestampUTC,
-			"caller", log.DefaultCaller,
-		)
+		logger = log.With(logger)
 	}
 
 	//Config
@@ -45,9 +40,8 @@ func main() {
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	calculateEntries(client, logger, *csvFile, *startDate, *endDate)
-
-
+	//calculateEntries(client, logger, *csvFile, *startDate, *endDate)
+	calculateHourlyDegree(client, logger)
 }
 
 func calculateEntries(client *impl.WeatherBitSVCClient, logger log.Logger, stations, startDate, endDate string) {
@@ -59,31 +53,31 @@ func calculateEntries(client *impl.WeatherBitSVCClient, logger log.Logger, stati
 	}
 
 	for innerId, stationId := range *stationList {
-		fmt.Println("Station:", stationId, "innerId", innerId)
+		level.Info(logger).Log("Station:", stationId, "innerId", innerId)
 		data, err := client.GetPeriod([]string{innerId}, startDate, endDate)
 		if err != nil {
-			fmt.Println("Station error:", stationId, "innerId", innerId, err)
+			level.Error(logger).Log("Station error:", stationId, "innerId", innerId, "error", err)
 			continue
 		}
 
-		for _,temperatures := range data.Temps {
-			if len(temperatures.Temps) == 0 {
-				fmt.Println("Station error: no entries")
+		for _,temperatures := range *data {
+			if len(temperatures) == 0 {
+				level.Error(logger).Log("Error", "no entries", "Station:", stationId, "innerId", innerId)
 				continue
 			}
 
-			counted := countEntriesPerDay(&temperatures.Temps)
+			counted := countEntriesPerDay(&temperatures)
 			for k,v := range counted {
-				fmt.Println(k, v)
+				//level.Info(logger).Log("date", k, "hours", v)
 				if v < 24 {
-					fmt.Println("Station error: less the 24 entries")
+					level.Error(logger).Log("Error", "less the 24 entries", "date", k, "hours", v, "Station:", stationId, "innerId", innerId)
 				}
 			}
 		}
 	}
 }
 
-func countEntriesPerDay(temps *[]*weatherbitgrpc.Temperature) map[string]int {
+func countEntriesPerDay(temps *[]common.Temperature) map[string]int {
 	res := make(map[string]int)
 	for _,v := range *temps {
 		date,err := time.Parse(common.TimeLayout, v.Date)
@@ -98,5 +92,41 @@ func countEntriesPerDay(temps *[]*weatherbitgrpc.Temperature) map[string]int {
 		}
 	}
 	return res
+}
+
+func calculateHourlyDegree(client *impl.WeatherBitSVCClient, logger log.Logger) {
+	stationId := "us_kheq";
+	data, err := client.GetPeriod([]string{stationId}, "2020-01-01T00:00:00", "2021-01-01T00:00:00")
+	if err != nil {
+		level.Error(logger).Log("Station error:", stationId, "error", err)
+		return
+	}
+
+	temps := (*data)[stationId]
+	/*for _,temperatures :=  range temps {
+		fmt.Println(temperatures.Date, temperatures.Temp)
+	}*/
+
+	//Hdd
+	fmt.Println("Hdd Day")
+	hdd := common.CalculateHDDDegree(temps, 15, common.PeriodDay)
+	//fmt.Println(hdd)
+	for _,temps :=  range *hdd {
+		fmt.Println(temps.Date, temps.Temp)
+	}
+
+	fmt.Println("Hdd Month")
+	hdd = common.CalculateHDDDegree(temps, 15, common.PeriodMonth)
+	//fmt.Println(hdd)
+	for _,temps :=  range *hdd {
+		fmt.Println(temps.Date, temps.Temp)
+	}
+
+	fmt.Println("Hdd Year")
+	hdd = common.CalculateHDDDegree(temps, 15, common.PeriodYear)
+	//fmt.Println(hdd)
+	for _,temps :=  range *hdd {
+		fmt.Println(temps.Date, temps.Temp)
+	}
 }
 

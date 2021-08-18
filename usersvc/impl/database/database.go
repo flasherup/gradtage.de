@@ -3,18 +3,19 @@ package database
 import "github.com/flasherup/gradtage.de/usersvc"
 
 
-const KeyLength = 20
+const KeyLength = 36
 
 type UserDB interface {
-	SetUser(user usersvc.User) error
-	GetUserDataByName(userName string)  (usersvc.Parameters, error)
-	GetUserDataByKey(key string)  (usersvc.Parameters, error)
-	GetUserDataByStripe(stripe string)  (usersvc.Parameters, error)
+	GetOrderById(id int) (usersvc.Order, error)
+	GetOrdersByUser(user string) ([]usersvc.Order, error)
+	GetOrderByKey(key string) (usersvc.Order, error)
+	DeleteOrders(orderIds []int) error
+	SetOrder(order usersvc.Order) error
+	CreateOrdersTable() error
+	RemoveOrdersTable() error
 	SetPlan(plan usersvc.Plan) error
-	GetPlan(name string) (usersvc.Plan, error)
-	CreateUserTable() error
-	CreatePlanTable() error
-	RemoveUserTable() error
-	RemovePlanTable() error
+	GetPlans(plans []string) ([]usersvc.Plan, error)
+	CreatePlansTable() error
+	RemovePlansTable() error
 	Dispose()
 }

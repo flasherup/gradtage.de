@@ -7,7 +7,7 @@ import (
 func NewErrorAlert(err error) alertsvc.Alert {
 	return alertsvc.Alert{
 		Name: "Error",
-		Desc: "NOAA Scraper Service error",
+		Desc: "WeatherBit Service Service error",
 		Params: map[string]string{ "Err":err.Error() },
 	}
 }

@@ -50,11 +50,15 @@ type PlanResponse struct {
 	Data [][]string `json:"data"`
 }
 
-type StripeRequest struct {
-	Event StripeEvent `json:"event"`
+type StripeResponse struct {
+	Json string `json:"json"`
 }
 
-type StripeResponse struct {
+type WoocommerceRequest struct {
+	Event WoocommerceEvent `json:"event"`
+}
+
+type WoocommerceResponse struct {
 	Json string `json:"json"`
 }
 

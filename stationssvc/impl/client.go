@@ -69,7 +69,6 @@ func (scc StationsSVCClient) AddStations(sts []stationssvc.Station) (resp *stsgr
 	resp, err = client.AddStations(context.Background(), &stsgrpc.AddStationsRequest{ Sts: s })
 	if err != nil {
 		level.Error(scc.logger).Log("msg", "Failed to get stations", "err", err)
-
 	}
 	return resp, err
 }

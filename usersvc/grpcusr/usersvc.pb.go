@@ -39,7 +39,7 @@ func (m *Selection) Reset()         { *m = Selection{} }
 func (m *Selection) String() string { return proto.CompactTextString(m) }
 func (*Selection) ProtoMessage()    {}
 func (*Selection) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{0}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{0}
 }
 func (m *Selection) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Selection.Unmarshal(m, b)
@@ -104,7 +104,6 @@ type Plan struct {
 	Start                string   `protobuf:"bytes,7,opt,name=start,proto3" json:"start,omitempty"`
 	End                  string   `protobuf:"bytes,8,opt,name=end,proto3" json:"end,omitempty"`
 	Period               int32    `protobuf:"varint,9,opt,name=period,proto3" json:"period,omitempty"`
-	Admin                bool     `protobuf:"varint,10,opt,name=Admin,proto3" json:"Admin,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -114,7 +113,7 @@ func (m *Plan) Reset()         { *m = Plan{} }
 func (m *Plan) String() string { return proto.CompactTextString(m) }
 func (*Plan) ProtoMessage()    {}
 func (*Plan) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{1}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{1}
 }
 func (m *Plan) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Plan.Unmarshal(m, b)
@@ -197,208 +196,163 @@ func (m *Plan) GetPeriod() int32 {
 	return 0
 }
 
-func (m *Plan) GetAdmin() bool {
-	if m != nil {
-		return m.Admin
-	}
-	return false
-}
-
-type User struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+type Order struct {
+	OrderId              int32    `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	Key                  string   `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	RenewDate            string   `protobuf:"bytes,3,opt,name=renewDate,proto3" json:"renewDate,omitempty"`
-	RequestDate          string   `protobuf:"bytes,4,opt,name=requestDate,proto3" json:"requestDate,omitempty"`
-	Requests             int32    `protobuf:"varint,5,opt,name=requests,proto3" json:"requests,omitempty"`
-	Plan                 string   `protobuf:"bytes,6,opt,name=plan,proto3" json:"plan,omitempty"`
-	Stations             []string `protobuf:"bytes,7,rep,name=stations,proto3" json:"stations,omitempty"`
-	Stripe               string   `protobuf:"bytes,8,opt,name=stripe,proto3" json:"stripe,omitempty"`
+	Email                string   `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	Plan                 string   `protobuf:"bytes,4,opt,name=plan,proto3" json:"plan,omitempty"`
+	Stations             []string `protobuf:"bytes,5,rep,name=stations,proto3" json:"stations,omitempty"`
+	RequestDate          string   `protobuf:"bytes,6,opt,name=requestDate,proto3" json:"requestDate,omitempty"`
+	Requests             int32    `protobuf:"varint,7,opt,name=requests,proto3" json:"requests,omitempty"`
+	Admin                bool     `protobuf:"varint,8,opt,name=admin,proto3" json:"admin,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *User) Reset()         { *m = User{} }
-func (m *User) String() string { return proto.CompactTextString(m) }
-func (*User) ProtoMessage()    {}
-func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{2}
+func (m *Order) Reset()         { *m = Order{} }
+func (m *Order) String() string { return proto.CompactTextString(m) }
+func (*Order) ProtoMessage()    {}
+func (*Order) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{2}
 }
-func (m *User) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_User.Unmarshal(m, b)
+func (m *Order) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Order.Unmarshal(m, b)
 }
-func (m *User) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_User.Marshal(b, m, deterministic)
+func (m *Order) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Order.Marshal(b, m, deterministic)
 }
-func (dst *User) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_User.Merge(dst, src)
+func (dst *Order) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Order.Merge(dst, src)
 }
-func (m *User) XXX_Size() int {
-	return xxx_messageInfo_User.Size(m)
+func (m *Order) XXX_Size() int {
+	return xxx_messageInfo_Order.Size(m)
 }
-func (m *User) XXX_DiscardUnknown() {
-	xxx_messageInfo_User.DiscardUnknown(m)
+func (m *Order) XXX_DiscardUnknown() {
+	xxx_messageInfo_Order.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_User proto.InternalMessageInfo
+var xxx_messageInfo_Order proto.InternalMessageInfo
 
-func (m *User) GetName() string {
+func (m *Order) GetOrderId() int32 {
 	if m != nil {
-		return m.Name
+		return m.OrderId
 	}
-	return ""
+	return 0
 }
 
-func (m *User) GetKey() string {
+func (m *Order) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *User) GetRenewDate() string {
+func (m *Order) GetEmail() string {
 	if m != nil {
-		return m.RenewDate
+		return m.Email
 	}
 	return ""
 }
 
-func (m *User) GetRequestDate() string {
-	if m != nil {
-		return m.RequestDate
-	}
-	return ""
-}
-
-func (m *User) GetRequests() int32 {
-	if m != nil {
-		return m.Requests
-	}
-	return 0
-}
-
-func (m *User) GetPlan() string {
+func (m *Order) GetPlan() string {
 	if m != nil {
 		return m.Plan
 	}
 	return ""
 }
 
-func (m *User) GetStations() []string {
+func (m *Order) GetStations() []string {
 	if m != nil {
 		return m.Stations
 	}
 	return nil
 }
 
-func (m *User) GetStripe() string {
+func (m *Order) GetRequestDate() string {
 	if m != nil {
-		return m.Stripe
+		return m.RequestDate
 	}
 	return ""
 }
 
-type Parameters struct {
-	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	Plan                 *Plan    `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Parameters) Reset()         { *m = Parameters{} }
-func (m *Parameters) String() string { return proto.CompactTextString(m) }
-func (*Parameters) ProtoMessage()    {}
-func (*Parameters) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{3}
-}
-func (m *Parameters) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Parameters.Unmarshal(m, b)
-}
-func (m *Parameters) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Parameters.Marshal(b, m, deterministic)
-}
-func (dst *Parameters) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Parameters.Merge(dst, src)
-}
-func (m *Parameters) XXX_Size() int {
-	return xxx_messageInfo_Parameters.Size(m)
-}
-func (m *Parameters) XXX_DiscardUnknown() {
-	xxx_messageInfo_Parameters.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Parameters proto.InternalMessageInfo
-
-func (m *Parameters) GetUser() *User {
+func (m *Order) GetRequests() int32 {
 	if m != nil {
-		return m.User
+		return m.Requests
 	}
-	return nil
+	return 0
 }
 
-func (m *Parameters) GetPlan() *Plan {
+func (m *Order) GetAdmin() bool {
 	if m != nil {
-		return m.Plan
-	}
-	return nil
-}
-
-type CreateUserRequest struct {
-	UserName             string   `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`
-	Plan                 string   `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
-	Email                bool     `protobuf:"varint,3,opt,name=email,proto3" json:"email,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *CreateUserRequest) Reset()         { *m = CreateUserRequest{} }
-func (m *CreateUserRequest) String() string { return proto.CompactTextString(m) }
-func (*CreateUserRequest) ProtoMessage()    {}
-func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{4}
-}
-func (m *CreateUserRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateUserRequest.Unmarshal(m, b)
-}
-func (m *CreateUserRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateUserRequest.Marshal(b, m, deterministic)
-}
-func (dst *CreateUserRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateUserRequest.Merge(dst, src)
-}
-func (m *CreateUserRequest) XXX_Size() int {
-	return xxx_messageInfo_CreateUserRequest.Size(m)
-}
-func (m *CreateUserRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateUserRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CreateUserRequest proto.InternalMessageInfo
-
-func (m *CreateUserRequest) GetUserName() string {
-	if m != nil {
-		return m.UserName
-	}
-	return ""
-}
-
-func (m *CreateUserRequest) GetPlan() string {
-	if m != nil {
-		return m.Plan
-	}
-	return ""
-}
-
-func (m *CreateUserRequest) GetEmail() bool {
-	if m != nil {
-		return m.Email
+		return m.Admin
 	}
 	return false
 }
 
-type CreateUserResponse struct {
+type CreateOrderRequest struct {
+	OrderId              int32    `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	Email                string   `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	Plan                 string   `protobuf:"bytes,3,opt,name=plan,proto3" json:"plan,omitempty"`
+	Key                  string   `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateOrderRequest) Reset()         { *m = CreateOrderRequest{} }
+func (m *CreateOrderRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateOrderRequest) ProtoMessage()    {}
+func (*CreateOrderRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{3}
+}
+func (m *CreateOrderRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateOrderRequest.Unmarshal(m, b)
+}
+func (m *CreateOrderRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateOrderRequest.Marshal(b, m, deterministic)
+}
+func (dst *CreateOrderRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateOrderRequest.Merge(dst, src)
+}
+func (m *CreateOrderRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateOrderRequest.Size(m)
+}
+func (m *CreateOrderRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateOrderRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateOrderRequest proto.InternalMessageInfo
+
+func (m *CreateOrderRequest) GetOrderId() int32 {
+	if m != nil {
+		return m.OrderId
+	}
+	return 0
+}
+
+func (m *CreateOrderRequest) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *CreateOrderRequest) GetPlan() string {
+	if m != nil {
+		return m.Plan
+	}
+	return ""
+}
+
+func (m *CreateOrderRequest) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
+type CreateOrderResponse struct {
 	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	Err                  string   `protobuf:"bytes,2,opt,name=Err,proto3" json:"Err,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -406,91 +360,83 @@ type CreateUserResponse struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CreateUserResponse) Reset()         { *m = CreateUserResponse{} }
-func (m *CreateUserResponse) String() string { return proto.CompactTextString(m) }
-func (*CreateUserResponse) ProtoMessage()    {}
-func (*CreateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{5}
+func (m *CreateOrderResponse) Reset()         { *m = CreateOrderResponse{} }
+func (m *CreateOrderResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateOrderResponse) ProtoMessage()    {}
+func (*CreateOrderResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{4}
 }
-func (m *CreateUserResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CreateUserResponse.Unmarshal(m, b)
+func (m *CreateOrderResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateOrderResponse.Unmarshal(m, b)
 }
-func (m *CreateUserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CreateUserResponse.Marshal(b, m, deterministic)
+func (m *CreateOrderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateOrderResponse.Marshal(b, m, deterministic)
 }
-func (dst *CreateUserResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CreateUserResponse.Merge(dst, src)
+func (dst *CreateOrderResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateOrderResponse.Merge(dst, src)
 }
-func (m *CreateUserResponse) XXX_Size() int {
-	return xxx_messageInfo_CreateUserResponse.Size(m)
+func (m *CreateOrderResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateOrderResponse.Size(m)
 }
-func (m *CreateUserResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_CreateUserResponse.DiscardUnknown(m)
+func (m *CreateOrderResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateOrderResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CreateUserResponse proto.InternalMessageInfo
+var xxx_messageInfo_CreateOrderResponse proto.InternalMessageInfo
 
-func (m *CreateUserResponse) GetKey() string {
+func (m *CreateOrderResponse) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *CreateUserResponse) GetErr() string {
+func (m *CreateOrderResponse) GetErr() string {
 	if m != nil {
 		return m.Err
 	}
 	return ""
 }
 
-type UpdateUserRequest struct {
-	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	Email                bool     `protobuf:"varint,3,opt,name=email,proto3" json:"email,omitempty"`
+type UpdateOrderRequest struct {
+	Order                *Order   `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *UpdateUserRequest) Reset()         { *m = UpdateUserRequest{} }
-func (m *UpdateUserRequest) String() string { return proto.CompactTextString(m) }
-func (*UpdateUserRequest) ProtoMessage()    {}
-func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{6}
+func (m *UpdateOrderRequest) Reset()         { *m = UpdateOrderRequest{} }
+func (m *UpdateOrderRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateOrderRequest) ProtoMessage()    {}
+func (*UpdateOrderRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{5}
 }
-func (m *UpdateUserRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_UpdateUserRequest.Unmarshal(m, b)
+func (m *UpdateOrderRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateOrderRequest.Unmarshal(m, b)
 }
-func (m *UpdateUserRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_UpdateUserRequest.Marshal(b, m, deterministic)
+func (m *UpdateOrderRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateOrderRequest.Marshal(b, m, deterministic)
 }
-func (dst *UpdateUserRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UpdateUserRequest.Merge(dst, src)
+func (dst *UpdateOrderRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateOrderRequest.Merge(dst, src)
 }
-func (m *UpdateUserRequest) XXX_Size() int {
-	return xxx_messageInfo_UpdateUserRequest.Size(m)
+func (m *UpdateOrderRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdateOrderRequest.Size(m)
 }
-func (m *UpdateUserRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_UpdateUserRequest.DiscardUnknown(m)
+func (m *UpdateOrderRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateOrderRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UpdateUserRequest proto.InternalMessageInfo
+var xxx_messageInfo_UpdateOrderRequest proto.InternalMessageInfo
 
-func (m *UpdateUserRequest) GetUser() *User {
+func (m *UpdateOrderRequest) GetOrder() *Order {
 	if m != nil {
-		return m.User
+		return m.Order
 	}
 	return nil
 }
 
-func (m *UpdateUserRequest) GetEmail() bool {
-	if m != nil {
-		return m.Email
-	}
-	return false
-}
-
-type UpdateUserResponse struct {
+type UpdateOrderResponse struct {
 	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	Err                  string   `protobuf:"bytes,2,opt,name=Err,proto3" json:"Err,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -498,38 +444,114 @@ type UpdateUserResponse struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *UpdateUserResponse) Reset()         { *m = UpdateUserResponse{} }
-func (m *UpdateUserResponse) String() string { return proto.CompactTextString(m) }
-func (*UpdateUserResponse) ProtoMessage()    {}
-func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{7}
+func (m *UpdateOrderResponse) Reset()         { *m = UpdateOrderResponse{} }
+func (m *UpdateOrderResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdateOrderResponse) ProtoMessage()    {}
+func (*UpdateOrderResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{6}
 }
-func (m *UpdateUserResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_UpdateUserResponse.Unmarshal(m, b)
+func (m *UpdateOrderResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateOrderResponse.Unmarshal(m, b)
 }
-func (m *UpdateUserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_UpdateUserResponse.Marshal(b, m, deterministic)
+func (m *UpdateOrderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateOrderResponse.Marshal(b, m, deterministic)
 }
-func (dst *UpdateUserResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UpdateUserResponse.Merge(dst, src)
+func (dst *UpdateOrderResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateOrderResponse.Merge(dst, src)
 }
-func (m *UpdateUserResponse) XXX_Size() int {
-	return xxx_messageInfo_UpdateUserResponse.Size(m)
+func (m *UpdateOrderResponse) XXX_Size() int {
+	return xxx_messageInfo_UpdateOrderResponse.Size(m)
 }
-func (m *UpdateUserResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_UpdateUserResponse.DiscardUnknown(m)
+func (m *UpdateOrderResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateOrderResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_UpdateUserResponse proto.InternalMessageInfo
+var xxx_messageInfo_UpdateOrderResponse proto.InternalMessageInfo
 
-func (m *UpdateUserResponse) GetKey() string {
+func (m *UpdateOrderResponse) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *UpdateUserResponse) GetErr() string {
+func (m *UpdateOrderResponse) GetErr() string {
+	if m != nil {
+		return m.Err
+	}
+	return ""
+}
+
+type DeleteOrderRequest struct {
+	OrderId              int32    `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteOrderRequest) Reset()         { *m = DeleteOrderRequest{} }
+func (m *DeleteOrderRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteOrderRequest) ProtoMessage()    {}
+func (*DeleteOrderRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{7}
+}
+func (m *DeleteOrderRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteOrderRequest.Unmarshal(m, b)
+}
+func (m *DeleteOrderRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteOrderRequest.Marshal(b, m, deterministic)
+}
+func (dst *DeleteOrderRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteOrderRequest.Merge(dst, src)
+}
+func (m *DeleteOrderRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteOrderRequest.Size(m)
+}
+func (m *DeleteOrderRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteOrderRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteOrderRequest proto.InternalMessageInfo
+
+func (m *DeleteOrderRequest) GetOrderId() int32 {
+	if m != nil {
+		return m.OrderId
+	}
+	return 0
+}
+
+type DeleteOrderResponse struct {
+	Err                  string   `protobuf:"bytes,1,opt,name=Err,proto3" json:"Err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteOrderResponse) Reset()         { *m = DeleteOrderResponse{} }
+func (m *DeleteOrderResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteOrderResponse) ProtoMessage()    {}
+func (*DeleteOrderResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{8}
+}
+func (m *DeleteOrderResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteOrderResponse.Unmarshal(m, b)
+}
+func (m *DeleteOrderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteOrderResponse.Marshal(b, m, deterministic)
+}
+func (dst *DeleteOrderResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteOrderResponse.Merge(dst, src)
+}
+func (m *DeleteOrderResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteOrderResponse.Size(m)
+}
+func (m *DeleteOrderResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteOrderResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteOrderResponse proto.InternalMessageInfo
+
+func (m *DeleteOrderResponse) GetErr() string {
 	if m != nil {
 		return m.Err
 	}
@@ -547,7 +569,7 @@ func (m *AddPlanRequest) Reset()         { *m = AddPlanRequest{} }
 func (m *AddPlanRequest) String() string { return proto.CompactTextString(m) }
 func (*AddPlanRequest) ProtoMessage()    {}
 func (*AddPlanRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{8}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{9}
 }
 func (m *AddPlanRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPlanRequest.Unmarshal(m, b)
@@ -585,7 +607,7 @@ func (m *AddPlanResponse) Reset()         { *m = AddPlanResponse{} }
 func (m *AddPlanResponse) String() string { return proto.CompactTextString(m) }
 func (*AddPlanResponse) ProtoMessage()    {}
 func (*AddPlanResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{9}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{10}
 }
 func (m *AddPlanResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPlanResponse.Unmarshal(m, b)
@@ -623,7 +645,7 @@ func (m *ValidateSelectionRequest) Reset()         { *m = ValidateSelectionReque
 func (m *ValidateSelectionRequest) String() string { return proto.CompactTextString(m) }
 func (*ValidateSelectionRequest) ProtoMessage()    {}
 func (*ValidateSelectionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{10}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{11}
 }
 func (m *ValidateSelectionRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateSelectionRequest.Unmarshal(m, b)
@@ -651,8 +673,7 @@ func (m *ValidateSelectionRequest) GetSelection() *Selection {
 }
 
 type ValidateSelectionResponse struct {
-	IsValid              bool     `protobuf:"varint,1,opt,name=isValid,proto3" json:"isValid,omitempty"`
-	Err                  string   `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
+	Err                  string   `protobuf:"bytes,1,opt,name=err,proto3" json:"err,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -662,7 +683,7 @@ func (m *ValidateSelectionResponse) Reset()         { *m = ValidateSelectionResp
 func (m *ValidateSelectionResponse) String() string { return proto.CompactTextString(m) }
 func (*ValidateSelectionResponse) ProtoMessage()    {}
 func (*ValidateSelectionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{11}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{12}
 }
 func (m *ValidateSelectionResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateSelectionResponse.Unmarshal(m, b)
@@ -682,13 +703,6 @@ func (m *ValidateSelectionResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ValidateSelectionResponse proto.InternalMessageInfo
 
-func (m *ValidateSelectionResponse) GetIsValid() bool {
-	if m != nil {
-		return m.IsValid
-	}
-	return false
-}
-
 func (m *ValidateSelectionResponse) GetErr() string {
 	if m != nil {
 		return m.Err
@@ -707,7 +721,7 @@ func (m *ValidateKeyRequest) Reset()         { *m = ValidateKeyRequest{} }
 func (m *ValidateKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*ValidateKeyRequest) ProtoMessage()    {}
 func (*ValidateKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{12}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{13}
 }
 func (m *ValidateKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateKeyRequest.Unmarshal(m, b)
@@ -735,18 +749,19 @@ func (m *ValidateKeyRequest) GetKey() string {
 }
 
 type ValidateKeyResponse struct {
-	Parameters           *Parameters `protobuf:"bytes,1,opt,name=parameters,proto3" json:"parameters,omitempty"`
-	Err                  string      `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
+	Order                *Order   `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`
+	Plan                 *Plan    `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
+	Err                  string   `protobuf:"bytes,3,opt,name=err,proto3" json:"err,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ValidateKeyResponse) Reset()         { *m = ValidateKeyResponse{} }
 func (m *ValidateKeyResponse) String() string { return proto.CompactTextString(m) }
 func (*ValidateKeyResponse) ProtoMessage()    {}
 func (*ValidateKeyResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{13}
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{14}
 }
 func (m *ValidateKeyResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ValidateKeyResponse.Unmarshal(m, b)
@@ -766,9 +781,16 @@ func (m *ValidateKeyResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ValidateKeyResponse proto.InternalMessageInfo
 
-func (m *ValidateKeyResponse) GetParameters() *Parameters {
+func (m *ValidateKeyResponse) GetOrder() *Order {
 	if m != nil {
-		return m.Parameters
+		return m.Order
+	}
+	return nil
+}
+
+func (m *ValidateKeyResponse) GetPlan() *Plan {
+	if m != nil {
+		return m.Plan
 	}
 	return nil
 }
@@ -780,168 +802,92 @@ func (m *ValidateKeyResponse) GetErr() string {
 	return ""
 }
 
-type ValidateNameRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+type ValidateOrderRequest struct {
+	OrderId              int32    `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ValidateNameRequest) Reset()         { *m = ValidateNameRequest{} }
-func (m *ValidateNameRequest) String() string { return proto.CompactTextString(m) }
-func (*ValidateNameRequest) ProtoMessage()    {}
-func (*ValidateNameRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{14}
+func (m *ValidateOrderRequest) Reset()         { *m = ValidateOrderRequest{} }
+func (m *ValidateOrderRequest) String() string { return proto.CompactTextString(m) }
+func (*ValidateOrderRequest) ProtoMessage()    {}
+func (*ValidateOrderRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{15}
 }
-func (m *ValidateNameRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ValidateNameRequest.Unmarshal(m, b)
+func (m *ValidateOrderRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ValidateOrderRequest.Unmarshal(m, b)
 }
-func (m *ValidateNameRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ValidateNameRequest.Marshal(b, m, deterministic)
+func (m *ValidateOrderRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ValidateOrderRequest.Marshal(b, m, deterministic)
 }
-func (dst *ValidateNameRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ValidateNameRequest.Merge(dst, src)
+func (dst *ValidateOrderRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ValidateOrderRequest.Merge(dst, src)
 }
-func (m *ValidateNameRequest) XXX_Size() int {
-	return xxx_messageInfo_ValidateNameRequest.Size(m)
+func (m *ValidateOrderRequest) XXX_Size() int {
+	return xxx_messageInfo_ValidateOrderRequest.Size(m)
 }
-func (m *ValidateNameRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ValidateNameRequest.DiscardUnknown(m)
+func (m *ValidateOrderRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ValidateOrderRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ValidateNameRequest proto.InternalMessageInfo
+var xxx_messageInfo_ValidateOrderRequest proto.InternalMessageInfo
 
-func (m *ValidateNameRequest) GetName() string {
+func (m *ValidateOrderRequest) GetOrderId() int32 {
 	if m != nil {
-		return m.Name
+		return m.OrderId
 	}
-	return ""
+	return 0
 }
 
-type ValidateNameResponse struct {
-	Parameters           *Parameters `protobuf:"bytes,1,opt,name=parameters,proto3" json:"parameters,omitempty"`
-	Err                  string      `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
-}
-
-func (m *ValidateNameResponse) Reset()         { *m = ValidateNameResponse{} }
-func (m *ValidateNameResponse) String() string { return proto.CompactTextString(m) }
-func (*ValidateNameResponse) ProtoMessage()    {}
-func (*ValidateNameResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{15}
-}
-func (m *ValidateNameResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ValidateNameResponse.Unmarshal(m, b)
-}
-func (m *ValidateNameResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ValidateNameResponse.Marshal(b, m, deterministic)
-}
-func (dst *ValidateNameResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ValidateNameResponse.Merge(dst, src)
-}
-func (m *ValidateNameResponse) XXX_Size() int {
-	return xxx_messageInfo_ValidateNameResponse.Size(m)
-}
-func (m *ValidateNameResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ValidateNameResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ValidateNameResponse proto.InternalMessageInfo
-
-func (m *ValidateNameResponse) GetParameters() *Parameters {
-	if m != nil {
-		return m.Parameters
-	}
-	return nil
-}
-
-func (m *ValidateNameResponse) GetErr() string {
-	if m != nil {
-		return m.Err
-	}
-	return ""
-}
-
-type ValidateStripeRequest struct {
-	Stripe               string   `protobuf:"bytes,1,opt,name=stripe,proto3" json:"stripe,omitempty"`
+type ValidateOrderResponse struct {
+	Order                *Order   `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`
+	Plan                 *Plan    `protobuf:"bytes,2,opt,name=plan,proto3" json:"plan,omitempty"`
+	Err                  string   `protobuf:"bytes,3,opt,name=err,proto3" json:"err,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ValidateStripeRequest) Reset()         { *m = ValidateStripeRequest{} }
-func (m *ValidateStripeRequest) String() string { return proto.CompactTextString(m) }
-func (*ValidateStripeRequest) ProtoMessage()    {}
-func (*ValidateStripeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{16}
+func (m *ValidateOrderResponse) Reset()         { *m = ValidateOrderResponse{} }
+func (m *ValidateOrderResponse) String() string { return proto.CompactTextString(m) }
+func (*ValidateOrderResponse) ProtoMessage()    {}
+func (*ValidateOrderResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_usersvc_587cd0f242379ae5, []int{16}
 }
-func (m *ValidateStripeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ValidateStripeRequest.Unmarshal(m, b)
+func (m *ValidateOrderResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ValidateOrderResponse.Unmarshal(m, b)
 }
-func (m *ValidateStripeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ValidateStripeRequest.Marshal(b, m, deterministic)
+func (m *ValidateOrderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ValidateOrderResponse.Marshal(b, m, deterministic)
 }
-func (dst *ValidateStripeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ValidateStripeRequest.Merge(dst, src)
+func (dst *ValidateOrderResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ValidateOrderResponse.Merge(dst, src)
 }
-func (m *ValidateStripeRequest) XXX_Size() int {
-	return xxx_messageInfo_ValidateStripeRequest.Size(m)
+func (m *ValidateOrderResponse) XXX_Size() int {
+	return xxx_messageInfo_ValidateOrderResponse.Size(m)
 }
-func (m *ValidateStripeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ValidateStripeRequest.DiscardUnknown(m)
+func (m *ValidateOrderResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ValidateOrderResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ValidateStripeRequest proto.InternalMessageInfo
+var xxx_messageInfo_ValidateOrderResponse proto.InternalMessageInfo
 
-func (m *ValidateStripeRequest) GetStripe() string {
+func (m *ValidateOrderResponse) GetOrder() *Order {
 	if m != nil {
-		return m.Stripe
-	}
-	return ""
-}
-
-type ValidateStripeResponse struct {
-	Parameters           *Parameters `protobuf:"bytes,1,opt,name=parameters,proto3" json:"parameters,omitempty"`
-	Err                  string      `protobuf:"bytes,2,opt,name=err,proto3" json:"err,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
-}
-
-func (m *ValidateStripeResponse) Reset()         { *m = ValidateStripeResponse{} }
-func (m *ValidateStripeResponse) String() string { return proto.CompactTextString(m) }
-func (*ValidateStripeResponse) ProtoMessage()    {}
-func (*ValidateStripeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_usersvc_8bec226d10d00412, []int{17}
-}
-func (m *ValidateStripeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ValidateStripeResponse.Unmarshal(m, b)
-}
-func (m *ValidateStripeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ValidateStripeResponse.Marshal(b, m, deterministic)
-}
-func (dst *ValidateStripeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ValidateStripeResponse.Merge(dst, src)
-}
-func (m *ValidateStripeResponse) XXX_Size() int {
-	return xxx_messageInfo_ValidateStripeResponse.Size(m)
-}
-func (m *ValidateStripeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ValidateStripeResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ValidateStripeResponse proto.InternalMessageInfo
-
-func (m *ValidateStripeResponse) GetParameters() *Parameters {
-	if m != nil {
-		return m.Parameters
+		return m.Order
 	}
 	return nil
 }
 
-func (m *ValidateStripeResponse) GetErr() string {
+func (m *ValidateOrderResponse) GetPlan() *Plan {
+	if m != nil {
+		return m.Plan
+	}
+	return nil
+}
+
+func (m *ValidateOrderResponse) GetErr() string {
 	if m != nil {
 		return m.Err
 	}
@@ -951,22 +897,21 @@ func (m *ValidateStripeResponse) GetErr() string {
 func init() {
 	proto.RegisterType((*Selection)(nil), "grpcusr.Selection")
 	proto.RegisterType((*Plan)(nil), "grpcusr.Plan")
-	proto.RegisterType((*User)(nil), "grpcusr.User")
-	proto.RegisterType((*Parameters)(nil), "grpcusr.Parameters")
-	proto.RegisterType((*CreateUserRequest)(nil), "grpcusr.CreateUserRequest")
-	proto.RegisterType((*CreateUserResponse)(nil), "grpcusr.CreateUserResponse")
-	proto.RegisterType((*UpdateUserRequest)(nil), "grpcusr.UpdateUserRequest")
-	proto.RegisterType((*UpdateUserResponse)(nil), "grpcusr.UpdateUserResponse")
+	proto.RegisterType((*Order)(nil), "grpcusr.Order")
+	proto.RegisterType((*CreateOrderRequest)(nil), "grpcusr.CreateOrderRequest")
+	proto.RegisterType((*CreateOrderResponse)(nil), "grpcusr.CreateOrderResponse")
+	proto.RegisterType((*UpdateOrderRequest)(nil), "grpcusr.UpdateOrderRequest")
+	proto.RegisterType((*UpdateOrderResponse)(nil), "grpcusr.UpdateOrderResponse")
+	proto.RegisterType((*DeleteOrderRequest)(nil), "grpcusr.DeleteOrderRequest")
+	proto.RegisterType((*DeleteOrderResponse)(nil), "grpcusr.DeleteOrderResponse")
 	proto.RegisterType((*AddPlanRequest)(nil), "grpcusr.AddPlanRequest")
 	proto.RegisterType((*AddPlanResponse)(nil), "grpcusr.AddPlanResponse")
 	proto.RegisterType((*ValidateSelectionRequest)(nil), "grpcusr.ValidateSelectionRequest")
 	proto.RegisterType((*ValidateSelectionResponse)(nil), "grpcusr.ValidateSelectionResponse")
 	proto.RegisterType((*ValidateKeyRequest)(nil), "grpcusr.ValidateKeyRequest")
 	proto.RegisterType((*ValidateKeyResponse)(nil), "grpcusr.ValidateKeyResponse")
-	proto.RegisterType((*ValidateNameRequest)(nil), "grpcusr.ValidateNameRequest")
-	proto.RegisterType((*ValidateNameResponse)(nil), "grpcusr.ValidateNameResponse")
-	proto.RegisterType((*ValidateStripeRequest)(nil), "grpcusr.ValidateStripeRequest")
-	proto.RegisterType((*ValidateStripeResponse)(nil), "grpcusr.ValidateStripeResponse")
+	proto.RegisterType((*ValidateOrderRequest)(nil), "grpcusr.ValidateOrderRequest")
+	proto.RegisterType((*ValidateOrderResponse)(nil), "grpcusr.ValidateOrderResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -981,13 +926,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UserSVCClient interface {
-	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
-	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
+	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
+	UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
+	DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
 	AddPlan(ctx context.Context, in *AddPlanRequest, opts ...grpc.CallOption) (*AddPlanResponse, error)
 	ValidateSelection(ctx context.Context, in *ValidateSelectionRequest, opts ...grpc.CallOption) (*ValidateSelectionResponse, error)
 	ValidateKey(ctx context.Context, in *ValidateKeyRequest, opts ...grpc.CallOption) (*ValidateKeyResponse, error)
-	ValidateName(ctx context.Context, in *ValidateNameRequest, opts ...grpc.CallOption) (*ValidateNameResponse, error)
-	ValidateStripe(ctx context.Context, in *ValidateStripeRequest, opts ...grpc.CallOption) (*ValidateStripeResponse, error)
+	ValidateOrder(ctx context.Context, in *ValidateOrderRequest, opts ...grpc.CallOption) (*ValidateOrderResponse, error)
 }
 
 type userSVCClient struct {
@@ -998,18 +943,27 @@ func NewUserSVCClient(cc *grpc.ClientConn) UserSVCClient {
 	return &userSVCClient{cc}
 }
 
-func (c *userSVCClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error) {
-	out := new(CreateUserResponse)
-	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/CreateUser", in, out, opts...)
+func (c *userSVCClient) CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error) {
+	out := new(CreateOrderResponse)
+	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/CreateOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userSVCClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error) {
-	out := new(UpdateUserResponse)
-	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/UpdateUser", in, out, opts...)
+func (c *userSVCClient) UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error) {
+	out := new(UpdateOrderResponse)
+	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/UpdateOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userSVCClient) DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error) {
+	out := new(DeleteOrderResponse)
+	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/DeleteOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1043,18 +997,9 @@ func (c *userSVCClient) ValidateKey(ctx context.Context, in *ValidateKeyRequest,
 	return out, nil
 }
 
-func (c *userSVCClient) ValidateName(ctx context.Context, in *ValidateNameRequest, opts ...grpc.CallOption) (*ValidateNameResponse, error) {
-	out := new(ValidateNameResponse)
-	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/ValidateName", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userSVCClient) ValidateStripe(ctx context.Context, in *ValidateStripeRequest, opts ...grpc.CallOption) (*ValidateStripeResponse, error) {
-	out := new(ValidateStripeResponse)
-	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/ValidateStripe", in, out, opts...)
+func (c *userSVCClient) ValidateOrder(ctx context.Context, in *ValidateOrderRequest, opts ...grpc.CallOption) (*ValidateOrderResponse, error) {
+	out := new(ValidateOrderResponse)
+	err := c.cc.Invoke(ctx, "/grpcusr.UserSVC/ValidateOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1063,51 +1008,69 @@ func (c *userSVCClient) ValidateStripe(ctx context.Context, in *ValidateStripeRe
 
 // UserSVCServer is the server API for UserSVC service.
 type UserSVCServer interface {
-	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
-	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
+	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
+	UpdateOrder(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error)
+	DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error)
 	AddPlan(context.Context, *AddPlanRequest) (*AddPlanResponse, error)
 	ValidateSelection(context.Context, *ValidateSelectionRequest) (*ValidateSelectionResponse, error)
 	ValidateKey(context.Context, *ValidateKeyRequest) (*ValidateKeyResponse, error)
-	ValidateName(context.Context, *ValidateNameRequest) (*ValidateNameResponse, error)
-	ValidateStripe(context.Context, *ValidateStripeRequest) (*ValidateStripeResponse, error)
+	ValidateOrder(context.Context, *ValidateOrderRequest) (*ValidateOrderResponse, error)
 }
 
 func RegisterUserSVCServer(s *grpc.Server, srv UserSVCServer) {
 	s.RegisterService(&_UserSVC_serviceDesc, srv)
 }
 
-func _UserSVC_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateUserRequest)
+func _UserSVC_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserSVCServer).CreateUser(ctx, in)
+		return srv.(UserSVCServer).CreateOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/grpcusr.UserSVC/CreateUser",
+		FullMethod: "/grpcusr.UserSVC/CreateOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserSVCServer).CreateUser(ctx, req.(*CreateUserRequest))
+		return srv.(UserSVCServer).CreateOrder(ctx, req.(*CreateOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserSVC_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserRequest)
+func _UserSVC_UpdateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserSVCServer).UpdateUser(ctx, in)
+		return srv.(UserSVCServer).UpdateOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/grpcusr.UserSVC/UpdateUser",
+		FullMethod: "/grpcusr.UserSVC/UpdateOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserSVCServer).UpdateUser(ctx, req.(*UpdateUserRequest))
+		return srv.(UserSVCServer).UpdateOrder(ctx, req.(*UpdateOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserSVC_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserSVCServer).DeleteOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpcusr.UserSVC/DeleteOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserSVCServer).DeleteOrder(ctx, req.(*DeleteOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1166,38 +1129,20 @@ func _UserSVC_ValidateKey_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserSVC_ValidateName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateNameRequest)
+func _UserSVC_ValidateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserSVCServer).ValidateName(ctx, in)
+		return srv.(UserSVCServer).ValidateOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/grpcusr.UserSVC/ValidateName",
+		FullMethod: "/grpcusr.UserSVC/ValidateOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserSVCServer).ValidateName(ctx, req.(*ValidateNameRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserSVC_ValidateStripe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ValidateStripeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserSVCServer).ValidateStripe(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/grpcusr.UserSVC/ValidateStripe",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserSVCServer).ValidateStripe(ctx, req.(*ValidateStripeRequest))
+		return srv.(UserSVCServer).ValidateOrder(ctx, req.(*ValidateOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1207,12 +1152,16 @@ var _UserSVC_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserSVCServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateUser",
-			Handler:    _UserSVC_CreateUser_Handler,
+			MethodName: "CreateOrder",
+			Handler:    _UserSVC_CreateOrder_Handler,
 		},
 		{
-			MethodName: "UpdateUser",
-			Handler:    _UserSVC_UpdateUser_Handler,
+			MethodName: "UpdateOrder",
+			Handler:    _UserSVC_UpdateOrder_Handler,
+		},
+		{
+			MethodName: "DeleteOrder",
+			Handler:    _UserSVC_DeleteOrder_Handler,
 		},
 		{
 			MethodName: "AddPlan",
@@ -1227,68 +1176,61 @@ var _UserSVC_serviceDesc = grpc.ServiceDesc{
 			Handler:    _UserSVC_ValidateKey_Handler,
 		},
 		{
-			MethodName: "ValidateName",
-			Handler:    _UserSVC_ValidateName_Handler,
-		},
-		{
-			MethodName: "ValidateStripe",
-			Handler:    _UserSVC_ValidateStripe_Handler,
+			MethodName: "ValidateOrder",
+			Handler:    _UserSVC_ValidateOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "usersvc.proto",
 }
 
-func init() { proto.RegisterFile("usersvc.proto", fileDescriptor_usersvc_8bec226d10d00412) }
+func init() { proto.RegisterFile("usersvc.proto", fileDescriptor_usersvc_587cd0f242379ae5) }
 
-var fileDescriptor_usersvc_8bec226d10d00412 = []byte{
-	// 760 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xdb, 0x4e, 0x14, 0x4d,
-	0x10, 0x66, 0x97, 0x3d, 0x16, 0x3f, 0xfc, 0x3f, 0x0d, 0x3f, 0x8e, 0x03, 0x22, 0x8c, 0x89, 0xc1,
-	0x0b, 0x17, 0x03, 0x37, 0x5e, 0x99, 0x10, 0x20, 0xc4, 0x63, 0xc8, 0x6c, 0x20, 0x31, 0xc1, 0x98,
-	0x61, 0xbb, 0x5d, 0x26, 0xee, 0x1c, 0xec, 0x9e, 0xd5, 0x10, 0x9f, 0xc8, 0xb7, 0xf1, 0x11, 0x7c,
-	0x14, 0xd3, 0xd5, 0x3d, 0xdd, 0x33, 0xcc, 0xac, 0x87, 0x84, 0xbb, 0xae, 0xd3, 0x57, 0x5f, 0xd5,
-	0x7c, 0xb5, 0x59, 0x58, 0x9c, 0x0a, 0xc6, 0xc5, 0xe7, 0xd1, 0x20, 0xe5, 0x49, 0x96, 0x90, 0xee,
-	0x98, 0xa7, 0xa3, 0xa9, 0xe0, 0xee, 0xe3, 0x71, 0x98, 0x5d, 0x4d, 0x2f, 0x07, 0xa3, 0x24, 0xda,
-	0x1d, 0x27, 0xe3, 0x64, 0x17, 0xe3, 0x97, 0xd3, 0x0f, 0x68, 0xa1, 0x81, 0x2f, 0x55, 0xe7, 0x7d,
-	0x85, 0xfe, 0x90, 0x4d, 0xd8, 0x28, 0x0b, 0x93, 0x98, 0xfc, 0x07, 0xf3, 0x1f, 0xd9, 0xb5, 0xd3,
-	0xd8, 0x6a, 0xec, 0xf4, 0x7d, 0xf9, 0x24, 0x1b, 0xd0, 0x17, 0x59, 0x20, 0x83, 0xcf, 0x8f, 0x9c,
-	0x26, 0xfa, 0xad, 0x83, 0xac, 0x41, 0x27, 0x62, 0xd9, 0x55, 0x42, 0x9d, 0x79, 0x0c, 0x69, 0x8b,
-	0xac, 0x42, 0x7b, 0x98, 0x05, 0x3c, 0x73, 0x5a, 0xe8, 0x56, 0x86, 0x44, 0x3f, 0x8e, 0xa9, 0xd3,
-	0x56, 0xe8, 0xc7, 0x31, 0xf5, 0x7e, 0x34, 0xa0, 0x75, 0x3a, 0x09, 0x62, 0x42, 0xa0, 0x15, 0x07,
-	0x11, 0xd3, 0x9d, 0xf1, 0x4d, 0x5c, 0xe8, 0xe9, 0x4e, 0x02, 0x3b, 0xb7, 0x7d, 0x63, 0x93, 0x4d,
-	0x80, 0x49, 0x18, 0x85, 0xca, 0xc4, 0xe6, 0x6d, 0xbf, 0xe0, 0x91, 0xad, 0xae, 0x28, 0xc5, 0xf6,
-	0x3d, 0x5f, 0x3e, 0xc9, 0x12, 0x34, 0xa9, 0xea, 0xdd, 0xf3, 0x9b, 0x94, 0xca, 0x8c, 0x11, 0xa5,
-	0x4e, 0x47, 0x65, 0x8c, 0x28, 0x92, 0x16, 0x48, 0xba, 0xab, 0x48, 0x8b, 0x9c, 0x34, 0x8b, 0xa9,
-	0xd3, 0x53, 0xa4, 0x59, 0x4c, 0xe5, 0xd0, 0x29, 0xe3, 0x61, 0x42, 0x9d, 0x3e, 0xf6, 0xd5, 0x96,
-	0xac, 0x3f, 0xa0, 0x51, 0x18, 0x3b, 0x80, 0x98, 0xca, 0xf0, 0xbe, 0x37, 0xa0, 0x75, 0x26, 0x18,
-	0xaf, 0x1d, 0x51, 0xef, 0xbb, 0x59, 0xda, 0x37, 0x67, 0x31, 0xfb, 0x72, 0x14, 0x64, 0x4c, 0x2f,
-	0xd5, 0x3a, 0xc8, 0x16, 0x2c, 0x70, 0xf6, 0x69, 0xca, 0x44, 0x86, 0x71, 0xb5, 0xdd, 0xa2, 0x4b,
-	0x2e, 0x4d, 0x9b, 0x02, 0x87, 0x6d, 0xfb, 0xc6, 0x96, 0x0c, 0xd2, 0x49, 0x10, 0xe3, 0xcc, 0x7d,
-	0x1f, 0xdf, 0xa5, 0x25, 0x77, 0xb7, 0xe6, 0x77, 0xfa, 0x85, 0x25, 0xaf, 0x41, 0x47, 0x64, 0x3c,
-	0x4c, 0x99, 0x9e, 0x5e, 0x5b, 0x9e, 0x0f, 0x70, 0x1a, 0xf0, 0x20, 0x62, 0x19, 0xe3, 0x82, 0x6c,
-	0x43, 0x4b, 0x2a, 0x11, 0xe7, 0x5a, 0xd8, 0x5b, 0x1c, 0x68, 0x1d, 0x0e, 0xe4, 0xd0, 0x3e, 0x86,
-	0x64, 0x0a, 0x36, 0x6e, 0xde, 0x48, 0x91, 0x9f, 0x5e, 0xf1, 0xf0, 0xde, 0xc2, 0xf2, 0x21, 0x67,
-	0x41, 0xc6, 0xb0, 0x4c, 0x31, 0x96, 0xe4, 0x64, 0xfd, 0x1b, 0xbb, 0x36, 0x63, 0x9b, 0x61, 0x9a,
-	0x85, 0x61, 0x56, 0xa1, 0xcd, 0xa2, 0x20, 0x9c, 0xe0, 0xe2, 0x7a, 0xbe, 0x32, 0xbc, 0xa7, 0x40,
-	0x8a, 0xd0, 0x22, 0x4d, 0x62, 0xc1, 0x6a, 0xa4, 0x2e, 0xe5, 0xc9, 0x79, 0xfe, 0x31, 0x8e, 0x39,
-	0xf7, 0x5e, 0xc1, 0xf2, 0x59, 0x4a, 0x6f, 0x90, 0xfa, 0x83, 0x79, 0x67, 0xf2, 0x28, 0xa2, 0xfd,
-	0x05, 0x8f, 0x7d, 0x58, 0x3a, 0xa0, 0x14, 0xb7, 0x65, 0x49, 0xfc, 0x6e, 0xa3, 0x0f, 0xe0, 0x5f,
-	0x53, 0x64, 0x7b, 0x31, 0xce, 0xf3, 0x5e, 0x0c, 0x27, 0x74, 0xce, 0x83, 0x49, 0x28, 0x59, 0x99,
-	0x5f, 0x81, 0xbc, 0xc7, 0x13, 0xe8, 0x8b, 0xdc, 0xa7, 0xa7, 0x25, 0xa6, 0x91, 0xcd, 0xb6, 0x49,
-	0xde, 0x09, 0xdc, 0xad, 0x41, 0xd3, 0xcd, 0x1d, 0xe8, 0x86, 0x02, 0xc3, 0x08, 0xd6, 0xf3, 0x73,
-	0x33, 0xa7, 0xd5, 0xb4, 0xb4, 0x1e, 0x02, 0xc9, 0x81, 0x5e, 0xb2, 0xeb, 0x9c, 0x50, 0x65, 0x55,
-	0xde, 0x05, 0xac, 0x94, 0xf2, 0x74, 0xab, 0x7d, 0x80, 0xd4, 0x08, 0x54, 0x53, 0x5f, 0xb1, 0x3b,
-	0x32, 0x21, 0xbf, 0x90, 0x56, 0xc3, 0xe2, 0x91, 0x45, 0x97, 0x92, 0xcb, 0x69, 0xd4, 0x1c, 0xb2,
-	0xf7, 0x0e, 0x56, 0xcb, 0xa9, 0xb7, 0xcb, 0x64, 0x17, 0xfe, 0x37, 0x8b, 0xc5, 0x1b, 0xcc, 0xb9,
-	0xd8, 0x13, 0x6d, 0x94, 0x4e, 0xf4, 0x3d, 0xac, 0xdd, 0x2c, 0xb8, 0x55, 0x46, 0x7b, 0xdf, 0x5a,
-	0xd0, 0x95, 0x3a, 0x1e, 0x9e, 0x1f, 0x92, 0x13, 0x00, 0x7b, 0x60, 0xc4, 0x35, 0x60, 0x95, 0x83,
-	0x76, 0xd7, 0x6b, 0x63, 0x8a, 0x99, 0x37, 0x27, 0x81, 0xec, 0x85, 0x14, 0x80, 0x2a, 0x47, 0x58,
-	0x00, 0xaa, 0x9e, 0x94, 0x37, 0x47, 0x9e, 0x41, 0x57, 0x6b, 0x9f, 0xdc, 0x31, 0x99, 0xe5, 0x13,
-	0x72, 0x9d, 0x6a, 0xc0, 0xd4, 0x5f, 0xc0, 0x72, 0x45, 0xc8, 0x64, 0xdb, 0x14, 0xcc, 0x3a, 0x19,
-	0xd7, 0xfb, 0x55, 0x8a, 0x41, 0x7f, 0x01, 0x0b, 0x05, 0xd5, 0x92, 0xf5, 0x4a, 0x91, 0xd5, 0xbc,
-	0xbb, 0x51, 0x1f, 0x34, 0x58, 0xaf, 0xe1, 0x9f, 0xa2, 0xf0, 0x48, 0x35, 0xbf, 0x20, 0x5d, 0xf7,
-	0xde, 0x8c, 0xa8, 0x81, 0x1b, 0xc2, 0x52, 0x59, 0x37, 0x64, 0xb3, 0x3a, 0x52, 0x51, 0x81, 0xee,
-	0xfd, 0x99, 0xf1, 0x1c, 0xf4, 0xb2, 0x83, 0xff, 0x34, 0xf6, 0x7f, 0x06, 0x00, 0x00, 0xff, 0xff,
-	0x28, 0xac, 0xd6, 0x8e, 0xb2, 0x08, 0x00, 0x00,
+var fileDescriptor_usersvc_587cd0f242379ae5 = []byte{
+	// 707 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0xcf, 0x4f, 0xd4, 0x40,
+	0x14, 0x66, 0x7f, 0x94, 0xdd, 0x3e, 0x02, 0xea, 0x80, 0x5a, 0x56, 0x24, 0x30, 0x1a, 0xe5, 0xc2,
+	0xa2, 0x70, 0xd2, 0x83, 0x89, 0x01, 0x0e, 0xa8, 0x89, 0xa4, 0x04, 0x4e, 0x26, 0xa6, 0xec, 0x8c,
+	0x4b, 0x43, 0xb7, 0xad, 0x33, 0x5d, 0x13, 0xe2, 0x5f, 0xe4, 0xbf, 0xe2, 0xc1, 0xbf, 0xc9, 0xcc,
+	0x9b, 0x69, 0x3b, 0xa5, 0x5d, 0xb2, 0x1e, 0xbc, 0xcd, 0x9b, 0x79, 0xef, 0xfb, 0xde, 0xf7, 0xf5,
+	0xbd, 0x14, 0x96, 0xa7, 0x92, 0x0b, 0xf9, 0x63, 0x34, 0x4c, 0x45, 0x92, 0x25, 0xa4, 0x37, 0x16,
+	0xe9, 0x68, 0x2a, 0xc5, 0x60, 0x77, 0x1c, 0x66, 0x57, 0xd3, 0xcb, 0xe1, 0x28, 0x99, 0xec, 0x8d,
+	0x93, 0x71, 0xb2, 0x87, 0xef, 0x97, 0xd3, 0x6f, 0x18, 0x61, 0x80, 0x27, 0x5d, 0x47, 0x7f, 0x82,
+	0x7b, 0xc6, 0x23, 0x3e, 0xca, 0xc2, 0x24, 0x26, 0xf7, 0xa1, 0x73, 0xcd, 0x6f, 0xbc, 0xd6, 0x56,
+	0x6b, 0xc7, 0xf5, 0xd5, 0x91, 0x6c, 0x80, 0x2b, 0xb3, 0x40, 0x3d, 0x9e, 0x1c, 0x79, 0x6d, 0xbc,
+	0x2f, 0x2f, 0xc8, 0x23, 0x58, 0x9c, 0xf0, 0xec, 0x2a, 0x61, 0x5e, 0x07, 0x9f, 0x4c, 0x44, 0xd6,
+	0xc0, 0x39, 0xcb, 0x02, 0x91, 0x79, 0x5d, 0xbc, 0xd6, 0x81, 0x42, 0x3f, 0x8e, 0x99, 0xe7, 0x68,
+	0xf4, 0xe3, 0x98, 0xd1, 0xdf, 0x2d, 0xe8, 0x9e, 0x46, 0x41, 0x4c, 0x08, 0x74, 0xe3, 0x60, 0xc2,
+	0x0d, 0x33, 0x9e, 0xc9, 0x00, 0xfa, 0x86, 0x49, 0x22, 0xb3, 0xe3, 0x17, 0x31, 0xd9, 0x04, 0x88,
+	0xc2, 0x49, 0xa8, 0x43, 0x24, 0x77, 0x7c, 0xeb, 0x46, 0x51, 0x5d, 0x31, 0x86, 0xf4, 0x7d, 0x5f,
+	0x1d, 0xc9, 0x0a, 0xb4, 0x99, 0xe6, 0xee, 0xfb, 0x6d, 0xc6, 0x54, 0xc6, 0x88, 0x31, 0x6f, 0x51,
+	0x67, 0x8c, 0x18, 0x36, 0x2d, 0xb1, 0xe9, 0x9e, 0x6e, 0x5a, 0xe6, 0x4d, 0xf3, 0x98, 0x79, 0x7d,
+	0xdd, 0x34, 0x8f, 0x99, 0x12, 0x9d, 0x72, 0x11, 0x26, 0xcc, 0x73, 0x91, 0xd7, 0x44, 0xf4, 0x4f,
+	0x0b, 0x9c, 0xcf, 0x82, 0x71, 0x41, 0xd6, 0xa1, 0x9f, 0xa8, 0xc3, 0xd7, 0x90, 0xa1, 0x22, 0xc7,
+	0xef, 0x61, 0x7c, 0xc2, 0x72, 0x87, 0xdb, 0xa5, 0xc3, 0x6b, 0xe0, 0xf0, 0x49, 0x10, 0x46, 0xc6,
+	0x42, 0x1d, 0x28, 0x43, 0xd2, 0x28, 0x88, 0x8d, 0x81, 0x78, 0xae, 0x18, 0xe2, 0x6c, 0x75, 0x76,
+	0x5c, 0xcb, 0x90, 0x2d, 0x58, 0x12, 0xfc, 0xfb, 0x94, 0xcb, 0xec, 0x28, 0xc8, 0x38, 0xca, 0x72,
+	0x7d, 0xfb, 0x4a, 0x55, 0x9b, 0x50, 0xa2, 0x42, 0xc7, 0x2f, 0x62, 0xd5, 0x43, 0xc0, 0x26, 0x61,
+	0x8c, 0x32, 0xfb, 0xbe, 0x0e, 0xe8, 0x35, 0x90, 0x43, 0xc1, 0x83, 0x8c, 0xa3, 0x2a, 0x5f, 0x27,
+	0xdf, 0x25, 0xae, 0x90, 0xd2, 0x6e, 0x92, 0xd2, 0xb1, 0xa4, 0x18, 0x1b, 0xba, 0x85, 0x0d, 0xf4,
+	0x0d, 0xac, 0x56, 0xc8, 0x64, 0x9a, 0xc4, 0x92, 0x37, 0x4c, 0xa4, 0x9a, 0x22, 0x21, 0x72, 0x07,
+	0x8f, 0x85, 0xa0, 0x6f, 0x81, 0x9c, 0xa7, 0xec, 0x76, 0x9f, 0xcf, 0xc1, 0xc1, 0xbe, 0xb0, 0x76,
+	0x69, 0x7f, 0x65, 0x68, 0x16, 0x64, 0xa8, 0xb3, 0xf4, 0xa3, 0xa2, 0xad, 0xd4, 0xfe, 0x03, 0xed,
+	0x1e, 0x90, 0x23, 0x1e, 0xf1, 0xb9, 0xed, 0xa1, 0x2f, 0x61, 0xb5, 0x52, 0x50, 0x72, 0x29, 0xe4,
+	0x56, 0x89, 0x7c, 0x00, 0x2b, 0xef, 0x19, 0x53, 0x8b, 0x91, 0xa3, 0x6e, 0x1b, 0x0f, 0xdb, 0xa8,
+	0x65, 0xb9, 0xd0, 0x82, 0x39, 0xf8, 0x44, 0x9f, 0xc1, 0xbd, 0xa2, 0xa8, 0x44, 0xe6, 0x25, 0x32,
+	0x17, 0x82, 0x7e, 0x02, 0xef, 0x22, 0x88, 0x42, 0x25, 0xb8, 0xd8, 0xfa, 0x9c, 0xe3, 0x15, 0xb8,
+	0x32, 0xbf, 0x33, 0xa6, 0x91, 0x82, 0xa8, 0xcc, 0x2e, 0x93, 0xe8, 0x2e, 0xac, 0x37, 0xa0, 0xcd,
+	0x24, 0x7f, 0x01, 0x24, 0x4f, 0xff, 0xc8, 0x6f, 0x72, 0xda, 0x9a, 0xd5, 0x34, 0x85, 0xd5, 0x4a,
+	0x9e, 0x01, 0x9c, 0xeb, 0x83, 0xce, 0xe1, 0x54, 0xde, 0x59, 0xa7, 0xec, 0xec, 0x35, 0xac, 0xe5,
+	0x8c, 0xf3, 0x7e, 0x4c, 0x01, 0x0f, 0x6f, 0x95, 0xfc, 0xf7, 0x36, 0xf7, 0x7f, 0x75, 0xa1, 0x77,
+	0x2e, 0xb9, 0x38, 0xbb, 0x38, 0x24, 0x1f, 0x60, 0xc9, 0xda, 0x17, 0xf2, 0xa4, 0x40, 0xa8, 0xaf,
+	0xec, 0x60, 0xa3, 0xf9, 0x51, 0x37, 0x4c, 0x17, 0x14, 0x96, 0xb5, 0x04, 0x16, 0x56, 0x7d, 0xad,
+	0x2c, 0xac, 0x86, 0xbd, 0xd1, 0x58, 0xd6, 0x90, 0x5b, 0x58, 0xf5, 0x5d, 0xb1, 0xb0, 0x1a, 0xf6,
+	0x82, 0x2e, 0x90, 0x77, 0xd0, 0x33, 0x23, 0x4d, 0x1e, 0x17, 0xa9, 0xd5, 0xcd, 0x18, 0x78, 0xf5,
+	0x87, 0xa2, 0xfe, 0x0b, 0x3c, 0xa8, 0xcd, 0x27, 0xd9, 0x2e, 0x0a, 0x66, 0x6d, 0xc2, 0x80, 0xde,
+	0x95, 0x62, 0x2b, 0xb5, 0xc6, 0xd4, 0x52, 0x5a, 0x1f, 0x72, 0x4b, 0x69, 0xc3, 0x64, 0xd3, 0x05,
+	0x72, 0x0a, 0xcb, 0x95, 0x69, 0x22, 0x4f, 0x6b, 0x05, 0x15, 0xe7, 0x36, 0x67, 0x3d, 0xe7, 0x88,
+	0x97, 0x8b, 0xf8, 0x7b, 0x3f, 0xf8, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x8b, 0x95, 0xfc, 0x04, 0x27,
+	0x08, 0x00, 0x00,
 }

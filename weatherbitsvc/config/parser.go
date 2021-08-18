@@ -26,6 +26,7 @@ type SourcesConfig struct {
 
 type Clients struct {
 	AlertAddr 		string `yaml:"alert_addr"`
+	StationsAddr 	string `yaml:"stations_addr"`
 }
 
 type WeatherBitConfig struct {

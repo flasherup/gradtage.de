@@ -54,11 +54,29 @@ func EncodeSources(sources []Source) []*acrpc.Source {
 	res := make([]*acrpc.Source, len(sources))
 	for i,v := range sources {
 		res[i] = &acrpc.Source {
-			ID: v.ID,
-			Name: v.Name,
-			Icao: v.Icao,
-			Dwd: v.Dwd,
-			Wmo: v.Wmo,
+			ID:v.ID,
+			SourceID:v.SourceID,
+			Latitude:v.Latitude,
+			Longitude:v.Longitude,
+			Source:v.Source,
+			Reports:v.Reports,
+			ISO2Country:v.ISO2Country,
+			ISO3Country:v.ISO3Country,
+			Prio:v.Prio,
+			CityNameEnglish:v.CityNameEnglish,
+			CityNameNative:v.CityNameNative,
+			CountryNameEnglish:v.CountryNameEnglish,
+			CountryNameNative:v.CountryNameNative,
+			ICAO:v.ICAO,
+			WMO:v.WMO,
+			CWOP:v.CWOP,
+			Maslib:v.Maslib,
+			National_ID:v.National_ID,
+			IATA:v.IATA,
+			USAF_WBAN:v.USAF_WBAN,
+			GHCN:v.GHCN,
+			NWSLI:v.NWSLI,
+			Elevation:v.Elevation,
 		}
 	}
 	return res
@@ -68,11 +86,29 @@ func DecodeSources(sources []*acrpc.Source) []Source {
 	res := make([]Source, len(sources))
 	for i,v := range sources {
 		res[i] = Source {
-			ID: v.ID,
-			Name: v.Name,
-			Icao: v.Icao,
-			Dwd: v.Dwd,
-			Wmo: v.Wmo,
+			ID:v.ID,
+			SourceID:v.SourceID,
+			Latitude:v.Latitude,
+			Longitude:v.Longitude,
+			Source:v.Source,
+			Reports:v.Reports,
+			ISO2Country:v.ISO2Country,
+			ISO3Country:v.ISO3Country,
+			Prio:v.Prio,
+			CityNameEnglish:v.CityNameEnglish,
+			CityNameNative:v.CityNameNative,
+			CountryNameEnglish:v.CountryNameEnglish,
+			CountryNameNative:v.CountryNameNative,
+			ICAO:v.ICAO,
+			WMO:v.WMO,
+			CWOP:v.CWOP,
+			Maslib:v.Maslib,
+			National_ID:v.National_ID,
+			IATA:v.IATA,
+			USAF_WBAN:v.USAF_WBAN,
+			GHCN:v.GHCN,
+			NWSLI:v.NWSLI,
+			Elevation:v.Elevation,
 		}
 	}
 	return res
@@ -80,15 +116,33 @@ func DecodeSources(sources []*acrpc.Source) []Source {
 
 func EncodeSourcesMap(sources map[string][]Source) map[string]*acrpc.Sources {
 	res := make(map[string]*acrpc.Sources)
-	for k,v := range sources {
-		src := make([]*acrpc.Source, len(v))
-		for i,s := range v{
+	for k,s := range sources {
+		src := make([]*acrpc.Source, len(s))
+		for i,v := range s{
 			src[i] = &acrpc.Source {
-				ID: s.ID,
-				Name: s.Name,
-				Icao: s.Icao,
-				Dwd: s.Dwd,
-				Wmo: s.Wmo,
+				ID:v.ID,
+				SourceID:v.SourceID,
+				Latitude:v.Latitude,
+				Longitude:v.Longitude,
+				Source:v.Source,
+				Reports:v.Reports,
+				ISO2Country:v.ISO2Country,
+				ISO3Country:v.ISO3Country,
+				Prio:v.Prio,
+				CityNameEnglish:v.CityNameEnglish,
+				CityNameNative:v.CityNameNative,
+				CountryNameEnglish:v.CountryNameEnglish,
+				CountryNameNative:v.CountryNameNative,
+				ICAO:v.ICAO,
+				WMO:v.WMO,
+				CWOP:v.CWOP,
+				Maslib:v.Maslib,
+				National_ID:v.National_ID,
+				IATA:v.IATA,
+				USAF_WBAN:v.USAF_WBAN,
+				GHCN:v.GHCN,
+				NWSLI:v.NWSLI,
+				Elevation:v.Elevation,
 			}
 		}
 		res[k] = &acrpc.Sources{Sources:src}
@@ -98,15 +152,33 @@ func EncodeSourcesMap(sources map[string][]Source) map[string]*acrpc.Sources {
 
 func DecodeSourcesMap(sources map[string]*acrpc.Sources) map[string][]Source {
 	res := make(map[string][]Source)
-	for k,v := range sources {
-		src := make([]Source, len(v.Sources))
-		for i,s := range v.Sources{
+	for k,s := range sources {
+		src := make([]Source, len(s.Sources))
+		for i,v := range s.Sources{
 			src[i] = Source {
-				ID: s.ID,
-				Name: s.Name,
-				Icao: s.Icao,
-				Dwd: s.Dwd,
-				Wmo: s.Wmo,
+				ID:v.ID,
+				SourceID:v.SourceID,
+				Latitude:v.Latitude,
+				Longitude:v.Longitude,
+				Source:v.Source,
+				Reports:v.Reports,
+				ISO2Country:v.ISO2Country,
+				ISO3Country:v.ISO3Country,
+				Prio:v.Prio,
+				CityNameEnglish:v.CityNameEnglish,
+				CityNameNative:v.CityNameNative,
+				CountryNameEnglish:v.CountryNameEnglish,
+				CountryNameNative:v.CountryNameNative,
+				ICAO:v.ICAO,
+				WMO:v.WMO,
+				CWOP:v.CWOP,
+				Maslib:v.Maslib,
+				National_ID:v.National_ID,
+				IATA:v.IATA,
+				USAF_WBAN:v.USAF_WBAN,
+				GHCN:v.GHCN,
+				NWSLI:v.NWSLI,
+				Elevation:v.Elevation,
 			}
 		}
 		res[k] = src
