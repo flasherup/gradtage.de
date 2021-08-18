@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/utils/databackup/config"
 	"github.com/flasherup/gradtage.de/utils/databackup/database"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
@@ -11,10 +13,25 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"os"
 	"time"
-
 )
 
 func main() {
+	a := app.New()
+	w := a.NewWindow("Hello")
+
+	hello := widget.NewLabel("Hello Fyne!")
+	w.SetContent(container.NewVBox(
+		hello,
+		widget.NewButton("Hi!", func() {
+			hello.SetText("Welcome :)")
+		}),
+	))
+
+	w.ShowAndRun()
+
+}
+
+func runBackup() {
 	configFile := flag.String("config.file", "config.yml", "Config file name.")
 	flag.Parse()
 
@@ -51,7 +68,6 @@ func main() {
 
 
 	moveData(db, source, logger)
-
 }
 
 func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Logger)  {
