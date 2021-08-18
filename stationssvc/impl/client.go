@@ -15,6 +15,9 @@ type StationsSVCClient struct{
 }
 
 func NewStationsSCVClient(host string, logger log.Logger) *StationsSVCClient {
+	logger = log.With(logger,
+		"client", "stations",
+	)
 	return &StationsSVCClient{
 		logger:logger,
 		host: host,

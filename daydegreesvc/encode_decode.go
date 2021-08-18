@@ -26,11 +26,11 @@ func ToGRPCParams(params *Params) *ddgrpc.Params {
 		Station:params.Station,
 		Start:params.Start,
 		End:params.End,
-		Breakdown:int32(params.Breakdown),
+		Breakdown:params.Breakdown,
 		Tb:params.Tb,
 		Tr:params.Tr,
 		Method:params.Method,
-		DayCalc:int32(params.DayCalc),
+		DayCalc:params.DayCalc,
 	}
 }
 
@@ -39,11 +39,11 @@ func ToParams(params *ddgrpc.Params) *Params {
 		Station:params.Station,
 		Start:params.Start,
 		End:params.End,
-		Breakdown:int(params.Breakdown),
+		Breakdown:params.Breakdown,
 		Tb:params.Tb,
 		Tr:params.Tr,
 		Method:params.Method,
-		DayCalc:int(params.DayCalc),
+		DayCalc:params.DayCalc,
 	}
 }
 

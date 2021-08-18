@@ -6,35 +6,31 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/apisvc"
-	"github.com/flasherup/gradtage.de/apisvc/impl/security"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/dailysvc"
-	"github.com/flasherup/gradtage.de/dailysvc/dlygrpc"
-	"github.com/flasherup/gradtage.de/hourlysvc"
-	"github.com/flasherup/gradtage.de/noaascrapersvc"
+	"github.com/flasherup/gradtage.de/daydegreesvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/usersvc"
+	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type APISVC struct {
 	logger  			log.Logger
 	alert 				alertsvc.Client
-	daily				dailysvc.Client
-	hourly				hourlysvc.Client
-	noaa 				noaascrapersvc.Client
+	daydegree			daydegreesvc.Client
+	weatherbit			weatherbitsvc.Client
 	autocomplete 		autocompletesvc.Client
 	user 				usersvc.Client
 	stations			stationssvc.Client
-	keyManager 			*security.KeyManager
 	woocommerce			*utils.Woocommerce
 	counter 			ktprom.Gauge
 }
@@ -47,14 +43,12 @@ const (
 
 func NewAPISVC(
 		logger 			log.Logger,
-		daily 			dailysvc.Client,
-		hourly 			hourlysvc.Client,
-		noaa 			noaascrapersvc.Client,
+		daydegree		daydegreesvc.Client,
+		weatherbit		weatherbitsvc.Client,
 		autocomplete 	autocompletesvc.Client,
 		user 			usersvc.Client,
 		alert 			alertsvc.Client,
 		stations    	stationssvc.Client,
-		keyManager 		*security.KeyManager,
 		woocommerce 	*utils.Woocommerce,
 	) *APISVC {
 	options := prometheus.Opts{
@@ -64,14 +58,12 @@ func NewAPISVC(
 	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
 	st := APISVC{
 		logger:  		logger,
-		daily:	 		daily,
-		hourly:			hourly,
-		noaa: 			noaa,
+		daydegree:	 	daydegree,
+		weatherbit: 		weatherbit,
 		autocomplete: 	autocomplete,
 		user: 			user,
 		alert:   		alert,
 		stations:		stations,
-		keyManager: 	keyManager,
 		counter: 		*guage,
 		woocommerce: 	woocommerce,
 	}
@@ -85,20 +77,22 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]str
 		return utils.CSVError(err), err
 	}
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
-	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
+	ddParams := daydegreesvc.Params{
+		Station: params.Station,
+		Start: params.Start,
+		End: params.End,
+		Breakdown: params.Breakdown,
+		Tb: params.TB,
+		Tr: params.TR,
+		Method: params.Output,
+		DayCalc: params.DayCalc,
+	}
+	degree, err := as.daydegree.GetDegree(ddParams)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
+		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
 	}
 
-	avg, err := as.daily.GetAvg(params.Station)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
-	}
-
-	headerCSV := []string{ "ID","Date","HDD","HDDAverage" }
-	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
+	csv := as.generateCSV(degree, params)
 	return csv, err
 }
 
@@ -122,34 +116,46 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	params.Station = id
 
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
-	temps, err := as.daily.GetPeriod(params.Station, params.Start, params.End)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
+	ddParams := daydegreesvc.Params{
+		Station: params.Station,
+		Start: params.Start,
+		End: params.End,
+		Breakdown: params.Breakdown,
+		Tb: params.TB,
+		Tr: params.TR,
+		Method: params.Output,
+		DayCalc: params.DayCalc,
 	}
 
-	avg, err := as.daily.GetAvg(params.Station)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD error", "err", err)
-		as.sendAlert(NewErrorAlert(err))
+	if params.Breakdown == "" {
+		ddParams.Breakdown = common.BreakdownDaily
 	}
 
-	var headerCSV []string
+	if params.DayCalc == "" {
+		ddParams.DayCalc = common.DayCalcMean
+	}
+
+	degree, err := as.daydegree.GetDegree(ddParams)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
+	}
+	csv := as.generateCSV(degree, params)
 	if params.Output == common.DDType {
-		headerCSV = []string{ "ID", "Date", "DD", "DDAverage" }
-	} else if  params.Output ==  common.HDDType {
-		headerCSV = []string{ "ID","Date","HDD","HDDAverage" }
-	} else if  params.Output ==  common.CDDType {
-		headerCSV = []string{ "ID","Date","CDD","CDDAverage" }
+		fileName = fmt.Sprintf("%s_DD_%g°C_%g°C.csv",
+			params.Station,
+			params.TB,
+			params.TR)
 	}
-
-	csv := as.generateCSV(headerCSV, temps.Temps, avg.Temps, params)
-	fileName = fmt.Sprintf("%s%s%s%g%g.csv",
-		params.Station,
-		params.Start,
-		params.End,
-		params.TB,
-		params.TR)
+	if params.Output == common.HDDType {
+		fileName = fmt.Sprintf("%s_HDD_%g°C.csv",
+			params.Station,
+			params.TB)
+	}
+	if params.Output == common.CDDType {
+		fileName = fmt.Sprintf("%s_CDD_%g°C.csv",
+			params.Station,
+			params.TB)
+	}
 	return csv,fileName,err
 }
 
@@ -159,40 +165,20 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 		level.Error(as.logger).Log("msg", "Get source data error", "err", err)
 		return utils.CSVError(err), "error", err
 	}
-	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "user", order.Email, "start", params.Start, "end", params.End, "type", params.Type)
+	level.Info(as.logger).Log("msg", "GetSourceData", "station", params.Station, "user", order.Email, "start", params.Start, "end", params.End)
 
-	var temps []hourlysvc.Temperature
-	if params.Type == Daily {
-		t, err := as.getDailyData(params.Station, params.Start, params.End)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
-			return [][]string{}, "error", err
-		}
-
-		temps = *t
-
-	} else if params.Type == Hourly{
-		t, err := as.getHourlyData(params.Station, params.Start, params.End)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
-			return [][]string{}, "error", err
-		}
-
-		temps = *t
-	} else if params.Type == Noaa{
-		t, err := as.getNoaaData(params.Station, params.Start, params.End)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
-			return [][]string{}, "error", err
-		}
-
-		temps = *t
+	temps, err := as.weatherbit.GetPeriod([]string{params.Station}, params.Start, params.End)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "GetSourceData error", "err", err)
+		return [][]string{}, "error", err
 	}
+
+	t := (*temps)[params.Station]
 
 	headerCSV := []string{ "ID","Date","Temperature" }
 
-	csv := as.generateSourceCSV(headerCSV, temps, params)
-	fileName = fmt.Sprintf("source_%s_%s%s%s.csv",params.Type, params.Station, params.Start, params.End)
+	csv := as.generateSourceCSV(headerCSV, t, params)
+	fileName = fmt.Sprintf("source_%s_%s%s%s.csv", params.Station, params.Start, params.End)
 	return csv,fileName,err
 }
 
@@ -241,21 +227,6 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 		case RenewAction:
 			return RenewUser(as.user, params)
 	}*/
-	return [][]string{}, err
-}
-
-func (as APISVC) Plan(ctx context.Context, params apisvc.ParamsPlan) (data [][]string, err error) {
-	order, _, err := as.validateUser(params.Key)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation error", "err", err)
-		return utils.CSVError(err), err
-	}
-
-	if !order.Admin {
-		err := errors.New("not enough rights to create user")
-		return utils.CSVError(err), err
-	}
-
 	return [][]string{}, err
 }
 
@@ -348,24 +319,6 @@ func (as APISVC) Command(ctx context.Context, name string, params map[string]str
 	return "", err
 }
 
-func (as APISVC) getDailyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
-	resp, err := as.daily.GetPeriod(id, start, end)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "Get Daily Data error", "err", err)
-		return nil, err
-	}
-
-	res := make([]hourlysvc.Temperature, len(resp.Temps))
-	for i,v := range resp.Temps {
-		res[i] = hourlysvc.Temperature{
-			v.Date,
-			v.Temperature,
-		}
-	}
-
-	return &res, nil
-}
-
 func (as APISVC) getStationID(text string) (string, error) {
 	sources, err := as.autocomplete.GetAutocomplete(text)
 	if err != nil {
@@ -383,79 +336,28 @@ func (as APISVC) getStationID(text string) (string, error) {
 	return text,nil
 }
 
-func (as APISVC) getHourlyData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
-	resp, err := as.hourly.GetPeriod(id, start, end)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "Get Hourly Data error", "err", err)
-		return nil, err
+func (as APISVC)generateCSV(temps []daydegreesvc.Degree, params apisvc.Params) [][]string {
+	res := [][]string{}
+	res = append(res, []string{"Source:", "https://energy-data.io"})
+	res = append(res, []string{"Description:", "Celsius..."})
+	res = append(res, []string{"Station:", params.Station})
+	res = append(res, []string{"Period:", fmt.Sprintf("%s - %s",params.Start,params.End)})
+	res = append(res, []string{"Method:", params.DayCalc})
+	res = append(res, []string{"Breakdown:", params.Breakdown})
+	res = append(res, []string{"",""})
+	if params.Output == common.DDType {
+		res = append(res, []string{"Date", fmt.Sprintf("DD %g°C %g°C",params.TB, params.TR)})
+	} else if  params.Output ==  common.HDDType {
+		res = append(res, []string{"Date",fmt.Sprintf("HDD %g°C",params.TB)})
+	} else if  params.Output ==  common.CDDType {
+		res = append(res, []string{"Date",fmt.Sprintf("CDD %g°C",params.TB)})
 	}
 
-	res := make([]hourlysvc.Temperature, len(resp.Temps))
-	for i,v := range resp.Temps {
-		res[i] = hourlysvc.Temperature{
-			v.Date,
-			v.Temperature,
-		}
-	}
-
-	return &res, nil
-}
-
-func (as APISVC) getNoaaData(id string, start string, end string) (*[]hourlysvc.Temperature, error){
-	resp, err := as.noaa.GetPeriod(id, start, end)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "Get NOAA Data error", "err", err)
-		return nil, err
-	}
-
-	res := make([]hourlysvc.Temperature, len(resp.Temps))
-	for i,v := range resp.Temps {
-		res[i] = hourlysvc.Temperature{
-			v.Date,
-			v.Temperature,
-		}
-	}
-
-	return &res, nil
-}
-
-func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsAvg map[int32]*dlygrpc.Temperature, params apisvc.Params) [][]string {
-	res := [][]string{ names }
 	var line []string
-	var degree float64
-	var degreeA float64
 	for _, v := range temps {
-		d, err := time.Parse(common.TimeLayout, v.Date)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Get " + params.Output + " generateCSV error", "err", err)
-			as.sendAlert(NewErrorAlert(err))
-		}
-		doy := int32(getLeapSafeDOY(d))
-
-		temp := tempsAvg[doy]
-		if temp == nil {
-			level.Warn(as.logger).Log("msg", "Get " + params.Output + " generateCSV, can't get Average temperature", "DOY", doy)
-			continue
-		}
-
-		aTemperature := temp.Temperature
-
-		if params.Output 		== common.HDDType {
-			degree 	= calculateHDD(params.TB, v.Temperature)
-			degreeA = calculateHDD(params.TB, aTemperature)
-		} else if params.Output == common.DDType {
-			degree 	= calculateDD(params.TB, params.TR, v.Temperature)
-			degreeA = calculateDD(params.TB, params.TR, aTemperature)
-		} else if params.Output == common.CDDType {
-			degree 	= calculateCDD(params.TB, v.Temperature)
-			degreeA = calculateCDD(params.TB, aTemperature)
-		}
-
 		line = []string{
-			params.Station,
 			v.Date,
-			fmt.Sprintf("%.1f", degree),
-			fmt.Sprintf("%.1f", degreeA),
+			getFormattedValue(v.Temp),
 		}
 
 		res = append(res, line)
@@ -463,14 +365,14 @@ func (as APISVC)generateCSV(names []string, temps []*dlygrpc.Temperature, tempsA
 	return res
 }
 
-func (as APISVC)generateSourceCSV(names []string, temps []hourlysvc.Temperature, params apisvc.ParamsSourceData) [][]string {
+func (as APISVC)generateSourceCSV(names []string, temps []common.Temperature, params apisvc.ParamsSourceData) [][]string {
 	res := [][]string{ names }
 	var line []string
 	for _, v := range temps {
 		line = []string{
 			params.Station,
 			v.Date,
-			fmt.Sprintf("%.1f", v.Temperature),
+			fmt.Sprintf("%.1f", v.Temp),
 		}
 
 		res = append(res, line)
@@ -478,7 +380,7 @@ func (as APISVC)generateSourceCSV(names []string, temps []hourlysvc.Temperature,
 	return res
 }
 
-func (as APISVC)generateSearchCSV(names []string, sources map[string][]autocompletesvc.Source) [][]string {
+func (as APISVC)generateSearchCSV(names []string, sources map[string][]autocompletesvc.Autocomplete) [][]string {
 	res := [][]string{ names }
 	var line []string
 	for k, v := range sources {
@@ -486,10 +388,28 @@ func (as APISVC)generateSearchCSV(names []string, sources map[string][]autocompl
 			line = []string{
 				k,
 				s.ID,
-				s.Icao,
-				s.Wmo,
-				s.Dwd,
-				s.Name,
+				s.SourceID,
+				strconv.FormatFloat(s.Latitude, 'E', -1, 64),
+				strconv.FormatFloat(s.Longitude, 'E', -1, 64),
+				s.Source,
+				s.Reports,
+				s.ISO2Country,
+				s.ISO3Country,
+				s.Prio,
+				s.CityNameEnglish,
+				s.CityNameNative,
+				s.CountryNameEnglish,
+				s.CountryNameNative,
+				s.ICAO,
+				s.WMO,
+				s.CWOP,
+				s.Maslib,
+				s.National_ID,
+				s.IATA,
+				s.USAF_WBAN,
+				s.GHCN,
+				s.NWSLI,
+				strconv.FormatFloat(s.Elevation, 'E', -1, 64),
 			}
 			res = append(res, line)
 		}
@@ -535,29 +455,10 @@ func (as APISVC)sendAlert(alert alertsvc.Alert) {
 
 
 func (as APISVC)validateUser(key string) (usersvc.Order, usersvc.Plan, error) {
-	_, err := as.keyManager.KeyGuard.APIKeyValid([]byte(key))
-	if err == nil {
-		/*user := "admin@gradtage.de"
-		params, err := as.user.ValidateName(user)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "User validation name is invalid", "err", err)
-			return nil, err
-		}
-		return &params, nil*/
-		return usersvc.Order{
-			Email: "admin@gradtage.de",
-			Admin: true,
-		}, usersvc.Plan{}, nil
-	}
 	return as.user.ValidateKey(key)
 }
 
 func (as APISVC)validateRequest(params apisvc.Params) error {
-	_, err := as.keyManager.KeyGuard.APIKeyValid([]byte(params.Key))
-	if err == nil {
-		return nil
-	}
-
 	start, err := time.Parse(common.TimeLayoutWBH, params.Start)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Start time validation error", "err", err)
@@ -597,6 +498,12 @@ func getLeapSafeDOY(t time.Time) int {
 
 func isLeap(year int) bool {
 	return year%400 == 0 || year%4 == 0 && year%100 != 0
+}
+
+
+func getFormattedValue(percentageValue float64) string{
+	value := fmt.Sprintf("%.2f", percentageValue)
+	return strings.Replace(value, ".", ",", -1)
 }
 
 

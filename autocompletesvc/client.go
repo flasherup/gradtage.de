@@ -1,7 +1,7 @@
 package autocompletesvc
 
 type Client interface {
-	GetAutocomplete(text string) (map[string][]Source, error)
-	AddSources(sources []Source) error
-	ResetSources(sources []Source) error
+	GetAutocomplete(text string) (map[string][]Autocomplete, error)
+	AddSources(sources []Autocomplete) error
+	ResetSources(sources []Autocomplete) error
 }

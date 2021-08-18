@@ -25,3 +25,4 @@ build/usersvc
 *config.yml
 build/autocompletesvc
 build/daydegreesvc
+build/stationssvc

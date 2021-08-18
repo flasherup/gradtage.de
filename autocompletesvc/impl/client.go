@@ -16,13 +16,16 @@ type AutocompleteSVCClient struct{
 }
 
 func NewAutocompleteSCVClient(host string, logger log.Logger) *AutocompleteSVCClient {
+	logger = log.With(logger,
+		"client", "autocomplete",
+	)
 	return &AutocompleteSVCClient{
 		logger:logger,
 		host: host,
 	}
 }
 
-func (acc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]autocompletesvc.Source , error) {
+func (acc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]autocompletesvc.Autocomplete, error) {
 	conn := acc.openConn()
 	defer conn.Close()
 
@@ -37,7 +40,7 @@ func (acc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]auto
 }
 
 
-func (acc AutocompleteSVCClient) AddSources(source []autocompletesvc.Source) error {
+func (acc AutocompleteSVCClient) AddSources(source []autocompletesvc.Autocomplete) error {
 	conn := acc.openConn()
 	defer conn.Close()
 
@@ -51,7 +54,7 @@ func (acc AutocompleteSVCClient) AddSources(source []autocompletesvc.Source) err
 	return common.ErrorFromString(resp.Err)
 }
 
-func (acc AutocompleteSVCClient) ResetSources(source []autocompletesvc.Source) error {
+func (acc AutocompleteSVCClient) ResetSources(source []autocompletesvc.Autocomplete) error {
 	conn := acc.openConn()
 	defer conn.Close()
 
