@@ -141,18 +141,18 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	}
 	csv := as.generateCSV(degree, params)
 	if params.Output == common.DDType {
-		fileName = fmt.Sprintf("%s_DD_%g°C_%g°C.csv",
+		fileName = fmt.Sprintf("%s_DD_%gC_%gC.csv",
 			params.Station,
 			params.TB,
 			params.TR)
 	}
 	if params.Output == common.HDDType {
-		fileName = fmt.Sprintf("%s_HDD_%g°C.csv",
+		fileName = fmt.Sprintf("%s_HDD_%gC.csv",
 			params.Station,
 			params.TB)
 	}
 	if params.Output == common.CDDType {
-		fileName = fmt.Sprintf("%s_CDD_%g°C.csv",
+		fileName = fmt.Sprintf("%s_CDD_%gC.csv",
 			params.Station,
 			params.TB)
 	}
@@ -346,11 +346,11 @@ func (as APISVC)generateCSV(temps []daydegreesvc.Degree, params apisvc.Params) [
 	res = append(res, []string{"Breakdown:", params.Breakdown})
 	res = append(res, []string{"",""})
 	if params.Output == common.DDType {
-		res = append(res, []string{"Date", fmt.Sprintf("DD %g°C %g°C",params.TB, params.TR)})
+		res = append(res, []string{"Date", fmt.Sprintf("DD %gC %gC",params.TB, params.TR)})
 	} else if  params.Output ==  common.HDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("HDD %g°C",params.TB)})
+		res = append(res, []string{"Date",fmt.Sprintf("HDD %gC",params.TB)})
 	} else if  params.Output ==  common.CDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("CDD %g°C",params.TB)})
+		res = append(res, []string{"Date",fmt.Sprintf("CDD %gC",params.TB)})
 	}
 
 	var line []string

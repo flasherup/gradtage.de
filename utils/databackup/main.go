@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/utils/databackup/config"
 	"github.com/flasherup/gradtage.de/utils/databackup/database"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
@@ -26,9 +27,7 @@ func main() {
 			hello.SetText("Welcome :)")
 		}),
 	))
-
 	w.ShowAndRun()
-
 }
 
 func runBackup() {
