@@ -11,8 +11,8 @@ type Params struct {
 	Station   string  `json:"station"`
 	Start     string  `json:"start"`
 	End       string  `json:"end"`
-	TB        float64 `json:"tb"`
-	TR        float64 `json:"tr"`
+	Tb        float64 `json:"tb"`
+	Tr        float64 `json:"tr"`
 	Output    string  `json:"output"`
 	Breakdown string  `json:"breakdown"`
 	DayCalc   string  `json:"day_calc"`

@@ -36,14 +36,14 @@ func main() {
 
 func getDegree(client *impl.DayDegreeSVCClient, logger log.Logger) error {
 	params := daydegreesvc.Params{
-		Station: "us_koak",
-		Start: "2020-01-01",
-		End: "2020-12-31",
+		Station:   "us_koak",
+		Start:     "2020-01-01",
+		End:       "2020-12-31",
 		Breakdown: common.BreakdownDaily,
-		Tb: 15,
-		Tr: 20,
-		Method: "hdd",
-		DayCalc: common.DayCalcMean,
+		Tb:        15,
+		Tr:        20,
+		Output:    "hdd",
+		DayCalc:   common.DayCalcMean,
 
 	}
 	//Just for test

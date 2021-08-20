@@ -19,7 +19,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"math"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -78,22 +77,22 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]str
 	}
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 	ddParams := daydegreesvc.Params{
-		Station: params.Station,
-		Start: params.Start,
-		End: params.End,
+		Station:   params.Station,
+		Start:     params.Start,
+		End:       params.End,
 		Breakdown: params.Breakdown,
-		Tb: params.TB,
-		Tr: params.TR,
-		Method: params.Output,
-		DayCalc: params.DayCalc,
+		Tb:        params.Tb,
+		Tr:        params.Tr,
+		Output:    params.Output,
+		DayCalc:   params.DayCalc,
 	}
 	degree, err := as.daydegree.GetDegree(ddParams)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
 	}
 
-	csv := as.generateCSV(degree, params)
-	return csv, err
+	res := utils.GenerateCSV(degree, ddParams)
+	return res, err
 }
 
 func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
@@ -117,14 +116,14 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 	ddParams := daydegreesvc.Params{
-		Station: params.Station,
-		Start: params.Start,
-		End: params.End,
+		Station:   params.Station,
+		Start:     params.Start,
+		End:       params.End,
 		Breakdown: params.Breakdown,
-		Tb: params.TB,
-		Tr: params.TR,
-		Method: params.Output,
-		DayCalc: params.DayCalc,
+		Tb:        params.Tb,
+		Tr:        params.Tr,
+		Output:    params.Output,
+		DayCalc:   params.DayCalc,
 	}
 
 	if params.Breakdown == "" {
@@ -139,24 +138,24 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
 	}
-	csv := as.generateCSV(degree, params)
+	res := utils.GenerateCSV(degree, ddParams)
 	if params.Output == common.DDType {
 		fileName = fmt.Sprintf("%s_DD_%gC_%gC.csv",
 			params.Station,
-			params.TB,
-			params.TR)
+			params.Tb,
+			params.Tr)
 	}
 	if params.Output == common.HDDType {
 		fileName = fmt.Sprintf("%s_HDD_%gC.csv",
 			params.Station,
-			params.TB)
+			params.Tb)
 	}
 	if params.Output == common.CDDType {
 		fileName = fmt.Sprintf("%s_CDD_%gC.csv",
 			params.Station,
-			params.TB)
+			params.Tb)
 	}
-	return csv,fileName,err
+	return res,fileName,err
 }
 
 func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {
@@ -336,34 +335,6 @@ func (as APISVC) getStationID(text string) (string, error) {
 	return text,nil
 }
 
-func (as APISVC)generateCSV(temps []daydegreesvc.Degree, params apisvc.Params) [][]string {
-	res := [][]string{}
-	res = append(res, []string{"Source:", "https://energy-data.io"})
-	res = append(res, []string{"Description:", "Celsius..."})
-	res = append(res, []string{"Station:", params.Station})
-	res = append(res, []string{"Period:", fmt.Sprintf("%s - %s",params.Start,params.End)})
-	res = append(res, []string{"Method:", params.DayCalc})
-	res = append(res, []string{"Breakdown:", params.Breakdown})
-	res = append(res, []string{"",""})
-	if params.Output == common.DDType {
-		res = append(res, []string{"Date", fmt.Sprintf("DD %gC %gC",params.TB, params.TR)})
-	} else if  params.Output ==  common.HDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("HDD %gC",params.TB)})
-	} else if  params.Output ==  common.CDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("CDD %gC",params.TB)})
-	}
-
-	var line []string
-	for _, v := range temps {
-		line = []string{
-			v.Date,
-			getFormattedValue(v.Temp),
-		}
-
-		res = append(res, line)
-	}
-	return res
-}
 
 func (as APISVC)generateSourceCSV(names []string, temps []common.Temperature, params apisvc.ParamsSourceData) [][]string {
 	res := [][]string{ names }
@@ -498,12 +469,6 @@ func getLeapSafeDOY(t time.Time) int {
 
 func isLeap(year int) bool {
 	return year%400 == 0 || year%4 == 0 && year%100 != 0
-}
-
-
-func getFormattedValue(percentageValue float64) string{
-	value := fmt.Sprintf("%.2f", percentageValue)
-	return strings.Replace(value, ".", ",", -1)
 }
 
 

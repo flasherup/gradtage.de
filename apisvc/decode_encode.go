@@ -65,13 +65,13 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 	}
 
 	prm := Params{
-		Key :     r.Form.Get("key"),
-		Station : r.Form.Get("station"),
-		Start :   r.Form.Get("start"),
-		End :     r.Form.Get("end"),
-		TB:       basehdd,
-		TR:       basedd,
-		Output :  vars[Method],
+		Key :      r.Form.Get("key"),
+		Station :  r.Form.Get("station"),
+		Start :    r.Form.Get("start"),
+		End :      r.Form.Get("end"),
+		Tb:        basehdd,
+		Tr:        basedd,
+		Output :   vars[Method],
 		Breakdown: r.Form.Get("breakdown"),
 		DayCalc:   vars[DayCalc],
 	}

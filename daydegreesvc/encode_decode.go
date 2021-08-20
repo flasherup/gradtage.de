@@ -29,21 +29,21 @@ func ToGRPCParams(params *Params) *ddgrpc.Params {
 		Breakdown:params.Breakdown,
 		Tb:params.Tb,
 		Tr:params.Tr,
-		Method:params.Method,
+		Method:params.Output,
 		DayCalc:params.DayCalc,
 	}
 }
 
 func ToParams(params *ddgrpc.Params) *Params {
 	return &Params{
-		Station:params.Station,
-		Start:params.Start,
-		End:params.End,
-		Breakdown:params.Breakdown,
-		Tb:params.Tb,
-		Tr:params.Tr,
-		Method:params.Method,
-		DayCalc:params.DayCalc,
+		Station:   params.Station,
+		Start:     params.Start,
+		End:       params.End,
+		Breakdown: params.Breakdown,
+		Tb:        params.Tb,
+		Tr:        params.Tr,
+		Output:    params.Method,
+		DayCalc:   params.DayCalc,
 	}
 }
 
