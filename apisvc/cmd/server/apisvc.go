@@ -139,7 +139,7 @@ func main() {
 	}()
 
 	go func() {
-		level.Info(logger).Log("transport", "HTTP", "addr", conf.GetHTTPTestAddress())
+		level.Info(logger).Log("transport", "HTTPTest", "addr", conf.GetHTTPTestAddress())
 		server := &http.Server{
 			Addr:    conf.GetHTTPTestAddress(),
 			Handler: hs,

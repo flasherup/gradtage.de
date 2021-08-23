@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/daydegreesvc"
 	"strings"
@@ -15,7 +16,7 @@ func CSVError(err error) [][]string {
 	return res
 }
 
-func GenerateCSV(temps []daydegreesvc.Degree, params daydegreesvc.Params) [][]string {
+func GenerateCSV(temps []daydegreesvc.Degree, params daydegreesvc.Params, autocomplete autocompletesvc.Autocomplete) [][]string {
 	res := [][]string{}
 	res = append(res, []string{"Indicator:", params.Output})
 	res = append(res, []string{"Method:", params.DayCalc})
