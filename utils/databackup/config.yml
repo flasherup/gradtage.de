@@ -5,5 +5,5 @@ database:
   user: "dbStorageUser"
   password: "Newpass@29"
 clients:
-  src_addr: "localhost:8111"
+  src_addr: "82.165.119.83:8111"
 

@@ -17,18 +17,18 @@ type DatabaseConfig struct {
 	Password 	string 	`yaml:"password"`
 }
 
-type WeatherBitConfig struct {
+type DataBackupConfig struct {
 	Clients		Clients 		`yaml:"clients"`
 	Database 	DatabaseConfig	`yaml:"database"`
 }
 
-func LoadConfig(path string) (config *WeatherBitConfig, err error) {
+func LoadConfig(path string) (config *DataBackupConfig, err error) {
 	c, err := ioutil.ReadFile(path)
 	if err != nil {
 		return
 	}
 
-	config = &WeatherBitConfig{}
+	config = &DataBackupConfig{}
 
 	err = yaml.Unmarshal(c, config)
 	if err != nil {

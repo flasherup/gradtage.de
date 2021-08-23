@@ -13,7 +13,6 @@ import (
 	"time"
 )
 
-//HourlyDB main structure
 type Postgres struct {
 	db  *sql.DB
 }
