@@ -102,7 +102,6 @@ update_grpcs:
 	make -C ../daydegreesvc/ddgrpc/ regenerate
 	make -C ../stationssvc/stsgrpc regenerate
 	make -C ../usersvc/grpcusr regenerate
-<<<<<<< HEAD
 	make -C ../weatherbitsvc/weatherbitgrpc regenerate
 
 setup_services:
@@ -111,6 +110,3 @@ setup_services:
 	pscp setup.zip flasherup@212.227.214.163:/home/flasherup/app
 	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && unzip setup.zip"
 	ssh flasherup@212.227.214.163 "find . -type f | xargs -n 5 touch && make clean"
-=======
-	make -C ../weatherbitsvc/weatherbitgrpc regenerate
->>>>>>> 8f2d40c (Make update grpcs)
