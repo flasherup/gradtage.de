@@ -26,3 +26,6 @@ build/usersvc
 build/autocompletesvc
 build/daydegreesvc
 build/stationssvc
+build/setup.zip
+build/setup/usersvc.yml
+*.yml

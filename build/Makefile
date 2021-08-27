@@ -16,6 +16,12 @@ build_daydegree:
 build_stations:
 	env GOOS=linux GOARCH=amd64 go build -o stationssvc github.com\flasherup\gradtage.de\stationssvc\cmd\server
 
+build_all:
+	make build_weatherbit
+	make build_api
+	make build_users
+	make build_autocomplete
+	make build_stations
 
 upload_weatherbit:
 	pscp weatherbitsvc flasherup@212.227.214.163:/home/flasherup/app
@@ -31,6 +37,7 @@ upload_autocomplete:
 
 upload_stations:
 	pscp stationssvc flasherup@212.227.214.163:/home/flasherup/app
+
 
 
 update_weatherbit:
@@ -68,6 +75,12 @@ deploy_weatherbit:
 	make upload_weatherbit
 	make update_weatherbit
 
+deploy_all:
+	make deploy_autocomplete
+	make deploy_users
+	make deploy_stations
+	make deploy_weatherbit
+
 
 upload_cloud_weatherbit:
 	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app
@@ -98,3 +111,10 @@ update_grpcs:
 	make -C ../stationssvc/stsgrpc regenerate
 	make -C ../usersvc/grpcusr regenerate
 	make -C ../weatherbitsvc/weatherbitgrpc regenerate
+
+setup_services:
+	7z a -tzip setup.zip setup
+	ssh flasherup@212.227.214.163 "rm -f /home/flasherup/app/setup.zip && rm -f -r /home/flasherup/app/setup"
+	pscp setup.zip flasherup@212.227.214.163:/home/flasherup/app
+	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && unzip setup.zip"
+	ssh flasherup@212.227.214.163 "find . -type f | xargs -n 5 touch && make clean"

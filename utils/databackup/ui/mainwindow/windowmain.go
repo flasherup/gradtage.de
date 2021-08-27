@@ -42,3 +42,7 @@ func (wm *WindowMain) SetStationsLength(l int) {
 	wm.Slb.LoadBtn.SetText("Reload")
 	wm.Window.Content().Refresh()
 }
+
+func  (wm *WindowMain) SetProgress(all, current int) {
+
+}

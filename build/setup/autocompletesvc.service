@@ -1,0 +1,18 @@
+[Unit]
+Description=Autocompletesvc
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=gradtage
+Group=gradtage
+Type=simple
+ExecStartPre=/bin/sleep 1
+ExecStart=/usr/local/bin/autocompletesvc \
+--config.file /etc/gradtage/autocompletesvc.yml
+Restart=always
+RestartSec=3
+
+
+[Install]
+WantedBy=multi-user.target

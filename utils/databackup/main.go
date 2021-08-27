@@ -46,7 +46,10 @@ func main() {
 	dBack.postgresDB = *db
 
 	dBack.app.WMain.Bus.Subscribe(mainwindow.OnStationsLoad, dBack.getStations)
-	dBack.app.WMain.Window.ShowAndRun()
+	dBack.app.WMain.Bus.Subscribe(mainwindow.OnBackupStart, dBack.startBackupData)
+
+	dBack.app.WMain.Window.Show()
+	dBack.app.App.Run()
 }
 
 func (dBack *DataBackup)initConfig() {
