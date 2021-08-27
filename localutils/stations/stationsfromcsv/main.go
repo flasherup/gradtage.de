@@ -89,8 +89,8 @@ func main() {
 	}
 
  	//fromCSVListToStations("./data", filesList, logger)
-	fromCSVListToAutocomplete("data", filesList, logger)
-	//fromCSVToList("./data", filesList, logger)
+	//fromCSVListToAutocomplete("data", filesList, logger)
+	fromCSVToList("./data", filesList, logger)
 }
 
 
@@ -217,7 +217,7 @@ func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logge
 	}
 }
 
-func fromCSVToList(path string, filesList map[string]string, logger log.Logger) {
+func fromCSVToList(path string, filesList []string, logger log.Logger) {
 	//File save logic
 	csvFile, err := os.Create("stations.csv")
 
@@ -228,7 +228,7 @@ func fromCSVToList(path string, filesList map[string]string, logger log.Logger) 
 	csvwriter := csv.NewWriter(csvFile)
 	csvwriter.Comma = ';'
 
-	for fileName,_ := range filesList {
+	for _,fileName := range filesList {
 		stsl, error := parsers.CSVToStationsList(path + "/" + fileName)
 		if error != nil {
 			println("Error", error.Error())

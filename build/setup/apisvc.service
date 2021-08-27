@@ -1,0 +1,17 @@
+[Unit]
+Description=Apisvc
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+Type=simple
+ExecStartPre=/bin/sleep 3
+ExecStart=/usr/local/bin/apisvc \
+--config.file /etc/gradtage/apisvc.yml\
+Restart=always
+RestartSec=3
+
+
+[Install]
+WantedBy=multi-user.target
