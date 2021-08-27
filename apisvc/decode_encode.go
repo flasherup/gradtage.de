@@ -26,6 +26,7 @@ func encodeGetHDDResponse(ctx context.Context, w http.ResponseWriter, response i
 	resp := response.(GetHDDResponse)
 	w.Header().Set("Content-Type", "text/csv")
 	wr := csv.NewWriter(w)
+	wr.Comma = ';'
 	err := wr.WriteAll(resp.Data)
 	wr.Flush()
 	if err != nil {
@@ -39,6 +40,7 @@ func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, respons
 	w.Header().Set("Content-Type", "text/csv")
 	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
 	wr := csv.NewWriter(w)
+	wr.Comma = ';'
 	err := wr.WriteAll(resp.Data)
 	wr.Flush()
 	if err != nil {
@@ -63,13 +65,15 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 	}
 
 	prm := Params{
-		Key :     r.Form.Get("key"),
-		Station : r.Form.Get("station"),
-		Start :   r.Form.Get("start"),
-		End :     r.Form.Get("end"),
-		TB:       basehdd,
-		TR:       basedd,
-		Output :  vars[Method],
+		Key :      r.Form.Get("key"),
+		Station :  r.Form.Get("station"),
+		Start :    r.Form.Get("start"),
+		End :      r.Form.Get("end"),
+		Tb:        basehdd,
+		Tr:        basedd,
+		Output :   vars[Method],
+		Breakdown: r.Form.Get("breakdown"),
+		DayCalc:   vars[DayCalc],
 	}
 
 	req  := GetHDDCSVRequest{ prm }
@@ -84,7 +88,6 @@ func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request int
 		Station : 	r.Form.Get("station"),
 		Start : 	r.Form.Get("start"),
 		End : 		r.Form.Get("end"),
-		Type : 		r.Form.Get("type"),
 	}
 
 	req  := GetSourceDataRequest{ prm }
@@ -147,34 +150,6 @@ func decodeUserRequest(_ context.Context, r *http.Request) (request interface{},
 }
 
 func encodeUserResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(UserResponse)
-	w.Header().Set("Content-Type", "text/csv")
-	wr := csv.NewWriter(w)
-	err := wr.WriteAll(resp.Data)
-	wr.Flush()
-	if err != nil {
-		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
-	}
-	return err
-}
-
-func decodePlanRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	vars := mux.Vars(r)
-	r.ParseForm()
-	p := make(map[string]string)
-	for k,v := range r.Form {
-		p[k] = v[0]
-	}
-
-	params := ParamsPlan{
-		Key: 		r.Form.Get("key"),
-		Action :	vars[UserAction],
-		Params: 	p,
-	}
-	return PlanRequest{params}, nil
-}
-
-func encodePlanResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(UserResponse)
 	w.Header().Set("Content-Type", "text/csv")
 	wr := csv.NewWriter(w)

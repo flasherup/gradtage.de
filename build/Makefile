@@ -35,6 +35,9 @@ upload_users:
 upload_autocomplete:
 	pscp autocompletesvc flasherup@212.227.214.163:/home/flasherup/app
 
+upload_stations:
+	pscp stationssvc flasherup@212.227.214.163:/home/flasherup/app
+
 
 update_weatherbit:
 	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_weatherbitsvc $*"
@@ -47,6 +50,9 @@ update_users:
 
 update_autocomplete:
 	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_autocompletesvc $*"
+
+update_stations:
+	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_stationssvc $*"
 
 deploy_autocomplete:
 	make build_autocomplete

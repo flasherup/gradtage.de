@@ -12,7 +12,6 @@ type Endpoints struct {
 	GetSourceDataEndpoint	endpoint.Endpoint
 	SearchEndpoint			endpoint.Endpoint
 	UserEndpoint			endpoint.Endpoint
-	PlanEndpoint			endpoint.Endpoint
 	WoocommerceEndpoint		endpoint.Endpoint
 	CommandEndpoint			endpoint.Endpoint
 }
@@ -24,7 +23,6 @@ func MakeServerEndpoints(s Service) Endpoints {
 		GetSourceDataEndpoint:  MakeGetSourceDataEndpoint(s),
 		SearchEndpoint:  		MakeSearchEndpoint(s),
 		UserEndpoint:  			MakeUserEndpoint(s),
-		PlanEndpoint:  			MakePlanEndpoint(s),
 		WoocommerceEndpoint:  	MakeWoocommerceEndpoint(s),
 		CommandEndpoint:  		MakeCommandEndpoint(s),
 	}
@@ -67,14 +65,6 @@ func MakeUserEndpoint(s Service) endpoint.Endpoint {
 		req := request.(UserRequest)
 		data, err := s.User(ctx, req.Params)
 		return UserResponse{ data}, err
-	}
-}
-
-func MakePlanEndpoint(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(PlanRequest)
-		data, err := s.Plan(ctx, req.Params)
-		return PlanResponse{ data}, err
 	}
 }
 

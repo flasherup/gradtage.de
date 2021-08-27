@@ -5,14 +5,14 @@ import (
 )
 
 type Params struct {
-	Station string
-	Start string
-	End string
-	Breakdown int
-	Tb float64
-	Tr float64
-	Method string
-	DayCalc int
+	Station   string
+	Start     string
+	End       string
+	Breakdown string
+	Tb        float64
+	Tr        float64
+	Output    string
+	DayCalc   string
 }
 
 type Degree struct {

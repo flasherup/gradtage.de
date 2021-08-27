@@ -9,15 +9,13 @@ import (
 	"github.com/flasherup/gradtage.de/apisvc"
 	"github.com/flasherup/gradtage.de/apisvc/config"
 	"github.com/flasherup/gradtage.de/apisvc/impl"
-	"github.com/flasherup/gradtage.de/apisvc/impl/security"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	autocomplete "github.com/flasherup/gradtage.de/autocompletesvc/impl"
 	"github.com/flasherup/gradtage.de/common"
-	daily "github.com/flasherup/gradtage.de/dailysvc/impl"
-	hourly "github.com/flasherup/gradtage.de/hourlysvc/impl"
-	noaa "github.com/flasherup/gradtage.de/noaascrapersvc/impl"
+	daydegree "github.com/flasherup/gradtage.de/daydegreesvc/impl"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	user "github.com/flasherup/gradtage.de/usersvc/impl"
+	weatherbit "github.com/flasherup/gradtage.de/weatherbitsvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"golang.org/x/crypto/acme/autocert"
@@ -50,14 +48,6 @@ func main() {
 		return
 	}
 
-	//Security
-	keyManager ,err := security.NewKeyManager()
-	if err != nil {
-		level.Error(logger).Log("msg", "security manager init error", "exit", err.Error())
-	}
-
-	keyManager.RestoreKeys(conf.Users)
-
 	var alertService alertsvc.Client
 	if conf.AlertsEnable {
 		alertService = alert.NewAlertSCVClient(conf.Clients.AlertAddr, logger)
@@ -65,9 +55,8 @@ func main() {
 		alertService = common.NewSilentAlert()
 	}
 
-	dailyService := daily.NewDailySCVClient(conf.Clients.DailyAddr, logger)
-	hourlyService := hourly.NewHourlySCVClient(conf.Clients.HourlyAddr, logger)
-	noaaService := noaa.NewNoaaScraperSVCClient(conf.Clients.HoaaAddr, logger)
+	daydegreeService := daydegree.NewDayDegreeSVCClient(conf.Clients.DaydegreeAddr, logger)
+	weatherbitService := weatherbit.NewWeatherBitSVCClient(conf.Clients.WeatherbitAddr, logger)
 	autocompleteService := autocomplete.NewAutocompleteSCVClient(conf.Clients.AutocompleteAddr, logger)
 	userService := user.NewUsersSCVClient(conf.Clients.UserAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
@@ -81,14 +70,12 @@ func main() {
 
 	svc := impl.NewAPISVC(
 		logger,
-		dailyService,
-		hourlyService,
-		noaaService,
+		daydegreeService,
+		weatherbitService,
 		autocompleteService,
 		userService,
 		alertService,
 		stationsService,
-		keyManager,
 		woocommerce)
 	hs := apisvc.NewHTTPTSransport(svc,logger, conf.Static.Folder)
 
@@ -106,11 +93,12 @@ func main() {
 	}
 
 	go func() {
-		errs <- http.ListenAndServe(":http", mgr.HTTPHandler(nil))
+		level.Info(logger).Log("transport", "Static", "addr", conf.GetHTTPStaticAddress())
+		errs <- http.ListenAndServe(conf.GetHTTPStaticAddress(), mgr.HTTPHandler(nil))
 	}()
 
 	go func() {
-		level.Info(logger).Log("transport", "Static", "addr", conf.GetHTTPSAddress())
+		level.Info(logger).Log("transport", "HTTPS", "addr", conf.GetHTTPSAddress())
 
 		cfg := &tls.Config{
 			MinVersion:               tls.VersionTLS12,
@@ -151,9 +139,9 @@ func main() {
 	}()
 
 	go func() {
-		level.Info(logger).Log("transport", "HTTP", "addr", ":8022")
+		level.Info(logger).Log("transport", "HTTPTest", "addr", conf.GetHTTPTestAddress())
 		server := &http.Server{
-			Addr:    ":8022",
+			Addr:    conf.GetHTTPTestAddress(),
 			Handler: hs,
 		}
 		errs <- server.ListenAndServe()

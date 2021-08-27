@@ -46,11 +46,11 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 
 	var degrees *[]common.Temperature
 	t := (*temps)[params.Station]
-	if params.Method == common.HDDType {
+	if params.Output == common.HDDType {
 		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
-	} else if params.Method == common.DDType {
+	} else if params.Output == common.DDType {
 		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc)
-	} else if params.Method == common.CDDType {
+	} else if params.Output == common.CDDType {
 		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
 	}
 

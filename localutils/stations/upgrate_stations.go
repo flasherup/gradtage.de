@@ -57,7 +57,7 @@ func fixAutocompleteIDs() {
 			}
 		}
 
-		fmt.Println("autocompletesvc.Source{ ID:\"" + id + "\",Icao:\"" + d.Icao + "\",Dwd:\"" + d.Dwd + "\",Wmo:\"" + d.Wmo + "\",Name:\"" + d.Name + "\"},")
+		fmt.Println("autocompletesvc.Autocomplete{ ID:\"" + id + "\",Icao:\"" + d.Icao + "\",Dwd:\"" + d.Dwd + "\",Wmo:\"" + d.Wmo + "\",Name:\"" + d.Name + "\"},")
 	}
 
 }
