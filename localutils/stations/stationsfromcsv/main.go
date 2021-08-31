@@ -58,7 +58,8 @@ func main() {
 	}*/
 
 	filesList := []string {
-		"EDG_Stationlist_Masterfile.csv",
+		"stations_V2_20210831.csv",
+		//"EDG_Stationlist_Masterfile.csv",
 		/*"PrioD.csv",
 		"addon_icao_prioa.csv",
 		"addon_icao_priob.csv",
@@ -89,8 +90,8 @@ func main() {
 	}
 
  	//fromCSVListToStations("./data", filesList, logger)
-	fromCSVListToAutocomplete("./data", filesList, logger)
-	//fromCSVToList("./data", filesList, logger)
+	//fromCSVListToAutocomplete("./data", filesList, logger)
+	fromCSVToList("./data", filesList, logger)
 }
 
 
