@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/localutils/data"
 	"github.com/flasherup/gradtage.de/usersvc"
 	"github.com/flasherup/gradtage.de/usersvc/impl"
 	"github.com/go-kit/kit/log"
@@ -33,9 +32,9 @@ func main() {
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	addPlans(client, logger, data.Plans)
+	//addPlans(client, logger, data.Plans)
 
-	//createOrder(client, logger)
+	createOrder(client, logger)
 	//validateOrder(client, logger, 1277)
 	//validateKey(client, logger, "fe52a98a-3b04-41d3-bd35-79a31ec3e9b2")
 	/*for i := 0; i<10; {
@@ -50,7 +49,7 @@ func main() {
 
 func createOrder(client *impl.UsersSVCClient, logger log.Logger) {
 	//key, err := client.CreateOrder(testOrderId, "test@test.test", "trial", testKey)
-	key, err := client.CreateOrder(1251, "nagel.bremen@gmail.com", "lite", "854780a7-b959-443a-a74a-74f3746b8e75")
+	key, err := client.CreateOrder(10000010, "nagel.bremen@gmail.com", usersvc.PlanTrial, "ikqLGrZvG2OEoDALQUGR")
 	if err !=nil {
 		level.Error(logger).Log("msg", "Order Create error", "err", err.Error())
 	}
@@ -114,7 +113,7 @@ func validateSelection(client *impl.UsersSVCClient, logger log.Logger) {
 
 
 func updateOrder(client *impl.UsersSVCClient, logger log.Logger) {
-	order, _, err := client.ValidateOrder(testOrderId)
+	order, _, err := client.ValidateOrder(10000000)
 	if err != nil {
 		level.Error(logger).Log("msg", "Order update error", "err", err.Error())
 	}

@@ -54,6 +54,7 @@ update_autocomplete:
 update_stations:
 	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_stationssvc $*"
 
+
 deploy_autocomplete:
 	make build_autocomplete
 	make upload_autocomplete
@@ -69,6 +70,11 @@ deploy_stations:
 	make upload_stations
 	make update_stations
 
+deploy_api:
+	make build_api
+	make upload_api
+	make update_api
+
 deploy_weatherbit:
 	make build_weatherbit
 	make upload_weatherbit
@@ -78,7 +84,8 @@ deploy_all:
 	make deploy_autocomplete
 	make deploy_users
 	make deploy_stations
-	make deploy_weatherbit
+	make deploy_api
+	#make deploy_weatherbit
 
 upload_cloud_weatherbit:
 	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app

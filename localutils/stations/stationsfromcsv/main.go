@@ -89,8 +89,8 @@ func main() {
 	}
 
  	//fromCSVListToStations("./data", filesList, logger)
-	//fromCSVListToAutocomplete("data", filesList, logger)
-	fromCSVToList("./data", filesList, logger)
+	fromCSVListToAutocomplete("./data", filesList, logger)
+	//fromCSVToList("./data", filesList, logger)
 }
 
 
@@ -129,32 +129,6 @@ func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 			}
 
 			sts[i] = st
-
-
-			/*fmt.Println("=========================", i)
-			fmt.Println("ID",v.ID)
-			fmt.Println("SourceID",v.SourceID)
-			fmt.Println("Latitude",v.Latitude)
-			fmt.Println("Longitude",v.Longitude)
-			fmt.Println("Autocomplete",v.Autocomplete)
-			fmt.Println("Reports",v.Reports)
-			fmt.Println("ISO2Country",v.ISO2Country)
-			fmt.Println("ISO3Country",v.ISO3Country)
-			fmt.Println("Prio",v.Prio)
-			fmt.Println("CityNameEnglish",v.CityNameEnglish)
-			fmt.Println("CityNameNative",v.CityNameNative)
-			fmt.Println("CountryNameEnglish",v.CountryNameEnglish)
-			fmt.Println("CountryNameNative",v.CountryNameNative)
-			fmt.Println("ICAO",v.ICAO)
-			fmt.Println("WMO",v.WMO)
-			fmt.Println("CWOP",v.CWOP)
-			fmt.Println("Maslib",v.Maslib)
-			fmt.Println("National_ID",v.National_ID)
-			fmt.Println("IATA",v.IATA)
-			fmt.Println("USAF_WBAN",v.USAF_WBAN)
-			fmt.Println("GHCN",v.GHCN)
-			fmt.Println("NWSLI",v.NWSLI)
-			fmt.Println("Elevation",v.Elevation)*/
 		}
 		_,err = stationsLocal.AddStations(sts)
 		if err != nil {
@@ -166,7 +140,8 @@ func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 }
 
 func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logger) {
-	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.214.163:8109", logger)
+	//autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.214.163:8109", logger)
+	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
 
 	for _,fileName := range filesList {
 		fmt.Println("Process", fileName)
