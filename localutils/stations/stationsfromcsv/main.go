@@ -88,14 +88,14 @@ func main() {
 		"prioc_us.csv",*/
 	}
 
- 	//fromCSVListToStations("./data", filesList, logger)
-	//fromCSVListToAutocomplete("data", filesList, logger)
-	fromCSVToList("./data", filesList, logger)
+ 	fromCSVListToStations("./data", filesList, logger)
+	fromCSVListToAutocomplete("./data", filesList, logger)
+	//fromCSVToList("./data", filesList, logger)
 }
 
 
 func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
-	stationsLocal := stations.NewStationsSCVClient("212.227.214.163:8102", logger)
+	stationsLocal := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
 
 	//allStation := make([]stationssvc.Station, 0)
 	for _,fileName := range filesList {
@@ -166,7 +166,7 @@ func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 }
 
 func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logger) {
-	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.214.163:8109", logger)
+	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
 
 	for _,fileName := range filesList {
 		fmt.Println("Process", fileName)

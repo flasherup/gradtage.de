@@ -22,6 +22,7 @@ func NewBackupBox(ct *fyne.Container, bus EventBus.Bus) *BackupBox {
 	bck.BackupBtn = widget.NewButton("Start", bck.onBackupStart)
 
 	ct.Add(container.NewVBox(
+		widget.NewSeparator(),
 		bck.Status,
 		bck.BackupBtn,
 	))

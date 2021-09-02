@@ -30,7 +30,6 @@ func NewWindowMain(a fyne.App) *WindowMain {
 
 	ct := container.New(layout.NewVBoxLayout())
 	wm.Slb = *NewStationListBox(ct, wm.Bus)
-	ct.Add(layout.NewSpacer())
 	wm.Bkb = *NewBackupBox(ct, wm.Bus)
 	wm.Window.SetContent(ct)
 	wm.Window.Resize(fyne.NewSize(300, 500))

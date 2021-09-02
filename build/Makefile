@@ -24,36 +24,36 @@ build_all:
 	make build_stations
 
 upload_weatherbit:
-	pscp weatherbitsvc flasherup@212.227.214.163:/home/flasherup/app
+	pscp weatherbitsvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_api:
-	pscp apisvc flasherup@212.227.214.163:/home/flasherup/app
+	pscp apisvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_users:
-	pscp usersvc flasherup@212.227.214.163:/home/flasherup/app
+	pscp usersvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_autocomplete:
-	pscp autocompletesvc flasherup@212.227.214.163:/home/flasherup/app
+	pscp autocompletesvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_stations:
-	pscp stationssvc flasherup@212.227.214.163:/home/flasherup/app
+	pscp stationssvc flasherup@212.227.215.17:/home/flasherup/app
 
 
 
 update_weatherbit:
-	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_weatherbitsvc $*"
+	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_weatherbitsvc $*"
 
 update_api:
-	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_apisvc $*"
+	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_apisvc $*"
 
 update_users:
-	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_usersvc $*"
+	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_usersvc $*"
 
 update_autocomplete:
-	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_autocompletesvc $*"
+	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_autocompletesvc $*"
 
 update_stations:
-	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && make update_stationssvc $*"
+	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_stationssvc $*"
 
 deploy_autocomplete:
 	make build_autocomplete
@@ -114,7 +114,7 @@ update_grpcs:
 
 setup_services:
 	7z a -tzip setup.zip setup
-	ssh flasherup@212.227.214.163 "rm -f /home/flasherup/app/setup.zip && rm -f -r /home/flasherup/app/setup"
-	pscp setup.zip flasherup@212.227.214.163:/home/flasherup/app
-	ssh flasherup@212.227.214.163 "cd /home/flasherup/app && unzip setup.zip"
-	ssh flasherup@212.227.214.163 "find . -type f | xargs -n 5 touch && make clean"
+	ssh flasherup@212.227.215.17 "rm -f /home/flasherup/app/setup.zip && rm -f -r /home/flasherup/app/setup"
+	pscp setup.zip flasherup@212.227.215.17:/home/flasherup/app
+	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && unzip setup.zip"
+	ssh flasherup@212.227.215.17 "find . -type f | xargs -n 5 touch && make clean"
