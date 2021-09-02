@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/utils/databackup/config"
 	"github.com/flasherup/gradtage.de/utils/databackup/database"
@@ -10,9 +11,14 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
+	"sync"
 	"time"
-
 )
+//"82.165.119.83:8111"
+type WBDataBackup struct {
+	StName string
+	Data []weatherbitsvc.WBData
+}
 
 func main() {
 	configFile := flag.String("config.file", "config.yml", "Config file name.")
@@ -39,22 +45,26 @@ func main() {
 		return
 	}
 
-
-
-
-
 	source := impl.NewWeatherBitSVCClient(conf.Clients.SRCAddr, logger)
+
+	var wg  sync.WaitGroup
+	wg.Add(2)
 
 	level.Info(logger).Log("msg", "Data backup client start")
 	defer level.Info(logger).Log("msg", "client end")
 
+	ch  := make(chan WBDataBackup)
 
 
-	moveData(db, source, logger)
+	go moveData(db, source, logger, ch, &wg)
+	go pushData(db,logger, ch, &wg)
 
+	wg.Wait()
+	level.Info(logger).Log("msg", "The program has finished")
 }
 
-func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Logger)  {
+func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Logger, ch chan WBDataBackup, wg *sync.WaitGroup) {
+	//fmt.Print(ch)
 	level.Info(logger).Log("msg", "Getting data")
 	//currentTime := time.Now()
 	stations, err := source.GetStationsList()
@@ -69,25 +79,45 @@ func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Log
 	currentDate := date.Format(common.TimeLayoutWBH)
 
 	for i, stationName := range *stations {
+
+		date2 := time.Now()
+
 		level.Info(logger).Log("msg", "Process station: "+stationName, "#", i)
 		data, err := source.GetWBPeriod(stationName, "2000-01-01T00:00:00", currentDate)
 		if err != nil {
+
 			level.Error(logger).Log("msg", "Getting station data error", "station", stationName, "error", err.Error())
 			continue
+		}
+
+		ch <- WBDataBackup{
+			stationName,
+			  *data,
 		}
 
 		err = db.CreateTable(stationName)
 		if err != nil {
 			level.Error(logger).Log("msg", "table create error", "err", err)
 		}
+		fmt.Println("GetWBPeriod ", stationName, "complete. Time elapsed:", time.Since(date2).Seconds(), "ms")
+	}
+}
 
+func pushData(db *database.Postgres, logger log.Logger, ch chan WBDataBackup, wg *sync.WaitGroup) {
 
-		level.Info(logger).Log("msg", "Station: "+stationName+" data received", "count", len(*data))
-		err = db.PushWBData(stationName, *data)
-		if err != nil {
-			level.Error(logger).Log("msg", "Saving station data error", "station", stationName, "error", err.Error())
+	for i := 0; i < 10000; i++ {
+		select {
+		case wd := <-ch:
+			date := time.Now()
+			level.Info(logger).Log("msg", "Station: "+wd.StName+" data received")
+			err := db.PushWBData(wd.StName, wd.Data)
+			if err != nil {
+				level.Error(logger).Log("msg", "Saving station data error", "station", wd.StName, "error", err.Error())
+			}
+			fmt.Println("PushWBPeriod ", wd.StName, "complete. Time elapsed:", time.Since(date).Seconds(), "ms")
 		}
 	}
-
-
+	defer wg.Done()
 }
+
+

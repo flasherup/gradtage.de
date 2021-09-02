@@ -36,3 +36,5 @@ dailysvc/dlygrpc/dailysvc_grpc.pb.go
 utils/weatherbitprocessor/config.yml
 build/apisvc
 build/usersvc
+test/test.go
+test/test3.go
