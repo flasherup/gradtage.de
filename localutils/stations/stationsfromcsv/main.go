@@ -28,38 +28,9 @@ func main() {
 		)
 	}
 
-	/*filesList := map[string]string {
-		"addon_icao_prioa.csv": "CET",
-		"addon_icao_priob.csv": "CET",
-		"addon_icao_prioc.csv": "CET",
-		"prioa_ch.csv": "CET",
-		"prioa_es.csv": "CET",
-		"prioa_fr.csv": "CET",
-		"prioa_gb.csv": "CET",
-		"prioa_it.csv": "CET",
-		"prioa_li.csv": "CET",
-		"prioa_lu.csv": "CET",
-		"prioa_nl.csv": "GMT",
-		"Prioa_no.csv": "WET",
-		"prioa_pl.csv": "WET",
-		"prioa_pt.csv": "WET",
-		"prioa_se.csv": "WET",
-		"priob_at.csv": "WET",
-		"priob_au.csv": "WET",
-		"priob_be.csv": "WET",
-		"priob_by.csv": "WET",
-		"priob_ca.csv": "WET",
-		"priob_de.csv": "WET",
-		"priob_dk.csv": "WET",
-		"priob_fi.csv": "WET",
-		"priob_gr.csv": "WET",
-		"priob_ie.csv": "WET",
-		"prioc_us.csv": "WET",
-	}*/
-
 	filesList := []string {
-		"stations_V2_20210831.csv",
-		//"EDG_Stationlist_Masterfile.csv",
+		//"stations_V2_20210831.csv",
+		"EDG_Stationlist_Masterfile.csv",
 		/*"PrioD.csv",
 		"addon_icao_prioa.csv",
 		"addon_icao_priob.csv",
@@ -90,13 +61,14 @@ func main() {
 	}
 
  	//fromCSVListToStations("./data", filesList, logger)
-	//fromCSVListToAutocomplete("./data", filesList, logger)
-	fromCSVToList("./data", filesList, logger)
+	fromCSVListToAutocomplete("./data", filesList, logger)
+	//fromCSVToList("./data", filesList, logger)
 }
 
 
 func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
-	stationsLocal := stations.NewStationsSCVClient("212.227.214.163:8102", logger)
+	stationsLocal := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
+	//stationsLocal := stations.NewStationsSCVClient("localhost:8102", logger)
 
 	//allStation := make([]stationssvc.Station, 0)
 	for _,fileName := range filesList {
@@ -141,8 +113,8 @@ func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 }
 
 func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logger) {
-	//autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.214.163:8109", logger)
-	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
+	//autocompleteLocal := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
+	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
 
 	for _,fileName := range filesList {
 		fmt.Println("Process", fileName)

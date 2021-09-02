@@ -27,14 +27,14 @@ func main() {
 	}
 	//client := impl.NewUsersSCVClient("localhost:8110",logger)
 	//client := impl.NewUsersSCVClient("82.165.18.228:8110",logger)//Old Server
-	client := impl.NewUsersSCVClient("212.227.214.163:8110",logger)//New server
+	client := impl.NewUsersSCVClient("212.227.215.17:8110",logger)//New server
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
 	//addPlans(client, logger, data.Plans)
 
-	createOrder(client, logger)
+	//createOrder(client, logger)
 	//validateOrder(client, logger, 1277)
 	//validateKey(client, logger, "fe52a98a-3b04-41d3-bd35-79a31ec3e9b2")
 	/*for i := 0; i<10; {
@@ -42,14 +42,14 @@ func main() {
 		validateSelection(client, logger)
 	}*/
 	//validateSelection(client, logger)
-	//updateOrder(client, logger)
+	updateOrder(client, logger)
 	//deleteOrder(client, logger)
 
 }
 
 func createOrder(client *impl.UsersSVCClient, logger log.Logger) {
 	//key, err := client.CreateOrder(testOrderId, "test@test.test", "trial", testKey)
-	key, err := client.CreateOrder(10000010, "nagel.bremen@gmail.com", usersvc.PlanTrial, "ikqLGrZvG2OEoDALQUGR")
+	key, err := client.CreateOrder(10000009, "nagel.bremen@gmail.com", usersvc.PlanTrial, "ikqLGrZvG2OEoDALQUGR")
 	if err !=nil {
 		level.Error(logger).Log("msg", "Order Create error", "err", err.Error())
 	}
@@ -119,7 +119,7 @@ func updateOrder(client *impl.UsersSVCClient, logger log.Logger) {
 	}
 
 	order.Admin = true
-
+	order.Plan = usersvc.PlanAdmin
 	key, err := client.UpdateOrder(order)
 	if err != nil {
 		level.Error(logger).Log("msg", "Order update error", "err", err.Error())
@@ -131,7 +131,7 @@ func updateOrder(client *impl.UsersSVCClient, logger log.Logger) {
 }
 
 func deleteOrder(client *impl.UsersSVCClient, logger log.Logger) {
-	err := client.DeleteOrder(testOrderId)
+	err := client.DeleteOrder(0)
 	if err !=nil {
 		level.Error(logger).Log("msg", "Order delete error", "err", err.Error())
 	}

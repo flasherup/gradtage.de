@@ -14,7 +14,7 @@ type Postgres struct {
 	db *sql.DB
 }
 
-const tableName = "autocomplete_wb"
+const tableName = "autocomplete"
 
 //NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
@@ -317,10 +317,10 @@ func (pg Postgres) CreateTable() error {
 			iso_2_country varchar(3),  
 			iso_3_country varchar(3),  
 			prio varchar(1),  
-			city_name_english varchar(50),  
-			city_name_native varchar(50),  
-			country_name_english varchar(50),  
-			country_name_native varchar(50),  
+			city_name_english varchar(60),  
+			city_name_native varchar(60),  
+			country_name_english varchar(60),  
+			country_name_native varchar(60),  
 			icao varchar(4),  
 			wmo varchar(8),  
 			cwop varchar(8),  
