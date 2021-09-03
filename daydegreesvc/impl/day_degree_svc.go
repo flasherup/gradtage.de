@@ -59,6 +59,9 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 }
 
 func toDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
+	if temps == nil {
+		return &[]daydegreesvc.Degree{}
+	}
 	res := make([]daydegreesvc.Degree, len(*temps))
 	for i,v := range *temps {
 		res[i] =  daydegreesvc.Degree{
