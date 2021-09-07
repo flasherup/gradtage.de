@@ -1,0 +1,18 @@
+syntax = "proto3";
+option  go_package = "github.com/flasherup/gradtage.de/wheathrbitupdatesvc/wbugrpc;wbugrpc";
+
+package wbugrpc;
+
+message ForceRestartRequest {
+}
+
+message ForceRestartResponse {
+    string err = 1;
+}
+
+
+service WeatherBitUpdateSVC {
+    rpc ForceRestart(ForceRestartRequest)  returns (ForceRestartResponse) {}
+}
+
+
