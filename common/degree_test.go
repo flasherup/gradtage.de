@@ -9,16 +9,16 @@ func TestIsTheSamePeriod(t *testing.T) {
 	type values struct {
 		latest string
 		current string
-		period int
+		period string
 		res bool
 	}
 	testValues := []values {
-		{"2020-01-02T15:04:05Z","2020-01-03T20:04:05Z", PeriodDay,false},
-		{"2020-01-02T15:04:05Z","2020-01-02T20:04:05Z", PeriodDay,true},
-		{"2020-01-02T15:04:05Z","2020-02-02T15:04:05Z", PeriodMonth,false},
-		{"2020-02-02T15:04:05Z","2020-02-02T15:04:05Z", PeriodMonth,true},
-		{"2020-01-02T15:04:05Z","2021-02-02T15:04:05Z", PeriodYear,false},
-		{"2020-02-02T15:04:05Z","2020-02-02T15:04:05Z", PeriodYear,true},
+		{"2020-01-02T15:04:05Z","2020-01-03T20:04:05Z", BreakdownDaily,false},
+		{"2020-01-02T15:04:05Z","2020-01-02T20:04:05Z", BreakdownDaily,true},
+		{"2020-01-02T15:04:05Z","2020-02-02T15:04:05Z", BreakdownMonthly,false},
+		{"2020-02-02T15:04:05Z","2020-02-02T15:04:05Z", BreakdownMonthly,true},
+		{"2020-01-02T15:04:05Z","2021-02-02T15:04:05Z", BreakdownYearly,false},
+		{"2020-02-02T15:04:05Z","2020-02-02T15:04:05Z", BreakdownYearly,true},
 	}
 
 	for _,v := range testValues{
@@ -35,7 +35,7 @@ func TestIsTheSamePeriod(t *testing.T) {
 		res := isTheSamePeriod(last, current, v.period)
 		if res != v.res {
 			t.Errorf(
-				"isTheSamePeriod(%s, %s, %d) = %t; want %t",
+				"isTheSamePeriod(%s, %s, %s) = %t; want %t",
 				v.latest,
 				v.current,
 				v.period,
