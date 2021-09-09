@@ -24,7 +24,7 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 		httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 	}
 
-	r.Methods("POST").Path("/degreedays").Handler(kithttp.NewServer(
+	r.Methods("POST").Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").Handler(kithttp.NewServer(
 		e.GetHDDEndpoint,
 		decodeGetHDDRequest,
 		encodeGetHDDResponse,

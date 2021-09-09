@@ -70,6 +70,40 @@ func NewAPISVC(
 }
 
 func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
+	return as.processHDD(params)
+}
+
+func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
+	res, err := as.processHDD(params)
+	if err != nil {
+		return res, "error", err
+	}
+	if params.Output == common.DDType {
+		fileName = fmt.Sprintf("%s_DD_%gC_%gC.csv",
+			params.Station,
+			params.Tb,
+			params.Tr)
+	}
+	if params.Output == common.HDDType {
+		fileName = fmt.Sprintf("%s_HDD_%gC.csv",
+			params.Station,
+			params.Tb)
+	}
+	if params.Output == common.CDDType {
+		fileName = fmt.Sprintf("%s_CDD_%gC.csv",
+			params.Station,
+			params.Tb)
+	}
+	return res,fileName,err
+}
+
+func (as APISVC) processHDD(params apisvc.Params) (data [][]string, err error) {
+	err = as.validateRequest(params)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return utils.CSVError(err), err
+	}
+
 	autoComplete, err := as.getAutocomplete(params.Station)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "err", err)
@@ -79,50 +113,6 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]str
 	if autoComplete.ID == "" {
 		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "station", params.Station)
 		return [][]string{}, errors.New("station id  not found, station:" + params.Station)
-	}
-	params.Station = autoComplete.ID
-
-	err = as.validateRequest(params)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation error", "err", err)
-		return utils.CSVError(err), err
-	}
-	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
-	ddParams := daydegreesvc.Params{
-		Station:   params.Station,
-		Start:     params.Start,
-		End:       params.End,
-		Breakdown: params.Breakdown,
-		Tb:        params.Tb,
-		Tr:        params.Tr,
-		Output:    params.Output,
-		DayCalc:   params.DayCalc,
-	}
-	degree, err := as.daydegree.GetDegree(ddParams)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
-	}
-
-	res := utils.GenerateCSV(degree, ddParams, autoComplete)
-	return res, err
-}
-
-func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	err = as.validateRequest(params)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation error", "err", err)
-		return utils.CSVError(err), "error", err
-	}
-
-	autoComplete, err := as.getAutocomplete(params.Station)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "err", err)
-		return [][]string{}, "error", err
-	}
-
-	if autoComplete.ID == "" {
-		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "station", params.Station)
-		return [][]string{}, "error", errors.New("station id  not found, station:" + params.Station)
 	}
 	params.Station = autoComplete.ID
 
@@ -151,23 +141,8 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
 	}
 	res := utils.GenerateCSV(degree, ddParams, autoComplete)
-	if params.Output == common.DDType {
-		fileName = fmt.Sprintf("%s_DD_%gC_%gC.csv",
-			params.Station,
-			params.Tb,
-			params.Tr)
-	}
-	if params.Output == common.HDDType {
-		fileName = fmt.Sprintf("%s_HDD_%gC.csv",
-			params.Station,
-			params.Tb)
-	}
-	if params.Output == common.CDDType {
-		fileName = fmt.Sprintf("%s_CDD_%gC.csv",
-			params.Station,
-			params.Tb)
-	}
-	return res,fileName,err
+
+	return res,err
 }
 
 func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {

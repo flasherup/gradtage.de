@@ -19,26 +19,15 @@ func decodeGetHDDRequest(_ context.Context, r *http.Request) (request interface{
 	if e := json.NewDecoder(r.Body).Decode(&req.Params); e != nil {
 		return nil, e
 	}
+	vars := mux.Vars(r)
+	req.Params.Output = vars[Method]
+	req.Params.DayCalc = vars[DayCalc]
 	return req, nil
 }
 
 func encodeGetHDDResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetHDDResponse)
 	w.Header().Set("Content-Type", "text/csv")
-	wr := csv.NewWriter(w)
-	wr.Comma = ';'
-	err := wr.WriteAll(resp.Data)
-	wr.Flush()
-	if err != nil {
-		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
-	}
-	return err
-}
-
-func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(GetHDDCSVResponse)
-	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
 	wr := csv.NewWriter(w)
 	wr.Comma = ';'
 	err := wr.WriteAll(resp.Data)
@@ -78,6 +67,20 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 
 	req  := GetHDDCSVRequest{ prm }
 	return req, nil
+}
+
+func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(GetHDDCSVResponse)
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
+	wr := csv.NewWriter(w)
+	wr.Comma = ';'
+	err := wr.WriteAll(resp.Data)
+	wr.Flush()
+	if err != nil {
+		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
+	}
+	return err
 }
 
 func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request interface{}, err error) {

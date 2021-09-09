@@ -34,7 +34,7 @@ func main() {
 
 	//addPlans(client, logger, data.Plans)
 
-	//createOrder(client, logger)
+	createOrder(client, logger)
 	//validateOrder(client, logger, 1277)
 	//validateKey(client, logger, "fe52a98a-3b04-41d3-bd35-79a31ec3e9b2")
 	/*for i := 0; i<10; {
@@ -42,14 +42,14 @@ func main() {
 		validateSelection(client, logger)
 	}*/
 	//validateSelection(client, logger)
-	updateOrder(client, logger)
+	//updateOrder(client, logger)
 	//deleteOrder(client, logger)
 
 }
 
 func createOrder(client *impl.UsersSVCClient, logger log.Logger) {
 	//key, err := client.CreateOrder(testOrderId, "test@test.test", "trial", testKey)
-	key, err := client.CreateOrder(10000009, "nagel.bremen@gmail.com", usersvc.PlanTrial, "ikqLGrZvG2OEoDALQUGR")
+	key, err := client.CreateOrder(10000010, "admin@gradtage.de", usersvc.PlanEnterprise, "hSlSfSlHmfJtpGqCmfLR")
 	if err !=nil {
 		level.Error(logger).Log("msg", "Order Create error", "err", err.Error())
 	}
