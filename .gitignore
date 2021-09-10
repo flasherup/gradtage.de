@@ -38,3 +38,4 @@ build/apisvc
 build/usersvc
 test/test.go
 test/test3.go
+utils/databackup/config.yml
