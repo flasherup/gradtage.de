@@ -3,7 +3,7 @@ package database
 import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
+	"github.com/flasherup/gradtage.de/wheathrbitupdatesvc/impl/parser"
 )
 
 type WeatherBitDB interface {

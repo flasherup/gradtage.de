@@ -2,12 +2,12 @@ package impl
 
 import (
 	"context"
-	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/weatherbitsvc"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
+	"github.com/flasherup/gradtage.de/stationssvc"
+	"github.com/flasherup/gradtage.de/wheathrbitupdatesvc/config"
+	"github.com/flasherup/gradtage.de/wheathrbitupdatesvc/impl/database"
+	"github.com/flasherup/gradtage.de/wheathrbitupdatesvc/impl/parser"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"io/ioutil"
@@ -17,11 +17,12 @@ import (
 )
 
 type WeatherBitUpdateSVC struct {
-	weatherbit    weatherbitsvc.Client
+	stations    stationssvc.Client
+	db 			database.WeatherBitDB
 	alert 		alertsvc.Client
 	logger  	log.Logger
-	conf		config.WeatherBitConfig
-	Context 	context.Context
+	conf		config.WeatherBitUpdateConfig
+	stationList           map[string]string
 	dailyRequestCounter   int
 	secondsRequestCounter int
 	dailyStartTime        time.Time
@@ -32,77 +33,63 @@ type WeatherBitUpdateSVC struct {
 
 func NewWeatherBitUpdateSVC(
 	logger 		log.Logger,
-	weatherbit 	weatherbitsvc.Client,
+	stations 	stationssvc.Client,
+	db 			database.WeatherBitDB,
 	alert 		alertsvc.Client,
-	conf 		config.WeatherBitConfig,
+	conf 		config.WeatherBitUpdateConfig,
 ) (*WeatherBitUpdateSVC, error) {
-	wbu := WeatherBitUpdateSVC {
-		weatherbit:weatherbit,
+	wb := WeatherBitUpdateSVC {
+		stations:stations,
+		db:db,
 		alert:alert,
 		logger:logger,
 		conf:conf,
-		Context: context.Background(),
 		dailyRequestCounter:   0,
 		secondsRequestCounter: 0,
 	}
-	go wbu.runInfiniteUpdate(wbu.Context)
-	return &wbu,nil
+
+
+
+	//processUpdate(wb, startDate, endDate)
+
+	//go startFetchProcess(&wb)
+	return &wb,nil
 }
 
-func (wbu *WeatherBitUpdateSVC) ForceRestart(ctx context.Context, ids []string, start string, end string)  error {
-	level.Info(wbu.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s",len(ids), start, end))
+func (wb WeatherBitUpdateSVC) ForceRestart(ctx context.Context) error {
 	return nil
 }
 
-func (wbu *WeatherBitUpdateSVC) runInfiniteUpdate(ctx context.Context) error{
+func startFetchProcess(wb *WeatherBitUpdateSVC) {
+	wb.precessStations() //Do it first time
+	tick := time.Tick(time.Hour * 24)
 	for {
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
+		case <-tick:
+			wb.precessStations()
 		}
-		date := time.Now()
-		wbu.precessStations(date)
 	}
 }
 
-/*func (wbu *WeatherBitUpdateSVC)precessStations() {
-	sts, err := wbu.weatherbit.GetStationsList()
 
-	if err != nil {
-		level.Error(wbu.logger).Log("msg", "WeatherBitUpdate GetStationsList error", "err", err)
-		return
-	}
-
-	for _ , station := range *sts {
-		wb.processUpdate(station.Id, station.SourceId)
-	}
-
-}*/
-
-
-func (wbu *WeatherBitUpdateSVC)precessStations(date time.Time) {
-	wbu.dailyStartTime = date
-	wbu.secondsStartTime = date
-	sts, err := wbu.weatherbit.GetStationsList()
-	if err != nil {
-		level.Error(wbu.logger).Log("msg", "WeatherBitUpdate GetStationsList error", "err", err)
-		return
-	}
-	for _,v := range *sts {
-		level.Info(wbu.logger).Log("msg", "Process station", "innerId", k, "station", v)
-		wbu.processRequest(v, date)
+func (wbh *WeatherBitUpdateSVC)precessStations(date time.Time) {
+	wbh.dailyStartTime = date
+	wbh.secondsStartTime = date
+	for k,v := range wbh.stationList {
+		level.Info(wbh.logger).Log("msg", "Process station", "innerId", k, "station", v)
+		wbh.processRequest(k, v, date)
 	}
 }
 
-func (wbu *WeatherBitUpdateSVC)processRequest(stID string, end time.Time) error {
+func (wbh *WeatherBitUpdateSVC)processRequest(stID string, st string, end time.Time) error {
 	startDate := end
-	requestsPerSecond := wbu.conf.WeatherBit.NumberOfRequestPerSecond
-	requestsPerDay := wbu.conf.WeatherBit.NumberOfRequestPerDay
+	requestsPerSecond := wbh.conf.Weatherbit.NumberOfRequestPerSecond
+	requestsPerDay := wbh.conf.Weatherbit.NumberOfRequestPerDay
 	for {
 		start := end.AddDate(0, 0, -14)
 		sDate := start.Format(common.TimeLayoutWBH)
 		eDate := end.Format(common.TimeLayoutWBH)
-		if yearCheck(startDate, end, wbh.conf.WeatherBit.NumberOfYears) {
+		if daysCheck(startDate, end, wbh.conf.Weatherbit.NumberOfDays) {
 			break
 		}
 		end = start
@@ -116,14 +103,14 @@ func (wbu *WeatherBitUpdateSVC)processRequest(stID string, end time.Time) error 
 	return nil
 }
 
-func (wbh WeatherHistorical)processUpdate(stID string, st string, start string, end string) error {
+func (wbh WeatherBitUpdateSVC)processUpdate(stID string, st string, start string, end string) error {
 	err := wbh.db.CreateTable(stID)
 	if err != nil {
 		level.Error(wbh.logger).Log("msg", "table create error", "err", err)
 		return err
 	}
 
-	url := wbh.conf.Sources.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wbh.conf.Sources.KeyWeatherBit + "&start_date=" + start + "&end_date=" + end
+	url := wbh.conf.Weatherbit.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wbh.conf.Weatherbit.KeyWeatherBit + "&start_date=" + start + "&end_date=" + end
 	level.Info(wbh.logger).Log("msg", "weather bit request", "url", url)
 
 	client := &http.Client{
@@ -161,7 +148,7 @@ func (wbh WeatherHistorical)processUpdate(stID string, st string, start string, 
 	return nil
 }
 
-func (wbh WeatherHistorical)checkPeriod(stID string, start string, end string) bool {
+func (wbh WeatherBitUpdateSVC)checkPeriod(stID string, start string, end string) bool {
 	temps, err := wbh.db.GetPeriod(stID, start, end)
 	if err == nil {
 		return len(temps) != 0
@@ -184,7 +171,7 @@ func sleepCheck(numberOfRequests, counter int, startTime time.Time, duration tim
 	return counter, startTime
 }
 
-func yearCheck(start, end time.Time, yearsCount int) bool {
-	return 	start.Year() - end.Year() >= yearsCount &&
+func daysCheck(start, end time.Time, daysCount int) bool {
+	return 	start.Year() - end.Year() >= daysCount &&
 		start.Month() > end.Month()
 }
