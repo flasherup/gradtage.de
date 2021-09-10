@@ -46,6 +46,9 @@ func (pg *Postgres) Dispose() {
 
 //PushPeriod write a list of temperatures in to DB
 func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
+	if wbd == nil || len(wbd.Data) == 0 {
+		return nil
+	}
 	query := fmt.Sprintf("INSERT INTO %s " +
 		"(date, " +
 		"rh, " +
