@@ -1,5 +1,5 @@
 syntax = "proto3";
-option  go_package = "github.com/flasherup/gradtage.de/wheathrbitupdatesvc/wbugrpc;wbugrpc";
+option  go_package = "github.com/flasherup/gradtage.de/weathrbitupdatesvc/wbugrpc;wbugrpc";
 
 package wbugrpc;
 

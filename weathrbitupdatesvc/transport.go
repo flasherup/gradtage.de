@@ -1,8 +1,8 @@
-package weatherbitsvc
+package weatherbitupdatesvc
 
 import (
 	"context"
-	weathergrpc "github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc"
+	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/wbugrpc"
 	"github.com/go-kit/kit/log"
 	gt "github.com/go-kit/kit/transport/grpc"
 	"github.com/gorilla/mux"
@@ -14,12 +14,12 @@ type GRPCServer struct {
 	forceRestart       gt.Handler
 }
 
-func (s *GRPCServer) ForceRestart(ctx context.Context, req *weathergrpc.GetPeriodRequest) (*weathergrpc.GetPeriodResponse, error) {
+func (s *GRPCServer) ForceRestart(ctx context.Context, req *wbugrpc.ForceRestartRequest) (*wbugrpc.ForceRestartResponse, error) {
 	_, resp, err := s.forceRestart.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp.(*weathergrpc.GetPeriodResponse), err
+	return resp.(*wbugrpc.ForceRestartResponse), err
 }
 
 

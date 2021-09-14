@@ -1,0 +1,15 @@
+update_weatherbitsvc:
+	sudo -S systemctl stop weatherbitsvc
+	sudo -S sudo cp weatherbitsvc /usr/local/bin/
+	sudo -S systemctl start weatherbitsvc
+
+update_weathrbitupdatesvc:
+	sudo -S systemctl stop weathrbitupdatesvc
+	sudo -S sudo cp weathrbitupdatesvc /usr/local/bin/
+	sudo -S systemctl start weathrbitupdatesvc
+
+update_daydegreesvc:
+	sudo -S systemctl stop daydegreesvc
+	sudo -S sudo cp daydegreesvc /usr/local/bin/
+	sudo -S systemctl start daydegreesvc
+

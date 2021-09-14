@@ -7,11 +7,11 @@ import (
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
-	"github.com/flasherup/gradtage.de/weatherbitsvc"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/database"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/weatherbitgrpc"
+	"github.com/flasherup/gradtage.de/weathrbitupdatesvc"
+	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/config"
+	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl"
+	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl/database"
+	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/wbugrpc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net"
@@ -69,7 +69,7 @@ func main() {
 
 
 	ctx := context.Background()
-	weatherBitService, err := impl.NewWeatherBitSVC(logger, stationsService , db, alertService, *conf)
+	weatherBitUpdateService, err := impl.NewWeatherBitUpdateSVC(logger, stationsService , db, alertService, *conf)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -87,14 +87,14 @@ func main() {
 				googlerpc.MaxRecvMsgSize(common.MaxMessageReceiveSize ),
 				googlerpc.MaxSendMsgSize(common.MaxMessageSendSize ),
 			)
-		endpoints := weatherbitsvc.MakeServerEndpoints(weatherBitService)
-		weatherbitgrpc.RegisterWeatherBitScraperSVCServer(gRPCServer, weatherbitsvc.NewGRPCServer(ctx, endpoints))
+		endpoints := weatherbitupdatesvc.MakeServerEndpoints(weatherBitUpdateService)
+		wbugrpc.RegisterWeatherBitUpdateSVCServer(gRPCServer, weatherbitupdatesvc.NewGRPCServer(ctx, endpoints))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())
 		errors <- gRPCServer.Serve(listener)
 	}()
 
-	metrics := weatherbitsvc.NewMetricsTransport(weatherBitService,logger)
+	metrics := weatherbitupdatesvc.NewMetricsTransport(weatherBitUpdateService,logger)
 
 	go func() {
 		c := make(chan os.Signal)

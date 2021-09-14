@@ -20,3 +20,4 @@ build/daydegreesvc
 build/stationssvc
 build/setup.zip
 *.yml
+build/weatherbitupdatesvc

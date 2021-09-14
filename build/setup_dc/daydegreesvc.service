@@ -1,0 +1,17 @@
+[Unit]
+Description=Daydegreesvc
+Wants=network-online.target postgresql.service weatherbitsvc.service
+After=network-online.target postgresql.service weatherbitsvc.service
+
+[Service]
+User=gradtage
+Group=gradtage
+Type=simple
+ExecStartPre=/bin/sleep 1
+ExecStart=/usr/local/bin/daydegreesvc \
+--config.file /etc/gradtage/daydegreesvc.yml
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target

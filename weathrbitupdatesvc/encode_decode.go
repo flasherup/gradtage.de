@@ -1,9 +1,9 @@
-package weatherbitsvc
+package weatherbitupdatesvc
 
 import (
 	"context"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/wheathrbitupdatesvc/wbugrpc"
+	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/wbugrpc"
 )
 
 func EncodeForceRestartResponse(_ context.Context, r interface{}) (interface{}, error) {

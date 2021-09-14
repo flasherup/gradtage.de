@@ -1,6 +1,9 @@
 build_weatherbit:
 	env GOOS=linux GOARCH=amd64 go build -o weatherbitsvc github.com\flasherup\gradtage.de\weatherbitsvc\cmd\server
 
+build_weatherbitupdate:
+	env GOOS=linux GOARCH=amd64 go build -o weatherbitupdatesvc github.com\flasherup\gradtage.de\weathrbitupdatesvc\cmd\server
+
 build_api:
 	env GOOS=linux GOARCH=amd64 go build -o apisvc github.com\flasherup\gradtage.de\apisvc\cmd\server
 
@@ -13,11 +16,13 @@ build_autocomplete:
 build_daydegree:
 	env GOOS=linux GOARCH=amd64 go build -o daydegreesvc github.com\flasherup\gradtage.de\daydegreesvc\cmd\server
 
+
 build_stations:
 	env GOOS=linux GOARCH=amd64 go build -o stationssvc github.com\flasherup\gradtage.de\stationssvc\cmd\server
 
 build_all:
 	make build_weatherbit
+	make build_weatherbitupdate
 	make build_api
 	make build_users
 	make build_autocomplete
@@ -25,6 +30,9 @@ build_all:
 
 upload_weatherbit:
 	pscp weatherbitsvc flasherup@212.227.215.17:/home/flasherup/app
+
+upload_weatherbitupdate:
+	pscp weatherbitupdatesvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_api:
 	pscp apisvc flasherup@212.227.215.17:/home/flasherup/app
@@ -38,9 +46,11 @@ upload_autocomplete:
 upload_stations:
 	pscp stationssvc flasherup@212.227.215.17:/home/flasherup/app
 
-
 update_weatherbit:
 	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_weatherbitsvc $*"
+
+update_weatherbitupdate:
+	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_weatherbitupdatesvc $*"
 
 update_api:
 	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_apisvc $*"
@@ -90,12 +100,22 @@ deploy_all:
 upload_cloud_weatherbit:
 	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app
 
+upload_cloud_weatherbitupdate:
+	pscp weatherbitupdatesvc flasherup@82.165.119.83:/home/flasherup/app
+
 upload_cloud_daydegree:
 	pscp daydegreesvc flasherup@82.165.119.83:/home/flasherup/app
 
 
 update_cloud_weatherbit:
 	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && make update_weatherbitsvc $*"
+
+update_cloud_weatherbitupdate:
+	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && make update_weatherbitupdatesvc $*"
+
+update_cloud_daydegree:
+	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && make update_daydegreesvc $*"
+
 
 update_cloud_daydegree:
 	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && make update_daydegreesvc $*"
@@ -104,6 +124,11 @@ deploy_cloud_weatherbit:
 	make build_weatherbit
 	make upload_cloud_weatherbit
 	make update_cloud_weatherbit
+
+deploy_cloud_weatherbitupdate:
+	make build_weatherbitupdate
+	make upload_cloud_weatherbitupdate
+	make update_cloud_weatherbitupdate
 
 deploy_cloud_daydegree:
 	make build_daydegree
@@ -116,10 +141,20 @@ update_grpcs:
 	make -C ../stationssvc/stsgrpc regenerate
 	make -C ../usersvc/grpcusr regenerate
 	make -C ../weatherbitsvc/weatherbitgrpc regenerate
+	make -C ../weathrbitupdatesvc\wbugrpc regenerate
 
 setup_services:
 	7z a -tzip setup.zip setup
 	ssh flasherup@212.227.215.17 "rm -f /home/flasherup/app/setup.zip && rm -f -r /home/flasherup/app/setup"
 	pscp setup.zip flasherup@212.227.215.17:/home/flasherup/app
+	rm setup.zip
 	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && unzip setup.zip"
 	ssh flasherup@212.227.215.17 "find . -type f | xargs -n 5 touch && make clean"
+
+setup_services_dc:
+	7z a -tzip setup.zip setup_dc
+	ssh flasherup@82.165.119.83 "rm -f /home/flasherup/app/setup.zip && rm -f -r /home/flasherup/app/setup"
+	pscp setup.zip flasherup@82.165.119.83:/home/flasherup/app
+	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && unzip setup.zip && mv setup_dc setup"
+	rm setup.zip
+	ssh flasherup@82.165.119.83 "find . -type f | xargs -n 5 touch && make clean"
