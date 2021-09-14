@@ -5,6 +5,19 @@ import (
 	"time"
 )
 
+func TestSleepCheck(t *testing.T) {
+	requestLimit := 5
+	sleep := time.Nanosecond
+	counter := 0
+	curTime := time.Now()
+	for i:=0; i<50; i++ {
+		counter, curTime = SleepCheck(requestLimit, counter, curTime, sleep)
+		if counter >= requestLimit && time.Now().Sub(curTime) >= sleep{
+			t.Errorf("Test:%d count: %d, time: %s", i, counter, curTime.Format("15:04:05.999999999"))
+		}
+	}
+}
+
 func TestDaysCheck(t *testing.T) {
 	type testValue struct {
 		start time.Time

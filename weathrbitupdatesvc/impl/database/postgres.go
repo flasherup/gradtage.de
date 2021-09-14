@@ -101,7 +101,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 		query += fmt.Sprintf( "%g,", v.SolarRad)
 		query += fmt.Sprintf( "%g,", v.WindSPD)
 		query += fmt.Sprintf( "'%s',", wbd.StateCode)
-		query += fmt.Sprintf( "'%s',", wbd.CityName)
+		query += fmt.Sprintf( "'%s',", common.FixSingleQuote(wbd.CityName))
 		query += fmt.Sprintf( "%g,", v.AppTemp)
 		query += fmt.Sprintf( "%g,", v.UV)
 		query += fmt.Sprintf( "'%g',", wbd.Lon)

@@ -8,23 +8,29 @@ import (
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/config"
 	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl/database"
-	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl/parser"
 	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl/utils"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
-	"io/ioutil"
-	"net/http"
 	"sync"
 
 	"time"
 )
 
+type UpdateStart struct {
+	StId string
+}
+
 type UpdateResult struct {
 	StId    string
 	Error   error
 	Message string
+}
+
+type metrics struct {
+	updateCounter   *ktprom.Counter
+	requestsCounter *ktprom.Counter
 }
 
 type WeatherBitUpdateSVC struct {
@@ -37,13 +43,13 @@ type WeatherBitUpdateSVC struct {
 	secondsRequestCounter int
 	dailyStartTime        time.Time
 	secondsStartTime      time.Time
+	startChanel           chan UpdateStart
 	resultChanel          chan UpdateResult
-	updateCounter         *ktprom.Counter
-	waitForRequests       *sync.WaitGroup
+	metrics               metrics
 }
 
 const (
-	labelStation = "station"
+	labelStation  = "station"
 	labelStatus  = "status"
 )
 
@@ -62,23 +68,42 @@ func NewWeatherBitUpdateSVC(
 		conf:                  conf,
 		dailyRequestCounter:   0,
 		secondsRequestCounter: 0,
+		startChanel:           make(chan UpdateStart),
 		resultChanel:          make(chan UpdateResult),
-		waitForRequests:       &sync.WaitGroup{},
 	}
 
-	wb.updateCounter = ktprom.NewCounterFrom(
+	wb.metrics = *setupMetrics()
+
+	go handleUpdates(&wb)
+	go startFetchProcess(&wb)
+	return &wb, nil
+}
+
+func setupMetrics() *metrics {
+	updateCounter := ktprom.NewCounterFrom(
 		prometheus.CounterOpts(
 			prometheus.Opts{
 				Name: "weatherbit_update_counter",
 				Help: "The total number of success/error updates",
 			},
 		),
-		[]string{labelStation, labelStatus},
+		[]string{labelStatus},
 	)
 
-	go handleUpdates(&wb)
-	go startFetchProcess(&wb)
-	return &wb, nil
+	requestCounter := ktprom.NewCounterFrom(
+		prometheus.CounterOpts(
+			prometheus.Opts{
+				Name: "weatherbit_request_counter",
+				Help: "The total number of requests",
+			},
+		),
+		[]string{labelStation},
+	)
+
+	return &metrics{
+		updateCounter: updateCounter,
+		requestsCounter: requestCounter,
+	}
 }
 
 func (wbu WeatherBitUpdateSVC) ForceRestart(ctx context.Context) error {
@@ -90,11 +115,13 @@ func handleUpdates(wbu *WeatherBitUpdateSVC) {
 		select {
 		case updateResult := <-wbu.resultChanel:
 			if updateResult.Error != nil {
-				wbu.updateCounter.With(labelStation, updateResult.StId, labelStatus, "error").Add(1)
+				wbu.metrics.updateCounter.With(labelStatus, "error").Add(1)
 				level.Error(wbu.logger).Log("msg", updateResult.Message, "err", updateResult.Error)
 			} else {
-				wbu.updateCounter.With(labelStation, updateResult.StId, labelStatus, "success").Add(1)
+				wbu.metrics.updateCounter.With(labelStatus, "success").Add(1)
 			}
+		case updateStart := <-wbu.startChanel:
+			wbu.metrics.requestsCounter.With(labelStation, updateStart.StId).Add(1)
 		}
 	}
 }
@@ -158,6 +185,12 @@ func (wbu *WeatherBitUpdateSVC) processRequest(stID string, st string, end time.
 
 func (wbu *WeatherBitUpdateSVC) processUpdate(stID, st, start, end string, wg *sync.WaitGroup) {
 	defer wg.Done()
+
+	wbu.startChanel <- UpdateStart{
+		StId: stID,
+	}
+	url := wbu.conf.Weatherbit.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wbu.conf.Weatherbit.KeyWeatherBit + "&start_date=" + start + "&end_date=" + end
+
 	err := wbu.db.CreateTable(stID)
 	if err != nil {
 		wbu.resultChanel <- UpdateResult{
@@ -168,61 +201,17 @@ func (wbu *WeatherBitUpdateSVC) processUpdate(stID, st, start, end string, wg *s
 		return
 	}
 
-	url := wbu.conf.Weatherbit.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wbu.conf.Weatherbit.KeyWeatherBit + "&start_date=" + start + "&end_date=" + end
-	level.Info(wbu.logger).Log("msg", "weather bit request", "url", url)
-
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
+	data, message, requestError := utils.MakeWeatherbitRequest(url)
+	if requestError != nil {
 		wbu.resultChanel <- UpdateResult{
 			StId:    stID,
-			Message: fmt.Sprintf("request create error for url '%s' ", url),
-			Error:   err,
-		}
-		return
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		wbu.resultChanel <- UpdateResult{
-			StId:    stID,
-			Message: fmt.Sprintf("request error for url '%s' ", url),
+			Message: message,
 			Error:   err,
 		}
 		return
 	}
 
-	contents, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		wbu.resultChanel <- UpdateResult{
-			StId:    stID,
-			Message: fmt.Sprintf("response read error for url '%s' ", url),
-			Error:   err,
-		}
-		return
-	}
-
-	err = resp.Body.Close()
-	if err != nil {
-		wbu.resultChanel <- UpdateResult{
-			StId:    stID,
-			Message: fmt.Sprintf("response body close error for url '%s' ", url),
-			Error:   err,
-		}
-	}
-
-	result, err := parser.ParseWeatherBit(&contents)
-	if err != nil {
-		wbu.resultChanel <- UpdateResult{
-			StId:    stID,
-			Message: fmt.Sprintf("weather bit data parse error for url '%s' ", url),
-			Error:   err,
-		}
-		return
-	}
-
-	err = wbu.db.PushData(stID, result)
+	err = wbu.db.PushData(stID, data)
 	if err != nil {
 		wbu.resultChanel <- UpdateResult{
 			StId:    stID,
@@ -231,6 +220,7 @@ func (wbu *WeatherBitUpdateSVC) processUpdate(stID, st, start, end string, wg *s
 		}
 		return
 	}
+	//time.Sleep(time.Second * 30)
 
 	wbu.resultChanel <- UpdateResult{
 		StId:    stID,
