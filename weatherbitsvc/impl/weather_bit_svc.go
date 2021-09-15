@@ -19,61 +19,56 @@ import (
 )
 
 type WeatherBitSVC struct {
-	stations    stationssvc.Client
-	db 			database.WeatherBitDB
-	alert 		alertsvc.Client
-	logger  	log.Logger
-	conf		config.WeatherBitConfig
+	stations stationssvc.Client
+	db       database.WeatherBitDB
+	alert    alertsvc.Client
+	logger   log.Logger
+	conf     config.WeatherBitConfig
 }
 
-
-
 func NewWeatherBitSVC(
-	logger 		log.Logger,
-	stations 	stationssvc.Client,
-	db 			database.WeatherBitDB,
-	alert 		alertsvc.Client,
-	conf 		config.WeatherBitConfig,
+	logger log.Logger,
+	stations stationssvc.Client,
+	db database.WeatherBitDB,
+	alert alertsvc.Client,
+	conf config.WeatherBitConfig,
 ) (*WeatherBitSVC, error) {
-	wb := WeatherBitSVC {
-		stations:stations,
-		db:db,
-		alert:alert,
-		logger:logger,
-		conf:conf,
+	wb := WeatherBitSVC{
+		stations: stations,
+		db:       db,
+		alert:    alert,
+		logger:   logger,
+		conf:     conf,
 	}
-
-
 
 	//processUpdate(wb, startDate, endDate)
 
 	//go startFetchProcess(&wb)
-	return &wb,nil
+	return &wb, nil
 }
 
 func (wb WeatherBitSVC) GetPeriod(ctx context.Context, ids []string, start string, end string) (temps map[string][]common.Temperature, err error) {
-	level.Info(wb.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s",len(ids), start, end))
+	level.Info(wb.logger).Log("msg", "GetPeriod", "ids", fmt.Sprintf("Length:%d, Start:%s End:%s", len(ids), start, end))
 	temps = make(map[string][]common.Temperature)
 
-	for _,id := range ids {
+	for _, id := range ids {
 		t, err := wb.db.GetPeriod(id, start, end)
-		if err != nil {
-			return temps,err
-		}
-		temps[id] = t
-	}
-	return temps,err
-}
-
-func (wb WeatherBitSVC) GetWBPeriod(ctx context.Context, id string, start string, end string) (temps []weatherbitsvc.WBData, err error) {
-	level.Info(wb.logger).Log("msg", "GetWBPeriod", "id", id, "start", start, "end",  end)
-
-
-		temps, err = wb.db.GetWBData(id, start, end)
 		if err != nil {
 			return temps, err
 		}
-		return
+		temps[id] = t
+	}
+	return temps, err
+}
+
+func (wb WeatherBitSVC) GetWBPeriod(ctx context.Context, id string, start string, end string) (temps []weatherbitsvc.WBData, err error) {
+	level.Info(wb.logger).Log("msg", "GetWBPeriod", "id", id, "start", start, "end", end)
+
+	temps, err = wb.db.GetWBData(id, start, end)
+	if err != nil {
+		return temps, err
+	}
+	return
 }
 
 func (wb WeatherBitSVC) PushWBPeriod(ctx context.Context, id string, data []weatherbitsvc.WBData) (err error) {
@@ -102,7 +97,7 @@ func startFetchProcess(wb *WeatherBitSVC) {
 	}
 }
 
-func (wb WeatherBitSVC)precessStations() {
+func (wb WeatherBitSVC) precessStations() {
 	sts, err := wb.stations.GetAllStations()
 
 	if err != nil {
@@ -110,14 +105,14 @@ func (wb WeatherBitSVC)precessStations() {
 		return
 	}
 
-	for _ , station := range sts.Sts {
+	for _, station := range sts.Sts {
 		wb.processUpdate(station.Id, station.SourceId)
 	}
 
 }
 
 func (wb *WeatherBitSVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
-	level.Info(wb.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:",ids))
+	level.Info(wb.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:", ids))
 	dates, err = wb.db.GetUpdateDateList(ids)
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Get Update Date List error", "err", err)
@@ -135,10 +130,10 @@ func (wb *WeatherBitSVC) GetStationsList(ctx context.Context) (stations []string
 	return stations, err
 }
 
-func (wb WeatherBitSVC)processUpdate(stID string, st string) {
+func (wb WeatherBitSVC) processUpdate(stID string, st string) {
 	date := time.Now()
 	endDate := date.Format(common.TimeLayoutWBH)
-	sDate := date.AddDate(0, 0, -2 )
+	sDate := date.AddDate(0, 0, -2)
 	startDate := sDate.Format(common.TimeLayoutWBH)
 
 	url := wb.conf.Sources.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit + "&start_date=" + startDate + "&end_date=" + endDate
