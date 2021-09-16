@@ -59,13 +59,13 @@ func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	}
 	fmt.Println(*data)
 	daysCollector :=  collectroes.NewDays()
-	for _,v := range data.Temps {
-		for _,t :=  range v.Temps {
+	for _,v := range *data {
+		for _,t :=  range v {
 			date, err := time.Parse(common.TimeLayout, t.Date)
 			if err != nil {
 				return err
 			}
-			daysCollector.Push(date.YearDay(), date.Hour(), t.Temperature)
+			daysCollector.Push(date.YearDay(), date.Hour(), t.Temp)
 		}
 	}
 	return nil

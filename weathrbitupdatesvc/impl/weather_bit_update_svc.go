@@ -174,6 +174,7 @@ func (wbu *WeatherBitUpdateSVC) processRequest(stID string, st string, end time.
 		}*/
 		endDate = startDate
 		if wbu.checkPeriod(stID, sDate, eDate) {
+			//level.Info(wbu.logger).Log("msg", "Skip station period", "innerId", stID, "station", st, "start", sDate, "end", eDate)
 			continue
 		}
 		wg.Add(1)
@@ -232,7 +233,7 @@ func (wbu *WeatherBitUpdateSVC) processUpdate(stID, st, start, end string, wg *s
 func (wbu WeatherBitUpdateSVC) checkPeriod(stID string, start string, end string) bool {
 	temps, err := wbu.db.GetPeriod(stID, start, end)
 	if err == nil {
-		return len(temps) != 0
+		return len(temps) >= wbu.conf.Weatherbit.NumberOfDaysPerRequest * 24
 	}
 	return false
 }
