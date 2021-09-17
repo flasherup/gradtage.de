@@ -38,10 +38,19 @@ type WBData struct {
 	Sunrise     string  `json:"sunrise"`
 }
 
+type StationMetrics struct {
+	StId       string  `json:"st_id"`
+	Lat        float64 `json:"lat"`
+	Lon        float64 `json:"lon"`
+	LastUpdate string  `json:"last_update"`
+	//RowsNumber  int  `json:"rows_number"`
+}
+
 type Service interface {
 	GetPeriod(ctx context.Context, ids []string, start string, end string) (map[string][]common.Temperature, error)
 	GetWBPeriod(ctx context.Context, id string, start string, end string) ([]WBData, error)
 	PushWBPeriod(ctx context.Context, id string, data []WBData) error
 	GetUpdateDate(ctx context.Context, ids []string) (map[string]string, error)
 	GetStationsList(ctx context.Context) ([]string, error)
+	GetStationsMetrics(ctx context.Context, ids []string) ([]StationMetrics, error)
 }

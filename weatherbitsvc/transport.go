@@ -11,11 +11,12 @@ import (
 )
 
 type GRPCServer struct {
-	getPeriod       gt.Handler
-	getWbPeriod     gt.Handler
-	pushWbPeriod    gt.Handler
-	getUpdateDate   gt.Handler
-	getStationsList gt.Handler
+	getPeriod          gt.Handler
+	getWbPeriod        gt.Handler
+	pushWbPeriod       gt.Handler
+	getUpdateDate      gt.Handler
+	getStationsList    gt.Handler
+	getStationsMetrics gt.Handler
 }
 
 func (s *GRPCServer) GetPeriod(ctx context.Context, req *weathergrpc.GetPeriodRequest) (*weathergrpc.GetPeriodResponse, error) {
@@ -58,6 +59,14 @@ func (s *GRPCServer) GetStationsList(ctx context.Context, req *weathergrpc.GetSt
 	return resp.(*weathergrpc.GetStationsListResponse), err
 }
 
+func (s *GRPCServer) GetStationsMetrics(ctx context.Context, req *weathergrpc.GetStationsMetricsRequest) (*weathergrpc.GetStationsMetricsResponse, error) {
+	_, resp, err := s.getStationsMetrics.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*weathergrpc.GetStationsMetricsResponse), err
+}
+
 func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 	server := GRPCServer{
 		getPeriod: gt.NewServer(
@@ -84,6 +93,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 			endpoint.GetStationsListEndpoint,
 			DecodeGetStationsListRequest,
 			EncodeGetStationsListResponse,
+		),
+		getStationsMetrics: gt.NewServer(
+			endpoint.GetStationsMetricsEndpoint,
+			DecodeGetStationsMetricsRequest,
+			EncodeGetStationsMetricsResponse,
 		),
 	}
 	return &server

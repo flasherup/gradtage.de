@@ -73,7 +73,7 @@ func main() {
 	level.Info(logger).Log("msg", "The program has finished")
 }
 
-func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Logger, ch chan WBDataBackup, stations []string) {
+func moveData(db *database.Postgres, source *impl.WeatherBitSVCClient, logger log.Logger, ch chan WBDataBackup, stations []string) {
 
 	date := time.Now()
 	currentDate := date.Format(common.TimeLayoutWBH)
