@@ -1,0 +1,17 @@
+[Unit]
+Description=Weatherbitsupdatevc
+Wants=network-online.target postgresql.service
+After=network-online.target postgresql.service
+
+[Service]
+User=gradtage
+Group=gradtage
+Type=simple
+ExecStartPre=/bin/sleep 1
+ExecStart=/usr/local/bin/weatherbitupdatesvc \
+--config.file /etc/gradtage/weatherbitupdatesvc.yml
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target

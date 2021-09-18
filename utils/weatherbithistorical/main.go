@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -70,13 +71,15 @@ func main() {
 func (wbh *WeatherHistorical)precessStations(date time.Time) {
 	wbh.dailyStartTime = date
 	wbh.secondsStartTime = date
+	wg := sync.WaitGroup{}
 	for k,v := range wbh.stationList {
 		level.Info(wbh.logger).Log("msg", "Process station", "innerId", k, "station", v)
-		wbh.processRequest(k, v, date)
+		wbh.processRequest(k, v, date, &wg)
 	}
+	wg.Wait()
 }
 
-func (wbh *WeatherHistorical)processRequest(stID string, st string, end time.Time) error {
+func (wbh *WeatherHistorical)processRequest(stID string, st string, end time.Time, wg *sync.WaitGroup) error {
 	startDate := end
 	requestsPerSecond := wbh.conf.WeatherBit.NumberOfRequestPerSecond
 	requestsPerDay := wbh.conf.WeatherBit.NumberOfRequestPerDay
@@ -91,14 +94,16 @@ func (wbh *WeatherHistorical)processRequest(stID string, st string, end time.Tim
 		if wbh.checkPeriod(stID, sDate, eDate) {
 			continue
 		}
-		go wbh.processUpdate(stID, st, sDate, eDate)
+		wg.Add(1)
+		go wbh.processUpdate(stID, st, sDate, eDate, wg)
 		wbh.secondsRequestCounter, wbh.secondsStartTime = sleepCheck(requestsPerSecond, wbh.secondsRequestCounter, wbh.secondsStartTime, time.Second)
 		wbh.dailyRequestCounter, wbh.dailyStartTime 	= sleepCheck(requestsPerDay, wbh.dailyRequestCounter, wbh.dailyStartTime, time.Hour * 24)
 	}
 	return nil
 }
 
-func (wbh WeatherHistorical)processUpdate(stID string, st string, start string, end string) error {
+func (wbh WeatherHistorical)processUpdate(stID, st, start, end string, wg *sync.WaitGroup) error {
+	defer wg.Done()
 	err := wbh.db.CreateTable(stID)
 	if err != nil {
 		level.Error(wbh.logger).Log("msg", "table create error", "err", err)

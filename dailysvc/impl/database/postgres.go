@@ -270,4 +270,3 @@ func writeToDB(db *sql.DB, query string) (err error){
 	row.Close()
 	return
 }
-
