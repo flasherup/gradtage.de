@@ -73,36 +73,40 @@ func DecodeGetStationsListRequest(_ context.Context, r interface{}) (interface{}
 
 func DecodeGetStationsMetricsRequest(_ context.Context, r interface{}) (interface{}, error) {
 	req := r.(*weathergrpc.GetStationsMetricsRequest)
-	return GetStationsMetricsRequest{ req.Ids}, nil
+	return GetStationsMetricsRequest{ req.Ids, req.CutDate}, nil
 }
 
 func EncodeGetStationsMetricsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetStationsMetricsResponse)
-	encTemp := ToMetricsGRPCData(res.Temps)
+	metrics := ToMetricsGRPCData(res.Metrics)
 	return &weathergrpc.GetStationsMetricsResponse {
-		Data: encTemp,
+		Metrics: metrics,
 		Err: common.ErrorToString(res.Err),
 	}, nil
 }
 
-func ToMetricsGRPCData(src []StationMetrics) []*weathergrpc.StationMetrics {
-	res := make([]*weathergrpc.StationMetrics, len(src))
-	for i,v := range src {
-		res[i] = &weathergrpc.StationMetrics {
+func ToMetricsGRPCData(src map[string]StationMetrics) map[string]*weathergrpc.StationMetrics {
+	res := make(map[string]*weathergrpc.StationMetrics, len(src))
+	for k,v := range src {
+		res[k] = &weathergrpc.StationMetrics {
+			StId: v.StId,
 			Lon:v.Lon,
 			Lat:v.Lat,
+			LastUpdate: v.LastUpdate,
+			RecordsNumber: int32(v.RecordsNumber),
 		}
 	}
 	return res
 }
 
-func ToMetricsData(src []*weathergrpc.StationMetrics) *[]StationMetrics {
-	res := make([]StationMetrics, len(src))
-	for i,v := range src {
-		res[i] = StationMetrics {
+func ToMetricsData(src map[string]*weathergrpc.StationMetrics) *map[string]StationMetrics {
+	res := make(map[string]StationMetrics, len(src))
+	for k,v := range src {
+		res[k] = StationMetrics {
 			Lon:v.Lon,
 			Lat:v.Lat,
 			LastUpdate:v.LastUpdate,
+			RecordsNumber: int(v.RecordsNumber),
 		}
 	}
 	return &res

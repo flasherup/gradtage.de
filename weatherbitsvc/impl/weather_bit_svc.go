@@ -9,13 +9,9 @@ import (
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/database"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/parser"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"io/ioutil"
-
-	"net/http"
-	"time"
+	"math"
 )
 
 type WeatherBitSVC struct {
@@ -40,10 +36,6 @@ func NewWeatherBitSVC(
 		logger:   logger,
 		conf:     conf,
 	}
-
-	//processUpdate(wb, startDate, endDate)
-
-	//go startFetchProcess(&wb)
 	return &wb, nil
 }
 
@@ -86,30 +78,6 @@ func (wb WeatherBitSVC) PushWBPeriod(ctx context.Context, id string, data []weat
 	return
 }
 
-func startFetchProcess(wb *WeatherBitSVC) {
-	wb.precessStations() //Do it first time
-	tick := time.Tick(time.Hour * 24)
-	for {
-		select {
-		case <-tick:
-			wb.precessStations()
-		}
-	}
-}
-
-func (wb WeatherBitSVC) precessStations() {
-	sts, err := wb.stations.GetAllStations()
-
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "WeatherBit GetStations error", "err", err)
-		return
-	}
-
-	for _, station := range sts.Sts {
-		wb.processUpdate(station.Id, station.SourceId)
-	}
-
-}
 
 func (wb *WeatherBitSVC) GetUpdateDate(ctx context.Context, ids []string) (dates map[string]string, err error) {
 	level.Info(wb.logger).Log("msg", "GetUpdateDate", "ids", fmt.Sprintf("%+q:", ids))
@@ -130,70 +98,56 @@ func (wb *WeatherBitSVC) GetStationsList(ctx context.Context) (stations []string
 	return stations, err
 }
 
-func (wb WeatherBitSVC) GetStationsMetrics(ctx context.Context, ids []string) (data []weatherbitsvc.StationMetrics, err error) {
-	level.Info(wb.logger).Log("msg", "GetStationsMetrics" , "ids length ", len(ids))
-
-	dates, err := wb.db.GetLastRecords(ids) // map[string]weatherbitsvc.WBData
-	res := make([]weatherbitsvc.StationMetrics, len(dates))
-	i := 0
-	for k,v := range dates {
-		res[i] = weatherbitsvc.StationMetrics{
-			StId: k,
-			LastUpdate: v.Date,
-			Lat: v.Lat,
-			Lon: v.Lon,
+func (wb WeatherBitSVC) GetStationsMetrics(ctx context.Context, ids []string, cutDate string) (map[string]weatherbitsvc.StationMetrics, error) {
+	stsLen := len(ids)
+	var err error
+	if stsLen == 0 {
+		ids, err = wb.db.GetListOfTables()
+		if err != nil {
+			return nil, err
 		}
-		i++
 	}
+
+	stsLen = len(ids)
+	level.Info(wb.logger).Log("msg", "GetStationsMetrics" , "ids length ", stsLen)
+	res := make(map[string]weatherbitsvc.StationMetrics)
+
+	if stsLen == 0 {
+		return res, nil
+	}
+
+
+	queryLen := 1000
+	iterations := int(math.Floor(float64(stsLen/queryLen))) + 1
+	for i:=0; i<iterations; i++ {
+		s := i * queryLen
+		e := s + queryLen
+		if e > stsLen {
+			e = s + stsLen%queryLen
+		}
+		fmt.Println("s", s, "e", e)
+		currentIds := ids[s:e]
+		wbData, err := wb.db.GetLastRecords(currentIds)
+		if err != nil {
+			return nil, err
+		}
+
+		recordsNumber, RNErr := wb.db.GetRecordsNumber(currentIds, cutDate)
+		if RNErr != nil {
+			return nil, err
+		}
+
+		for k,v := range wbData {
+			res[k] = weatherbitsvc.StationMetrics{
+				StId: k,
+				LastUpdate: v.Date,
+				Lat: v.Lat,
+				Lon: v.Lon,
+				RecordsNumber: recordsNumber[k],
+			}
+		}
+	}
+
 
 	return res, nil
-}
-
-func (wb WeatherBitSVC) processUpdate(stID string, st string) {
-	date := time.Now()
-	endDate := date.Format(common.TimeLayoutWBH)
-	sDate := date.AddDate(0, 0, -2)
-	startDate := sDate.Format(common.TimeLayoutWBH)
-
-	url := wb.conf.Sources.UrlWeatherBit + "/history/hourly?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit + "&start_date=" + startDate + "&end_date=" + endDate
-	//url := wb.conf.Sources.UrlWeatherBit + "/current?station=" + st + "&key=" + wb.conf.Sources.KeyWeatherBit
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st, "url", url)
-		return
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "request error", "err", err, "id", stID, "station", st, "url", url)
-		return
-	}
-	defer resp.Body.Close()
-
-	contents, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "response read error", "err", err, "id", stID, "station", st, "url", url)
-		return
-	}
-
-	result, err := parser.ParseWeatherBit(&contents)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "weather bit data parse error", "err", err, "id", stID, "station", st, "url", url)
-		return
-	}
-
-	err = wb.db.CreateTable(stID)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "table create error", "err", err, "id", stID, "station", st, "url", url)
-		return
-	}
-
-	err = wb.db.PushData(stID, result)
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "data push error", "err", err, "id", stID, "station", st, "url", url)
-		return
-	}
-
 }

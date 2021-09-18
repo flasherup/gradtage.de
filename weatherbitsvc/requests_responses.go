@@ -6,28 +6,28 @@ import (
 
 type GetPeriodRequest struct {
 	IDs   []string `json:"ids"`
-	Start string `json:"start"`
-	End   string `json:"end"`
+	Start string   `json:"start"`
+	End   string   `json:"end"`
 }
 
 type GetPeriodResponse struct {
-	Temps 	map[string][]common.Temperature 	`json:"temps"`
-	Err  	error 								`json:"err"`
+	Temps map[string][]common.Temperature `json:"temps"`
+	Err   error                           `json:"err"`
 }
 
 type GetWBPeriodRequest struct {
-	Id string `json:"id"`
-	Start string`json:"start"`
+	Id    string `json:"id"`
+	Start string `json:"start"`
 	End   string `json:"end"`
 }
 
 type GetWBPeriodResponse struct {
 	Temps []WBData `json:"temps"`
-	Err error
+	Err   error
 }
 
 type PushWBPeriodRequest struct {
-	Id string `json:"id"`
+	Id   string   `json:"id"`
 	Data []WBData `json:"data"`
 }
 
@@ -36,12 +36,12 @@ type PushWBPeriodResponse struct {
 }
 
 type GetUpdateDateRequest struct {
-	IDs 	[]string `json:"ids"`
+	IDs []string `json:"ids"`
 }
 
 type GetUpdateDateResponse struct {
-	Dates  map[string]string `json:"dates"`
-	Err  error `json:"err"`
+	Dates map[string]string `json:"dates"`
+	Err   error             `json:"err"`
 }
 
 type GetStationsListRequest struct {
@@ -49,14 +49,15 @@ type GetStationsListRequest struct {
 
 type GetStationsListResponse struct {
 	List []string `json:"list"`
-	Err  error `json:"err"`
+	Err  error    `json:"err"`
 }
 
 type GetStationsMetricsRequest struct {
-	IDs []string `json:"ids"`
+	IDs     []string `json:"ids"`
+	CutDate string   `json:"cut_date"`
 }
 
 type GetStationsMetricsResponse struct {
-	Temps []StationMetrics `json:"temps"`
-	Err error
+	Metrics map[string]StationMetrics `json:"metrics"`
+	Err     error
 }

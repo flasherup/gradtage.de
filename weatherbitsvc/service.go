@@ -7,7 +7,7 @@ import (
 
 type WBData struct {
 	Date        string  `json:"date"`
-	Rh		 	float64 `json:"rh"`
+	Rh          float64 `json:"rh"`
 	Pod         string  `json:"pod"`
 	Pres        float64 `json:"pres"`
 	Timezone    string  `json:"timezone"`
@@ -39,11 +39,11 @@ type WBData struct {
 }
 
 type StationMetrics struct {
-	StId       string  `json:"st_id"`
-	Lat        float64 `json:"lat"`
-	Lon        float64 `json:"lon"`
-	LastUpdate string  `json:"last_update"`
-	//RowsNumber  int  `json:"rows_number"`
+	StId          string  `json:"st_id"`
+	Lat           float64 `json:"lat"`
+	Lon           float64 `json:"lon"`
+	LastUpdate    string  `json:"last_update"`
+	RecordsNumber int     `json:"records_number"`
 }
 
 type Service interface {
@@ -52,5 +52,5 @@ type Service interface {
 	PushWBPeriod(ctx context.Context, id string, data []WBData) error
 	GetUpdateDate(ctx context.Context, ids []string) (map[string]string, error)
 	GetStationsList(ctx context.Context) ([]string, error)
-	GetStationsMetrics(ctx context.Context, ids []string) ([]StationMetrics, error)
+	GetStationsMetrics(ctx context.Context, ids []string, cutDate string) (map[string]StationMetrics, error)
 }

@@ -159,8 +159,44 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weat
 	return wbd,err
 }
 
-func (pg *Postgres) GetLastRecords(ids []string) (data map[string]weatherbitsvc.WBData, err error) {
+func (pg *Postgres) GetRecordsNumber(ids []string, cutDate string) (map[string]int, error) {
+	query := ""
+	for i,v := range ids {
+		query += fmt.Sprintf("(SELECT count(*), '%s' as name FROM %s WHERE date >= '%s')",
+			v, v, cutDate)
 
+		if i < len(ids)-1 {
+			query += " UNION ALL "
+		} else {
+			query += ";"
+		}
+	}
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return nil,err
+	}
+
+	res := map[string]int{}
+
+	var count int
+	var stId string
+	for rows.Next() {
+		err = rows.Scan(
+			&count,
+			&stId,
+		)
+		if err != nil {
+			return res, err
+		}
+
+		res[stId] = count
+	}
+
+	return res,err
+}
+
+func (pg *Postgres) GetLastRecords(ids []string) (data map[string]weatherbitsvc.WBData, err error) {
 	query := ""
 	for i,v := range ids {
 		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",

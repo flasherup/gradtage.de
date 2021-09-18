@@ -46,9 +46,11 @@ message WBData {
 }
 
 message StationMetrics {
-	double Lat           = 1;
-	double Lon           = 2;
-	string LastUpdate    = 3;
+    string StId          = 1;
+	double Lat           = 2;
+	double Lon           = 3;
+	string LastUpdate    = 4;
+    int32  RecordsNumber = 5;
 }
 
 message GetPeriodRequest {
@@ -101,11 +103,12 @@ message GetStationsListResponse {
 
 message GetStationsMetricsRequest {
     repeated string ids = 1;
+    string cutDate      = 2;
 }
 
 message GetStationsMetricsResponse {
-     repeated StationMetrics data = 1;
-     string err = 2;
+    map<string, StationMetrics> metrics = 1;
+    string err = 2;
 }
 
 service WeatherBitScraperSVC {

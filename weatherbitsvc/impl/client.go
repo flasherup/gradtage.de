@@ -102,18 +102,18 @@ func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) 
 	return stations, err
 }
 
-func (wb WeatherBitSVCClient) GetStationsMetrics(ids []string) (data *[]weatherbitsvc.StationMetrics, err error) {
+func (wb WeatherBitSVCClient) GetStationsMetrics(ids []string, cutDate string) (data *map[string]weatherbitsvc.StationMetrics, err error) {
 	conn := wb.openConn()
 	defer conn.Close()
 
 	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
-	grpc, err := client.GetStationsMetrics(context.Background(), &weathergrpc.GetStationsMetricsRequest{ Ids: ids })
+	grpc, err := client.GetStationsMetrics(context.Background(), &weathergrpc.GetStationsMetricsRequest{ Ids: ids, CutDate: cutDate})
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get stations metrics", "err", err)
 	} else if grpc.Err != common.ErrorNilString {
 		err = common.ErrorFromString(grpc.Err)
 	} else {
-		data = weatherbitsvc.ToMetricsData(grpc.Data)
+		data = weatherbitsvc.ToMetricsData(grpc.Metrics)
 	}
 
 	return data, err

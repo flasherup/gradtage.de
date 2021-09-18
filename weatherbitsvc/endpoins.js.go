@@ -68,7 +68,7 @@ func MakeGetStationsListEndpoint(s Service) endpoint.Endpoint {
 func MakeGetStationsMetricsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetStationsMetricsRequest)
-		temps, err := s.GetStationsMetrics(ctx, req.IDs)
+		temps, err := s.GetStationsMetrics(ctx, req.IDs, req.CutDate)
 		return GetStationsMetricsResponse{temps, err}, err
 	}
 }

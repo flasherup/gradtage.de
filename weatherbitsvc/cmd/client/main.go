@@ -24,8 +24,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	//client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
-	client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
+	client := impl.NewWeatherBitSVCClient("82.165.119.83:8111",logger)
+	//client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -45,7 +45,7 @@ func main() {
 		level.Error(logger).Log("msg", "PushWBPeriod Error", "err", err)
 	}*/
 
-	err := getStationsList(client, logger)
+	err := GetStationsMetrics(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "getStationsList Error", "err", err)
 	}
@@ -138,22 +138,29 @@ func getStationsList(client *impl.WeatherBitSVCClient, logger log.Logger) error 
 		return err
 	}
 
-	err = testMetrics(client, *stations)
-	if err != nil {
-		level.Error(logger).Log("msg", "getStationsList Error", "err", err)
+	for i,v := range *stations {
+		level.Info(logger).Log("msg", "Stations", "num", i, "id", v)
 	}
  return err
 }
 
-func testMetrics(client *impl.WeatherBitSVCClient,stations []string ) error {
-	stName := stations
-	//stName := []string{"us_k5sm","us_cwzr","us_cwzr","us_koak","us_k5sm","us_imbo","us_k1d7","us_k1cw","us_pfsh","us_kbgd","us_krdd","us_koxc","us_kirs"}
-	data, err := client.GetStationsMetrics(stName)
+func GetStationsMetrics(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+	stations, err := client.GetStationsList()
 	if err != nil {
 		return err
 	}
-	for i,v := range *data{
-		fmt.Println("stations", stations[i], "Lat", v.Lat, "Lon", v.Lon)
+
+	level.Info(logger).Log("msg", "Stations get success", "len", len(*stations))
+	//stName := []string{"us_k5sm","us_cwzr","us_cwzr","us_koak","us_k5sm","us_imbo","us_k1d7","us_k1cw","us_pfsh","us_kbgd","us_krdd","us_koxc","us_kirs"}
+	metrics, err := client.GetStationsMetrics(*stations, "2012-09-09")
+	if err != nil {
+		return err
+	}
+
+	level.Info(logger).Log("msg", "Metrics get success", "len", len(*metrics))
+
+	for i,v := range *metrics{
+		level.Info(logger).Log("msg", "Metrics for station", "#", i, "id", v.StId, "Lat", v.Lat, "Lon", v.Lon, "Records", v.RecordsNumber)
 	}
 	return nil
 }
