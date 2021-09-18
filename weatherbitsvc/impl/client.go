@@ -95,11 +95,28 @@ func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) 
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get stations list", "err", err)
 	} else if grpc.Err != common.ErrorNilString {
-		err = common.ErrorFromString(grpc.Err);
+		err = common.ErrorFromString(grpc.Err)
 	} else {
 		stations = &grpc.List
 	}
 	return stations, err
+}
+
+func (wb WeatherBitSVCClient) GetStationsMetrics(ids []string) (data *[]weatherbitsvc.StationMetrics, err error) {
+	conn := wb.openConn()
+	defer conn.Close()
+
+	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	grpc, err := client.GetStationsMetrics(context.Background(), &weathergrpc.GetStationsMetricsRequest{ Ids: ids })
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "Failed to get stations metrics", "err", err)
+	} else if grpc.Err != common.ErrorNilString {
+		err = common.ErrorFromString(grpc.Err)
+	} else {
+		data = weatherbitsvc.ToMetricsData(grpc.Data)
+	}
+
+	return data, err
 }
 
 func (wb WeatherBitSVCClient) openConn() *googlerpc.ClientConn {

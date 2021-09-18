@@ -18,6 +18,11 @@ type Postgres struct {
 	db  *sql.DB
 }
 
+type WBTableData struct {
+	weatherbitsvc.WBData
+	Name string `json:"name"`
+}
+
 func (pg *Postgres) GetUpdateDateList(names []string) (temps map[string]string, err error) {
 	panic("implement me")
 }
@@ -136,6 +141,7 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weat
 	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date < '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
 
+
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return wbd,err
@@ -150,8 +156,43 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weat
 		}
 		wbd = append(wbd, dbWBD)
 	}
-
 	return wbd,err
+}
+
+func (pg *Postgres) GetLastRecords(ids []string) (data map[string]weatherbitsvc.WBData, err error) {
+
+	query := ""
+	for i,v := range ids {
+		query += fmt.Sprintf("(SELECT *, '%s' as name FROM %s ORDER BY date DESC LIMIT 1)",
+			v, v)
+
+		if i < len(ids)-1 {
+			query += " UNION ALL "
+		} else {
+			query += ";"
+		}
+	}
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return data,err
+	}
+
+	data = map[string]weatherbitsvc.WBData{}
+
+
+
+	for rows.Next() {
+		dates, err := parseTableRow(rows)
+		if err != nil {
+			data[dates.Name] = dates.WBData
+		}
+
+		data[dates.Name] = dates.WBData
+
+	}
+	return data,err
+
 }
 
 func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err error) {
@@ -159,7 +200,7 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 	if length == 0 {
 		return errors.New("weather push error, data is empty")
 	}
-	iterationStep := 100;
+	iterationStep := 100
 	for i:=iterationStep; i<length; i+=iterationStep{
 		query := fmt.Sprintf("INSERT INTO %s " +
 			"(date, " +
@@ -426,6 +467,54 @@ func parseRow(rows *sql.Rows) (bdData weatherbitsvc.WBData, err error) {
 		&bdData.Station,
 		&bdData.Dni,
 		&bdData.Sunrise,
+	)
+	return bdData, err
+}
+
+
+
+func parseTableRow(rows *sql.Rows) (bdData WBTableData, err error) {
+	err = rows.Scan(
+		&bdData.Date,
+		&bdData.Rh,
+		&bdData.Pod,
+		&bdData.Pres,
+		&bdData.Timezone,
+		&bdData.CountryCode,
+		&bdData.Clouds,
+		&bdData.Vis,
+		&bdData.SolarRad,
+		&bdData.WindSpd,
+		&bdData.StateCode,
+		&bdData.CityName,
+		&bdData.AppTemp,
+		&bdData.Uv,
+		&bdData.Lon,
+		&bdData.Slp,
+		&bdData.HAngle,
+		&bdData.Dewpt,
+		&bdData.Snow,
+		&bdData.Aqi,
+		&bdData.WindDir,
+		&bdData.ElevAngle,
+		&bdData.Ghi,
+		&bdData.Lat,
+		&bdData.Precip,
+		&bdData.Sunset,
+		&bdData.Temp,
+		&bdData.Station,
+		&bdData.Dni,
+		&bdData.Sunrise,
+		&bdData.Name,
+	)
+	//fmt.Println(bdData)
+	return bdData, err
+}
+
+func parseRowForMetrics(rows *sql.Rows) (bdData weatherbitsvc.StationMetrics, err error) {
+	err = rows.Scan(
+		&bdData.Lon,
+		&bdData.Lat,
 	)
 	return bdData, err
 }

@@ -159,7 +159,12 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 	if length == 0 {
 		return errors.New("weather push error, data is empty")
 	}
+
 	iterationStep := 100
+	if length <= 100 {
+		iterationStep = 1
+	}
+
 	for i:=iterationStep; i<length; i+=iterationStep{
 		query := fmt.Sprintf("INSERT INTO %s " +
 			"(date, " +

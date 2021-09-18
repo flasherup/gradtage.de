@@ -135,6 +135,25 @@ func (wb *WeatherBitSVC) GetStationsList(ctx context.Context) (stations []string
 	return stations, err
 }
 
+func (wb WeatherBitSVC) GetStationsMetrics(ctx context.Context, ids []string) (data []weatherbitsvc.StationMetrics, err error) {
+	level.Info(wb.logger).Log("msg", "GetStationsMetrics" , "ids length ", len(ids))
+
+	dates, err := wb.db.GetLastRecords(ids) // map[string]weatherbitsvc.WBData
+	res := make([]weatherbitsvc.StationMetrics, len(dates))
+	i := 0
+	for k,v := range dates {
+		res[i] = weatherbitsvc.StationMetrics{
+			StId: k,
+			LastUpdate: v.Date,
+			Lat: v.Lat,
+			Lon: v.Lon,
+		}
+		i++
+	}
+
+	return res, nil
+}
+
 func (wb WeatherBitSVC)processUpdate(stID string, st string) {
 	date := time.Now()
 	endDate := date.Format(common.TimeLayoutWBH)

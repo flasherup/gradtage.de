@@ -11,4 +11,5 @@ type Client interface {
 	PushWBPeriod(id string, data []WBData) (err error)
 	GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error)
 	GetStationsList() (resp *[]string, err error)
+	GetStationsMetrics(ids []string) ([]StationMetrics, error)
 }

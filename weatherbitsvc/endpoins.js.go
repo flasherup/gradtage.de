@@ -6,20 +6,22 @@ import (
 )
 
 type Endpoints struct {
-	GetPeriodEndpoint       endpoint.Endpoint
-	GetWBPeriod             endpoint.Endpoint
-	PushWBPeriod            endpoint.Endpoint
-	GetUpdateDateEndpoint   endpoint.Endpoint
-	GetStationsListEndpoint endpoint.Endpoint
+	GetPeriodEndpoint          endpoint.Endpoint
+	GetWBPeriod                endpoint.Endpoint
+	PushWBPeriod               endpoint.Endpoint
+	GetUpdateDateEndpoint      endpoint.Endpoint
+	GetStationsListEndpoint    endpoint.Endpoint
+	GetStationsMetricsEndpoint endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetPeriodEndpoint:       MakeGetPeriodEndpoint(s),
-		PushWBPeriod:            MakePushWBPeriodEndpoint(s),
-		GetWBPeriod:             MakeGetWBPeriodEndpoint(s),
-		GetUpdateDateEndpoint:   MakeGetUpdateDateEndpoint(s),
-		GetStationsListEndpoint: MakeGetStationsListEndpoint(s),
+		GetPeriodEndpoint:          MakeGetPeriodEndpoint(s),
+		PushWBPeriod:               MakePushWBPeriodEndpoint(s),
+		GetWBPeriod:                MakeGetWBPeriodEndpoint(s),
+		GetUpdateDateEndpoint:      MakeGetUpdateDateEndpoint(s),
+		GetStationsListEndpoint:    MakeGetStationsListEndpoint(s),
+		GetStationsMetricsEndpoint: MakeGetStationsMetricsEndpoint(s),
 	}
 }
 
@@ -60,5 +62,13 @@ func MakeGetStationsListEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		dates, err := s.GetStationsList(ctx)
 		return GetStationsListResponse{dates, err}, err
+	}
+}
+
+func MakeGetStationsMetricsEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetStationsMetricsRequest)
+		temps, err := s.GetStationsMetrics(ctx, req.IDs)
+		return GetStationsMetricsResponse{temps, err}, err
 	}
 }

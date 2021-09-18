@@ -45,6 +45,12 @@ message WBData {
     string	Sunrise         = 30;
 }
 
+message StationMetrics {
+	double Lat           = 1;
+	double Lon           = 2;
+	string LastUpdate    = 3;
+}
+
 message GetPeriodRequest {
     repeated string ids  = 1;
     string start         = 2;
@@ -93,6 +99,14 @@ message GetStationsListResponse {
     string err = 2;
 }
 
+message GetStationsMetricsRequest {
+    repeated string ids = 1;
+}
+
+message GetStationsMetricsResponse {
+     repeated StationMetrics data = 1;
+     string err = 2;
+}
 
 service WeatherBitScraperSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
@@ -100,6 +114,7 @@ service WeatherBitScraperSVC {
     rpc PushWBPeriod(PushWBPeriodRequest) returns (PushWBPeriodResponse) {}
     rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
     rpc GetStationsList(GetStationsListRequest) returns (GetStationsListResponse) {}
+    rpc GetStationsMetrics(GetStationsMetricsRequest) returns(GetStationsMetricsResponse) {}
 }
 
 

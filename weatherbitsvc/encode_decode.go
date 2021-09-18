@@ -71,43 +71,41 @@ func DecodeGetStationsListRequest(_ context.Context, r interface{}) (interface{}
 	return GetStationsListRequest{}, nil
 }
 
-func ToGRPCWBData(src []WBData)  []*weathergrpc.WBData {
-	res := make([]*weathergrpc.WBData, len(src))
+func DecodeGetStationsMetricsRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*weathergrpc.GetStationsMetricsRequest)
+	return GetStationsMetricsRequest{ req.Ids}, nil
+}
+
+func EncodeGetStationsMetricsResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetStationsMetricsResponse)
+	encTemp := ToMetricsGRPCData(res.Temps)
+	return &weathergrpc.GetStationsMetricsResponse {
+		Data: encTemp,
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
+func ToMetricsGRPCData(src []StationMetrics) []*weathergrpc.StationMetrics {
+	res := make([]*weathergrpc.StationMetrics, len(src))
 	for i,v := range src {
-		res[i] = &weathergrpc.WBData {
-			Date:v.Date,
-			Rh:v.Rh,
-			Pod:v.Pod,
-			Pres:v.Pres,
-			Timezone:v.Timezone,
-			CountryCode:v.CountryCode,
-			Clouds:v.Clouds,
-			Vis:v.Vis,
-			SolarRad:v.SolarRad,
-			WindSpd:v.WindSpd,
-			StateCode:v.StateCode,
-			CityName:v.CityName,
-			AppTemp:v.AppTemp,
-			Uv:v.Uv,
+		res[i] = &weathergrpc.StationMetrics {
 			Lon:v.Lon,
-			Slp:v.Slp,
-			HAngle:v.HAngle,
-			Dewpt:v.Dewpt,
-			Snow:v.Snow,
-			Aqi:v.Aqi,
-			WindDir:v.WindDir,
-			ElevAngle:v.ElevAngle,
-			Ghi:v.Ghi,
 			Lat:v.Lat,
-			Precip:v.Precip,
-			Sunset:v.Sunset,
-			Temp:v.Temp,
-			Station:v.Station,
-			Dni:v.Dni,
-			Sunrise:v.Sunrise,
 		}
 	}
 	return res
+}
+
+func ToMetricsData(src []*weathergrpc.StationMetrics) *[]StationMetrics {
+	res := make([]StationMetrics, len(src))
+	for i,v := range src {
+		res[i] = StationMetrics {
+			Lon:v.Lon,
+			Lat:v.Lat,
+			LastUpdate:v.LastUpdate,
+		}
+	}
+	return &res
 }
 
 func ToWBData(src []*weathergrpc.WBData) *[]WBData {
@@ -147,6 +145,45 @@ func ToWBData(src []*weathergrpc.WBData) *[]WBData {
 		}
 	}
 	return &res
+}
+
+func ToGRPCWBData(src []WBData)  []*weathergrpc.WBData {
+	res := make([]*weathergrpc.WBData, len(src))
+	for i,v := range src {
+		res[i] = &weathergrpc.WBData {
+			Date:v.Date,
+			Rh:v.Rh,
+			Pod:v.Pod,
+			Pres:v.Pres,
+			Timezone:v.Timezone,
+			CountryCode:v.CountryCode,
+			Clouds:v.Clouds,
+			Vis:v.Vis,
+			SolarRad:v.SolarRad,
+			WindSpd:v.WindSpd,
+			StateCode:v.StateCode,
+			CityName:v.CityName,
+			AppTemp:v.AppTemp,
+			Uv:v.Uv,
+			Lon:v.Lon,
+			Slp:v.Slp,
+			HAngle:v.HAngle,
+			Dewpt:v.Dewpt,
+			Snow:v.Snow,
+			Aqi:v.Aqi,
+			WindDir:v.WindDir,
+			ElevAngle:v.ElevAngle,
+			Ghi:v.Ghi,
+			Lat:v.Lat,
+			Precip:v.Precip,
+			Sunset:v.Sunset,
+			Temp:v.Temp,
+			Station:v.Station,
+			Dni:v.Dni,
+			Sunrise:v.Sunrise,
+		}
+	}
+	return res
 }
 
 func toGRPCTemps(src map[string][]common.Temperature)  map[string]*weathergrpc.Temperatures {

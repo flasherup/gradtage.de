@@ -20,3 +20,7 @@ build/daydegreesvc
 build/stationssvc
 build/setup.zip
 *.yml
+test/test.go
+test/test3.go
+apisvc/cmd/server/src/www/
+build/weatherbitupdatesvc

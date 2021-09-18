@@ -16,5 +16,6 @@ type WeatherBitDB interface {
 	GetWBData(name string, start string, end string) (wbd []weatherbitsvc.WBData, err error)
 	PushWBData(stID string, wbd []weatherbitsvc.WBData) (err error)
 	GetListOfTables() ([]string, error)
+	GetLastRecords( ids []string) (data map[string]weatherbitsvc.WBData, err error)
 	Dispose()
 }

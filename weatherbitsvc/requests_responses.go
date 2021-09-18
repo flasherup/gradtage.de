@@ -51,3 +51,12 @@ type GetStationsListResponse struct {
 	List []string `json:"list"`
 	Err  error `json:"err"`
 }
+
+type GetStationsMetricsRequest struct {
+	IDs []string `json:"ids"`
+}
+
+type GetStationsMetricsResponse struct {
+	Temps []StationMetrics `json:"temps"`
+	Err error
+}
