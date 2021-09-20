@@ -1,4 +1,4 @@
-package weatherbitupdatesvc
+package metricssvc
 
 import (
 	"context"

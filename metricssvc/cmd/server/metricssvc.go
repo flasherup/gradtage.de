@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
-	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
-	"github.com/flasherup/gradtage.de/weathrbitupdatesvc"
-	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/config"
-	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl"
-	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl/database"
-	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/wbugrpc"
+	"github.com/flasherup/gradtage.de/metricssvc"
+	"github.com/flasherup/gradtage.de/metricssvc/config"
+	"github.com/flasherup/gradtage.de/metricssvc/impl"
+	"github.com/flasherup/gradtage.de/metricssvc/impl/database"
+	"github.com/flasherup/gradtage.de/metricssvc/mtrgrpc"
+	weatherbit "github.com/flasherup/gradtage.de/weatherbitsvc/impl"
+
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"net"
@@ -60,7 +61,7 @@ func main() {
 		alertService = common.NewSilentAlert()
 	}
 
-	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
+	weatherbitService := weatherbit.NewWeatherBitSVCClient(conf.Clients.WeatherbitAddr, logger)
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
@@ -69,7 +70,7 @@ func main() {
 
 
 	ctx := context.Background()
-	weatherBitUpdateService, err := impl.NewWeatherBitUpdateSVC(logger, stationsService , db, alertService, *conf)
+	metricsService, err := impl.NewMetricsSVC(logger, weatherbitService, db, alertService, *conf)
 	if err != nil {
 		level.Error(logger).Log("msg", "service error", "exit", err.Error())
 		return
@@ -87,14 +88,14 @@ func main() {
 				googlerpc.MaxRecvMsgSize(common.MaxMessageReceiveSize ),
 				googlerpc.MaxSendMsgSize(common.MaxMessageSendSize ),
 			)
-		endpoints := weatherbitupdatesvc.MakeServerEndpoints(weatherBitUpdateService)
-		wbugrpc.RegisterWeatherBitUpdateSVCServer(gRPCServer, weatherbitupdatesvc.NewGRPCServer(ctx, endpoints))
+		endpoints := metricssvc.MakeServerEndpoints(metricsService)
+		mtrgrpc.RegisterMetricsSVCServer(gRPCServer, metricssvc.NewGRPCServer(ctx, endpoints))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())
 		errors <- gRPCServer.Serve(listener)
 	}()
 
-	metrics := weatherbitupdatesvc.NewMetricsTransport(weatherBitUpdateService,logger)
+	metrics := metricssvc.NewMetricsTransport(metricsService,logger)
 
 	go func() {
 		c := make(chan os.Signal)

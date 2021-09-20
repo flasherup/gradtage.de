@@ -1,4 +1,4 @@
-package weatherbitupdatesvc
+package metricssvc
 
 import "github.com/flasherup/gradtage.de/metricssvc/mtrgrpc"
 
@@ -7,6 +7,6 @@ type GetMetricsRequest struct {
 }
 
 type GetMetricsResponse struct {
-	Metrics []*mtrgrpc.Metrics `json:"metrics"`
+	Metrics map[string]*mtrgrpc.Metrics `json:"metrics"`
 	Err  	error 	`json:"err"`
 }

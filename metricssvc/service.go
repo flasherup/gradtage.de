@@ -1,4 +1,4 @@
-package weatherbitupdatesvc
+package metricssvc
 
 import (
 	"context"
@@ -6,5 +6,5 @@ import (
 )
 
 type Service interface {
-	GetMetrics(ctx context.Context, ids []string) ([]*mtrgrpc.Metrics, error)
+	GetMetrics(ctx context.Context, ids []string) (map[string]*mtrgrpc.Metrics, error)
 }

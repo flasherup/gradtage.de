@@ -1,4 +1,4 @@
-package weatherbitupdatesvc
+package metricssvc
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 func EncodeGetMetricsResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(GetMetricsResponse)
 	return &mtrgrpc.GetMetricsResponse {
-		Metrics: &res.Metrics,
+		Metrics: res.Metrics,
 		Err: common.ErrorToString(res.Err),
 	}, nil
 }

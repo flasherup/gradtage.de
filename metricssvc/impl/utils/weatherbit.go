@@ -1,40 +1,53 @@
 package utils
 
 import (
-	"fmt"
-	"github.com/flasherup/gradtage.de/weathrbitupdatesvc/impl/parser"
-	"io/ioutil"
-	"net/http"
+	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/metricssvc/mtrgrpc"
+	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"time"
 )
 
-func MakeWeatherbitRequest(url string) (*parser.WeatherBitData, string, error){
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, fmt.Sprintf("request create error for url '%s' ", url), err
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Sprintf("request error for url '%s' ", url), err
+func GetWeatherbitMetrics(wbData *[]weatherbitsvc.WBData) (*mtrgrpc.Metrics, error) {
+	date := time.Now()
+	res := mtrgrpc.Metrics {
+		Date: date.Format(common.TimeLayout),
 	}
 
-	contents, err := ioutil.ReadAll(resp.Body)
+
+	cutDate, err := time.Parse(common.TimeLayoutWBH, common.CutDateWBH)
 	if err != nil {
-		return nil, fmt.Sprintf("response read error for url '%s' ", url), err
+		return nil, err
 	}
 
-	err = resp.Body.Close()
-	if err != nil {
-		return nil, fmt.Sprintf("response body close error for url '%s' ", url), err
+	var lastUpdate time.Time
+	var firstUpdate time.Time
+	recordsAll := int32(0)
+	recordsClean := int32(0)
+
+	for _,v := range *wbData {
+		cDate, err := time.Parse(common.TimeLayout, v.Date)
+		if err != nil {
+			return nil, err
+		}
+		if lastUpdate.IsZero() || cDate.After(lastUpdate) {
+			lastUpdate = cDate
+		}
+
+		if firstUpdate.IsZero() || cDate.Before(firstUpdate) {
+			firstUpdate = cDate
+		}
+
+		recordsAll++
+
+		if cDate.After(cutDate) {
+			recordsClean++
+		}
 	}
 
-	data, err := parser.ParseWeatherBit(&contents)
-	if err != nil {
-		return nil, fmt.Sprintf("weather bit data parse error for url '%s' ", url), err
-	}
+	res.LastUpdate = lastUpdate.Format(common.TimeLayout)
+	res.FirstUpdate = firstUpdate.Format(common.TimeLayout)
+	res.RecordsAll = recordsAll
+	res.RecordsClean = recordsClean
 
-	return data, fmt.Sprintf("data update success '%s' ", url), nil
+	return &res, nil
 }

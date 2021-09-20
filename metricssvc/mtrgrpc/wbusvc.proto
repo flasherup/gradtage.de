@@ -16,12 +16,12 @@ message GetMetricsRequest {
 }
 
 message GetMetricsResponse {
-    repeated Metrics metrics = 1;
+    map<string, Metrics> metrics = 1;
     string err      = 2;
 }
 
 
-service WeatherBitUpdateSVC {
+service MetricsSVC {
     rpc GetMetrics(GetMetricsRequest)  returns (GetMetricsResponse) {}
 }
 
