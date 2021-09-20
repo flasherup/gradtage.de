@@ -25,7 +25,7 @@ func main() {
 		)
 	}
 	client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
-	//client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
+	//client := impl.NewWeatherBitUpdateSVCClient("localhost:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")

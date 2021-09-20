@@ -4,10 +4,13 @@ const TimeLayout = "2006-01-02T15:04:05Z"
 const TimeStartAll = "2000-01-01T00:00:00Z"
 const TimeEndAll = "3008-01-01T00:00:00Z"
 const TimeLayoutWBH = "2006-01-02"
+const TimeVeryFirstWBH = "2006-01-02"
 
 const TimeLayoutDay = "2006-01-02"
 const TimeLayoutMonth = "2006-01"
 const TimeLayoutYear = "2006"
+
+const CutDateWBH = "2011-09-20"
 
 //Data source types
 const (

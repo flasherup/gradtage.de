@@ -16,6 +16,9 @@ type DayDegreeSVCClient struct{
 }
 
 func NewDayDegreeSVCClient(host string, logger log.Logger) *DayDegreeSVCClient {
+	logger = log.With(logger,
+		"client", "daydegree",
+	)
 	return &DayDegreeSVCClient{
 		logger:logger,
 		host: host,
