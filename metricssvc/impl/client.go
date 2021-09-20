@@ -15,7 +15,7 @@ type MetricsSVCClient struct{
 	host string
 }
 
-func NewWeatherBitSVCClient(host string, logger log.Logger) *MetricsSVCClient {
+func NewMetricsSVCClient(host string, logger log.Logger) *MetricsSVCClient {
 	logger = log.With(logger,
 		"client", "metrics",
 	)
@@ -33,8 +33,12 @@ func (wb MetricsSVCClient) GetMetrics(ids []string) (map[string]*mtrgrpc.Metrics
 	resp, err := client.GetMetrics(context.Background(), &mtrgrpc.GetMetricsRequest{ Ids: ids })
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get period", "err", err)
-	}else if resp.Err != "nil" {
+		return nil, err
+	}
+
+	if resp.Err != "nil" {
 		err = errors.New(resp.Err)
+		return nil, err
 	}
 
 	return resp.Metrics, err
