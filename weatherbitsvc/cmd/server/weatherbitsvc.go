@@ -88,7 +88,7 @@ func main() {
 				googlerpc.MaxSendMsgSize(common.MaxMessageSendSize ),
 			)
 		endpoints := weatherbitsvc.MakeServerEndpoints(weatherBitService)
-		weatherbitgrpc.RegisterWeatherBitScraperSVCServer(gRPCServer, weatherbitsvc.NewGRPCServer(ctx, endpoints))
+		weatherbitgrpc.RegisterWeatherbitSVCServer(gRPCServer, weatherbitsvc.NewGRPCServer(ctx, endpoints))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())
 		errors <- gRPCServer.Serve(listener)
