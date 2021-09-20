@@ -3,11 +3,10 @@ package utils
 import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/metricssvc/mtrgrpc"
-	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"time"
 )
 
-func GetWeatherbitMetrics(wbData *[]weatherbitsvc.WBData) (*mtrgrpc.Metrics, error) {
+func GetWeatherbitMetrics(wbData *[]common.Temperature) (*mtrgrpc.Metrics, error) {
 	date := time.Now()
 	res := mtrgrpc.Metrics {
 		Date: date.Format(common.TimeLayout),

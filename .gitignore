@@ -22,3 +22,4 @@ build/setup.zip
 *.yml
 build/weatherbitupdatesvc
 apisvc/cmd/server/src/www/
+build/metricssvc

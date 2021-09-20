@@ -1,0 +1,17 @@
+[Unit]
+Description=Metricssvc
+Wants=network-online.target postgresql.service weatherbitsvc.service
+After=network-online.target postgresql.service weatherbitsvc.service
+
+[Service]
+User=gradtage
+Group=gradtage
+Type=simple
+ExecStartPre=/bin/sleep 1
+ExecStart=/usr/local/bin/metricssvc \
+--config.file /etc/gradtage/metricssvc.yml
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target

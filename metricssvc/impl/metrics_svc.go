@@ -76,7 +76,7 @@ func setupMetrics() *metrics {
 	updateCounter := ktprom.NewCounterFrom(
 		prometheus.CounterOpts(
 			prometheus.Opts{
-				Name: "weatherbit_update_counter",
+				Name: "metrics_update_counter",
 				Help: "The total number of success/error updates",
 			},
 		),
@@ -86,7 +86,7 @@ func setupMetrics() *metrics {
 	requestCounter := ktprom.NewCounterFrom(
 		prometheus.CounterOpts(
 			prometheus.Opts{
-				Name: "weatherbit_request_counter",
+				Name: "metrics_request_counter",
 				Help: "The total number of requests",
 			},
 		),
@@ -152,7 +152,7 @@ func (ms *MetricsSVC) processUpdate(stID string) {
 	}
 
 	now := time.Now()
-	wbData, err := ms.weatherbit.GetWBPeriod(stID, common.TimeVeryFirstWBH , now.Format(common.TimeLayoutWBH))
+	wbData, err := ms.weatherbit.GetPeriod([]string{stID}, common.TimeVeryFirstWBH , now.Format(common.TimeLayoutWBH))
 	if err != nil {
 		ms.resultChanel <- UpdateResult{
 			StId:    stID,
@@ -162,7 +162,9 @@ func (ms *MetricsSVC) processUpdate(stID string) {
 		return
 	}
 
-	metrics, metricsErr := utils.GetWeatherbitMetrics(wbData)
+	temps := (*wbData)[stID]
+
+	metrics, metricsErr := utils.GetWeatherbitMetrics(&temps)
 	if metricsErr != nil {
 		ms.resultChanel <- UpdateResult{
 			StId:    stID,
