@@ -13,3 +13,8 @@ update_daydegreesvc:
 	sudo -S sudo cp daydegreesvc /usr/local/bin/
 	sudo -S systemctl start daydegreesvc
 
+update_metricssvc:
+	sudo -S systemctl stop metricssvc
+	sudo -S sudo cp metricssvc /usr/local/bin/
+	sudo -S systemctl start metricssvc
+
