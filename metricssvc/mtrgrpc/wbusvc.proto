@@ -1,0 +1,28 @@
+syntax = "proto3";
+option  go_package = "github.com/flasherup/gradtage.de/metricssvc/mtrgrpc;mtrgrpc";
+
+package mtrgrpc;
+
+message Metrics {
+    string Date         = 1;
+    string LastUpdate   = 2;
+    string FirstUpdate  = 3;
+    int32  RecordsAll   = 4;
+    int32  RecordsClean = 5;
+}
+
+message GetMetricsRequest {
+    repeated string ids  = 1;
+}
+
+message GetMetricsResponse {
+    repeated Metrics metrics = 1;
+    string err      = 2;
+}
+
+
+service WeatherBitUpdateSVC {
+    rpc GetMetrics(GetMetricsRequest)  returns (GetMetricsResponse) {}
+}
+
+
