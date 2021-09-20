@@ -24,7 +24,7 @@ func ValidateEnd( end time.Time, plan usersvc.Plan) (bool, error) {
 func ValidateRequestsAvailable(order *usersvc.Order, plan *usersvc.Plan) (int, error) {
 	current := time.Now().UTC()
 	count := order.Requests
-	dif := order.RequestDate.Sub(current)
+	dif := current.Sub(order.RequestDate)
 	if dif < time.Hour {
 		count++
 	} else {
