@@ -43,14 +43,11 @@ func (pg *Postgres)GetMetrics(ids []string) (map[string]*mtrgrpc.Metrics, error)
 	}
 
 	idString := ""
-	for i,v := range ids {
-		idString += v
-		if i < length-1 {
-			idString += ","
-		}
+	for _,v := range ids {
+		idString += fmt.Sprintf("'%s',",v)
 	}
 
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s);", metricsTable, idString)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s);", metricsTable, idString[:len(idString)-1])
 
 	rows, err := pg.db.Query(query)
 	if err != nil {
@@ -66,7 +63,7 @@ func (pg *Postgres)GetMetrics(ids []string) (map[string]*mtrgrpc.Metrics, error)
 		}
 		res[metrics.Id] = &metrics.Metrics
 	}
-	return nil,nil
+	return res,nil
 }
 
 func (pg *Postgres)PushMetrics(metrics map[string]*mtrgrpc.Metrics) error {
