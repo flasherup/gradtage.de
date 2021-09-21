@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	//"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
-	//"github.com/flasherup/gradtage.de/weatherbitsvc/impl/collectroes"
+	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/collectroes"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
-	//"time"
+	"time"
 )
 
 func main() {
@@ -24,8 +24,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewWeatherBitSVCClient("82.165.119.83:8111",logger)
-	//client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
+	client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
+	//client := impl.NewWeatherBitUpdateSVCClient("localhost:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -35,25 +35,23 @@ func main() {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
 	}*/
 
-	/*err := getWBPeriod(client, logger)
+	err := getWBPeriod(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "GetWBPeriod Error", "err", err)
-	}*/
+	}
 
 	/*err := pushWBPeriod(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "PushWBPeriod Error", "err", err)
 	}*/
 
-	err := GetStationsMetrics(client, logger)
+	/*err := getStationsList(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "getStationsList Error", "err", err)
-	}
-
-
+	}*/
 }
 
-/*func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	//Just for test
 	data, err := client.GetPeriod([]string{"at_av222"}, "2020-03-20T00:00:00", "2021-03-25T20:00:00")
 	if err != nil {
@@ -71,7 +69,7 @@ func main() {
 		}
 	}
 	return nil
-}*/
+}
 
 func getWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	//Just for test
@@ -138,29 +136,6 @@ func getStationsList(client *impl.WeatherBitSVCClient, logger log.Logger) error 
 		return err
 	}
 
-	for i,v := range *stations {
-		level.Info(logger).Log("msg", "Stations", "num", i, "id", v)
-	}
- return err
-}
-
-func GetStationsMetrics(client *impl.WeatherBitSVCClient, logger log.Logger) error {
-	stations, err := client.GetStationsList()
-	if err != nil {
-		return err
-	}
-
-	level.Info(logger).Log("msg", "Stations get success", "len", len(*stations))
-	//stName := []string{"us_k5sm","us_cwzr","us_cwzr","us_koak","us_k5sm","us_imbo","us_k1d7","us_k1cw","us_pfsh","us_kbgd","us_krdd","us_koxc","us_kirs"}
-	metrics, err := client.GetStationsMetrics(*stations, "2012-09-09")
-	if err != nil {
-		return err
-	}
-
-	level.Info(logger).Log("msg", "Metrics get success", "len", len(*metrics))
-
-	for i,v := range *metrics{
-		level.Info(logger).Log("msg", "Metrics for station", "#", i, "id", v.StId, "Lat", v.Lat, "Lon", v.Lon, "Records", v.RecordsNumber)
-	}
+	fmt.Println(stations)
 	return nil
 }

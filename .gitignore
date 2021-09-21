@@ -24,3 +24,4 @@ test/test.go
 test/test3.go
 apisvc/cmd/server/src/www/
 build/weatherbitupdatesvc
+build/metricssvc

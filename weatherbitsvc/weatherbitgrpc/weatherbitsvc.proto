@@ -111,7 +111,7 @@ message GetStationsMetricsResponse {
     string err = 2;
 }
 
-service WeatherBitScraperSVC {
+service WeatherbitSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
     rpc GetWBPeriod(GetWBPeriodRequest) returns (GetWBPeriodResponse) {}
     rpc PushWBPeriod(PushWBPeriodRequest) returns (PushWBPeriodResponse) {}

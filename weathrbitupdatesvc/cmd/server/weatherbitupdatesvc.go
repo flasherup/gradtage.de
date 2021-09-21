@@ -33,7 +33,7 @@ func main() {
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 		logger = level.NewFilter(logger, level.AllowDebug())
 		logger = log.With(logger,
-			"svc", "weatherbitsvc",
+			"svc", "weatherbitupdatesvc",
 			"ts", log.DefaultTimestampUTC,
 			"caller", log.Caller(3),
 		)

@@ -17,6 +17,9 @@ type WeatherBitSVCClient struct{
 }
 
 func NewWeatherBitSVCClient(host string, logger log.Logger) *WeatherBitSVCClient {
+	logger = log.With(logger,
+		"client", "weatherbit",
+	)
 	return &WeatherBitSVCClient{
 		logger:logger,
 		host: host,
@@ -27,7 +30,7 @@ func (wb WeatherBitSVCClient) GetPeriod(ids []string, start string, end string) 
 	conn := wb.openConn()
 	defer conn.Close()
 
-	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	client := weathergrpc.NewWeatherbitSVCClient(conn)
 	resp, err := client.GetPeriod(context.Background(), &weathergrpc.GetPeriodRequest{ Ids: ids, Start:start, End:end })
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get period", "err", err)
@@ -44,7 +47,7 @@ func (wb WeatherBitSVCClient) GetWBPeriod( id string, start string, end string) 
 	conn := wb.openConn()
 	defer conn.Close()
 
-	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	client := weathergrpc.NewWeatherbitSVCClient(conn)
 	grpc, err := client.GetWBPeriod(context.Background(), &weathergrpc.GetWBPeriodRequest{ Id:id, Start:start, End:end })
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get WB period", "err", err)
@@ -60,7 +63,7 @@ func (wb WeatherBitSVCClient) GetWBPeriod( id string, start string, end string) 
 func (wb WeatherBitSVCClient) PushWBPeriod( id string, data []weatherbitsvc.WBData) (err error) {
 	conn := wb.openConn()
 	defer conn.Close()
-	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	client := weathergrpc.NewWeatherbitSVCClient(conn)
 	grpcData := weatherbitsvc.ToGRPCWBData(data)
 	grpc, errRequest := client.PushWBPeriod(context.Background(), &weathergrpc.PushWBPeriodRequest{ Id:id, Data:grpcData })
 	if errRequest != nil {
@@ -76,7 +79,7 @@ func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.Get
 	conn := wb.openConn()
 	defer conn.Close()
 
-	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	client := weathergrpc.NewWeatherbitSVCClient(conn)
 	resp, err = client.GetUpdateDate(context.Background(), &weathergrpc.GetUpdateDateRequest{ Ids: ids })
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get update date", "err", err)
@@ -90,7 +93,7 @@ func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) 
 	conn := wb.openConn()
 	defer conn.Close()
 
-	client := weathergrpc.NewWeatherBitScraperSVCClient(conn)
+	client := weathergrpc.NewWeatherbitSVCClient(conn)
 	grpc, err := client.GetStationsList(context.Background(), &weathergrpc.GetStationsListRequest{})
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get stations list", "err", err)
