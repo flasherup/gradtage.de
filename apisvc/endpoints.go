@@ -13,7 +13,7 @@ type Endpoints struct {
 	SearchEndpoint			endpoint.Endpoint
 	UserEndpoint			endpoint.Endpoint
 	WoocommerceEndpoint		endpoint.Endpoint
-	CommandEndpoint			endpoint.Endpoint
+	ServiceEndpoint			endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -24,7 +24,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 		SearchEndpoint:  		MakeSearchEndpoint(s),
 		UserEndpoint:  			MakeUserEndpoint(s),
 		WoocommerceEndpoint:  	MakeWoocommerceEndpoint(s),
-		CommandEndpoint:  		MakeCommandEndpoint(s),
+		ServiceEndpoint:  		MakeServiceEndpoint(s),
 	}
 }
 
@@ -76,10 +76,10 @@ func MakeWoocommerceEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func MakeCommandEndpoint(s Service) endpoint.Endpoint {
+func MakeServiceEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(CommandRequest)
-		data, err := s.Command(ctx, req.Name, req.Params)
-		return CommandResponse{ data}, err
+		req := request.(ServiceRequest)
+		data, err := s.Service(ctx, req.Name, req.Params)
+		return ServiceResponse{ data}, err
 	}
 }

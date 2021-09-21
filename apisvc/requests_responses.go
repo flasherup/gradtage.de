@@ -54,11 +54,11 @@ type WoocommerceResponse struct {
 	Json string `json:"json"`
 }
 
-type CommandRequest struct {
+type ServiceRequest struct {
 	Name string `json:"name"`
 	Params map[string]string `json:"params"`
 }
 
-type CommandResponse struct {
+type ServiceResponse struct {
 	Json interface{} `json:"json"`
 }

@@ -100,21 +100,26 @@ func setupMetrics() *metrics {
 }
 
 func (ms MetricsSVC) GetMetrics(ctx context.Context, ids []string) (map[string]*mtrgrpc.Metrics, error) {
-	return ms.db.GetMetrics(ids)
+	level.Info(ms.logger).Log("msg", "GetMetrics", "stations", len(ids))
+	metrics, err := ms.db.GetMetrics(ids)
+	if err != nil {
+		level.Error(ms.logger).Log("msg", "GetMetrics Error", "err", err)
+	}
+	return metrics, err
 }
 
-func handleUpdates(wbu *MetricsSVC) {
+func handleUpdates(ms *MetricsSVC) {
 	for {
 		select {
-		case updateResult := <-wbu.resultChanel:
+		case updateResult := <-ms.resultChanel:
 			if updateResult.Error != nil {
-				wbu.metrics.updateCounter.With(labelStatus, "error").Add(1)
-				level.Error(wbu.logger).Log("msg", updateResult.Message, "err", updateResult.Error)
+				ms.metrics.updateCounter.With(labelStatus, "error").Add(1)
+				level.Error(ms.logger).Log("msg", updateResult.Message, "err", updateResult.Error)
 			} else {
-				wbu.metrics.updateCounter.With(labelStatus, "success").Add(1)
+				ms.metrics.updateCounter.With(labelStatus, "success").Add(1)
 			}
-		case updateStart := <-wbu.startChanel:
-			wbu.metrics.requestsCounter.With(labelStation, updateStart.StId).Add(1)
+		case updateStart := <-ms.startChanel:
+			ms.metrics.requestsCounter.With(labelStation, updateStart.StId).Add(1)
 		}
 	}
 }

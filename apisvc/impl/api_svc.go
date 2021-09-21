@@ -10,6 +10,7 @@ import (
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/daydegreesvc"
+	"github.com/flasherup/gradtage.de/metricssvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/usersvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
@@ -30,6 +31,7 @@ type APISVC struct {
 	autocomplete 		autocompletesvc.Client
 	user 				usersvc.Client
 	stations			stationssvc.Client
+	metrics				metricssvc.Client
 	woocommerce			*utils.Woocommerce
 	counter 			ktprom.Gauge
 }
@@ -48,6 +50,7 @@ func NewAPISVC(
 		user 			usersvc.Client,
 		alert 			alertsvc.Client,
 		stations    	stationssvc.Client,
+		metrics 		metricssvc.Client,
 		woocommerce 	*utils.Woocommerce,
 	) *APISVC {
 	options := prometheus.Opts{
@@ -63,6 +66,7 @@ func NewAPISVC(
 		user: 			user,
 		alert:   		alert,
 		stations:		stations,
+		metrics: 		metrics,
 		counter: 		*guage,
 		woocommerce: 	woocommerce,
 	}
@@ -267,8 +271,8 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 	return json, err
 }
 
-func (as APISVC) Command(ctx context.Context, name string, params map[string]string) (response interface{}, err error) {
-	level.Info(as.logger).Log("msg", "Command", "Name", name)
+func (as APISVC) Service(ctx context.Context, name string, params map[string]string) (response interface{}, err error) {
+	level.Info(as.logger).Log("msg", "Service", "Name", name)
 
 	resp := struct {
 		Status string `json:"status"`
@@ -276,24 +280,24 @@ func (as APISVC) Command(ctx context.Context, name string, params map[string]str
 		Response interface{} `json:"response"`
 	}{}
 
-	order, _, err := as.validateUser(params["key"])
+	_, _, err = as.validateUser(params["key"])
 	if err != nil {
-		level.Error(as.logger).Log("msg", "Run command error", "err", err)
+		level.Error(as.logger).Log("msg", "Run service error", "err", err)
 		resp.Status = "error"
 		resp.Error = err.Error()
 		return resp, err
 	}
 
-	if !order.Admin {
+	/*if !order.Admin {
 		level.Error(as.logger).Log("msg", "Run command error", "err", "User validation error")
 		resp.Status = "error"
 		resp.Error = "Not enough rights to run commands"
 		return resp, nil
-	}
+	}*/
 
-	r, err := ParseCommand(as, name, params)
+	r, err := RunService(&as, name, params)
 	if err != nil {
-		level.Error(as.logger).Log("msg", "Run command error", "err", err.Error())
+		level.Error(as.logger).Log("msg", "Run service error", "err", err.Error())
 		resp.Status = "error"
 		resp.Error = err.Error()
 		return resp, err

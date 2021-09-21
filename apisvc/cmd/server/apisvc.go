@@ -13,6 +13,7 @@ import (
 	autocomplete "github.com/flasherup/gradtage.de/autocompletesvc/impl"
 	"github.com/flasherup/gradtage.de/common"
 	daydegree "github.com/flasherup/gradtage.de/daydegreesvc/impl"
+	metrics "github.com/flasherup/gradtage.de/metricssvc/impl"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 	user "github.com/flasherup/gradtage.de/usersvc/impl"
 	weatherbit "github.com/flasherup/gradtage.de/weatherbitsvc/impl"
@@ -60,6 +61,7 @@ func main() {
 	autocompleteService := autocomplete.NewAutocompleteSCVClient(conf.Clients.AutocompleteAddr, logger)
 	userService := user.NewUsersSCVClient(conf.Clients.UserAddr, logger)
 	stationsService := stations.NewStationsSCVClient(conf.Clients.StationsAddr, logger)
+	metricsService := metrics.NewMetricsSVCClient(conf.Clients.MetricsAddr, logger)
 
 	woocommerce := utils.NewWoocommerce(conf.Woocommerce)
 
@@ -76,6 +78,7 @@ func main() {
 		userService,
 		alertService,
 		stationsService,
+		metricsService,
 		woocommerce)
 	hs := apisvc.NewHTTPTSransport(svc,logger, conf.Static.Folder)
 

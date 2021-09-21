@@ -72,5 +72,5 @@ type Service interface {
 	Search(ctx context.Context, params ParamsSearch) (data [][]string, err error)
 	User(ctx context.Context, params ParamsUser) (data [][]string, err error)
 	Woocommerce(ctx context.Context, event WoocommerceEvent) (json string, err error)
-	Command(ctx context.Context, name string, params map[string]string) (json interface{}, err error)
+	Service(ctx context.Context, name string, params map[string]string) (json interface{}, err error)
 }

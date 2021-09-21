@@ -13,7 +13,7 @@ import (
 const Method = "method"
 const DayCalc = "day_calc"
 const UserAction = "userAction"
-const PlanAction = "planAction"
+const ServiceName = "serviceType"
 
 func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.Handler {
 	r := mux.NewRouter()
@@ -67,10 +67,10 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 		options...,
 	))
 
-	r.Methods("GET").Path("/command").Handler(kithttp.NewServer(
-		e.CommandEndpoint,
-		decodeCommandRequest,
-		encodeCommandResponse,
+	r.Methods("GET").Path("/service/{" + ServiceName + "}/").Handler(kithttp.NewServer(
+		e.ServiceEndpoint,
+		decodeServiceRequest,
+		encodeServiceResponse,
 		options...,
 	))
 
