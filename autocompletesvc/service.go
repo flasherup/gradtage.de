@@ -2,6 +2,7 @@ package autocompletesvc
 
 import (
 	"context"
+	"github.com/flasherup/gradtage.de/autocompletesvc/acrpc"
 )
 
 type Autocomplete struct {
@@ -34,4 +35,5 @@ type Service interface {
 	GetAutocomplete(ctx context.Context, text string) (result map[string][]Autocomplete, err error)
 	AddSources(ctx context.Context, sources []Autocomplete) (err error)
 	ResetSources(ctx context.Context, sources []Autocomplete) (err error)
+	GetAllStations(ctx context.Context) (map[string]*acrpc.Source, error)
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
+	"github.com/flasherup/gradtage.de/autocompletesvc/acrpc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/config"
 	_ "github.com/lib/pq"
 )
@@ -172,6 +173,56 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 		}
 	}
 	return result, err
+}
+
+//GetAllStations get a list of station
+func (pg Postgres) GetAllStations() (map[string]*acrpc.Source,error) {
+	sts := make(map[string]*acrpc.Source)
+	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
+
+	rows, err := pg.db.Query(query)
+	if err != nil {
+		return sts, err
+	}
+
+	for rows.Next() {
+		st,err := parseSourceRow(rows)
+		if err != nil {
+			return sts, err
+		}
+		sts[st.ID] = &st
+	}
+	return sts,rows.Close()
+}
+
+
+func parseSourceRow(rows *sql.Rows) (source acrpc.Source, err error) {
+	err = rows.Scan(
+			&source.ID,
+			&source.SourceID,
+			&source.Latitude,
+			&source.Longitude,
+			&source.Source,
+			&source.Reports,
+			&source.ISO2Country,
+			&source.ISO3Country,
+			&source.Prio,
+			&source.CityNameEnglish,
+			&source.CityNameNative,
+			&source.CountryNameEnglish,
+			&source.CountryNameNative,
+			&source.ICAO,
+			&source.WMO,
+			&source.CWOP,
+			&source.Maslib,
+			&source.National_ID,
+			&source.IATA,
+			&source.USAF_WBAN,
+			&source.GHCN,
+			&source.NWSLI,
+			&source.Elevation,
+		)
+	return
 }
 
 //AddSources

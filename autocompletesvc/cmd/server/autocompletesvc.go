@@ -84,11 +84,8 @@ func main() {
 		}
 
 		gRPCServer := googlerpc.NewServer()
-		acrpc.RegisterAutocompleteSVCServer(gRPCServer, autocompletesvc.NewGRPCServer(ctx, autocompletesvc.Endpoints {
-			GetAutocompleteEndpoint:    autocompletesvc.MakeGetAutocompleteEndpoint(autocompleteService),
-			AddSourcesEndpoint:    autocompletesvc.MakeAddSourcesEndpoint(autocompleteService),
-			ResetSourcesEndpoint:    autocompletesvc.MakeResetSourcesEndpoint(autocompleteService),
-		}))
+		endpoints := autocompletesvc.MakeServerEndpoints(autocompleteService)
+		acrpc.RegisterAutocompleteSVCServer(gRPCServer, autocompletesvc.NewGRPCServer(ctx, endpoints))
 
 		level.Info(logger).Log("transport", "GRPC", "addr", conf.GetGRPCAddress())
 		errors <- gRPCServer.Serve(listener)

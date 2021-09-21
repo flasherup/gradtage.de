@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
+	"github.com/flasherup/gradtage.de/autocompletesvc/acrpc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/impl/database"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -72,6 +73,17 @@ func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocomple
 	}
 
 	return nil
+}
+
+
+func (ss AutocompleteSVC) GetAllStations(ctx context.Context) (map[string]*acrpc.Source, error) {
+	level.Info(ss.logger).Log("msg", "GetAllStations")
+	sts, err := ss.db.GetAllStations()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "Get All Stations Error", "err", err)
+		return nil, err
+	}
+	return sts, nil
 }
 
 func (ss AutocompleteSVC)sendAlert(alert alertsvc.Alert) {
