@@ -88,7 +88,11 @@ func (acc AutocompleteSVCClient) GetAllStations() (map[string]*acrpc.Source, err
 }
 
 func (acc AutocompleteSVCClient) openConn() *googlerpc.ClientConn {
-	cc, err := googlerpc.Dial(acc.host, googlerpc.WithInsecure())
+	options := googlerpc.WithDefaultCallOptions(
+		googlerpc.MaxCallRecvMsgSize(common.MaxMessageReceiveSize),
+		googlerpc.MaxCallSendMsgSize(common.MaxMessageSendSize),
+	)
+	cc, err := googlerpc.Dial(acc.host, googlerpc.WithInsecure(), options)
 	if err != nil {
 		level.Error(acc.logger).Log("msg", "Failed to start gRPC connection", "err", err)
 	}

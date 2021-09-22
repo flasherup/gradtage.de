@@ -43,6 +43,9 @@ func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (res
 
 func (ss AutocompleteSVC) AddSources(ctx context.Context, sources []autocompletesvc.Autocomplete) (err error) {
 	level.Info(ss.logger).Log("msg", "AddSource", "length", len(sources))
+
+	sources = *ss.validateFields(&sources)
+
 	err = ss.db.AddSources(sources)
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "AddSources DB error", "err", err)
@@ -66,6 +69,8 @@ func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocomple
 		return err
 	}
 
+	sources = *ss.validateFields(&sources)
+
 	err = ss.db.AddSources(sources)
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "AddSources DB error", "err", err)
@@ -73,6 +78,33 @@ func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocomple
 	}
 
 	return nil
+}
+
+func (ss AutocompleteSVC) validateFields(sources *[]autocompletesvc.Autocomplete) *[]autocompletesvc.Autocomplete {
+	namesLength := 70
+	for i,v := range *sources {
+		if len(v.CountryNameNative) > namesLength {
+			level.Warn(ss.logger).Log("msg", "CountryNameNative too long", "index", i, "value", v.CountryNameNative)
+			v.CountryNameNative = v.CountryNameNative[:namesLength]
+		}
+
+		if len(v.CountryNameEnglish) > namesLength {
+			level.Warn(ss.logger).Log("msg", "CountryNameEnglish too long", "index", i, "value", v.CountryNameEnglish)
+			v.CountryNameEnglish = v.CountryNameEnglish[:namesLength]
+		}
+
+		if len(v.CityNameNative) > namesLength {
+			level.Warn(ss.logger).Log("msg", "CityNameNative too long", "index", i, "value", v.CityNameNative)
+			v.CityNameNative = v.CityNameNative[:namesLength]
+		}
+
+		if len(v.CityNameEnglish) > namesLength {
+			level.Warn(ss.logger).Log("msg", "CityNameEnglish too long", "index", i, "value", v.CityNameEnglish)
+			v.CityNameEnglish = v.CityNameEnglish[:namesLength]
+		}
+	}
+
+	return sources
 }
 
 

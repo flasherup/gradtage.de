@@ -83,7 +83,10 @@ func main() {
 			return
 		}
 
-		gRPCServer := googlerpc.NewServer()
+		gRPCServer := googlerpc.NewServer(
+			googlerpc.MaxRecvMsgSize(common.MaxMessageReceiveSize ),
+			googlerpc.MaxSendMsgSize(common.MaxMessageSendSize ),
+		)
 		endpoints := autocompletesvc.MakeServerEndpoints(autocompleteService)
 		acrpc.RegisterAutocompleteSVCServer(gRPCServer, autocompletesvc.NewGRPCServer(ctx, endpoints))
 

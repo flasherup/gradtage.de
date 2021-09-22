@@ -8,9 +8,8 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/localutils/stations/stationsfromcsv/parsers"
 	"github.com/flasherup/gradtage.de/stationssvc"
-
-	//"github.com/flasherup/gradtage.de/stationssvc"
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
+
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
@@ -60,15 +59,22 @@ func main() {
 		"prioc_us.csv",*/
 	}
 
- 	//fromCSVListToStations("./data", filesList, logger)
-	fromCSVListToAutocomplete("./data", filesList, logger)
+
+	stations := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
+	//stations := stations.NewStationsSCVClient("localhost:8102", logger)
+	fromCSVListToStations("data", filesList, stations, logger)
+
+
+	//autocomplete := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
+	autocomplete := autocomplete.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
+	fromCSVListToAutocomplete("data", filesList, autocomplete, logger)
 	//fromCSVToList("./data", filesList, logger)
+
+
 }
 
 
-func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
-	stationsLocal := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
-	//stationsLocal := stations.NewStationsSCVClient("localhost:8102", logger)
+func fromCSVListToStations(path string, filesList []string, stationsLocal *stations.StationsSVCClient , logger log.Logger) {
 
 	//allStation := make([]stationssvc.Station, 0)
 	for _,fileName := range filesList {
@@ -112,24 +118,21 @@ func fromCSVListToStations(path string, filesList []string, logger log.Logger) {
 	}
 }
 
-func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logger) {
-	//autocompleteLocal := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
-	autocompleteLocal := autocomplete.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
+func fromCSVListToAutocomplete(path string, filesList []string, autocompleteLocal *autocomplete.AutocompleteSVCClient, logger log.Logger) {
 
 	for _,fileName := range filesList {
-		fmt.Println("Process", fileName)
-		stsl, error := parsers.ParseStationsCSV(path + "/" + fileName)
-		if error != nil {
-			println("Error", error.Error())
+		stsl, err := parsers.ParseStationsCSV(path + "/" + fileName)
+		if err != nil {
+			println("Error", err.Error())
 			continue
 		}
 
 		sts := make([]autocompletesvc.Autocomplete, len(stsl))
 
-		err := autocompleteLocal.ResetSources([]autocompletesvc.Autocomplete{})
+		/*err := autocompleteLocal.ResetSources([]autocompletesvc.Autocomplete{})
 		if err != nil {
 			level.Error(logger).Log("msg", "Seset Autocomplete error", "err", err)
-		}
+		}*/
 
 		for i,v := range stsl {
 			sts[i] = autocompletesvc.Autocomplete{
@@ -158,9 +161,9 @@ func fromCSVListToAutocomplete(path string, filesList []string, logger log.Logge
 				Elevation: v.Elevation,
 			}
 		}
-		err = autocompleteLocal.AddSources(sts)
+		err = autocompleteLocal.ResetSources(sts)
 		if err != nil {
-			level.Error(logger).Log("msg", "AddAutocomplete error", "err", err)
+			level.Error(logger).Log("msg", "ResetSources error", "err", err)
 		}
 	}
 }

@@ -43,7 +43,6 @@ func (pg Postgres) AddStation(station stationssvc.Station) error {
 		(id, name, timezone, source_type, source_id) 
 		VALUES ( '%s', '%s', '%s', '%s', '%s') `,
 		tableName, station.ID, station.Name, station.Timezone, station.SourceType, station.SourceID)
-	fmt.Println("query", query)
 	return writeToDB(pg.db, query)
 }
 
@@ -66,7 +65,6 @@ func (pg Postgres) AddStations(stations []stationssvc.Station) error {
 	}
 	query += ` ON CONFLICT (id) DO UPDATE SET 
 		(name, timezone, source_type, source_id) = (excluded.name, excluded.timezone, excluded.source_type, excluded.source_id);`
-	fmt.Println("query", query)
 	return writeToDB(pg.db, query)
 }
 

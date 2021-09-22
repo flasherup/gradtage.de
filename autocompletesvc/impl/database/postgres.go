@@ -181,6 +181,7 @@ func (pg Postgres) GetAllStations() (map[string]*acrpc.Source,error) {
 	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
 
 	rows, err := pg.db.Query(query)
+	defer rows.Close()
 	if err != nil {
 		return sts, err
 	}
@@ -192,7 +193,7 @@ func (pg Postgres) GetAllStations() (map[string]*acrpc.Source,error) {
 		}
 		sts[st.ID] = &st
 	}
-	return sts,rows.Close()
+	return sts, nil
 }
 
 
@@ -368,10 +369,10 @@ func (pg Postgres) CreateTable() error {
 			iso_2_country varchar(3),  
 			iso_3_country varchar(3),  
 			prio varchar(1),  
-			city_name_english varchar(60),  
-			city_name_native varchar(60),  
-			country_name_english varchar(60),  
-			country_name_native varchar(60),  
+			city_name_english varchar(70),  
+			city_name_native varchar(70),  
+			country_name_english varchar(70),  
+			country_name_native varchar(70),  
 			icao varchar(4),  
 			wmo varchar(8),  
 			cwop varchar(8),  
