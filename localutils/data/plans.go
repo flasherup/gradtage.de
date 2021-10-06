@@ -14,7 +14,7 @@ var endTimeAll, _ = time.Parse(common.TimeLayout, common.TimeEndAll)
 
 var Plans = []usersvc.Plan{
 	{usersvc.PlanCanceled, 		0, 		0, 	false,false,false, 	startTimeAll, 	startTimeAll, 1},
-	{usersvc.PlanTrial, 			1, 		100, 	true, true, true, 	startTimeAll, 	endTime, 	14},
+	{usersvc.PlanTrial, 			1, 		100, 	true, true, true, 	startTimeAll, 	endTimeAll, 	14},
 	{usersvc.PlanLite, 			10, 		100, 	true, true, false, 	startTimeAll, 	endTimeAll,29},
 	{usersvc.PlanProfessional, 	25, 		1000, 	true, true, true, 	startTimeAll, 	endTimeAll,29},
 	{usersvc.PlanEnterprise, 		100000, 	4000, 	true, true, true, 	startTimeAll, 	endTimeAll,29},

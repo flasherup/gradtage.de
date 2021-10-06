@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/localutils/data"
 	"github.com/flasherup/gradtage.de/usersvc"
 	"github.com/flasherup/gradtage.de/usersvc/impl"
 	"github.com/go-kit/kit/log"
@@ -32,9 +33,9 @@ func main() {
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	//addPlans(client, logger, data.Plans)
+	addPlans(client, logger, data.Plans)
 
-	createOrder(client, logger)
+	//createOrder(client, logger)
 	//validateOrder(client, logger, 1277)
 	//validateKey(client, logger, "fe52a98a-3b04-41d3-bd35-79a31ec3e9b2")
 	/*for i := 0; i<10; {

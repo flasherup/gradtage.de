@@ -20,6 +20,7 @@ func decodeGetHDDRequest(_ context.Context, r *http.Request) (request interface{
 		return nil, e
 	}
 	vars := mux.Vars(r)
+	req.Params.End = utils.WordToTime(req.Params.End)
 	req.Params.Output = vars[Method]
 	req.Params.DayCalc = vars[DayCalc]
 	return req, nil
@@ -64,6 +65,8 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 		Breakdown: r.Form.Get("breakdown"),
 		DayCalc:   vars[DayCalc],
 	}
+
+	prm.End = utils.WordToTime(prm.End)
 
 	req  := GetHDDCSVRequest{ prm }
 	return req, nil

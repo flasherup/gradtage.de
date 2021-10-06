@@ -10,7 +10,7 @@ const TimeLayoutDay = "2006-01-02"
 const TimeLayoutMonth = "2006-01"
 const TimeLayoutYear = "2006"
 
-const CutDateWBH = "2011-09-20"
+const CutDateWBH = "2011-10-01"
 
 //Data source types
 const (
