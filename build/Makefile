@@ -159,7 +159,9 @@ update_grpcs:
 	make -C ../stationssvc/stsgrpc regenerate
 	make -C ../usersvc/grpcusr regenerate
 	make -C ../weatherbitsvc/weatherbitgrpc regenerate
-	make -C ../weathrbitupdatesvc\wbugrpc regenerate
+	make -C ../weathrbitupdatesvc/wbugrpc regenerate
+	make -C ../daydegreesvc/ddgrpc regenerate
+	make -C ../metricssvc/mtrgrpc regenerate
 
 setup_services:
 	7z a -tzip setup.zip setup
