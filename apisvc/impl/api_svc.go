@@ -58,7 +58,7 @@ func NewAPISVC(
 	st := APISVC{
 		logger:  		logger,
 		daydegree:	 	daydegree,
-		weatherbit: 		weatherbit,
+		weatherbit: 	weatherbit,
 		autocomplete: 	autocomplete,
 		user: 			user,
 		alert:   		alert,

@@ -232,7 +232,68 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 			}
 
 		}
-		query += " ON CONFLICT (date) DO NOTHING;"
+		//query += " ON CONFLICT (date) DO NOTHING;"
+		query += ` ON CONFLICT (id) DO UPDATE SET (
+					rh,
+					pod,
+					pres,
+					timezone,
+					country_code, 
+					clouds,
+					vis,
+					solar_rad,
+					wind_spd,
+					state_code,
+					city_name,
+					app_temp,
+					uv,
+					lon,
+					slp,
+					h_angle,
+					dewpt,
+					snow,
+					aqi,
+					wind_dir,
+					elev_angle,
+					ghi,
+					lat,
+					precip,
+					sunset,
+					temp,
+					station,
+					dni,
+					sunrise
+				) = (
+					excluded.rh,
+					excluded.pod,
+					excluded.pres,
+					excluded.timezone,
+					excluded.country_code,
+					excluded.clouds,
+					excluded.vis,
+					excluded.solar_rad,
+					excluded.wind_spd,
+					excluded.state_code,
+					excluded.city_name,
+					excluded. app_temp,
+					excluded.uv,
+					excluded.lon,
+					excluded.slp,
+					excluded.h_angle,
+					excluded.dewpt,
+					excluded.snow,
+					excluded.aqi,
+					excluded.wind_dir,
+					excluded.elev_angle,
+					excluded.ghi,
+					excluded.lat,
+					excluded.precip,
+					excluded.sunset,
+					excluded.temp,
+					excluded.station,
+					excluded.dni,
+					excluded.sunrise
+				);`
 		err = writeToDB(pg.db, query)
 		if err != nil{
 			return err

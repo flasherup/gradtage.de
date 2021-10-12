@@ -37,3 +37,15 @@ setup_daydegreesvc:
 	systemctl daemon-reload
 	systemctl start daydegreesvc
 	systemctl enable daydegreesvc
+
+setup_metricssvc:
+	sudo -u postgres createdb "hdd-metrics"
+	cp ../metricssvc /usr/local/bin/
+	chmod 700 /usr/local/bin/metricssvc
+	chown gradtage:gradtage /usr/local/bin/metricssvc
+	cp metricssvc.yml /etc/gradtage/
+	sudo chown gradtage:gradtage /etc/gradtage/metricssvc.yml
+	cp metricssvc.service /etc/systemd/system/
+	systemctl daemon-reload
+	systemctl start metricssvc
+	systemctl enable metricssvc
