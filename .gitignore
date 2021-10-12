@@ -22,3 +22,5 @@ build/setup.zip
 *.yml
 build/weatherbitupdatesvc
 apisvc/cmd/server/src/www/
+test/test.go
+test/test3.go

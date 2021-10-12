@@ -12,12 +12,19 @@ type ServerConfig struct {
 }
 
 type WeatherbitConfig struct {
-	UrlWeatherBit            string `yaml:"url_weather_bit"`
-	KeyWeatherBit            string `yaml:"key_weather_bit"`
-	NumberOfRequestPerSecond int    `yaml:"number_of_request_per_second"`
-	NumberOfRequestPerDay    int    `yaml:"number_of_request_per_day"`
-	NumberOfDays             int    `yaml:"number_of_days"`
-	NumberOfDaysPerRequest   int    `yaml:"number_of_days_per_request"`
+	UrlWeatherBit            string          `yaml:"url_weather_bit"`
+	KeyWeatherBit            string          `yaml:"key_weather_bit"`
+	NumberOfRequestPerSecond int             `yaml:"number_of_request_per_second"`
+	NumberOfRequestPerDay    int             `yaml:"number_of_request_per_day"`
+	NumberOfDays             int             `yaml:"number_of_days"`
+	NumberOfDaysPerRequest   int             `yaml:"number_of_days_per_request"`
+	ClearDay                 int             `yaml:"clear_day"`
+	ForUpdate                ForUpdateConfig `yaml:"forupdate"`
+}
+
+type ForUpdateConfig struct {
+	NumberOfDaysUpdate int `yaml:"number_of_days_update"`
+	Weekday            int `yaml:"weekday"`
 }
 
 type DatabaseConfig struct {

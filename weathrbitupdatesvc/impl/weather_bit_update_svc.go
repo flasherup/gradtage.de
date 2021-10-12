@@ -59,6 +59,7 @@ func NewWeatherBitUpdateSVC(
 	db database.WeatherBitDB,
 	alert alertsvc.Client,
 	conf config.WeatherBitUpdateConfig,
+	numberOfDaysUpdate config.WeatherbitConfig,
 ) (*WeatherBitUpdateSVC, error) {
 	wb := WeatherBitUpdateSVC{
 		stations:              stations,
@@ -130,6 +131,12 @@ func startFetchProcess(wbu *WeatherBitUpdateSVC) {
 	wg := sync.WaitGroup{}
 	for {
 		date := time.Now()
+		weekday := time.Now().Weekday()
+
+		if int(weekday) == wbu.conf.Weatherbit.ForUpdate.Weekday{
+			wbu.conf.Weatherbit.NumberOfDays = wbu.conf.Weatherbit.ForUpdate.NumberOfDaysUpdate
+		}
+
 		resp, err := wbu.stations.GetAllStations()
 		if err != nil {
 			level.Error(wbu.logger).Log("msg", "Cant get stations list", "error", err)
@@ -141,6 +148,8 @@ func startFetchProcess(wbu *WeatherBitUpdateSVC) {
 		for _, v := range resp.Sts {
 			sts[v.Id] = v.SourceId
 		}
+
+
 
 		level.Info(wbu.logger).Log("msg", "Start update process", "date", date)
 		wbu.precessStations(date, sts, &wg)
