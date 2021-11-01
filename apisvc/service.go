@@ -2,6 +2,7 @@ package apisvc
 
 import (
 	"context"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/moosh3/woogo"
 	"net/http"
 )
@@ -45,15 +46,16 @@ type WCDeleteEvent struct {
 }
 
 type WCUpdateEvent struct {
-	ID              int           `json:"id"`
-	ParentId        int           `json:"parent_id"`
-	Status          string        `json:"status"`
-	DateCreated     string        `json:"date_created"`
-	DateCreatedGMT  string        `json:"date_created_gmt"`
-	DateModified    string        `json:"date_modified"`
-	DateModifiedGMT string        `json:"date_modified_gmt"`
-	LineItems       []WCLineItems `json:"line_items"`
-	Billing         woogo.Billing `json:"billing"`
+	ID              int              `json:"id"`
+	ParentId        int              `json:"parent_id"`
+	Status          string           `json:"status"`
+	DateCreated     string           `json:"date_created"`
+	DateCreatedGMT  string           `json:"date_created_gmt"`
+	DateModified    string           `json:"date_modified"`
+	DateModifiedGMT string           `json:"date_modified_gmt"`
+	LineItems       []WCLineItems    `json:"line_items"`
+	Billing         woogo.Billing    `json:"billing"`
+	MetaData        []common.WCMetaData 	 `json:"meta_data"`
 }
 
 type WoocommerceEvent struct {

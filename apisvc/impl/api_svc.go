@@ -240,16 +240,18 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 
 		order, _, err := as.user.ValidateOrder(orderId)
 		if err != nil {
-			//Create new user
-			key, err := as.woocommerce.GenerateAPIKey(orderId, email, productId)
-			if err != nil {
-				level.Error(as.logger).Log("msg", "Subscription update error", "orderId", orderId, "email", email, "productId", productId, "err", err)
-			} else {
-				err := CreateWoocommerceOrder(as.user, orderId, email, key, productId)
+			if !utils.IsSubscriptionRenewal(event.UpdateEvent.MetaData) {
+				//Create new user
+				key, err := as.woocommerce.GenerateAPIKey(orderId, email, productId)
 				if err != nil {
 					level.Error(as.logger).Log("msg", "Subscription update error", "orderId", orderId, "email", email, "productId", productId, "err", err)
 				} else {
-					level.Info(as.logger).Log("msg", "Subscription update success", "orderId", orderId, "email", email, "productId", productId, "key", key)
+					err := CreateWoocommerceOrder(as.user, orderId, email, key, productId)
+					if err != nil {
+						level.Error(as.logger).Log("msg", "Subscription update error", "orderId", orderId, "email", email, "productId", productId, "err", err)
+					} else {
+						level.Info(as.logger).Log("msg", "Subscription update success", "orderId", orderId, "email", email, "productId", productId, "key", key)
+					}
 				}
 			}
 		} else {

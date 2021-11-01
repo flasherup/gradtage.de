@@ -26,9 +26,9 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	//client := impl.NewUsersSCVClient("localhost:8110",logger)
+	client := impl.NewUsersSCVClient("localhost:8110",logger)
 	//client := impl.NewUsersSCVClient("82.165.18.228:8110",logger)//Old Server
-	client := impl.NewUsersSCVClient("212.227.215.17:8110",logger)//New server
+	//client := impl.NewUsersSCVClient("212.227.215.17:8110",logger)//New server
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")

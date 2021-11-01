@@ -107,3 +107,12 @@ func (wc Woocommerce) GenerateAPIKey(orderId int, email, productId string) (apiK
 
 	return "", nil
 }
+
+func IsSubscriptionRenewal(metadata []common.WCMetaData) bool {
+	for _,v := range metadata {
+		if *v.Key == "_subscription_renewal" {
+			return true;
+		}
+	}
+	return false
+}
