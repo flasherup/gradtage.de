@@ -19,7 +19,7 @@ type WeatherbitConfig struct {
 	NumberOfDays             int             `yaml:"number_of_days"`
 	NumberOfDaysPerRequest   int             `yaml:"number_of_days_per_request"`
 	ClearDay                 int             `yaml:"clear_day"`
-	ForUpdate                ForUpdateConfig `yaml:"forupdate"`
+	ForUpdate                ForUpdateConfig `yaml:"for_update"`
 }
 
 type ForUpdateConfig struct {

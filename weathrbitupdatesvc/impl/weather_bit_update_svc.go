@@ -14,7 +14,6 @@ import (
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"sync"
-
 	"time"
 )
 
@@ -39,6 +38,7 @@ type WeatherBitUpdateSVC struct {
 	alert                 alertsvc.Client
 	logger                log.Logger
 	conf                  config.WeatherBitUpdateConfig
+	numberOfDays		  int
 	dailyRequestCounter   int
 	secondsRequestCounter int
 	dailyStartTime        time.Time
@@ -59,7 +59,6 @@ func NewWeatherBitUpdateSVC(
 	db database.WeatherBitDB,
 	alert alertsvc.Client,
 	conf config.WeatherBitUpdateConfig,
-	numberOfDaysUpdate config.WeatherbitConfig,
 ) (*WeatherBitUpdateSVC, error) {
 	wb := WeatherBitUpdateSVC{
 		stations:              stations,
@@ -134,7 +133,9 @@ func startFetchProcess(wbu *WeatherBitUpdateSVC) {
 		weekday := time.Now().Weekday()
 
 		if int(weekday) == wbu.conf.Weatherbit.ForUpdate.Weekday{
-			wbu.conf.Weatherbit.NumberOfDays = wbu.conf.Weatherbit.ForUpdate.NumberOfDaysUpdate
+			wbu.numberOfDays = wbu.conf.Weatherbit.ForUpdate.NumberOfDaysUpdate
+		} else {
+			wbu.numberOfDays = wbu.conf.Weatherbit.NumberOfDays
 		}
 
 		resp, err := wbu.stations.GetAllStations()
@@ -173,17 +174,13 @@ func (wbu *WeatherBitUpdateSVC) processRequest(stID string, st string, end time.
 	for {
 		startDate := endDate.AddDate(0, 0, -wbu.conf.Weatherbit.NumberOfDaysPerRequest)
 		daysDif := utils.DaysDifference(startDate, end)
-		if daysDif > wbu.conf.Weatherbit.NumberOfDays {
+		if daysDif > wbu.numberOfDays {
 			break
 		}
 		sDate := startDate.Format(common.TimeLayoutWBH)
 		eDate := endDate.Format(common.TimeLayoutWBH)
-		/*if utils.DaysCheck(startDate, end, wbu.conf.Weatherbit.NumberOfDays) {
-			break
-		}*/
 		endDate = startDate
 		if wbu.checkPeriod(stID, sDate, eDate) {
-			//level.Info(wbu.logger).Log("msg", "Skip station period", "innerId", stID, "station", st, "start", sDate, "end", eDate)
 			continue
 		}
 		wg.Add(1)
@@ -230,7 +227,6 @@ func (wbu *WeatherBitUpdateSVC) processUpdate(stID, st, start, end string, wg *s
 		}
 		return
 	}
-	//time.Sleep(time.Second * 30)
 
 	wbu.resultChanel <- UpdateResult{
 		StId:    stID,
