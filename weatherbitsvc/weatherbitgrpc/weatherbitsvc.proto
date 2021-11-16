@@ -12,6 +12,22 @@ message Temperatures {
     repeated Temperature temps = 1;
 }
 
+message Params {
+    string  Station = 1;
+    string  Start = 2;
+    string  End = 3;
+    string   Breakdown = 4;
+    double  Tb = 5;
+    double  Tr = 6;
+    string  Method = 7;
+    string   DayCalc = 8;
+}
+
+message Degree {
+    string Date = 1;
+    double Temp = 2;
+}
+
 message WBData {
     string  Date            = 1;
     double  Rh              = 2;
@@ -93,6 +109,27 @@ message GetStationsListResponse {
     string err = 2;
 }
 
+message GetAverageRequest {
+    string id      = 1;
+    int32 years    = 2;
+    string end     = 3;
+}
+
+message GetAverageResponse{
+    repeated Temperature list  = 1;
+    string err                 = 2;
+}
+
+message GetAverageDegreeRequest {
+    Params params = 1;
+    int32 Years  = 2;
+}
+
+message GetAverageDegreeResponse {
+    repeated Degree degrees = 1;
+    string err = 2;
+}
+
 
 service WeatherbitSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
@@ -100,6 +137,8 @@ service WeatherbitSVC {
     rpc PushWBPeriod(PushWBPeriodRequest) returns (PushWBPeriodResponse) {}
     rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
     rpc GetStationsList(GetStationsListRequest) returns (GetStationsListResponse) {}
+    rpc GetAverage(GetAverageRequest) returns (GetAverageResponse) {}
+    rpc GetAverageDegree(GetAverageDegreeRequest)  returns (GetAverageDegreeResponse) {}
 }
 
 

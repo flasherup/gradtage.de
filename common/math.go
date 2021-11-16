@@ -22,7 +22,7 @@ func getMinMaxFloat64(data []float64) (float64, float64) {
 	return min, max
 }
 
-func getAverageFloat64(data []float64) float64 {
+func GetAverageFloat64(data []float64) float64 {
 	sum := 0.0
 	for _,v := range data {
 		sum += v

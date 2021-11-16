@@ -5,6 +5,17 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 )
 
+type Params struct {
+	Station   string
+	Start     string
+	End       string
+	Breakdown string
+	Tb        float64
+	Tr        float64
+	Output    string
+	DayCalc   string
+}
+
 type WBData struct {
 	Date        string  `json:"date"`
 	Rh		 	float64 `json:"rh"`
@@ -38,10 +49,18 @@ type WBData struct {
 	Sunrise     string  `json:"sunrise"`
 }
 
+type Degree struct {
+	Date string
+	Temp float64
+}
+
 type Service interface {
 	GetPeriod(ctx context.Context, ids []string, start string, end string) (map[string][]common.Temperature, error)
 	GetWBPeriod(ctx context.Context, id string, start string, end string) ([]WBData, error)
 	PushWBPeriod(ctx context.Context, id string, data []WBData) error
 	GetUpdateDate(ctx context.Context, ids []string) (map[string]string, error)
 	GetStationsList(ctx context.Context) ([]string, error)
+	GetAverage(ctx context.Context, id string, years int, end string) ([]common.Temperature, error)
+	GetAverageDegree(ctx context.Context, params Params, years int) ([]Degree, error)
+
 }

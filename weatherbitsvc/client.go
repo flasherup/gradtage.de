@@ -11,4 +11,6 @@ type Client interface {
 	PushWBPeriod(id string, data []WBData) (err error)
 	GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error)
 	GetStationsList() (resp *[]string, err error)
+	GetAverage(id string, years int, end string) (temps *[]common.Temperature, err error)
+	GetAverageDegree(params Params, years int) ([]Degree,error)
 }

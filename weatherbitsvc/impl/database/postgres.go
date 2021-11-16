@@ -159,7 +159,7 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 	if length == 0 {
 		return errors.New("weather push error, data is empty")
 	}
-	iterationStep := 100;
+	iterationStep := 100
 	for i:=iterationStep; i<length; i+=iterationStep{
 		query := fmt.Sprintf("INSERT INTO %s " +
 			"(date, " +
@@ -288,7 +288,6 @@ func (pg *Postgres) GetUpdateDate(name string) (date string, err error) {
 	}
 	return date,err
 }
-
 
 //CreateTable create a table with name @icao + tPrefix if not exist
 func (pg *Postgres) CreateTable(name string) error {

@@ -71,6 +71,58 @@ func DecodeGetStationsListRequest(_ context.Context, r interface{}) (interface{}
 	return GetStationsListRequest{}, nil
 }
 
+func EncodeGetAverageResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetAverageResponse)
+	encTemp := ToGRPCAverageTemps(res.Temps)
+	return &weathergrpc.GetAverageResponse {
+		List: encTemp,
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
+func DecodeGetAverageRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*weathergrpc.GetAverageRequest)
+	return GetAverageRequest{req.Id, int(req.Years), req.End}, nil
+}
+
+func DecodeGetAverageDegreeRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*weathergrpc.GetAverageDegreeRequest)
+	params := ToParams(req.Params)
+	return GetAverageDegreeRequest{*params, int(req.Years)}, nil
+}
+
+func EncodeGetAverageDegreeResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetAverageDegreeResponse)
+	degrees := toGRPCDegree(&res.Degrees)
+	return &weathergrpc.GetAverageDegreeResponse {
+		Degrees: *degrees,
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
+
+func ToGRPCAverageTemps(src []common.Temperature) []*weathergrpc.Temperature {
+	temps := make([]*weathergrpc.Temperature, len(src))
+	for i,v := range src {
+		temps[i] = &weathergrpc.Temperature{
+			Date: 	v.Date,
+			Temp: 	v.Temp,
+		}
+	}
+		return temps
+}
+
+func ToCommonAverageTemps(src []*weathergrpc.Temperature) []common.Temperature {
+	temps := make([]common.Temperature, len(src))
+	for i,v := range src {
+		temps[i] = common.Temperature{
+			Date: 	v.Date,
+			Temp: 	v.Temp,
+		}
+	}
+	return temps
+}
+
 func ToGRPCWBData(src []WBData)  []*weathergrpc.WBData {
 	res := make([]*weathergrpc.WBData, len(src))
 	for i,v := range src {
@@ -179,4 +231,52 @@ func ToCommonTemps(src map[string]*weathergrpc.Temperatures) map[string][]common
 		res[k] = temps
 	}
 	return res
+}
+
+func ToGRPCParams(params *Params) *weathergrpc.Params {
+	return &weathergrpc.Params{
+		Station:params.Station,
+		Start:params.Start,
+		End:params.End,
+		Breakdown:params.Breakdown,
+		Tb:params.Tb,
+		Tr:params.Tr,
+		Method:params.Output,
+		DayCalc:params.DayCalc,
+	}
+}
+
+func ToParams(params *weathergrpc.Params) *Params {
+	return &Params{
+		Station:   params.Station,
+		Start:     params.Start,
+		End:       params.End,
+		Breakdown: params.Breakdown,
+		Tb:        params.Tb,
+		Tr:        params.Tr,
+		Output:    params.Method,
+		DayCalc:   params.DayCalc,
+	}
+}
+
+func toGRPCDegree(degree *[]Degree) *[]*weathergrpc.Degree {
+	res := make([]*weathergrpc.Degree, len(*degree))
+	for i,v := range *degree {
+		res[i] =  &weathergrpc.Degree{
+			Date: v.Date,
+			Temp: v.Temp,
+		}
+	}
+	return &res
+}
+
+func ToDegree(degree *[]*weathergrpc.Degree) *[]Degree{
+	res := make([]Degree, len(*degree))
+	for i,v := range *degree {
+		res[i] =  Degree{
+			Date: v.Date,
+			Temp: v.Temp,
+		}
+	}
+	return &res
 }

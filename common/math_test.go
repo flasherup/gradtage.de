@@ -16,7 +16,7 @@ func TestGetAverageFloat64(t *testing.T) {
 	}
 
 	for _,v := range values {
-		res := getAverageFloat64(v.src)
+		res := GetAverageFloat64(v.src)
 		if res != v.res {
 			t.Errorf("getAverageFloat64(%g) = %g; want %g",v.src, res, v.res)
 		}

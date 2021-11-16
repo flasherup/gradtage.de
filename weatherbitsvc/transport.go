@@ -11,11 +11,13 @@ import (
 )
 
 type GRPCServer struct {
-	getPeriod       gt.Handler
-	getWbPeriod     gt.Handler
-	pushWbPeriod    gt.Handler
-	getUpdateDate   gt.Handler
-	getStationsList gt.Handler
+	getPeriod        gt.Handler
+	getWbPeriod      gt.Handler
+	pushWbPeriod     gt.Handler
+	getUpdateDate    gt.Handler
+	getStationsList  gt.Handler
+	getAverage       gt.Handler
+	getAverageDegree gt.Handler
 }
 
 func (s *GRPCServer) GetPeriod(ctx context.Context, req *weathergrpc.GetPeriodRequest) (*weathergrpc.GetPeriodResponse, error) {
@@ -58,6 +60,22 @@ func (s *GRPCServer) GetStationsList(ctx context.Context, req *weathergrpc.GetSt
 	return resp.(*weathergrpc.GetStationsListResponse), err
 }
 
+func (s *GRPCServer) GetAverage(ctx context.Context, req *weathergrpc.GetAverageRequest) (*weathergrpc.GetAverageResponse, error) {
+	_, resp, err := s.getAverage.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*weathergrpc.GetAverageResponse), err
+}
+
+func (s *GRPCServer) GetAverageDegree(ctx context.Context, req *weathergrpc.GetAverageDegreeRequest) (*weathergrpc.GetAverageDegreeResponse, error) {
+	_, resp, err := s.getAverageDegree.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*weathergrpc.GetAverageDegreeResponse), err
+}
+
 func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 	server := GRPCServer{
 		getPeriod: gt.NewServer(
@@ -84,6 +102,16 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) *GRPCServer {
 			endpoint.GetStationsListEndpoint,
 			DecodeGetStationsListRequest,
 			EncodeGetStationsListResponse,
+		),
+		getAverage: gt.NewServer(
+			endpoint.GetAverageEndpoint,
+			DecodeGetAverageRequest,
+			EncodeGetAverageResponse,
+		),
+		getAverageDegree: gt.NewServer(
+			endpoint.GetAverageDegreeEndpoint,
+			DecodeGetAverageDegreeRequest,
+			EncodeGetAverageDegreeResponse,
 		),
 	}
 	return &server

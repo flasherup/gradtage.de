@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/daydegreesvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
@@ -13,7 +14,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"io/ioutil"
-
 	"net/http"
 	"time"
 )
@@ -130,6 +130,121 @@ func (wb *WeatherBitSVC) GetStationsList(ctx context.Context) (stations []string
 	return stations, err
 }
 
+func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, end string) ([]common.Temperature, error) {
+	level.Info(wb.logger).Log("msg", "GetAverage", "id", id, "years", years, "end", end)
+
+
+	if years < 1 {
+		years = 1
+	}
+	start, err := getStartDate(end, years)
+	if err == nil{
+
+	}
+
+	data, err := wb.db.GetPeriod(id, start, end)
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "Get WB Data error", "err", err)
+		return []common.Temperature{}, err
+	}
+
+	temps := make([]common.Temperature, len(data)/years)
+	//allData := make(map[int][]common.Temperature)
+	forGAFloat :=  make([]float64, 25)
+	for _, v := range data {
+		d, err := time.Parse(common.TimeLayout, v.Date)
+		if err == nil{
+			level.Error(wb.logger).Log("msg", "Time Parse error", "err", err)
+		}
+		//key := fmt.Sprintf("%d - %d - %d", d.Month(), d.Day(), d.Hour())
+
+		//getPeriodData := v.Date
+		//getPeriodTemps := v.Temp
+		//allData[key] = data
+	
+		//_, exist := allData[key]
+		t, err := time.Parse(common.TimeLayout, v.Date)
+		if err == nil{
+			level.Error(wb.logger).Log("msg", "Time Parse error", "err", err)
+		}
+		fmt.Println(t, d)
+
+		//if !exist {}//va := make([]common.Temperature, len(data))}
+		for i, v := range data{
+			if t.Month() == d.Month() && t.Day() == d.Day() && d.Hour() == 1{
+				//temp := v.Temp
+				//allData[d.Hour()] = v
+				fmt.Println(v.Date, v.Temp)
+				fmt.Println(t.Hour())
+			}
+			if i % 24 == 0 {
+				toAverage :=common.GetAverageFloat64(forGAFloat)
+				result := common.ToFixedFloat64(toAverage, 2)
+				fmt.Println(result)
+			}
+
+
+		}
+
+
+		//fmt.Println(getPeriodTemps)
+		//toAverage :=common.GetAverageFloat64(forGAFloat[i])
+
+
+		//fmt.Println(toAverage)
+
+
+	//
+
+		//temps[i] = common.Temperature{key, result}
+
+
+
+
+//если длинна даты < 8734 вернуть за 1 год
+	}
+
+	return temps, err
+}
+
+func (wb *WeatherBitSVC) GetAverageDegree(ctx context.Context, params weatherbitsvc.Params, years int)  ([]weatherbitsvc.Degree, error) {
+	id := "us_koak"
+		level.Info(wb.logger).Log("msg", "GetDegree", "Station", params.Station, "Start", params.Start, "End", params.End)
+		_, err := wb.db.GetPeriod(id, params.Start, params.End)
+		if err != nil {
+			level.Error(wb.logger).Log("msg", "GetPeriod error", "err", err)
+			return []weatherbitsvc.Degree{}, err
+		}
+	/*
+		var degrees *[]common.Temperature
+		t := (*temps)[params.Station]
+		if params.Output == common.HDDType {
+			degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
+		} else if params.Output == common.DDType {
+			degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc)
+		} else if params.Output == common.CDDType {
+			degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
+		}
+
+		res := toDegree(degrees)
+		return *res, nil
+	}
+
+	func toDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
+		if temps == nil {
+			return &[]daydegreesvc.Degree{}
+		}
+		res := make([]daydegreesvc.Degree, len(*temps))
+		for i,v := range *temps {
+			res[i] =  daydegreesvc.Degree{
+				Date: v.Date,
+				Temp: v.Temp,
+			}
+		}
+		return &res*/
+	return []weatherbitsvc.Degree{}, err
+}
+
 func (wb WeatherBitSVC) processUpdate(stID string, st string) {
 	date := time.Now()
 	endDate := date.Format(common.TimeLayoutWBH)
@@ -177,4 +292,29 @@ func (wb WeatherBitSVC) processUpdate(stID string, st string) {
 		return
 	}
 
+}
+
+func getStartDate(end string, years int) (string, error) {
+	t, err := time.Parse(common.TimeLayoutWBH, end)
+	if err != nil{
+		return end, err
+	}
+	layout := common.TimeLayoutWBH
+	time.Parse(layout, end)
+	start := t.AddDate(-years, 0, 0)
+	return start.Format(common.TimeLayoutWBH), nil
+}
+
+func toAverageDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
+	if temps == nil {
+		return &[]daydegreesvc.Degree{}
+	}
+	res := make([]daydegreesvc.Degree, len(*temps))
+	for i,v := range *temps {
+		res[i] =  daydegreesvc.Degree{
+			Date: v.Date,
+			Temp: v.Temp,
+		}
+	}
+	return &res
 }

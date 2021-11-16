@@ -2,14 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
-	"github.com/flasherup/gradtage.de/weatherbitsvc/impl/collectroes"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
-	"time"
 )
 
 func main() {
@@ -24,8 +20,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
-	//client := impl.NewWeatherBitUpdateSVCClient("localhost:8111",logger)
+	//client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
+	client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -35,10 +31,10 @@ func main() {
 		level.Error(logger).Log("msg", "GetPeriod Error", "err", err)
 	}*/
 
-	err := getWBPeriod(client, logger)
+	/*err := getWBPeriod(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "GetWBPeriod Error", "err", err)
-	}
+	}*/
 
 	/*err := pushWBPeriod(client, logger)
 	if err != nil {
@@ -49,9 +45,15 @@ func main() {
 	if err != nil {
 		level.Error(logger).Log("msg", "getStationsList Error", "err", err)
 	}*/
+
+	err := getAverage(client, logger)
+	if err != nil {
+		level.Error(logger).Log("msg", "GetAverage Error", "err", err)
+	}
+
 }
 
-func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+/*func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	//Just for test
 	data, err := client.GetPeriod([]string{"at_av222"}, "2020-03-20T00:00:00", "2021-03-25T20:00:00")
 	if err != nil {
@@ -69,7 +71,7 @@ func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 		}
 	}
 	return nil
-}
+}*/
 
 func getWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	//Just for test
@@ -84,7 +86,7 @@ func getWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	return nil
 }
 
-func pushWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+/*func pushWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	data := weatherbitsvc.WBData{
 		Date: "2020-03-25T00:00:00Z" ,
 		Rh: 67 ,
@@ -138,4 +140,19 @@ func getStationsList(client *impl.WeatherBitSVCClient, logger log.Logger) error 
 
 	fmt.Println(stations)
 	return nil
+}*/
+
+func getAverage(client *impl.WeatherBitSVCClient, logger log.Logger) error {
+	end := "2020-05-05"
+	years := 2
+	id := "us_koak"
+
+	data, err := client.GetAverage(id, years, end)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(data)
+	return nil
+
 }

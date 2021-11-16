@@ -51,3 +51,24 @@ type GetStationsListResponse struct {
 	List []string `json:"list"`
 	Err  error `json:"err"`
 }
+
+type GetAverageRequest struct {
+	Id string `json:"id"`
+	Years int `json:"years"`
+	End string `json:"end"`
+}
+
+type GetAverageResponse struct {
+	Temps []common.Temperature `json:"temps"`
+	Err  error `json:"err"`
+}
+
+type GetAverageDegreeRequest struct {
+	Params Params `json:"params"`
+	Years int	  `json:"years"`
+}
+
+type GetAverageDegreeResponse struct {
+	Degrees []Degree `json:"temps"`
+	Err     error    `json:"err"`
+}

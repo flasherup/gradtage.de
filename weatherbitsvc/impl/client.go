@@ -52,7 +52,7 @@ func (wb WeatherBitSVCClient) GetWBPeriod( id string, start string, end string) 
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get WB period", "err", err)
 	} else if grpc.Err != common.ErrorNilString {
-		err = common.ErrorFromString(grpc.Err);
+		err = common.ErrorFromString(grpc.Err)
 	} else {
 		resp = weatherbitsvc.ToWBData(grpc.Temps)
 	}
@@ -70,12 +70,12 @@ func (wb WeatherBitSVCClient) PushWBPeriod( id string, data []weatherbitsvc.WBDa
 		level.Error(wb.logger).Log("msg", "Failed to get WB period", "err", errRequest)
 		err = errRequest
 	} else if grpc.Err != common.ErrorNilString {
-		err = common.ErrorFromString(grpc.Err);
+		err = common.ErrorFromString(grpc.Err)
 	}
 	return
 }
 
-func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error) {
+/*func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error) {
 	conn := wb.openConn()
 	defer conn.Close()
 
@@ -87,9 +87,9 @@ func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.Get
 		err = errors.New(resp.Err)
 	}
 	return resp, err
-}
+}*/
 
-func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) {
+/*func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) {
 	conn := wb.openConn()
 	defer conn.Close()
 
@@ -98,11 +98,26 @@ func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) 
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get stations list", "err", err)
 	} else if grpc.Err != common.ErrorNilString {
-		err = common.ErrorFromString(grpc.Err);
+		err = common.ErrorFromString(grpc.Err)
 	} else {
 		stations = &grpc.List
 	}
 	return stations, err
+}*/
+
+func (wb WeatherBitSVCClient) GetAverage(id string, years int, end string) (temps []common.Temperature, err error) {
+	conn := wb.openConn()
+	defer conn.Close()
+	client := weathergrpc.NewWeatherbitSVCClient(conn)
+	grpc, err := client.GetAverage(context.Background(), &weathergrpc.GetAverageRequest{ Id: id, Years:int32(years), End: end })
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "Failed to get stations list", "err", err)
+	} else if grpc.Err != common.ErrorNilString {
+		err = common.ErrorFromString(grpc.Err)
+	}else {
+		temps = weatherbitsvc.ToCommonAverageTemps(grpc.List)
+	}
+	return temps, err
 }
 
 func (wb WeatherBitSVCClient) openConn() *googlerpc.ClientConn {
@@ -115,4 +130,21 @@ func (wb WeatherBitSVCClient) openConn() *googlerpc.ClientConn {
 		level.Error(wb.logger).Log("msg", "Failed to start gRPC connection", "err", err)
 	}
 	return cc
+}
+
+func (wb WeatherBitSVCClient) GetAverageDegree(params weatherbitsvc.Params, years int) (temps []weatherbitsvc.Degree, err error) {
+	conn := wb.openConn()
+	defer conn.Close()
+	p := weatherbitsvc.ToGRPCParams(&params)
+
+	client := weathergrpc.NewWeatherbitSVCClient(conn)
+	grpc, err := client.GetAverageDegree(context.Background(), &weathergrpc.GetAverageDegreeRequest{Params: p, Years: int32(years)})
+	if err != nil {
+		level.Error(wb.logger).Log("msg", "Failed to get degree", "err", err)
+	} else if grpc.Err != common.ErrorNilString {
+		err = common.ErrorFromString(grpc.Err)
+	} else {
+		temps = *(weatherbitsvc.ToDegree(&grpc.Degrees))
+	}
+	return temps, err
 }
