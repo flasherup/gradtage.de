@@ -148,61 +148,47 @@ func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, e
 		return []common.Temperature{}, err
 	}
 
-	temps := make([]common.Temperature, len(data)/years)
-	//allData := make(map[int][]common.Temperature)
-	forGAFloat :=  make([]float64, 25)
+	days := make(map[string][]float64)
+	keyFormat := "%d-%d-%d"
+
 	for _, v := range data {
 		d, err := time.Parse(common.TimeLayout, v.Date)
 		if err == nil{
 			level.Error(wb.logger).Log("msg", "Time Parse error", "err", err)
-		}
-		//key := fmt.Sprintf("%d - %d - %d", d.Month(), d.Day(), d.Hour())
-
-		//getPeriodData := v.Date
-		//getPeriodTemps := v.Temp
-		//allData[key] = data
-	
-		//_, exist := allData[key]
-		t, err := time.Parse(common.TimeLayout, v.Date)
-		if err == nil{
-			level.Error(wb.logger).Log("msg", "Time Parse error", "err", err)
-		}
-		fmt.Println(t, d)
-
-		//if !exist {}//va := make([]common.Temperature, len(data))}
-		for i, v := range data{
-			if t.Month() == d.Month() && t.Day() == d.Day() && d.Hour() == 1{
-				//temp := v.Temp
-				//allData[d.Hour()] = v
-				fmt.Println(v.Date, v.Temp)
-				fmt.Println(t.Hour())
-			}
-			if i % 24 == 0 {
-				toAverage :=common.GetAverageFloat64(forGAFloat)
-				result := common.ToFixedFloat64(toAverage, 2)
-				fmt.Println(result)
-			}
-
-
+			return []common.Temperature{}, err
 		}
 
+		key := fmt.Sprintf(keyFormat, d.Month(), d.Day(), d.Hour())
+		day, exist := days[key]
+		if !exist {
+			day = make([]float64, 0)
+		}
 
-		//fmt.Println(getPeriodTemps)
-		//toAverage :=common.GetAverageFloat64(forGAFloat[i])
-
-
-		//fmt.Println(toAverage)
-
-
-	//
-
-		//temps[i] = common.Temperature{key, result}
-
-
-
-
-//если длинна даты < 8734 вернуть за 1 год
+		days[key] = append(day, v.Temp)
 	}
+
+	daysAng := make(map[string]float64)
+	for k,v := range days {
+		avg := common.GetAverageFloat64(v)
+		daysAng[k]  = common.ToFixedFloat64(avg, 2)
+	}
+
+	temps := make([]common.Temperature, 0)
+
+	evgYear := 2400
+	initialDate := time.Date(evgYear, 1,1,0,0,0,0, nil)
+	for initialDate.Year() == evgYear {
+		key := fmt.Sprintf(keyFormat, initialDate.Month(), initialDate.Day(), initialDate.Hour())
+		day, exist := daysAng[key]
+		if !exist {
+			temps = append(temps, common.Temperature{
+				Date: initialDate.Format(common.TimeLayout),
+				Temp: day,
+			})
+		}
+		initialDate.Add(time.Hour)
+	}
+
 
 	return temps, err
 }
