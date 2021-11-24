@@ -33,15 +33,33 @@ func (ddc * DayDegreeSVCClient) GetDegree(params daydegreesvc.Params) (temps []d
 
 	client := ddgrpc.NewDayDegreeSVCClient(conn)
 	grpc, err := client.GetDegree(context.Background(), &ddgrpc.GetDegreeRequest{Params: p})
-	if err != nil {
+	if err == nil {
 		level.Error(ddc.logger).Log("msg", "Failed to get degree", "err", err)
 	} else if grpc.Err != common.ErrorNilString {
-		err = common.ErrorFromString(grpc.Err);
+		err = common.ErrorFromString(grpc.Err)
 	} else {
 		temps = *(daydegreesvc.ToDegree(&grpc.Degrees))
 	}
 	return temps, err
 }
+
+
+func (ddc * DayDegreeSVCClient) GetAverageDegree(params daydegreesvc.Params, years int) (temps []daydegreesvc.Degree, err error) {
+		conn := ddc.openConn()
+		defer conn.Close()
+
+		p := daydegreesvc.ToGRPCParams(&params)
+		client := ddgrpc.NewDayDegreeSVCClient(conn)
+		grpc, err := client.GetAverageDegree(context.Background(), &ddgrpc.GetAverageDegreeRequest{ Params: p, Years:int32(years) })
+		if err != nil {
+			level.Error(ddc.logger).Log("msg", "Failed to GetAverage", "err", err)
+		} else if grpc.Err != common.ErrorNilString {
+			err = common.ErrorFromString(grpc.Err)
+		} else {
+			temps = *(daydegreesvc.ToDegree(&grpc.Degrees))
+		}
+		return temps, err
+	}
 
 func (ddc * DayDegreeSVCClient) openConn() *googlerpc.ClientConn {
 	options := googlerpc.WithDefaultCallOptions(

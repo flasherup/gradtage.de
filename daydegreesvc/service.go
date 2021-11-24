@@ -23,4 +23,5 @@ type Degree struct {
 
 type Service interface {
 	GetDegree(ctx context.Context, params Params) ([]Degree, error)
+	GetAverageDegree(ctx context.Context, params Params, years int) ([]Degree, error)
 }

@@ -22,15 +22,20 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	//client := impl.NewDayDegreeSVCClient("localhost:8112",logger)
-	client := impl.NewDayDegreeSVCClient("82.165.119.83:8112",logger)
+	client := impl.NewDayDegreeSVCClient("localhost:8112",logger)
+	//client := impl.NewDayDegreeSVCClient("82.165.119.83:8112",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
 
-	err := getDegree(client, logger)
+	/*err := getDegree(client, logger)
 	if err != nil {
 		level.Error(logger).Log("msg", "GetDegree Error", "err", err)
+	}*/
+
+	err := getAVGDegree(client, logger)
+	if err != nil {
+		level.Error(logger).Log("msg", "getAverageDegree Error", "err", err)
 	}
 }
 
@@ -48,6 +53,31 @@ func getDegree(client *impl.DayDegreeSVCClient, logger log.Logger) error {
 	}
 	//Just for test
 	data, err := client.GetDegree(params)
+	if err != nil {
+		return err
+	}
+	for i,v := range data {
+		fmt.Println(i, v.Date, v.Temp)
+	}
+	return nil
+}
+
+func getAVGDegree(client *impl.DayDegreeSVCClient, logger log.Logger) error {
+
+	years := 1
+	params := daydegreesvc.Params{
+		Station:   "us_koak",
+		Start:     "2020-01-01",
+		End:       "2020-12-31",
+		Breakdown: common.BreakdownDaily,
+		Tb:        15,
+		Tr:        20,
+		Output:    "hdd",
+		DayCalc:   common.DayCalcMean,
+
+	}
+	//Just for test
+	data, err := client.GetAverageDegree(params, years)
 	if err != nil {
 		return err
 	}

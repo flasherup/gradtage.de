@@ -21,6 +21,21 @@ func EncodeGetDegreeResponse(_ context.Context, r interface{}) (interface{}, err
 	}, nil
 }
 
+func DecodeGetAverageDegreeRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*ddgrpc.GetAverageDegreeRequest)
+	params := ToParams(req.Params)
+	return GetAverageDegreeRequest{*params, int(req.Years)}, nil
+}
+
+func EncodeGetAverageDegreeResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(GetAverageDegreeResponse)
+	degrees := toGRPCDegree(&res.Degrees)
+	return &ddgrpc.GetAverageDegreeResponse {
+		Degrees: *degrees,
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
 func ToGRPCParams(params *Params) *ddgrpc.Params {
 	return &ddgrpc.Params{
 		Station:params.Station,

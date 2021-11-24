@@ -58,6 +58,30 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 	return *res, nil
 }
 
+func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesvc.Params, years int) ([]daydegreesvc.Degree, error) {
+	level.Info(dd.logger).Log("msg", "GetDegree", "Station", params.Station, "Start", params.Start, "End", params.End)
+	temps, err := dd.weatherBit.GetAverage(params.Station, years, params.End)
+	if err != nil {
+		level.Error(dd.logger).Log("msg", "GetPeriod error", "err", err)
+		return []daydegreesvc.Degree{}, err
+	}
+
+	var degrees *[]common.Temperature
+
+	if params.Output == common.HDDType {
+		degrees = common.CalculateHDDDegree(temps, params.Tb, params.Breakdown, params.DayCalc)
+	} else if params.Output == common.DDType {
+		degrees = common.CalculateDDegree(temps, params.Tb, params.Tr, params.Breakdown, params.DayCalc)
+	} else if params.Output == common.CDDType {
+		degrees = common.CalculateCDDegree(temps, params.Tb, params.Breakdown, params.DayCalc)
+	}
+
+	res := toDegree(degrees)
+	return *res, nil
+}
+
+
+
 func toDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
 	if temps == nil {
 		return &[]daydegreesvc.Degree{}

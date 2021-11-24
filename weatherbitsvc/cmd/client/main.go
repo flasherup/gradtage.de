@@ -51,6 +51,8 @@ func main() {
 		level.Error(logger).Log("msg", "GetAverage Error", "err", err)
 	}
 
+
+
 }
 
 /*func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
@@ -156,3 +158,5 @@ func getAverage(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	return nil
 
 }
+
+

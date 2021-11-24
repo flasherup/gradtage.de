@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/alertsvc"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/daydegreesvc"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/config"
@@ -133,10 +132,12 @@ func (wb *WeatherBitSVC) GetStationsList(ctx context.Context) (stations []string
 func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, end string) ([]common.Temperature, error) {
 	level.Info(wb.logger).Log("msg", "GetAverage", "id", id, "years", years, "end", end)
 
-
 	if years < 1 {
 		years = 1
+	}else if years > 10 {
+		years = 10
 	}
+
 	start, err := getStartDate(end, years)
 	if err == nil{
 
@@ -153,7 +154,7 @@ func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, e
 
 	for _, v := range data {
 		d, err := time.Parse(common.TimeLayout, v.Date)
-		if err == nil{
+		if err != nil{
 			level.Error(wb.logger).Log("msg", "Time Parse error", "err", err)
 			return []common.Temperature{}, err
 		}
@@ -175,60 +176,23 @@ func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, e
 
 	temps := make([]common.Temperature, 0)
 
-	evgYear := 2400
-	initialDate := time.Date(evgYear, 1,1,0,0,0,0, nil)
-	for initialDate.Year() == evgYear {
+	initialDate, _ := time.Parse(common.TimeLayout, common.InitialDate)
+	year := initialDate.Year()
+	for initialDate.Year() == year {
 		key := fmt.Sprintf(keyFormat, initialDate.Month(), initialDate.Day(), initialDate.Hour())
 		day, exist := daysAng[key]
-		if !exist {
+		if exist {
 			temps = append(temps, common.Temperature{
 				Date: initialDate.Format(common.TimeLayout),
 				Temp: day,
 			})
 		}
-		initialDate.Add(time.Hour)
+
+		initialDate = initialDate.Add(time.Hour)
 	}
 
 
 	return temps, err
-}
-
-func (wb *WeatherBitSVC) GetAverageDegree(ctx context.Context, params weatherbitsvc.Params, years int)  ([]weatherbitsvc.Degree, error) {
-	id := "us_koak"
-		level.Info(wb.logger).Log("msg", "GetDegree", "Station", params.Station, "Start", params.Start, "End", params.End)
-		_, err := wb.db.GetPeriod(id, params.Start, params.End)
-		if err != nil {
-			level.Error(wb.logger).Log("msg", "GetPeriod error", "err", err)
-			return []weatherbitsvc.Degree{}, err
-		}
-	/*
-		var degrees *[]common.Temperature
-		t := (*temps)[params.Station]
-		if params.Output == common.HDDType {
-			degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
-		} else if params.Output == common.DDType {
-			degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc)
-		} else if params.Output == common.CDDType {
-			degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
-		}
-
-		res := toDegree(degrees)
-		return *res, nil
-	}
-
-	func toDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
-		if temps == nil {
-			return &[]daydegreesvc.Degree{}
-		}
-		res := make([]daydegreesvc.Degree, len(*temps))
-		for i,v := range *temps {
-			res[i] =  daydegreesvc.Degree{
-				Date: v.Date,
-				Temp: v.Temp,
-			}
-		}
-		return &res*/
-	return []weatherbitsvc.Degree{}, err
 }
 
 func (wb WeatherBitSVC) processUpdate(stID string, st string) {
@@ -289,18 +253,4 @@ func getStartDate(end string, years int) (string, error) {
 	time.Parse(layout, end)
 	start := t.AddDate(-years, 0, 0)
 	return start.Format(common.TimeLayoutWBH), nil
-}
-
-func toAverageDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
-	if temps == nil {
-		return &[]daydegreesvc.Degree{}
-	}
-	res := make([]daydegreesvc.Degree, len(*temps))
-	for i,v := range *temps {
-		res[i] =  daydegreesvc.Degree{
-			Date: v.Date,
-			Temp: v.Temp,
-		}
-	}
-	return &res
 }

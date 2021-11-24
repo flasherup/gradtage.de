@@ -28,8 +28,19 @@ message GetDegreeResponse {
     string err = 2;
 }
 
+message GetAverageDegreeRequest {
+    Params params = 1;
+    int32 Years  = 2;
+}
+
+message GetAverageDegreeResponse {
+    repeated Degree degrees = 1;
+    string err = 2;
+}
+
 service DayDegreeSVC {
     rpc GetDegree(GetDegreeRequest)  returns (GetDegreeResponse) {}
+    rpc GetAverageDegree(GetAverageDegreeRequest)  returns (GetAverageDegreeResponse) {}
 }
 
 

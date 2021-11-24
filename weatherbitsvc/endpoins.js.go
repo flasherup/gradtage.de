@@ -12,7 +12,6 @@ type Endpoints struct {
 	GetUpdateDateEndpoint    endpoint.Endpoint
 	GetStationsListEndpoint  endpoint.Endpoint
 	GetAverageEndpoint       endpoint.Endpoint
-	GetAverageDegreeEndpoint endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -23,7 +22,6 @@ func MakeServerEndpoints(s Service) Endpoints {
 		GetUpdateDateEndpoint:    MakeGetUpdateDateEndpoint(s),
 		GetStationsListEndpoint:  MakeGetStationsListEndpoint(s),
 		GetAverageEndpoint:       MakeGetAverageEndpoint(s),
-		GetAverageDegreeEndpoint: MakeGetAverageDegreeEndpoint(s),
 	}
 }
 
@@ -72,13 +70,5 @@ func MakeGetAverageEndpoint(s Service) endpoint.Endpoint {
 		req := request.(GetAverageRequest)
 		temps, err := s.GetAverage(ctx, req.Id, req.Years, req.End)
 		return GetAverageResponse{temps, err}, err
-	}
-}
-
-func MakeGetAverageDegreeEndpoint(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(GetAverageDegreeRequest)
-		temps, err := s.GetAverageDegree(ctx, req.Params, req.Years)
-		return GetAverageDegreeResponse{temps, err}, err
 	}
 }

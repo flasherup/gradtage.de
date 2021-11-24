@@ -172,13 +172,13 @@ func calculateDayDegree(data *[]Temperature, dayCalcType string, calcFunc func(f
 		daily := make([]float64, len(*data))
 		for i,v := range *data {
 			daily[i] = calcFunc(v.Temp)
-			res = getAverageFloat64(daily)
+			res = GetAverageFloat64(daily)
 		}
 	} else if dayCalcType == DayCalcMean {
 		daily := make([]float64, len(*data))
 		for i,v := range *data {
 			daily[i] = v.Temp
-			a := getAverageFloat64(daily)
+			a := GetAverageFloat64(daily)
 			res = calcFunc(a)
 		}
 	} else if dayCalcType == DayCalcMima {
@@ -186,7 +186,7 @@ func calculateDayDegree(data *[]Temperature, dayCalcType string, calcFunc func(f
 		for i,v := range *data {
 			daily[i] = v.Temp
 			min,max := getMinMaxFloat64(daily)
-			a := getAverageFloat64([]float64{min,max})
+			a := GetAverageFloat64([]float64{min,max})
 			res = calcFunc(a)
 		}
 	}

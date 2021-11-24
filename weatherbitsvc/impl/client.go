@@ -75,7 +75,7 @@ func (wb WeatherBitSVCClient) PushWBPeriod( id string, data []weatherbitsvc.WBDa
 	return
 }
 
-/*func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error) {
+func (wb WeatherBitSVCClient) GetUpdateDate(ids []string) (resp *weathergrpc.GetUpdateDateResponse, err error) {
 	conn := wb.openConn()
 	defer conn.Close()
 
@@ -87,9 +87,9 @@ func (wb WeatherBitSVCClient) PushWBPeriod( id string, data []weatherbitsvc.WBDa
 		err = errors.New(resp.Err)
 	}
 	return resp, err
-}*/
+}
 
-/*func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) {
+func (wb WeatherBitSVCClient) GetStationsList() (stations *[]string, err error) {
 	conn := wb.openConn()
 	defer conn.Close()
 
@@ -103,7 +103,7 @@ func (wb WeatherBitSVCClient) PushWBPeriod( id string, data []weatherbitsvc.WBDa
 		stations = &grpc.List
 	}
 	return stations, err
-}*/
+}
 
 func (wb WeatherBitSVCClient) GetAverage(id string, years int, end string) (temps []common.Temperature, err error) {
 	conn := wb.openConn()
@@ -111,7 +111,7 @@ func (wb WeatherBitSVCClient) GetAverage(id string, years int, end string) (temp
 	client := weathergrpc.NewWeatherbitSVCClient(conn)
 	grpc, err := client.GetAverage(context.Background(), &weathergrpc.GetAverageRequest{ Id: id, Years:int32(years), End: end })
 	if err != nil {
-		level.Error(wb.logger).Log("msg", "Failed to get stations list", "err", err)
+		level.Error(wb.logger).Log("msg", "Failed to GetAverage", "err", err)
 	} else if grpc.Err != common.ErrorNilString {
 		err = common.ErrorFromString(grpc.Err)
 	}else {
@@ -132,19 +132,3 @@ func (wb WeatherBitSVCClient) openConn() *googlerpc.ClientConn {
 	return cc
 }
 
-func (wb WeatherBitSVCClient) GetAverageDegree(params weatherbitsvc.Params, years int) (temps []weatherbitsvc.Degree, err error) {
-	conn := wb.openConn()
-	defer conn.Close()
-	p := weatherbitsvc.ToGRPCParams(&params)
-
-	client := weathergrpc.NewWeatherbitSVCClient(conn)
-	grpc, err := client.GetAverageDegree(context.Background(), &weathergrpc.GetAverageDegreeRequest{Params: p, Years: int32(years)})
-	if err != nil {
-		level.Error(wb.logger).Log("msg", "Failed to get degree", "err", err)
-	} else if grpc.Err != common.ErrorNilString {
-		err = common.ErrorFromString(grpc.Err)
-	} else {
-		temps = *(weatherbitsvc.ToDegree(&grpc.Degrees))
-	}
-	return temps, err
-}

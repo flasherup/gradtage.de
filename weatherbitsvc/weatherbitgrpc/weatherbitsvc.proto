@@ -120,16 +120,6 @@ message GetAverageResponse{
     string err                 = 2;
 }
 
-message GetAverageDegreeRequest {
-    Params params = 1;
-    int32 Years  = 2;
-}
-
-message GetAverageDegreeResponse {
-    repeated Degree degrees = 1;
-    string err = 2;
-}
-
 
 service WeatherbitSVC {
     rpc GetPeriod(GetPeriodRequest)  returns (GetPeriodResponse) {}
@@ -138,7 +128,6 @@ service WeatherbitSVC {
     rpc GetUpdateDate(GetUpdateDateRequest) returns (GetUpdateDateResponse) {}
     rpc GetStationsList(GetStationsListRequest) returns (GetStationsListResponse) {}
     rpc GetAverage(GetAverageRequest) returns (GetAverageResponse) {}
-    rpc GetAverageDegree(GetAverageDegreeRequest)  returns (GetAverageDegreeResponse) {}
 }
 
 
