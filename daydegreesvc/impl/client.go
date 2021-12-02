@@ -33,7 +33,7 @@ func (ddc * DayDegreeSVCClient) GetDegree(params daydegreesvc.Params) (temps []d
 
 	client := ddgrpc.NewDayDegreeSVCClient(conn)
 	grpc, err := client.GetDegree(context.Background(), &ddgrpc.GetDegreeRequest{Params: p})
-	if err == nil {
+	if err != nil {
 		level.Error(ddc.logger).Log("msg", "Failed to get degree", "err", err)
 	} else if grpc.Err != common.ErrorNilString {
 		err = common.ErrorFromString(grpc.Err)
