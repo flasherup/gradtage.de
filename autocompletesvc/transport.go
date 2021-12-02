@@ -14,6 +14,7 @@ type GRPCServer struct {
 	getAutocomplete    	gt.Handler
 	addSources    		gt.Handler
 	resetSources    	gt.Handler
+	getAllStations    	gt.Handler
 }
 
 func (s *GRPCServer) GetAutocomplete(ctx context.Context, req *acrpc.GetAutocompleteRequest) (*acrpc.GetAutocompleteResponse, error) {
@@ -40,6 +41,15 @@ func (s *GRPCServer) ResetSources(ctx context.Context, req *acrpc.ResetSourcesRe
 	return resp.(*acrpc.ResetSourcesResponse), nil
 }
 
+func (s *GRPCServer) GetAllStations(ctx context.Context, req *acrpc.GetAllStationsRequest) (*acrpc.GetAllStationsResponse, error) {
+	_, resp, err := s.getAllStations.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	r := resp.(acrpc.GetAllStationsResponse)
+	return &r, nil
+}
+
 func NewGRPCServer(_ context.Context, endpoint Endpoints) acrpc.AutocompleteSVCServer {
 	return &GRPCServer{
 		getAutocomplete: gt.NewServer(
@@ -56,6 +66,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) acrpc.AutocompleteSVCS
 			endpoint.ResetSourcesEndpoint,
 			DecodeResetSourcesRequest,
 			EncodeResetSourcesResponse,
+		),
+		getAllStations: gt.NewServer(
+			endpoint.GetAllStationsEndpoint,
+			StandardDecodeRequest,
+			StandardEncodeResponse,
 		),
 	}
 }

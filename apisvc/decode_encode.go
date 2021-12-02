@@ -20,6 +20,7 @@ func decodeGetHDDRequest(_ context.Context, r *http.Request) (request interface{
 		return nil, e
 	}
 	vars := mux.Vars(r)
+	req.Params.End = utils.WordToTime(req.Params.End)
 	req.Params.Output = vars[Method]
 	req.Params.DayCalc = vars[DayCalc]
 	return req, nil
@@ -64,6 +65,8 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 		Breakdown: r.Form.Get("breakdown"),
 		DayCalc:   vars[DayCalc],
 	}
+
+	prm.End = utils.WordToTime(prm.End)
 
 	req  := GetHDDCSVRequest{ prm }
 	return req, nil
@@ -204,22 +207,21 @@ func encodeWoocommerceResponse(ctx context.Context, w http.ResponseWriter, respo
 	return err
 }
 
-func decodeCommandRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+func decodeServiceRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(r)
 	r.ParseForm()
 	p := make(map[string]string)
 	for k,v := range r.Form {
 		p[k] = v[0]
 	}
-	req := CommandRequest{}
-	req.Params = p;
-	if name, ok := p["name"]; ok {
-		req.Name = name
-	}
+	req := ServiceRequest{}
+	req.Params = p
+	req.Name = vars[ServiceName]
 	return req, nil
 }
 
-func encodeCommandResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(CommandResponse)
+func encodeServiceResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(ServiceResponse)
 	bt := new(bytes.Buffer)
 	err := json.NewEncoder(bt).Encode(resp.Json)
 

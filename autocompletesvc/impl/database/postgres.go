@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
+	"github.com/flasherup/gradtage.de/autocompletesvc/acrpc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/config"
 	_ "github.com/lib/pq"
 )
@@ -174,6 +175,57 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 	return result, err
 }
 
+//GetAllStations get a list of station
+func (pg Postgres) GetAllStations() (map[string]*acrpc.Source,error) {
+	sts := make(map[string]*acrpc.Source)
+	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
+
+	rows, err := pg.db.Query(query)
+	defer rows.Close()
+	if err != nil {
+		return sts, err
+	}
+
+	for rows.Next() {
+		st,err := parseSourceRow(rows)
+		if err != nil {
+			return sts, err
+		}
+		sts[st.ID] = &st
+	}
+	return sts, nil
+}
+
+
+func parseSourceRow(rows *sql.Rows) (source acrpc.Source, err error) {
+	err = rows.Scan(
+			&source.ID,
+			&source.SourceID,
+			&source.Latitude,
+			&source.Longitude,
+			&source.Source,
+			&source.Reports,
+			&source.ISO2Country,
+			&source.ISO3Country,
+			&source.Prio,
+			&source.CityNameEnglish,
+			&source.CityNameNative,
+			&source.CountryNameEnglish,
+			&source.CountryNameNative,
+			&source.ICAO,
+			&source.WMO,
+			&source.CWOP,
+			&source.Maslib,
+			&source.National_ID,
+			&source.IATA,
+			&source.USAF_WBAN,
+			&source.GHCN,
+			&source.NWSLI,
+			&source.Elevation,
+		)
+	return
+}
+
 //AddSources
 func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err error) {
 	length := len(sources)
@@ -317,10 +369,10 @@ func (pg Postgres) CreateTable() error {
 			iso_2_country varchar(3),  
 			iso_3_country varchar(3),  
 			prio varchar(1),  
-			city_name_english varchar(60),  
-			city_name_native varchar(60),  
-			country_name_english varchar(60),  
-			country_name_native varchar(60),  
+			city_name_english varchar(70),  
+			city_name_native varchar(70),  
+			country_name_english varchar(70),  
+			country_name_native varchar(70),  
 			icao varchar(4),  
 			wmo varchar(8),  
 			cwop varchar(8),  

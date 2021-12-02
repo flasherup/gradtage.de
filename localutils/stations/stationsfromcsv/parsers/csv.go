@@ -39,6 +39,7 @@ type Station struct {
 }
 
 func ParseStationsCSV(filepath string) ([]Station, error) {
+	fmt.Println(filepath)
 	csvFile, err := os.Open(filepath)
 	if err != nil {
 		return nil, err
@@ -53,10 +54,10 @@ func ParseStationsCSV(filepath string) ([]Station, error) {
 	index := 0
 	for {
 		index++
-		line, error := r.Read()
-		if error == io.EOF {
+		line, err := r.Read()
+		if err == io.EOF {
 			break
-		} else if error != nil {
+		} else if err != nil {
 			return nil, err
 		}
 		if index == 1 {
@@ -88,7 +89,6 @@ func ParseStationsCSV(filepath string) ([]Station, error) {
 			Elevation:prepareFloat64(line[22]),
 		})
 	}
-
 	return stations, nil
 }
 

@@ -50,6 +50,14 @@ func DecodeResetSourcesRequest(_ context.Context, r interface{}) (interface{}, e
 	}, nil
 }
 
+func StandardEncodeResponse(_ context.Context, r interface{}) (interface{}, error) {
+	return r,nil
+}
+
+func StandardDecodeRequest(_ context.Context, r interface{}) (interface{}, error) {
+	return r, nil
+}
+
 func EncodeSources(sources []Autocomplete) []*acrpc.Source {
 	res := make([]*acrpc.Source, len(sources))
 	for i,v := range sources {

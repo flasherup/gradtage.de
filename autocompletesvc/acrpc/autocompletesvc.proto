@@ -59,10 +59,19 @@ message ResetSourcesResponse {
     string err = 1;
 }
 
+message GetAllStationsRequest {
+}
+
+message GetAllStationsResponse {
+    map<string, Source> stations = 1;
+    string err = 2;
+}
+
 service AutocompleteSVC {
     rpc GetAutocomplete(GetAutocompleteRequest) returns (GetAutocompleteResponse) {}
     rpc AddSources(AddSourcesRequest) returns (AddSourcesResponse) {}
     rpc ResetSources(ResetSourcesRequest) returns (ResetSourcesResponse) {}
+    rpc GetAllStations(GetAllStationsRequest) returns (GetAllStationsResponse) {}
 }
 
 

@@ -11,7 +11,7 @@ const TimeLayoutDay = "2006-01-02"
 const TimeLayoutMonth = "2006-01"
 const TimeLayoutYear = "2006"
 
-const CutDateWBH = "2011-09-20"
+const CutDateWBH = "2011-10-01"
 
 //Data source types
 const (
@@ -60,4 +60,9 @@ const (
 const (
 	MaxMessageSendSize    = 1024 * 1024 * 20
 	MaxMessageReceiveSize = 1024 * 1024 * 20
+)
+
+//Services
+const (
+	ServiceMetrics = "metrics"
 )

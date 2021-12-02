@@ -20,6 +20,7 @@ type Clients struct {
 	StationsAddr 		string `yaml:"stations_addr"`
 	DaydegreeAddr 		string `yaml:"daydegree_addr"`
 	WeatherbitAddr 		string `yaml:"weatherbit_addr"`
+	MetricsAddr 		string `yaml:"metrics_addr"`
 }
 
 type Static struct {

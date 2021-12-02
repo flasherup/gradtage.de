@@ -15,6 +15,6 @@ func EncodeGetMetricsResponse(_ context.Context, r interface{}) (interface{}, er
 }
 
 func DecodeGetMetricsRequest(_ context.Context, r interface{}) (interface{}, error) {
-	req := r.(GetMetricsRequest)
+	req := r.(*mtrgrpc.GetMetricsRequest)
 	return GetMetricsRequest{req.Ids}, nil
 }

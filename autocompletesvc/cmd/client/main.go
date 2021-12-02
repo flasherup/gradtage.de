@@ -22,8 +22,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewAutocompleteSCVClient("212.227.215.17:8109",logger)
-	//client := impl.NewAutocompleteSCVClient("localhost:8109",logger)
+	//client := impl.NewAutocompleteSCVClient("212.227.215.17:8109",logger)
+	client := impl.NewAutocompleteSCVClient("localhost:8109",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -43,7 +43,8 @@ func main() {
 	}
 	fmt.Println("Get Autocomplete response:", res)*/
 
-	checkStationsName(client)
+	//checkStationsName(client)
+	getAllStations(client, logger)
 }
 
 func checkStationsName(client *impl.AutocompleteSVCClient ) {
@@ -65,5 +66,20 @@ func checkStationsName(client *impl.AutocompleteSVCClient ) {
 				}
 			}
 		}
+	}
+}
+
+func getAllStations(client *impl.AutocompleteSVCClient, logger log.Logger) {
+	level.Info(logger).Log("msg", "Get All Stations")
+	stations, err := client.GetAllStations()
+	if err != nil {
+		level.Error(logger).Log("msg", "Get All Stations Error", "error", err.Error())
+	}
+
+
+	level.Info(logger).Log("msg", "Get All Stations Success", "length", len(stations))
+
+	for k,v := range stations {
+		level.Info(logger).Log("msg", "station", "id", k, "lat", v.Longitude)
 	}
 }
