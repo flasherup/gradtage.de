@@ -22,8 +22,8 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	client := impl.NewDayDegreeSVCClient("localhost:8112",logger)
-	//client := impl.NewDayDegreeSVCClient("82.165.119.83:8112",logger)
+	//client := impl.NewDayDegreeSVCClient("localhost:8112",logger)
+	client := impl.NewDayDegreeSVCClient("82.165.119.83:8112",logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")

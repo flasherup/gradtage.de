@@ -20,7 +20,7 @@ func main() {
 			"caller", log.DefaultCaller,
 		)
 	}
-	//client := impl.NewWeatherBitSVCClient("212.227.214.163:8111",logger)
+	//client := impl.NewWeatherBitSVCClient("82.165.119.83:8111",logger)
 	client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
 
 	level.Info(logger).Log("msg", "client started")
@@ -146,7 +146,7 @@ func getStationsList(client *impl.WeatherBitSVCClient, logger log.Logger) error 
 
 func getAverage(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	end := "2020-05-05"
-	years := 2
+	years := 10
 	id := "us_koak"
 
 	data, err := client.GetAverage(id, years, end)

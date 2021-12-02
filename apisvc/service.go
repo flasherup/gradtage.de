@@ -16,6 +16,7 @@ type Params struct {
 	Output    string  `json:"output"`
 	Breakdown string  `json:"breakdown"`
 	DayCalc   string  `json:"day_calc"`
+	Avg       int     `json:"avg"`
 }
 
 type ParamsSourceData struct {
