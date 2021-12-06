@@ -181,12 +181,20 @@ func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, e
 	for initialDate.Year() == year {
 		key := fmt.Sprintf(keyFormat, initialDate.Month(), initialDate.Day(), initialDate.Hour())
 		day, exist := daysAng[key]
+		var temp common.Temperature;
 		if exist {
-			temps = append(temps, common.Temperature{
+			temp = common.Temperature{
 				Date: initialDate.Format(common.TimeLayout),
 				Temp: day,
-			})
+			}
+		} else {
+			temp = common.Temperature{
+				Date: initialDate.Format(common.TimeLayout),
+				Temp: 0.00,
+			}
 		}
+
+		temps = append(temps, temp)
 
 		initialDate = initialDate.Add(time.Hour)
 	}

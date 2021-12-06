@@ -21,3 +21,22 @@ func GetTimezoneFormLatLon(lat, lon float64) (string, error) {
 	now := time.Now()
 	return now.In(loc).Format("MST"),nil
 }
+
+
+func IsLeapYear(year int) bool {
+	leapFlag := false
+	if year%4 == 0 {
+		if year%100 == 0 {
+			if year%400 == 0 {
+				leapFlag = true
+			} else {
+				leapFlag = false
+			}
+		} else {
+			leapFlag = true
+		}
+	} else {
+		leapFlag = false
+	}
+	return leapFlag
+}

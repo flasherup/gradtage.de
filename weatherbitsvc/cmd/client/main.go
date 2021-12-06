@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
+	"time"
 )
 
 func main() {
@@ -145,16 +147,21 @@ func getStationsList(client *impl.WeatherBitSVCClient, logger log.Logger) error 
 }*/
 
 func getAverage(client *impl.WeatherBitSVCClient, logger log.Logger) error {
-	end := "2020-05-05"
-	years := 10
-	id := "us_koak"
+	end := "2022-01-01"
+	years := 1
+	id := "eddh"
 
 	data, err := client.GetAverage(id, years, end)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(data)
+	for i,v := range data {
+		t, _ := time.Parse(common.TimeLayout, v.Date)
+		if t.Month() == 2 {
+			fmt.Println(i, v)
+		}
+	}
 	return nil
 
 }

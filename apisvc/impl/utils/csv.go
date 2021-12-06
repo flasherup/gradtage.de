@@ -6,6 +6,7 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/daydegreesvc"
 	"strings"
+	"time"
 )
 
 func CSVError(err error) [][]string {
@@ -17,19 +18,7 @@ func CSVError(err error) [][]string {
 }
 
 func GenerateCSV(temps []daydegreesvc.Degree, params daydegreesvc.Params, autocomplete autocompletesvc.Autocomplete) [][]string {
-	res := [][]string{}
-	res = append(res, []string{"Indicator", getIndicator(params.Output)})
-	res = append(res, []string{"Method", getMethod(params.DayCalc)})
-	res = append(res, []string{"Base Temperature", fmt.Sprintf("%gC",params.Tb)})
-	if params.Output == common.DDType {
-		res = append(res, []string{"Room Temperature", getTR(params.Tr, params.Output)})
-	}
-	res = append(res, []string{"Unit", "Celsius"})
-	res = append(res, []string{"Station", getStation(autocomplete)})
-	res = append(res, []string{"Coordinates", fmt.Sprintf("%g, %g",autocomplete.Latitude, autocomplete.Longitude)})
-	res = append(res, []string{"Description", getDescription(params)})
-	res = append(res, []string{"Source", "https://energy-data.io/"})
-	res = append(res, []string{""})
+	res := generateHeader(params, autocomplete)
 	if params.Output == common.DDType {
 		res = append(res, []string{"Date", fmt.Sprintf("DD (%g,%g)",params.Tb, params.Tr)})
 	} else if  params.Output ==  common.HDDType {
@@ -47,6 +36,52 @@ func GenerateCSV(temps []daydegreesvc.Degree, params daydegreesvc.Params, autoco
 		res = append(res, line)
 	}
 	return res
+}
+
+func GenerateAvgCSV(temps []daydegreesvc.Degree, average []daydegreesvc.Degree, params daydegreesvc.Params, autocomplete autocompletesvc.Autocomplete) [][]string {
+	res := generateHeader(params, autocomplete)
+	if params.Output == common.DDType {
+		res = append(res, []string{"Date", fmt.Sprintf("DD (%g,%g)",params.Tb, params.Tr), "Average"})
+	} else if  params.Output ==  common.HDDType {
+		res = append(res, []string{"Date",fmt.Sprintf("HDD (%g)",params.Tb), "Average"})
+	} else if  params.Output ==  common.CDDType {
+		res = append(res, []string{"Date",fmt.Sprintf("CDD (%g)",params.Tb), "Average"})
+	}
+
+	var line []string
+	avgLen := len(average)
+	for _, v := range temps {
+		doy := getAvgIndex(v.Date, params.Breakdown)
+		avg := "---"
+		if avgLen >= doy && doy > 0{
+			avg = getFormattedValue(average[doy-1].Temp)
+		}
+
+		line = []string{
+			getFormattedDate(v.Date),
+			getFormattedValue(v.Temp),
+			avg,
+		}
+		res = append(res, line)
+	}
+	return res
+}
+
+func generateHeader(params daydegreesvc.Params, autocomplete autocompletesvc.Autocomplete) [][]string {
+	res := [][]string{}
+	res = append(res, []string{"Indicator", getIndicator(params.Output)})
+	res = append(res, []string{"Method", getMethod(params.DayCalc)})
+	res = append(res, []string{"Base Temperature", fmt.Sprintf("%gC",params.Tb)})
+	if params.Output == common.DDType {
+		res = append(res, []string{"Room Temperature", getTR(params.Tr, params.Output)})
+	}
+	res = append(res, []string{"Unit", "Celsius"})
+	res = append(res, []string{"Station", getStation(autocomplete)})
+	res = append(res, []string{"Coordinates", fmt.Sprintf("%g, %g",autocomplete.Latitude, autocomplete.Longitude)})
+	res = append(res, []string{"Description", getDescription(params)})
+	res = append(res, []string{"Source", "https://energy-data.io/"})
+	res = append(res, []string{""})
+	return res;
 }
 
 func getIndicator(output string) string {
@@ -146,4 +181,31 @@ func getFormattedValue(percentageValue float64) string{
 
 func getFormattedDate(date string) string{
 	return strings.Replace(date, "-", "/", -1)
+}
+
+func getAvgIndex(date string, breakdown string) int {
+	timeLayout := common.TimeLayoutDay
+	if breakdown == common.BreakdownMonthly {
+		timeLayout = common.TimeLayoutMonth
+	} else if breakdown == common.BreakdownYearly {
+		timeLayout = common.TimeLayoutYear
+	}
+
+	d, err := time.Parse(timeLayout, date)
+	if err == nil {
+		if breakdown == common.BreakdownDaily {
+			daysShift := 0
+			if !common.IsLeapYear(d.Year()) && d.Month() > 2 {
+				daysShift = 1
+			}
+			return d.YearDay() + daysShift
+		} else if breakdown == common.BreakdownMonthly {
+			return int(d.Month())
+		} else if breakdown == common.BreakdownYearly {
+			return 1
+		}
+	} else {
+		fmt.Println("Time parse error", err)
+	}
+	return 1
 }

@@ -43,39 +43,45 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 	vars := mux.Vars(r)
 	r.ParseForm()
 	basehddStr := r.Form.Get("tb")
-	basehdd, err := strconv.ParseFloat(basehddStr, 64);
-	if  err != nil {
+	basehdd, err := strconv.ParseFloat(basehddStr, 64)
+	if err != nil {
 		basehdd = 0
 	}
 
 	baseddStr := r.Form.Get("tr")
-	basedd, err := strconv.ParseFloat(baseddStr, 64);
-	if  err != nil {
+	basedd, err := strconv.ParseFloat(baseddStr, 64)
+	if err != nil {
 		basedd = 0
 	}
 
+	avg, err := strconv.Atoi(r.Form.Get("avg"))
+	if err != nil {
+		avg = 0;
+	}
+
 	prm := Params{
-		Key :      r.Form.Get("key"),
-		Station :  r.Form.Get("station"),
-		Start :    r.Form.Get("start"),
-		End :      r.Form.Get("end"),
+		Key:       r.Form.Get("key"),
+		Station:   r.Form.Get("station"),
+		Start:     r.Form.Get("start"),
+		End:       r.Form.Get("end"),
 		Tb:        basehdd,
 		Tr:        basedd,
-		Output :   vars[Method],
+		Output:    vars[Method],
 		Breakdown: r.Form.Get("breakdown"),
 		DayCalc:   vars[DayCalc],
+		Avg:       avg,
 	}
 
 	prm.End = utils.WordToTime(prm.End)
 
-	req  := GetHDDCSVRequest{ prm }
+	req := GetHDDCSVRequest{prm}
 	return req, nil
 }
 
 func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetHDDCSVResponse)
 	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
+	w.Header().Set("Content-Disposition", "attachment;filename="+resp.FileName)
 	wr := csv.NewWriter(w)
 	wr.Comma = ';'
 	err := wr.WriteAll(resp.Data)
@@ -90,20 +96,20 @@ func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request int
 	r.ParseForm()
 
 	prm := ParamsSourceData{
-		Key :		r.Form.Get("key"),
-		Station : 	r.Form.Get("station"),
-		Start : 	r.Form.Get("start"),
-		End : 		r.Form.Get("end"),
+		Key:     r.Form.Get("key"),
+		Station: r.Form.Get("station"),
+		Start:   r.Form.Get("start"),
+		End:     r.Form.Get("end"),
 	}
 
-	req  := GetSourceDataRequest{ prm }
+	req := GetSourceDataRequest{prm}
 	return req, nil
 }
 
 func encodeGetSourceDataResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetSourceDataResponse)
 	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment;filename=" + resp.FileName)
+	w.Header().Set("Content-Disposition", "attachment;filename="+resp.FileName)
 	wr := csv.NewWriter(w)
 	err := wr.WriteAll(resp.Data)
 	wr.Flush()
@@ -116,8 +122,8 @@ func encodeGetSourceDataResponse(_ context.Context, w http.ResponseWriter, respo
 func decodeSearchRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	r.ParseForm()
 	params := ParamsSearch{
-		Key: 		r.Form.Get("key"),
-		Text :		r.Form.Get("text"),
+		Key:  r.Form.Get("key"),
+		Text: r.Form.Get("text"),
 	}
 	return SearchRequest{params}, nil
 }
@@ -138,9 +144,9 @@ func decodeUserRequest(_ context.Context, r *http.Request) (request interface{},
 	vars := mux.Vars(r)
 	r.ParseForm()
 	p := map[string]string{
-		"key":r.Form.Get("key"),
-		"plan":r.Form.Get("plan"),
-		"name":r.Form.Get("email"),
+		"key":  r.Form.Get("key"),
+		"plan": r.Form.Get("plan"),
+		"name": r.Form.Get("email"),
 	}
 
 	if p["key"] == "" {
@@ -148,9 +154,9 @@ func decodeUserRequest(_ context.Context, r *http.Request) (request interface{},
 	}
 
 	params := ParamsUser{
-		Key: 		p["key"],
-		Action :	vars[UserAction],
-		Params: 	p,
+		Key:    p["key"],
+		Action: vars[UserAction],
+		Params: p,
 	}
 	return UserRequest{params}, nil
 }
@@ -193,7 +199,7 @@ func decodeWoocommerceRequest(_ context.Context, r *http.Request) (request inter
 		}
 	}
 
-	req.Event = event;
+	req.Event = event
 	return req, nil
 }
 
@@ -211,7 +217,7 @@ func decodeServiceRequest(_ context.Context, r *http.Request) (request interface
 	vars := mux.Vars(r)
 	r.ParseForm()
 	p := make(map[string]string)
-	for k,v := range r.Form {
+	for k, v := range r.Form {
 		p[k] = v[0]
 	}
 	req := ServiceRequest{}
@@ -229,4 +235,3 @@ func encodeServiceResponse(ctx context.Context, w http.ResponseWriter, response 
 	w.Write(bt.Bytes())
 	return err
 }
-

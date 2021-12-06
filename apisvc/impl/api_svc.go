@@ -144,9 +144,18 @@ func (as APISVC) processHDD(params apisvc.Params) (data [][]string, err error) {
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
 	}
-	res := utils.GenerateCSV(degree, ddParams, autoComplete)
 
-	return res,err
+
+	//Process Average
+	if params.Avg > 0 {
+		degreeAvg, err := as.daydegree.GetAverageDegree(ddParams, params.Avg)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "Get day degree average data error", "err", err)
+		}
+		return utils.GenerateAvgCSV(degree, degreeAvg, ddParams, autoComplete), nil
+	}
+
+	return utils.GenerateCSV(degree, ddParams, autoComplete), nil
 }
 
 func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {
