@@ -148,8 +148,8 @@ func getStationsList(client *impl.WeatherBitSVCClient, logger log.Logger) error 
 
 func getAverage(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	end := "2022-01-01"
-	years := 1
-	id := "eddh"
+	years := 10
+	id := "pl_epmi"
 
 	data, err := client.GetAverage(id, years, end)
 	if err != nil {

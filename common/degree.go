@@ -40,7 +40,7 @@ func calculateDegree(temps []Temperature, outputPeriod string, dayCalc string, c
 	dailyTemps := make([]Temperature, len(*daily))
 	for i,v := range *daily {
 		temp := calculateDayDegree(&v.Temps, dayCalc, calcFunc)
-		dStr := getDateString(v.Date, BreakdownDaily)
+		dStr := GetDateStringByBreakdown(v.Date, BreakdownDaily)
 		dailyTemps[i] = Temperature{
 			dStr,
 			temp,
@@ -67,7 +67,7 @@ func sumPeriod(temps *[]Temperature, outputPeriod string, tLayout string) *[]Tem
 
 		if !isTheSamePeriod(lastDate, currentDate, outputPeriod) || i == latestIndex {
 			if !lastDate.IsZero() {
-				dStr := getDateString(lastDate, outputPeriod)
+				dStr := GetDateStringByBreakdown(lastDate, outputPeriod)
 				sum = ToFixedFloat64(sum, 2)
 				res = append(res, Temperature{Date: dStr, Temp: sum})
 			}
@@ -105,7 +105,7 @@ func groupByPeriod(temps *[]Temperature, outputPeriod string) *[]TempGroup {
 	return &res
 }
 
-func getDateString(date time.Time, breakdown string) string {
+func GetDateStringByBreakdown(date time.Time, breakdown string) string {
 	if breakdown == BreakdownDaily {
 		return date.Format(TimeLayoutDay)
 	}
@@ -145,6 +145,9 @@ func getPeriodDateMarker(date time.Time, breakdown string) int {
 }
 
 func calculateHDD(baseHDD float64, value float64) float64 {
+	if value == EmptyWeather {
+		return  EmptyWeather
+	}
 	if value >= baseHDD {
 		return 0
 	}
@@ -152,15 +155,20 @@ func calculateHDD(baseHDD float64, value float64) float64 {
 }
 
 func calculateDD(baseHDD float64, baseDD float64, value float64) float64 {
+	if value == EmptyWeather {
+		return  EmptyWeather
+	}
 	if value >= baseHDD || value >= baseDD{
 		return 0
 	}
-
 	return baseDD - value
 }
 
 
 func calculateCDD(baseCDD float64, value float64) float64 {
+	if value == EmptyWeather {
+		return  EmptyWeather
+	}
 	if value < baseCDD {
 		return 0
 	}
@@ -172,23 +180,23 @@ func calculateDayDegree(data *[]Temperature, dayCalcType string, calcFunc func(f
 		daily := make([]float64, len(*data))
 		for i,v := range *data {
 			daily[i] = calcFunc(v.Temp)
-			res = GetAverageFloat64(daily)
 		}
+		res = GetAverageFloat64(daily)
 	} else if dayCalcType == DayCalcMean {
 		daily := make([]float64, len(*data))
 		for i,v := range *data {
 			daily[i] = v.Temp
-			a := GetAverageFloat64(daily)
-			res = calcFunc(a)
 		}
+		a := GetAverageFloat64(daily)
+		res = calcFunc(a)
 	} else if dayCalcType == DayCalcMima {
 		daily := make([]float64, len(*data))
 		for i,v := range *data {
 			daily[i] = v.Temp
-			min,max := getMinMaxFloat64(daily)
-			a := GetAverageFloat64([]float64{min,max})
-			res = calcFunc(a)
 		}
+		min,max := getMinMaxFloat64(daily)
+		a := GetAverageFloat64([]float64{min,max})
+		res = calcFunc(a)
 	}
 	return ToFixedFloat64(res, 2)
 }

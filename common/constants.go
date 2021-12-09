@@ -66,3 +66,8 @@ const (
 const (
 	ServiceMetrics = "metrics"
 )
+
+//Weather
+const (
+	EmptyWeather = -999.0
+)

@@ -22,6 +22,17 @@ func GetTimezoneFormLatLon(lat, lon float64) (string, error) {
 	return now.In(loc).Format("MST"),nil
 }
 
+func ParseTimeByBreakdown(date string, breakdown string) (time.Time, error) {
+	timeLayout := TimeLayoutDay
+	if breakdown == BreakdownMonthly {
+		timeLayout = TimeLayoutMonth
+	} else if breakdown == BreakdownYearly {
+		timeLayout = TimeLayoutYear
+	}
+
+	return time.Parse(timeLayout, date)
+}
+
 
 func IsLeapYear(year int) bool {
 	leapFlag := false

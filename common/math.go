@@ -7,6 +7,9 @@ func getMinMaxFloat64(data []float64) (float64, float64) {
 	min := startMin
 	max := 0.0
 	for _,v := range data {
+		if v == EmptyWeather {
+			continue
+		}
 		if min > v {
 			min = v
 		}
@@ -24,10 +27,15 @@ func getMinMaxFloat64(data []float64) (float64, float64) {
 
 func GetAverageFloat64(data []float64) float64 {
 	sum := 0.0
+	length := 0.0
 	for _,v := range data {
+		if v == EmptyWeather {
+			continue
+		}
 		sum += v
+		length++
 	}
-	return sum/float64(len(data))
+	return sum/length
 }
 
 func RoundFloat64(num float64) int {
