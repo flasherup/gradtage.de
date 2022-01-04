@@ -160,10 +160,6 @@ func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, e
 			return []common.Temperature{}, err
 		}
 
-		if d.Month() == 1 && d.Day() == 1 && d.Hour() == 1 {
-			fmt.Println(v.Date,v.Temp)
-		}
-
 		key := fmt.Sprintf(keyFormat, d.Month(), d.Day(), d.Hour())
 		day, exist := days[key]
 		if !exist {
@@ -172,12 +168,6 @@ func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, e
 
 		days[key] = append(day, v.Temp)
 	}
-
-	/*daysAng := make(map[string]float64)
-	for k,v := range days {
-		daysAng[k] = common.GetAverageFloat64(v)
-		//daysAng[k]  = common.ToFixedFloat64(avg, 2)
-	}*/
 
 	temps := make([]common.Temperature, 0)
 
@@ -197,10 +187,6 @@ func (wb *WeatherBitSVC) GetAverage(ctx context.Context, id string, years int, e
 				Date: initialDate.Format(common.TimeLayout),
 				Temp: common.EmptyWeather,
 			}
-		}
-
-		if initialDate.Month() == 1 && initialDate.Day() == 1 && initialDate.Hour() == 1 {
-			fmt.Println("avg", day)
 		}
 
 		temps = append(temps, temp)
