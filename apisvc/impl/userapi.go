@@ -22,6 +22,11 @@ var productMapToPlan  = map[string]string{
 	"394": usersvc.PlanEnterprise,
 	"1554": usersvc.PlanTrial,
 	"1567": usersvc.PlanTrial,
+//Translated
+	"2796": usersvc.PlanTrial,
+	"2998": usersvc.PlanEnterprise,
+	"2303": usersvc.PlanProfessional,
+	"2287": usersvc.PlanLite,
 }
 
 func CreateWoocommerceOrder(client usersvc.Client, orderId int, email, key, planId string) error {

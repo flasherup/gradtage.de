@@ -231,8 +231,6 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 
 func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent) (json string, err error) {
 	level.Info(as.logger).Log("msg", "Woocommerce event", "Event", event.Type)
-	//level.Info(as.logger).Log("msg", "Woocommerce header", "Header", fmt.Sprintf("%v", event.Header))
-	//level.Info(as.logger).Log("msg", "Woocommerce header", "Body", fmt.Sprintf("%q", event.Body))
 	fmt.Println("Header:", event.Header)
 	fmt.Println("Body:", string(event.Body))
 
