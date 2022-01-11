@@ -3,12 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/common"
-	"github.com/flasherup/gradtage.de/localutils/data"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"os"
-
 
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 )
@@ -25,41 +23,6 @@ func main() {
 
 	//fixDwdIDs()
 	//fixAutocompleteIDs()
-}
-
-func fixDwdIDs() {
-	dwd := data.DWDStation
-	autocomplete := data.AutocompleteStations
-
-	for _,d := range dwd {
-		id := d.ID
-		for _,v := range autocomplete {
-			if d.ID == v.Wmo {
-				id = "WMO" + v.ID
-			}
-		}
-		fmt.Println("stationssvc.Station{ID:\"" + id + "\", Name:\"" + d.Name + "\", Timezone:\"" + d.Timezone + "\", SourceType:common.SrcTypeDWD, SourceID:\"" + d.SourceID + "\"},")
-	}
-
-}
-
-func fixAutocompleteIDs() {
-	dwd := data.DWDStation
-	autocomplete := data.AutocompleteStations
-
-	for _,d := range autocomplete {
-		id := d.ID
-		if d.Dwd != "" {
-			for _,v := range dwd {
-				if d.Dwd == v.SourceID {
-					id = v.ID
-				}
-			}
-		}
-
-		fmt.Println("autocompletesvc.Autocomplete{ ID:\"" + id + "\",Icao:\"" + d.Icao + "\",Dwd:\"" + d.Dwd + "\",Wmo:\"" + d.Wmo + "\",Name:\"" + d.Name + "\"},")
-	}
-
 }
 
 func addNewToLocal(sts []stationssvc.Station) {

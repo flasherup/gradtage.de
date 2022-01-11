@@ -293,8 +293,8 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 		if (i+1)%iterationStep != 0 && i < length -1 {
 			query += ","
 		} else {
-			query += ` ON CONFLICT (id) DO UPDATE SET (
-					id,
+			query += " ON CONFLICT (id) DO NOTHING;"
+			/*query += ` ON CONFLICT (id) DO UPDATE SET (
 					source_id,
 					latitude,
 					longitude,
@@ -318,7 +318,6 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 					nwsli,
 					elevation
 				) = (
-					excluded.id,
 					excluded.source_id,
 					excluded.latitude,
 					excluded.longitude,
@@ -341,7 +340,7 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 					excluded.ghcn,
 					excluded.nwsli,
 					excluded.elevation
-				);`
+				);`*/
 			err := writeToDB(pg.db, query)
 			if err != nil {
 				return err
