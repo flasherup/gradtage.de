@@ -6,6 +6,7 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/utils/weatherbitprocessor/config"
 	"github.com/flasherup/gradtage.de/utils/weatherbitprocessor/csv"
+	"github.com/flasherup/gradtage.de/weatherbitsvc"
 	"github.com/flasherup/gradtage.de/weatherbitsvc/impl"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -41,7 +42,8 @@ func main() {
 	defer level.Info(logger).Log("msg", "client ended")
 
 	//calculateEntries(client, logger, *csvFile, *startDate, *endDate)
-	calculateHourlyDegree(client, logger)
+	//calculateHourlyDegree(client, logger)
+	addDegreeDataFormCSV(client, "data/KDCA_C.csv", logger)
 }
 
 func calculateEntries(client *impl.WeatherBitSVCClient, logger log.Logger, stations, startDate, endDate string) {
@@ -109,24 +111,54 @@ func calculateHourlyDegree(client *impl.WeatherBitSVCClient, logger log.Logger) 
 
 	//Hdd
 	fmt.Println("Hdd Day")
-	hdd := common.CalculateHDDDegree(temps, 15, common.PeriodDay)
+	hdd := common.CalculateHDDDegree(temps, 15, common.BreakdownDaily, common.DayCalcMean)
 	//fmt.Println(hdd)
 	for _,temps :=  range *hdd {
 		fmt.Println(temps.Date, temps.Temp)
 	}
 
 	fmt.Println("Hdd Month")
-	hdd = common.CalculateHDDDegree(temps, 15, common.PeriodMonth)
+	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownMonthly, common.DayCalcMean)
 	//fmt.Println(hdd)
 	for _,temps :=  range *hdd {
 		fmt.Println(temps.Date, temps.Temp)
 	}
 
 	fmt.Println("Hdd Year")
-	hdd = common.CalculateHDDDegree(temps, 15, common.PeriodYear)
+	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownYearly, common.DayCalcMean)
 	//fmt.Println(hdd)
 	for _,temps :=  range *hdd {
 		fmt.Println(temps.Date, temps.Temp)
+	}
+}
+
+func addDegreeDataFormCSV(client *impl.WeatherBitSVCClient, fileName string , logger log.Logger) {
+	tempList, err := csv.CSVToTempsData(fileName)
+	if err != nil {
+		level.Error(logger).Log("msg", "CSV loading error", "err", err.Error())
+		return
+	}
+
+	data := make([]weatherbitsvc.WBData, len(*tempList))
+	for i,v := range *tempList {
+		d, err := time.Parse("2006-01-02 04:05", v.Date)
+		if err != nil {
+			level.Error(logger).Log("msg", "Date parse error", "err", err.Error())
+			continue
+		}
+		data[i] = weatherbitsvc.WBData{
+			Date: d.Format(common.TimeLayout),
+			Temp: v.Temp,
+			Timezone: v.Timezone,
+		}
+	}
+
+	stName := "US_KDCA"
+
+	level.Info(logger).Log("msg", "Station: " + stName + " data received", "count", len(data))
+	err = client.PushWBPeriod(stName, data)
+	if err != nil{
+		level.Error(logger).Log("msg", "Saving station data error","station", stName, "error", err.Error())
 	}
 }
 

@@ -65,14 +65,14 @@ func main() {
 	}
 
 
-	//stations := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
+	s := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
 	//stations := stations.NewStationsSCVClient("localhost:8102", logger)
-	//fromCSVListToStations("data", filesList, stations, logger, fillters)
+	fromCSVListToStations("data", filesList, s, logger, fillters)
 
 
 	//autocomplete := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
-	autocomplete := autocomplete.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
-	fromCSVListToAutocomplete("data", filesList, autocomplete, logger, fillters)
+	a := autocomplete.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
+	fromCSVListToAutocomplete("data", filesList, a, logger, fillters)
 	//fromCSVToList("./data", filesList, logger)
 
 
