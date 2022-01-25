@@ -45,13 +45,14 @@ const (
 )
 
 const (
-	BreakdownDaily   = "daily"
-	BreakdownMonthly = "monthly"
-	BreakdownYearly  = "yearly"
+	BreakdownDaily     = "daily"
+	BreakdownWeeklyISO = "weeklyISO"
+	BreakdownMonthly   = "monthly"
+	BreakdownYearly    = "yearly"
 )
 
 const (
-	DayCalcInt = "int"
+	DayCalcInt  = "int"
 	DayCalcMean = "mean"
 	DayCalcMima = "mima"
 )

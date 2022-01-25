@@ -74,11 +74,11 @@ func NewAPISVC(
 }
 
 func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
-	return as.processHDD(params)
+	return as.processDayDegree(params)
 }
 
 func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
-	res, err := as.processHDD(params)
+	res, err := as.processDayDegree(params)
 	if err != nil {
 		return res, "error", err
 	}
@@ -101,7 +101,7 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	return res,fileName,err
 }
 
-func (as APISVC) processHDD(params apisvc.Params) (data [][]string, err error) {
+func (as APISVC) processDayDegree(params apisvc.Params) (data [][]string, err error) {
 	err = as.validateRequest(params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
@@ -213,19 +213,6 @@ func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]s
 	}
 
 	level.Info(as.logger).Log("msg", "User", "action", params.Action, "key", params.Key)
-
-
-	//TODO restore user creation functionality
-	/*switch params.Action {
-		case CrateAction:
-			return CreateUser(as.user, params, false)
-		case AutoCrateAction:
-			return CreateUser(as.user, params, true)
-		case SetPLanAction:
-			return SetUserPlan(as.user, params)
-		case RenewAction:
-			return RenewUser(as.user, params)
-	}*/
 	return [][]string{}, err
 }
 

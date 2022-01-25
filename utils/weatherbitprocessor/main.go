@@ -117,6 +117,13 @@ func calculateHourlyDegree(client *impl.WeatherBitSVCClient, logger log.Logger) 
 		fmt.Println(temps.Date, temps.Temp)
 	}
 
+	fmt.Println("Hdd Week ISO")
+	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownWeeklyISO, common.DayCalcMean)
+	//fmt.Println(hdd)
+	for _,temps :=  range *hdd {
+		fmt.Println(temps.Date, temps.Temp)
+	}
+
 	fmt.Println("Hdd Month")
 	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownMonthly, common.DayCalcMean)
 	//fmt.Println(hdd)

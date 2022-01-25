@@ -24,13 +24,24 @@ func GetTimezoneFormLatLon(lat, lon float64) (string, error) {
 
 func ParseTimeByBreakdown(date string, breakdown string) (time.Time, error) {
 	timeLayout := TimeLayoutDay
-	if breakdown == BreakdownMonthly {
+	if breakdown == BreakdownWeeklyISO {
+		timeLayout = TimeLayoutDay
+	} else if breakdown == BreakdownMonthly {
 		timeLayout = TimeLayoutMonth
 	} else if breakdown == BreakdownYearly {
 		timeLayout = TimeLayoutYear
 	}
-
 	return time.Parse(timeLayout, date)
+}
+
+func YearWeekISO(date time.Time) int {
+	y,w := date.ISOWeek()
+	return y+w
+}
+
+func WeekISO(date time.Time) int {
+	_,w := date.ISOWeek()
+	return w
 }
 
 

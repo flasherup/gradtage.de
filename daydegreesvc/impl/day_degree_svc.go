@@ -174,6 +174,10 @@ func getSDates(years int) (string, string, error) {
 }
 
 func addPeriod(src time.Time, breakdown string) time.Time {
+	if breakdown == common.BreakdownWeeklyISO {
+		return src.AddDate(0, 0, 7)
+	}
+
 	if breakdown == common.BreakdownMonthly {
 		return src.AddDate(0, 1, 0)
 	}

@@ -110,6 +110,10 @@ func GetDateStringByBreakdown(date time.Time, breakdown string) string {
 		return date.Format(TimeLayoutDay)
 	}
 
+	if breakdown == BreakdownWeeklyISO {
+		return date.Format(TimeLayoutDay)
+	}
+
 	if breakdown == BreakdownMonthly {
 		return date.Format(TimeLayoutMonth)
 	}
@@ -131,6 +135,10 @@ func isTheSamePeriod(last, current time.Time, breakdown string) bool {
 func getPeriodDateMarker(date time.Time, breakdown string) int {
 	if breakdown == BreakdownDaily {
 		return date.YearDay()
+	}
+
+	if breakdown == BreakdownWeeklyISO {
+		return WeekISO(date)
 	}
 
 	if breakdown == BreakdownMonthly {

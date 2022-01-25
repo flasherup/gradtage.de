@@ -185,7 +185,9 @@ func getFormattedDate(date string) string{
 
 func getAvgIndex(date string, breakdown string) int {
 	timeLayout := common.TimeLayoutDay
-	if breakdown == common.BreakdownMonthly {
+	if breakdown == common.BreakdownWeeklyISO {
+		timeLayout = common.TimeLayoutDay
+	} else if breakdown == common.BreakdownMonthly {
 		timeLayout = common.TimeLayoutMonth
 	} else if breakdown == common.BreakdownYearly {
 		timeLayout = common.TimeLayoutYear
@@ -199,6 +201,8 @@ func getAvgIndex(date string, breakdown string) int {
 				daysShift = 1
 			}
 			return d.YearDay() + daysShift
+		} else if breakdown == common.BreakdownWeeklyISO {
+			return common.WeekISO(d)
 		} else if breakdown == common.BreakdownMonthly {
 			return int(d.Month())
 		} else if breakdown == common.BreakdownYearly {
