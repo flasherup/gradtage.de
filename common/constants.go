@@ -47,8 +47,19 @@ const (
 const (
 	BreakdownDaily     = "daily"
 	BreakdownWeeklyISO = "weeklyISO"
+	BreakdownWeekly    = "weekly"
 	BreakdownMonthly   = "monthly"
 	BreakdownYearly    = "yearly"
+)
+
+const (
+	Monday    = "Monday"
+	Tuesday   = "Tuesday"
+	Wednesday = "Wednesday"
+	Thursday  = "Thursday"
+	Friday    = "Friday"
+	Saturday  = "Saturday"
+	Sunday    = "Sunday"
 )
 
 const (

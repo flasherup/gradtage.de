@@ -34,6 +34,24 @@ func ParseTimeByBreakdown(date string, breakdown string) (time.Time, error) {
 	return time.Parse(timeLayout, date)
 }
 
+func StringDataToWeekday(day string) time.Weekday {
+	if day == Monday { return time.Monday }
+	if day == Tuesday { return time.Tuesday }
+	if day == Wednesday { return time.Wednesday }
+	if day == Thursday { return time.Thursday }
+	if day == Friday { return time.Friday }
+	if day == Saturday { return time.Saturday }
+	return time.Sunday
+}
+
+func LeapYearDay(date time.Time) int {
+	daysShift := 0
+	if !IsLeapYear(date.Year()) && date.Month() > 2 {
+		daysShift = 1
+	}
+	return date.YearDay() + daysShift
+}
+
 func YearWeekISO(date time.Time) int {
 	y,w := date.ISOWeek()
 	return y+w
@@ -42,6 +60,19 @@ func YearWeekISO(date time.Time) int {
 func WeekISO(date time.Time) int {
 	_,w := date.ISOWeek()
 	return w
+}
+
+func Week(date time.Time, day time.Weekday) int {
+	_,w := CustomWeek(date, day)
+	return w
+}
+
+func CustomWeek(date time.Time, day time.Weekday) (int, int) {
+	delta := int((day + 6)%7 + 1) - 1
+	shift :=  12 * delta
+	d := time.Date(date.Year()-shift, date.Month(), date.Day(), date.Hour(), date.Minute(), date.Second(), date.Nanosecond(), date.Location())
+	y,w := d.ISOWeek()
+	return y + shift, w
 }
 
 
@@ -62,3 +93,5 @@ func IsLeapYear(year int) bool {
 	}
 	return leapFlag
 }
+
+

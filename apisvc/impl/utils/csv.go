@@ -175,7 +175,6 @@ func getMethodDescription(method string) string {
 
 func getFormattedValue(percentageValue float64) string{
 	value := fmt.Sprintf("%.2f", percentageValue)
-	//return strings.Replace(value, ".", ",", -1)
 	return value
 }
 
@@ -185,7 +184,9 @@ func getFormattedDate(date string) string{
 
 func getAvgIndex(date string, breakdown string) int {
 	timeLayout := common.TimeLayoutDay
-	if breakdown == common.BreakdownWeeklyISO {
+	if breakdown == common.BreakdownWeekly {
+		timeLayout = common.TimeLayoutDay
+	} else if breakdown == common.BreakdownWeeklyISO {
 		timeLayout = common.TimeLayoutDay
 	} else if breakdown == common.BreakdownMonthly {
 		timeLayout = common.TimeLayoutMonth
@@ -196,12 +197,10 @@ func getAvgIndex(date string, breakdown string) int {
 	d, err := time.Parse(timeLayout, date)
 	if err == nil {
 		if breakdown == common.BreakdownDaily {
-			daysShift := 0
-			if !common.IsLeapYear(d.Year()) && d.Month() > 2 {
-				daysShift = 1
-			}
-			return d.YearDay() + daysShift
-		} else if breakdown == common.BreakdownWeeklyISO {
+			return common.LeapYearDay(d)
+		} else if breakdown == common.BreakdownWeekly {
+			return common.Week(d, 1)
+		}  else if breakdown == common.BreakdownWeeklyISO {
 			return common.WeekISO(d)
 		} else if breakdown == common.BreakdownMonthly {
 			return int(d.Month())
