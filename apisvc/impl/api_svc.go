@@ -106,7 +106,6 @@ func (as APISVC) GetZIP(ctx context.Context, params []apisvc.Params) (data []api
 		file, err := as.processDayDegree(v)
 		name := utils.GetCSVName(v.Output, v.Station, v.Tb, v.Tr)
 		if err != nil {
-			//return data, "error", err
 			name = "error-" + name
 		}
 
@@ -116,7 +115,12 @@ func (as APISVC) GetZIP(ctx context.Context, params []apisvc.Params) (data []api
 		})
 	}
 
-	fileName = fmt.Sprintf("day-degrees-%d-station.zip", len(params))
+	o := ""
+	if len(params) > 0 {
+		o = params[0].Output
+	}
+
+	fileName = utils.GetZIPName(o)
 	return data,fileName,err
 }
 
