@@ -31,6 +31,13 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 		options...,
 	))
 
+	r.Methods("GET").Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/zip/").Handler(kithttp.NewServer(
+		e.GetZIPEndpoint,
+		decodeGetZIPRequest,
+		encodeGetZIPResponse,
+		options...,
+	))
+
 
 	r.Methods("GET").Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").Handler(kithttp.NewServer(
 		e.GetHDDSVEndpoint,

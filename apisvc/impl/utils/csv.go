@@ -213,3 +213,25 @@ func getAvgIndex(date string, breakdown string) int {
 	}
 	return 1
 }
+
+func GetCSVName(output, station string, tb, tr float64) string {
+	if output == common.DDType {
+		return fmt.Sprintf("%s_DD_%gC_%gC.csv",
+			station,
+			tb,
+			tr)
+	}
+
+	if output == common.HDDType {
+		return fmt.Sprintf("%s_HDD_%gC.csv",
+			station,
+			tb)
+	}
+	if output == common.CDDType {
+		return fmt.Sprintf("%s_CDD_%gC.csv",
+			station,
+			tb)
+	}
+
+	return "unnamed.scv"
+}

@@ -1,11 +1,13 @@
 package apisvc
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/flasherup/gradtage.de/apisvc/impl/utils"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/gorilla/mux"
@@ -56,7 +58,7 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 
 	avg, err := strconv.Atoi(r.Form.Get("avg"))
 	if err != nil {
-		avg = 0;
+		avg = 0
 	}
 
 	prm := Params{
@@ -89,6 +91,86 @@ func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, respons
 	if err != nil {
 		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
 	}
+	return err
+}
+
+func decodeGetZIPRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(r)
+	r.ParseForm()
+	basehddStr := r.Form.Get("tb")
+	basehdd, err := strconv.ParseFloat(basehddStr, 64)
+	if err != nil {
+		basehdd = 0
+	}
+
+	baseddStr := r.Form.Get("tr")
+	basedd, err := strconv.ParseFloat(baseddStr, 64)
+	if err != nil {
+		basedd = 0
+	}
+
+	avg, err := strconv.Atoi(r.Form.Get("avg"))
+	if err != nil {
+		avg = 0
+	}
+
+	key := r.Form.Get("key")
+	start := r.Form.Get("start")
+	end := utils.WordToTime(r.Form.Get("end"))
+	output := vars[Method]
+	breakdown := r.Form.Get("breakdown")
+	dayCalc := vars[DayCalc]
+
+	stsSrc := r.Form.Get("station")
+	sts := common.StringToSlice(stsSrc)
+
+	prms := make([]Params, len(sts))
+	for i, v := range sts {
+		prms[i] = Params{
+			Key:       key,
+			Station:   v,
+			Start:     start,
+			End:       end,
+			Tb:        basehdd,
+			Tr:        basedd,
+			Output:    output,
+			Breakdown: breakdown,
+			DayCalc:   dayCalc,
+			Avg:       avg,
+		}
+	}
+
+	req := GetZIPRequest{prms}
+	return req, nil
+}
+
+func encodeGetZIPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) (err error) {
+	resp := response.(GetZIPResponse)
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", resp.FileName))
+
+	zipW := zip.NewWriter(w)
+	defer zipW.Close()
+	for _,v := range resp.Files{
+		f, err := zipW.Create(v.Name)
+		if err != nil {
+			return err
+		}
+		var buffer bytes.Buffer
+		writer := csv.NewWriter(&buffer)
+		writer.Comma = ';'
+		err = writer.WriteAll(v.Data)
+		if err != nil {
+			return err
+		}
+		writer.Flush()
+
+		_, err = f.Write(buffer.Bytes())
+		if err != nil {
+			return err
+		}
+	}
+
 	return err
 }
 

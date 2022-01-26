@@ -73,11 +73,11 @@ func NewAPISVC(
 	return &st
 }
 
-func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data [][]string, err error) {
+func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data apisvc.CSVData, err error) {
 	return as.processDayDegree(params)
 }
 
-func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]string, fileName string, err error) {
+func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data apisvc.CSVData, fileName string, err error) {
 	res, err := as.processDayDegree(params)
 	if err != nil {
 		return res, "error", err
@@ -101,7 +101,26 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data [][]
 	return res,fileName,err
 }
 
-func (as APISVC) processDayDegree(params apisvc.Params) (data [][]string, err error) {
+func (as APISVC) GetZIP(ctx context.Context, params []apisvc.Params) (data []apisvc.CSVDataFile, fileName string, err error) {
+	for _,v := range params {
+		file, err := as.processDayDegree(v)
+		name := utils.GetCSVName(v.Output, v.Station, v.Tb, v.Tr)
+		if err != nil {
+			//return data, "error", err
+			name = "error-" + name
+		}
+
+		data = append(data, apisvc.CSVDataFile{
+			Name: name,
+			Data: file,
+		})
+	}
+
+	fileName = fmt.Sprintf("day-degrees-%d-station.zip", len(params))
+	return data,fileName,err
+}
+
+func (as APISVC) processDayDegree(params apisvc.Params) (data apisvc.CSVData, err error) {
 	err = as.validateRequest(params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
@@ -158,7 +177,7 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data [][]string, err er
 	return utils.GenerateCSV(degree, ddParams, autoComplete), nil
 }
 
-func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data [][]string, fileName string, err error) {
+func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data apisvc.CSVData, fileName string, err error) {
 	order, _, err := as.validateUser(params.Key)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Get source data error", "err", err)
@@ -181,7 +200,7 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 	return csv,fileName,err
 }
 
-func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [][]string, err error) {
+func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data apisvc.CSVData, err error) {
 	order, _, err := as.validateUser(params.Key)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
@@ -200,7 +219,7 @@ func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data [
 	return csv, err
 }
 
-func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data [][]string, err error) {
+func (as APISVC) User(ctx context.Context, params apisvc.ParamsUser) (data apisvc.CSVData, err error) {
 	order, _, err := as.validateUser(params.Key)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)

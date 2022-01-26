@@ -5,7 +5,7 @@ type GetHDDRequest struct {
 }
 
 type GetHDDResponse struct {
-	Data [][]string `json:"data"`
+	Data CSVData `json:"data"`
 }
 
 type GetHDDCSVRequest struct {
@@ -13,7 +13,16 @@ type GetHDDCSVRequest struct {
 }
 
 type GetHDDCSVResponse struct {
-	Data [][]string `json:"data"`
+	Data CSVData `json:"data"`
+	FileName string `json:"fileName"`
+}
+
+type GetZIPRequest struct {
+	Params []Params `json:"params"`
+}
+
+type GetZIPResponse struct {
+	Files []CSVDataFile `json:"files"`
 	FileName string `json:"fileName"`
 }
 
@@ -22,7 +31,7 @@ type GetSourceDataRequest struct {
 }
 
 type GetSourceDataResponse struct {
-	Data [][]string `json:"data"`
+	Data CSVData `json:"data"`
 	FileName string `json:"fileName"`
 }
 
@@ -31,7 +40,7 @@ type SearchRequest struct {
 }
 
 type SearchResponse struct {
-	Data [][]string `json:"data"`
+	Data CSVData `json:"data"`
 }
 
 type UserRequest struct {
@@ -39,7 +48,7 @@ type UserRequest struct {
 }
 
 type UserResponse struct {
-	Data [][]string `json:"data"`
+	Data CSVData `json:"data"`
 }
 
 type StripeResponse struct {

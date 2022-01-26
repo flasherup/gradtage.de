@@ -7,6 +7,12 @@ import (
 	"net/http"
 )
 
+type CSVData [][]string
+type CSVDataFile struct {
+	Data CSVData
+	Name string
+}
+
 type Params struct {
 	Key       string  `json:"key"`
 	Station   string  `json:"station"`
@@ -69,11 +75,12 @@ type WoocommerceEvent struct {
 }
 
 type Service interface {
-	GetHDD(ctx context.Context, params Params) (data [][]string, err error)
-	GetHDDCSV(cts context.Context, params Params) (data [][]string, fileName string, err error)
-	GetSourceData(ctx context.Context, params ParamsSourceData) (data [][]string, fileName string, err error)
-	Search(ctx context.Context, params ParamsSearch) (data [][]string, err error)
-	User(ctx context.Context, params ParamsUser) (data [][]string, err error)
+	GetHDD(ctx context.Context, params Params) (data CSVData, err error)
+	GetHDDCSV(cts context.Context, params Params) (data CSVData, fileName string, err error)
+	GetZIP(cts context.Context, params []Params) (data []CSVDataFile, fileName string, err error)
+	GetSourceData(ctx context.Context, params ParamsSourceData) (data CSVData, fileName string, err error)
+	Search(ctx context.Context, params ParamsSearch) (data CSVData, err error)
+	User(ctx context.Context, params ParamsUser) (data CSVData, err error)
 	Woocommerce(ctx context.Context, event WoocommerceEvent) (json string, err error)
 	Service(ctx context.Context, name string, params map[string]string) (json interface{}, err error)
 }
