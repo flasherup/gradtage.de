@@ -32,7 +32,7 @@ func TestIsTheSamePeriod(t *testing.T) {
 			t.Error(err)
 		}
 
-		res := isTheSamePeriod(last, current, v.period)
+		res := isTheSamePeriod(last, current, v.period, time.Monday)
 		if res != v.res {
 			t.Errorf(
 				"isTheSamePeriod(%s, %s, %s) = %t; want %t",

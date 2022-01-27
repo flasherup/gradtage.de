@@ -49,11 +49,11 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 	var degrees *[]common.Temperature
 	t := (*temps)[params.Station]
 	if params.Output == common.HDDType {
-		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
+		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
 	} else if params.Output == common.DDType {
-		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc)
+		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStarts)
 	} else if params.Output == common.CDDType {
-		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
+		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
 	}
 
 	res := toDegree(degrees)
@@ -84,11 +84,11 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 	var degrees *[]common.Temperature
 	t := (*temps)[params.Station]
 	if params.Output == common.HDDType {
-		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
+		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
 	} else if params.Output == common.DDType {
-		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc)
+		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStarts)
 	} else if params.Output == common.CDDType {
-		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc)
+		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
 	}
 
 	days := make(map[string][]float64)
@@ -174,6 +174,10 @@ func getSDates(years int) (string, string, error) {
 }
 
 func addPeriod(src time.Time, breakdown string) time.Time {
+	if breakdown == common.BreakdownWeekly {
+		return src.AddDate(0, 0, 7)
+	}
+
 	if breakdown == common.BreakdownWeeklyISO {
 		return src.AddDate(0, 0, 7)
 	}

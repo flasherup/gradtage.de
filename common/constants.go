@@ -53,13 +53,13 @@ const (
 )
 
 const (
-	Monday    = "Monday"
-	Tuesday   = "Tuesday"
-	Wednesday = "Wednesday"
-	Thursday  = "Thursday"
-	Friday    = "Friday"
-	Saturday  = "Saturday"
-	Sunday    = "Sunday"
+	Monday    = "monday"
+	Tuesday   = "tuesday"
+	Wednesday = "wednesday"
+	Thursday  = "thursday"
+	Friday    = "friday"
+	Saturday  = "saturday"
+	Sunday    = "sunday"
 )
 
 const (

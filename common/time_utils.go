@@ -2,6 +2,7 @@ package common
 
 import (
 	"github.com/zsefvlol/timezonemapper"
+	"strings"
 	"time"
 )
 
@@ -24,7 +25,9 @@ func GetTimezoneFormLatLon(lat, lon float64) (string, error) {
 
 func ParseTimeByBreakdown(date string, breakdown string) (time.Time, error) {
 	timeLayout := TimeLayoutDay
-	if breakdown == BreakdownWeeklyISO {
+	if breakdown == BreakdownWeekly {
+		timeLayout = TimeLayoutDay
+	} else if breakdown == BreakdownWeeklyISO {
 		timeLayout = TimeLayoutDay
 	} else if breakdown == BreakdownMonthly {
 		timeLayout = TimeLayoutMonth
@@ -34,14 +37,15 @@ func ParseTimeByBreakdown(date string, breakdown string) (time.Time, error) {
 	return time.Parse(timeLayout, date)
 }
 
-func StringDataToWeekday(day string) time.Weekday {
-	if day == Monday { return time.Monday }
-	if day == Tuesday { return time.Tuesday }
-	if day == Wednesday { return time.Wednesday }
-	if day == Thursday { return time.Thursday }
-	if day == Friday { return time.Friday }
-	if day == Saturday { return time.Saturday }
-	return time.Sunday
+func StrDayToWeekday(day string) time.Weekday {
+	d := strings.ToLower(day)
+	if d == Tuesday { return time.Tuesday }
+	if d == Wednesday { return time.Wednesday }
+	if d == Thursday { return time.Thursday }
+	if d == Friday { return time.Friday }
+	if d == Saturday { return time.Saturday }
+	if d == Sunday { return time.Sunday }
+	return time.Monday
 }
 
 func LeapYearDay(date time.Time) int {

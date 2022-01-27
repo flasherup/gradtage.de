@@ -7,11 +7,12 @@ message Params {
     string  Station = 1;
     string  Start = 2;
     string  End = 3;
-    string   Breakdown = 4;
+    string  Breakdown = 4;
     double  Tb = 5;
     double  Tr = 6;
     string  Method = 7;
-    string   DayCalc = 8;
+    string  DayCalc = 8;
+    int32   WeekStarts = 9;
 }
 
 message Degree {
@@ -30,7 +31,7 @@ message GetDegreeResponse {
 
 message GetAverageDegreeRequest {
     Params params = 1;
-    int32 Years  = 2;
+    int32 Years = 2;
 }
 
 message GetAverageDegreeResponse {

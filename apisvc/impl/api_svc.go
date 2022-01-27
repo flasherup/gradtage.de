@@ -143,6 +143,7 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data apisvc.CSVData, er
 	}
 	params.Station = autoComplete.ID
 
+
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 	ddParams := daydegreesvc.Params{
 		Station:   params.Station,
@@ -153,6 +154,7 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data apisvc.CSVData, er
 		Tr:        params.Tr,
 		Output:    params.Output,
 		DayCalc:   params.DayCalc,
+		WeekStarts:   params.WeekStarts,
 	}
 
 	if params.Breakdown == "" {

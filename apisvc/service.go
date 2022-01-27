@@ -5,6 +5,7 @@ import (
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/moosh3/woogo"
 	"net/http"
+	"time"
 )
 
 type CSVData [][]string
@@ -14,16 +15,17 @@ type CSVDataFile struct {
 }
 
 type Params struct {
-	Key       string  `json:"key"`
-	Station   string  `json:"station"`
-	Start     string  `json:"start"`
-	End       string  `json:"end"`
-	Tb        float64 `json:"tb"`
-	Tr        float64 `json:"tr"`
-	Output    string  `json:"output"`
-	Breakdown string  `json:"breakdown"`
-	DayCalc   string  `json:"day_calc"`
-	Avg       int     `json:"avg"`
+	Key        string       `json:"key"`
+	Station    string       `json:"station"`
+	Start      string       `json:"start"`
+	End        string       `json:"end"`
+	Tb         float64      `json:"tb"`
+	Tr         float64      `json:"tr"`
+	Output     string       `json:"output"`
+	Breakdown  string       `json:"breakdown"`
+	DayCalc    string       `json:"day_calc"`
+	Avg        int          `json:"avg"`
+	WeekStarts time.Weekday `json:"week_starts"`
 }
 
 type ParamsSourceData struct {
@@ -53,16 +55,16 @@ type WCDeleteEvent struct {
 }
 
 type WCUpdateEvent struct {
-	ID              int              `json:"id"`
-	ParentId        int              `json:"parent_id"`
-	Status          string           `json:"status"`
-	DateCreated     string           `json:"date_created"`
-	DateCreatedGMT  string           `json:"date_created_gmt"`
-	DateModified    string           `json:"date_modified"`
-	DateModifiedGMT string           `json:"date_modified_gmt"`
-	LineItems       []WCLineItems    `json:"line_items"`
-	Billing         woogo.Billing    `json:"billing"`
-	MetaData        []common.WCMetaData 	 `json:"meta_data"`
+	ID              int                 `json:"id"`
+	ParentId        int                 `json:"parent_id"`
+	Status          string              `json:"status"`
+	DateCreated     string              `json:"date_created"`
+	DateCreatedGMT  string              `json:"date_created_gmt"`
+	DateModified    string              `json:"date_modified"`
+	DateModifiedGMT string              `json:"date_modified_gmt"`
+	LineItems       []WCLineItems       `json:"line_items"`
+	Billing         woogo.Billing       `json:"billing"`
+	MetaData        []common.WCMetaData `json:"meta_data"`
 }
 
 type WoocommerceEvent struct {

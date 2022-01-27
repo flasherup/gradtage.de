@@ -111,28 +111,28 @@ func calculateHourlyDegree(client *impl.WeatherBitSVCClient, logger log.Logger) 
 
 	//Hdd
 	fmt.Println("Hdd Day")
-	hdd := common.CalculateHDDDegree(temps, 15, common.BreakdownDaily, common.DayCalcMean)
+	hdd := common.CalculateHDDDegree(temps, 15, common.BreakdownDaily, common.DayCalcMean, time.Monday)
 	//fmt.Println(hdd)
 	for _,temps :=  range *hdd {
 		fmt.Println(temps.Date, temps.Temp)
 	}
 
 	fmt.Println("Hdd Week ISO")
-	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownWeeklyISO, common.DayCalcMean)
+	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownWeeklyISO, common.DayCalcMean, time.Monday)
 	//fmt.Println(hdd)
 	for _,temps :=  range *hdd {
 		fmt.Println(temps.Date, temps.Temp)
 	}
 
 	fmt.Println("Hdd Month")
-	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownMonthly, common.DayCalcMean)
+	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownMonthly, common.DayCalcMean, time.Monday)
 	//fmt.Println(hdd)
 	for _,temps :=  range *hdd {
 		fmt.Println(temps.Date, temps.Temp)
 	}
 
 	fmt.Println("Hdd Year")
-	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownYearly, common.DayCalcMean)
+	hdd = common.CalculateHDDDegree(temps, 15, common.BreakdownYearly, common.DayCalcMean, time.Monday)
 	//fmt.Println(hdd)
 	for _,temps :=  range *hdd {
 		fmt.Println(temps.Date, temps.Temp)

@@ -61,17 +61,20 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 		avg = 0
 	}
 
+	weekStarts := common.StrDayToWeekday(r.Form.Get("week_starts"))
+
 	prm := Params{
-		Key:       r.Form.Get("key"),
-		Station:   r.Form.Get("station"),
-		Start:     r.Form.Get("start"),
-		End:       r.Form.Get("end"),
-		Tb:        basehdd,
-		Tr:        basedd,
-		Output:    vars[Method],
-		Breakdown: r.Form.Get("breakdown"),
-		DayCalc:   vars[DayCalc],
-		Avg:       avg,
+		Key:        r.Form.Get("key"),
+		Station:    r.Form.Get("station"),
+		Start:      r.Form.Get("start"),
+		End:        r.Form.Get("end"),
+		Tb:         basehdd,
+		Tr:         basedd,
+		Output:     vars[Method],
+		Breakdown:  r.Form.Get("breakdown"),
+		DayCalc:    vars[DayCalc],
+		Avg:        avg,
+		WeekStarts: weekStarts,
 	}
 
 	prm.End = utils.WordToTime(prm.End)
@@ -114,6 +117,8 @@ func decodeGetZIPRequest(_ context.Context, r *http.Request) (request interface{
 		avg = 0
 	}
 
+	weekStarts := common.StrDayToWeekday(r.Form.Get("week_starts"))
+
 	key := r.Form.Get("key")
 	start := r.Form.Get("start")
 	end := utils.WordToTime(r.Form.Get("end"))
@@ -127,16 +132,17 @@ func decodeGetZIPRequest(_ context.Context, r *http.Request) (request interface{
 	prms := make([]Params, len(sts))
 	for i, v := range sts {
 		prms[i] = Params{
-			Key:       key,
-			Station:   v,
-			Start:     start,
-			End:       end,
-			Tb:        basehdd,
-			Tr:        basedd,
-			Output:    output,
-			Breakdown: breakdown,
-			DayCalc:   dayCalc,
-			Avg:       avg,
+			Key:        key,
+			Station:    v,
+			Start:      start,
+			End:        end,
+			Tb:         basehdd,
+			Tr:         basedd,
+			Output:     output,
+			Breakdown:  breakdown,
+			DayCalc:    dayCalc,
+			Avg:        avg,
+			WeekStarts: weekStarts,
 		}
 	}
 
@@ -151,7 +157,7 @@ func encodeGetZIPResponse(ctx context.Context, w http.ResponseWriter, response i
 
 	zipW := zip.NewWriter(w)
 	defer zipW.Close()
-	for _,v := range resp.Files{
+	for _, v := range resp.Files {
 		f, err := zipW.Create(v.Name)
 		if err != nil {
 			return err
