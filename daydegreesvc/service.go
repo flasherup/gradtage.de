@@ -6,15 +6,15 @@ import (
 )
 
 type Params struct {
-	Station    string
-	Start      string
-	End        string
-	Breakdown  string
-	Tb         float64
-	Tr         float64
-	Output     string
-	DayCalc    string
-	WeekStarts time.Weekday
+	Station   string
+	Start     string
+	End       string
+	Breakdown string
+	Tb        float64
+	Tr        float64
+	Output    string
+	DayCalc   string
+	WeekStart time.Weekday
 }
 
 type Degree struct {

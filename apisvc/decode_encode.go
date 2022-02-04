@@ -61,20 +61,20 @@ func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interfa
 		avg = 0
 	}
 
-	weekStarts := common.StrDayToWeekday(r.Form.Get("week_starts"))
+	WeekStart := common.StrDayToWeekday(r.Form.Get("week_start"))
 
 	prm := Params{
-		Key:        r.Form.Get("key"),
-		Station:    r.Form.Get("station"),
-		Start:      r.Form.Get("start"),
-		End:        r.Form.Get("end"),
-		Tb:         basehdd,
-		Tr:         basedd,
-		Output:     vars[Method],
-		Breakdown:  r.Form.Get("breakdown"),
-		DayCalc:    vars[DayCalc],
-		Avg:        avg,
-		WeekStarts: weekStarts,
+		Key:       r.Form.Get("key"),
+		Station:   r.Form.Get("station"),
+		Start:     r.Form.Get("start"),
+		End:       r.Form.Get("end"),
+		Tb:        basehdd,
+		Tr:        basedd,
+		Output:    vars[Method],
+		Breakdown: r.Form.Get("breakdown"),
+		DayCalc:   vars[DayCalc],
+		Avg:       avg,
+		WeekStart: WeekStart,
 	}
 
 	prm.End = utils.WordToTime(prm.End)
@@ -117,7 +117,7 @@ func decodeGetZIPRequest(_ context.Context, r *http.Request) (request interface{
 		avg = 0
 	}
 
-	weekStarts := common.StrDayToWeekday(r.Form.Get("week_starts"))
+	WeekStart := common.StrDayToWeekday(r.Form.Get("week_start"))
 
 	key := r.Form.Get("key")
 	start := r.Form.Get("start")
@@ -132,17 +132,17 @@ func decodeGetZIPRequest(_ context.Context, r *http.Request) (request interface{
 	prms := make([]Params, len(sts))
 	for i, v := range sts {
 		prms[i] = Params{
-			Key:        key,
-			Station:    v,
-			Start:      start,
-			End:        end,
-			Tb:         basehdd,
-			Tr:         basedd,
-			Output:     output,
-			Breakdown:  breakdown,
-			DayCalc:    dayCalc,
-			Avg:        avg,
-			WeekStarts: weekStarts,
+			Key:       key,
+			Station:   v,
+			Start:     start,
+			End:       end,
+			Tb:        basehdd,
+			Tr:        basedd,
+			Output:    output,
+			Breakdown: breakdown,
+			DayCalc:   dayCalc,
+			Avg:       avg,
+			WeekStart: WeekStart,
 		}
 	}
 

@@ -15,17 +15,17 @@ type CSVDataFile struct {
 }
 
 type Params struct {
-	Key        string       `json:"key"`
-	Station    string       `json:"station"`
-	Start      string       `json:"start"`
-	End        string       `json:"end"`
-	Tb         float64      `json:"tb"`
-	Tr         float64      `json:"tr"`
-	Output     string       `json:"output"`
-	Breakdown  string       `json:"breakdown"`
-	DayCalc    string       `json:"day_calc"`
-	Avg        int          `json:"avg"`
-	WeekStarts time.Weekday `json:"week_starts"`
+	Key       string       `json:"key"`
+	Station   string       `json:"station"`
+	Start     string       `json:"start"`
+	End       string       `json:"end"`
+	Tb        float64      `json:"tb"`
+	Tr        float64      `json:"tr"`
+	Output    string       `json:"output"`
+	Breakdown string       `json:"breakdown"`
+	DayCalc   string       `json:"day_calc"`
+	Avg       int          `json:"avg"`
+	WeekStart time.Weekday `json:"week_start"`
 }
 
 type ParamsSourceData struct {

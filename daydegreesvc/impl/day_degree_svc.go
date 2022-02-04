@@ -46,14 +46,16 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 		return []daydegreesvc.Degree{}, err
 	}
 
+	fmt.Println("params", params.WeekStart)
+
 	var degrees *[]common.Temperature
 	t := (*temps)[params.Station]
 	if params.Output == common.HDDType {
-		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
+		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.DDType {
-		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStarts)
+		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.CDDType {
-		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
+		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	}
 
 	res := toDegree(degrees)
@@ -84,11 +86,11 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 	var degrees *[]common.Temperature
 	t := (*temps)[params.Station]
 	if params.Output == common.HDDType {
-		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
+		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.DDType {
-		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStarts)
+		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.CDDType {
-		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStarts)
+		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	}
 
 	days := make(map[string][]float64)
@@ -169,7 +171,8 @@ func getStartDate(end string, years int) (string, error) {
 
 func getSDates(years int) (string, string, error) {
 	end := time.Now()
-	start := end.AddDate(-years, 0, 0)
+	//start := end.AddDate(-years, 0, 0)
+	start := time.Date(end.Year()-years, end.Month(), end.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), end.Location())
 	return start.Format(common.TimeLayoutWBH), end.Format(common.TimeLayoutWBH), nil
 }
 

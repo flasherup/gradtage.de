@@ -14,29 +14,29 @@ type TempGroup struct {
 	Date time.Time
 }
 
-func CalculateCDDegree(temps []Temperature, baseCDD float64, outputPeriod string, dayCalc string, weekStarts time.Weekday) (res *[]Temperature) {
+func CalculateCDDegree(temps []Temperature, baseCDD float64, outputPeriod string, dayCalc string, WeekStart time.Weekday) (res *[]Temperature) {
 	cb := func(temp float64) float64 {
 		return  calculateCDD(baseCDD, temp)
 	}
-	return calculateDegree(temps, outputPeriod, dayCalc, weekStarts, cb)
+	return calculateDegree(temps, outputPeriod, dayCalc, WeekStart, cb)
 }
 
-func CalculateDDegree(temps []Temperature, baseHDD, baseDD float64, outputPeriod string, dayCalc string, weekStarts time.Weekday) (res *[]Temperature) {
+func CalculateDDegree(temps []Temperature, baseHDD, baseDD float64, outputPeriod string, dayCalc string, WeekStart time.Weekday) (res *[]Temperature) {
 	cb := func(temp float64) float64 {
 		return  calculateDD(baseHDD, baseDD, temp)
 	}
-	return calculateDegree(temps, outputPeriod, dayCalc, weekStarts, cb)
+	return calculateDegree(temps, outputPeriod, dayCalc, WeekStart, cb)
 }
 
-func CalculateHDDDegree(temps []Temperature, baseHDD float64, outputPeriod string, dayCalc string, weekStarts time.Weekday) (res *[]Temperature) {
+func CalculateHDDDegree(temps []Temperature, baseHDD float64, outputPeriod string, dayCalc string, WeekStart time.Weekday) (res *[]Temperature) {
 	cb := func(temp float64) float64 {
 		return  calculateHDD(baseHDD, temp)
 	}
-	return calculateDegree(temps, outputPeriod, dayCalc, weekStarts, cb)
+	return calculateDegree(temps, outputPeriod, dayCalc, WeekStart, cb)
 }
 
-func calculateDegree(temps []Temperature, outputPeriod string, dayCalc string, weekStarts time.Weekday, calcFunc func(float64) float64) *[]Temperature {
-	daily := groupByPeriod(&temps, BreakdownDaily, weekStarts)
+func calculateDegree(temps []Temperature, outputPeriod string, dayCalc string, WeekStart time.Weekday, calcFunc func(float64) float64) *[]Temperature {
+	daily := groupByPeriod(&temps, BreakdownDaily, WeekStart)
 	dailyTemps := make([]Temperature, len(*daily))
 	for i,v := range *daily {
 		temp := calculateDayDegree(&v.Temps, dayCalc, calcFunc)
@@ -48,13 +48,13 @@ func calculateDegree(temps []Temperature, outputPeriod string, dayCalc string, w
 	}
 
 	if outputPeriod != BreakdownDaily {
-		return sumPeriod(&dailyTemps, outputPeriod, TimeLayoutDay, weekStarts)
+		return sumPeriod(&dailyTemps, outputPeriod, TimeLayoutDay, WeekStart)
 	}
 
 	return &dailyTemps;
 }
 
-func sumPeriod(temps *[]Temperature, outputPeriod string, tLayout string, weekStarts time.Weekday) *[]Temperature {
+func sumPeriod(temps *[]Temperature, outputPeriod string, tLayout string, WeekStart time.Weekday) *[]Temperature {
 	res := make([]Temperature, 0)
 	var lastDate time.Time
 	sum := 0.0
@@ -65,7 +65,7 @@ func sumPeriod(temps *[]Temperature, outputPeriod string, tLayout string, weekSt
 			continue
 		}
 
-		if !isTheSamePeriod(lastDate, currentDate, outputPeriod, weekStarts) || i == latestIndex {
+		if !isTheSamePeriod(lastDate, currentDate, outputPeriod, WeekStart) || i == latestIndex {
 			if !lastDate.IsZero() {
 				dStr := GetDateStringByBreakdown(lastDate, outputPeriod)
 				sum = ToFixedFloat64(sum, 2)
@@ -82,7 +82,7 @@ func sumPeriod(temps *[]Temperature, outputPeriod string, tLayout string, weekSt
 }
 
 
-func groupByPeriod(temps *[]Temperature, outputPeriod string, weekStarts time.Weekday) *[]TempGroup {
+func groupByPeriod(temps *[]Temperature, outputPeriod string, WeekStart time.Weekday) *[]TempGroup {
 	res := make([]TempGroup, 0)
 	var lastDate time.Time
 	var period = make([]Temperature, 0)
@@ -92,7 +92,7 @@ func groupByPeriod(temps *[]Temperature, outputPeriod string, weekStarts time.We
 		if err != nil {
 			continue
 		}
-		if isTheSamePeriod(lastDate, currentDate, outputPeriod, weekStarts) && i != latestIndex {
+		if isTheSamePeriod(lastDate, currentDate, outputPeriod, WeekStart) && i != latestIndex {
 			period = append(period, temp)
 		} else {
 			if len(period) > 0 {
@@ -129,20 +129,20 @@ func GetDateStringByBreakdown(date time.Time, breakdown string) string {
 	return date.Format(TimeLayout)
 }
 
-func isTheSamePeriod(last, current time.Time, breakdown string, weekStarts time.Weekday) bool {
+func isTheSamePeriod(last, current time.Time, breakdown string, WeekStart time.Weekday) bool {
 	if last.IsZero() {
 		return false
 	}
-	return getPeriodDateMarker(last, breakdown, weekStarts) == getPeriodDateMarker(current, breakdown, weekStarts)
+	return getPeriodDateMarker(last, breakdown, WeekStart) == getPeriodDateMarker(current, breakdown, WeekStart)
 }
 
-func getPeriodDateMarker(date time.Time, breakdown string, weekStarts time.Weekday) int {
+func getPeriodDateMarker(date time.Time, breakdown string, WeekStart time.Weekday) int {
 	if breakdown == BreakdownDaily {
 		return date.YearDay()
 	}
 
 	if breakdown == BreakdownWeekly {
-		return Week(date, weekStarts)
+		return Week(date, WeekStart)
 	}
 
 	if breakdown == BreakdownWeeklyISO {

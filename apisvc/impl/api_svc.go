@@ -154,7 +154,7 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data apisvc.CSVData, er
 		Tr:        params.Tr,
 		Output:    params.Output,
 		DayCalc:   params.DayCalc,
-		WeekStarts:   params.WeekStarts,
+		WeekStart: params.WeekStart,
 	}
 
 	if params.Breakdown == "" {

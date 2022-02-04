@@ -51,7 +51,7 @@ func GenerateAvgCSV(temps []daydegreesvc.Degree, average []daydegreesvc.Degree, 
 	var line []string
 	avgLen := len(average)
 	for _, v := range temps {
-		doy := getAvgIndex(v.Date, params.Breakdown)
+		doy := getAvgIndex(v.Date, params.Breakdown, params.WeekStart)
 		avg := "---"
 		if avgLen >= doy && doy > 0{
 			avg = getFormattedValue(average[doy-1].Temp)
@@ -182,7 +182,7 @@ func getFormattedDate(date string) string{
 	return strings.Replace(date, "-", "/", -1)
 }
 
-func getAvgIndex(date string, breakdown string) int {
+func getAvgIndex(date string, breakdown string, WeekStart time.Weekday) int {
 	timeLayout := common.TimeLayoutDay
 	if breakdown == common.BreakdownWeekly {
 		timeLayout = common.TimeLayoutDay
@@ -199,7 +199,7 @@ func getAvgIndex(date string, breakdown string) int {
 		if breakdown == common.BreakdownDaily {
 			return common.LeapYearDay(d)
 		} else if breakdown == common.BreakdownWeekly {
-			return common.Week(d, 1)
+			return common.Week(d, WeekStart)
 		}  else if breakdown == common.BreakdownWeeklyISO {
 			return common.WeekISO(d)
 		} else if breakdown == common.BreakdownMonthly {
