@@ -69,8 +69,9 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 		years = 10
 	}
 
-	start, end, err := getSDates(years)
-	level.Info(dd.logger).Log("msg", "GetDegree", "Station", params.Station, "Start", start, "End", end, "years", years);
+	initial := time.Now()
+	start, end, err := getDates(initial, years, params.Breakdown)
+	level.Info(dd.logger).Log("msg", "Get Average Degree", "Station", params.Station, "Start", start, "End", end, "years", years);
 
 	if err != nil{
 		level.Error(dd.logger).Log("msg", "Get WB Data start average date error", "err", err)
@@ -158,20 +159,8 @@ func toDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
 	return &res
 }
 
-func getStartDate(end string, years int) (string, error) {
-	t, err := time.Parse(common.TimeLayoutWBH, end)
-	if err != nil{
-		return end, err
-	}
-	layout := common.TimeLayoutWBH
-	time.Parse(layout, end)
-	start := t.AddDate(-years, 0, 0)
-	return start.Format(common.TimeLayoutWBH), nil
-}
-
-func getSDates(years int) (string, string, error) {
-	end := time.Now()
-	//start := end.AddDate(-years, 0, 0)
+func getDates(initial time.Time, years int, breakdown string) (string, string, error) {
+	end := getEndDate(initial, breakdown)
 	start := time.Date(end.Year()-years, end.Month(), end.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), end.Location())
 	return start.Format(common.TimeLayoutWBH), end.Format(common.TimeLayoutWBH), nil
 }
@@ -194,4 +183,23 @@ func addPeriod(src time.Time, breakdown string) time.Time {
 	}
 
 	return src.AddDate(0, 0, 1)
+}
+
+func getEndDate(initial time.Time, breakdown string) time.Time {
+	if breakdown == common.BreakdownDaily {
+		return time.Date(initial.Year(), initial.Month(), initial.Day(), 0, 0, 0, 0, initial.Location())
+	}
+
+	if breakdown == common.BreakdownWeekly || breakdown == common.BreakdownWeeklyISO{
+		return time.Date(initial.Year(), initial.Month(), int(-initial.Weekday()), 0, 0, 0, 0, initial.Location())
+	}
+
+	if breakdown == common.BreakdownMonthly {
+		return time.Date(initial.Year(), initial.Month(), 1, 0, 0, 0, 0, initial.Location())
+	}
+	if breakdown == common.BreakdownYearly {
+		return time.Date(initial.Year(), 1, 1, 0, 0, 0, 0, initial.Location())
+	}
+
+	return initial
 }

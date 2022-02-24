@@ -139,7 +139,7 @@ func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weat
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return wbd,err
-	}
+	} 
 	defer rows.Close()
 	wbd = make([]weatherbitsvc.WBData, 0)
 

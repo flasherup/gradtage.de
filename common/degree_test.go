@@ -19,6 +19,7 @@ func TestIsTheSamePeriod(t *testing.T) {
 		{"2020-02-02T15:04:05Z","2020-02-02T15:04:05Z", BreakdownMonthly,true},
 		{"2020-01-02T15:04:05Z","2021-02-02T15:04:05Z", BreakdownYearly,false},
 		{"2020-02-02T15:04:05Z","2020-02-02T15:04:05Z", BreakdownYearly,true},
+		{"2021-01-01T15:04:05Z","2019-12-31T15:04:05Z", BreakdownYearly,false},
 	}
 
 	for _,v := range testValues{

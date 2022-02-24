@@ -65,8 +65,13 @@ func sumPeriod(temps *[]Temperature, outputPeriod string, tLayout string, WeekSt
 			continue
 		}
 
-		if !isTheSamePeriod(lastDate, currentDate, outputPeriod, WeekStart) || i == latestIndex {
+		isSame := isTheSamePeriod(lastDate, currentDate, outputPeriod, WeekStart)
+
+		if !isSame || i == latestIndex {
 			if !lastDate.IsZero() {
+				if i == latestIndex && isSame {
+					sum += temp.Temp
+				}
 				dStr := GetDateStringByBreakdown(lastDate, outputPeriod)
 				sum = ToFixedFloat64(sum, 2)
 				res = append(res, Temperature{Date: dStr, Temp: sum})
