@@ -26,6 +26,10 @@ func decodeGetDataRequest(_ context.Context, r *http.Request) (request interface
 func encodeGetDataResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(GetDataResponse)
 
+	if resp.Err != nil {
+		return resp.Err
+	}
+
 	if len(resp.Data) == 1 {
 		dd := resp.Data[0]
 
@@ -296,12 +300,7 @@ func getParams(r *http.Request, single bool) []Params {
 	format := r.Form.Get("format")
 
 	stsSrc := r.Form.Get("station")
-	var sts []string
-	if single {
-		sts = []string{stsSrc}
-	} else {
-		sts = common.StringToSlice(stsSrc)
-	}
+	sts := common.ParseStations(stsSrc)
 
 	prms := make([]Params, len(sts))
 	for i, v := range sts {
@@ -387,7 +386,7 @@ func writeZIP(data []*DDResponse, format string, w http.ResponseWriter) error {
 		}
 
 		//Write CSV
-		name = utils.GetJSONName(v.Params.Output, v.Params.Station, v.Params.Tb, v.Params.Tr)
+		name = utils.GetCSVName(v.Params.Output, v.Params.Station, v.Params.Tb, v.Params.Tr)
 		d := getCSVData(v)
 
 		f, err := zipW.Create(name)

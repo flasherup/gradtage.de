@@ -7,6 +7,7 @@ type GetDataRequest struct {
 type GetDataResponse struct {
 	Data   []*DDResponse `json:"data"`
 	Format string        `json:"format"`
+	Err    error         `json:"err"`
 }
 
 type GetHDDRequest struct {

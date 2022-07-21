@@ -73,14 +73,14 @@ func NewAPISVC(
 	return &st
 }
 
-func (as APISVC) GetData(ctx context.Context, params []apisvc.Params) (data []*apisvc.DDResponse, err error) {
+func (as APISVC) GetData(ctx context.Context, params []apisvc.Params) (data []*apisvc.DDResponse, format string, err error) {
 	for _, v := range params {
+		format = v.Format
 		dd, err := as.processDayDegree(v)
-		name := utils.GetCSVName(v.Output, v.Station, v.Tb, v.Tr)
 		if err != nil {
-			name = "error-" + name
+			ctx.Done()
+			return data, format, err
 		}
-
 		data = append(data, dd)
 	}
 

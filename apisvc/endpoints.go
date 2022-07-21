@@ -35,7 +35,7 @@ func MakeGetDataEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(GetDataRequest)
 		data, format, err := s.GetData(ctx, req.Params)
-		return GetDataResponse{data, format}, err
+		return GetDataResponse{data, format, err}, err
 	}
 }
 
