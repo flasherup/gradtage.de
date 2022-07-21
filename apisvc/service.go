@@ -2,11 +2,20 @@ package apisvc
 
 import (
 	"context"
+	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
+	"github.com/flasherup/gradtage.de/daydegreesvc"
 	"github.com/moosh3/woogo"
 	"net/http"
 	"time"
 )
+
+type DDResponse struct {
+	Temps        []daydegreesvc.Degree
+	Average      []daydegreesvc.Degree
+	Params       daydegreesvc.Params
+	Autocomplete autocompletesvc.Autocomplete
+}
 
 type CSVData [][]string
 type CSVDataFile struct {
@@ -26,6 +35,7 @@ type Params struct {
 	DayCalc   string       `json:"day_calc"`
 	Avg       int          `json:"avg"`
 	WeekStart time.Weekday `json:"week_start"`
+	Format    string       `json:"format"`
 }
 
 type ParamsSourceData struct {
@@ -77,6 +87,7 @@ type WoocommerceEvent struct {
 }
 
 type Service interface {
+	GetData(ctx context.Context, params []Params) (data []*DDResponse, format string, err error)
 	GetHDD(ctx context.Context, params Params) (data CSVData, err error)
 	GetHDDCSV(cts context.Context, params Params) (data CSVData, fileName string, err error)
 	GetZIP(cts context.Context, params []Params) (data []CSVDataFile, fileName string, err error)

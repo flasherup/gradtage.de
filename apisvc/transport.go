@@ -40,9 +40,9 @@ func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.H
 
 
 	r.Methods("GET").Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").Handler(kithttp.NewServer(
-		e.GetHDDSVEndpoint,
-		decodeGetHDDCSVRequest,
-		encodeGetHDDCSVResponse,
+		e.GetDataEndpoint,
+		decodeGetDataRequest,
+		encodeGetDataResponse,
 		options...,
 	))
 

@@ -44,6 +44,12 @@ const (
 	DDType  = "dd"
 )
 
+//Output format
+const (
+	FormatCSV = "csv"
+	FormatJSON = "json"
+)
+
 const (
 	BreakdownDaily     = "daily"
 	BreakdownWeeklyISO = "weeklyISO"

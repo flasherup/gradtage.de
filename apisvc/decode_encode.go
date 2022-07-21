@@ -16,6 +16,29 @@ import (
 	"strconv"
 )
 
+func decodeGetDataRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	prms := getParams(r, true)
+	req := GetDataRequest{prms}
+
+	return req, nil
+}
+
+func encodeGetDataResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(GetDataResponse)
+
+	if len(resp.Data) == 1 {
+		dd := resp.Data[0]
+
+		if resp.Format == common.FormatJSON {
+			return writeJSON(dd, w)
+		}
+
+		return writeCSV(dd, w)
+	}
+
+	return writeZIP(resp.Data, resp.Format, w)
+}
+
 func decodeGetHDDRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	req := GetHDDRequest{}
 	if e := json.NewDecoder(r.Body).Decode(&req.Params); e != nil {
@@ -42,44 +65,9 @@ func encodeGetHDDResponse(ctx context.Context, w http.ResponseWriter, response i
 }
 
 func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	vars := mux.Vars(r)
-	r.ParseForm()
-	basehddStr := r.Form.Get("tb")
-	basehdd, err := strconv.ParseFloat(basehddStr, 64)
-	if err != nil {
-		basehdd = 0
-	}
+	prms := getParams(r, true)
 
-	baseddStr := r.Form.Get("tr")
-	basedd, err := strconv.ParseFloat(baseddStr, 64)
-	if err != nil {
-		basedd = 0
-	}
-
-	avg, err := strconv.Atoi(r.Form.Get("avg"))
-	if err != nil {
-		avg = 0
-	}
-
-	WeekStart := common.StrDayToWeekday(r.Form.Get("week_start"))
-
-	prm := Params{
-		Key:       r.Form.Get("key"),
-		Station:   r.Form.Get("station"),
-		Start:     r.Form.Get("start"),
-		End:       r.Form.Get("end"),
-		Tb:        basehdd,
-		Tr:        basedd,
-		Output:    vars[Method],
-		Breakdown: r.Form.Get("breakdown"),
-		DayCalc:   vars[DayCalc],
-		Avg:       avg,
-		WeekStart: WeekStart,
-	}
-
-	prm.End = utils.WordToTime(prm.End)
-
-	req := GetHDDCSVRequest{prm}
+	req := GetHDDCSVRequest{prms[0]}
 	return req, nil
 }
 
@@ -98,55 +86,8 @@ func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, respons
 }
 
 func decodeGetZIPRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	vars := mux.Vars(r)
-	r.ParseForm()
-	basehddStr := r.Form.Get("tb")
-	basehdd, err := strconv.ParseFloat(basehddStr, 64)
-	if err != nil {
-		basehdd = 0
-	}
-
-	baseddStr := r.Form.Get("tr")
-	basedd, err := strconv.ParseFloat(baseddStr, 64)
-	if err != nil {
-		basedd = 0
-	}
-
-	avg, err := strconv.Atoi(r.Form.Get("avg"))
-	if err != nil {
-		avg = 0
-	}
-
-	WeekStart := common.StrDayToWeekday(r.Form.Get("week_start"))
-
-	key := r.Form.Get("key")
-	start := r.Form.Get("start")
-	end := utils.WordToTime(r.Form.Get("end"))
-	output := vars[Method]
-	breakdown := r.Form.Get("breakdown")
-	dayCalc := vars[DayCalc]
-
-	stsSrc := r.Form.Get("station")
-	sts := common.StringToSlice(stsSrc)
-
-	prms := make([]Params, len(sts))
-	for i, v := range sts {
-		prms[i] = Params{
-			Key:       key,
-			Station:   v,
-			Start:     start,
-			End:       end,
-			Tb:        basehdd,
-			Tr:        basedd,
-			Output:    output,
-			Breakdown: breakdown,
-			DayCalc:   dayCalc,
-			Avg:       avg,
-			WeekStart: WeekStart,
-		}
-	}
-
-	req := GetZIPRequest{prms}
+	prm := getParams(r, false)
+	req := GetZIPRequest{prm}
 	return req, nil
 }
 
@@ -322,4 +263,168 @@ func encodeServiceResponse(ctx context.Context, w http.ResponseWriter, response 
 	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
 	w.Write(bt.Bytes())
 	return err
+}
+
+func getParams(r *http.Request, single bool) []Params {
+	vars := mux.Vars(r)
+	r.ParseForm()
+	basehddStr := r.Form.Get("tb")
+	basehdd, err := strconv.ParseFloat(basehddStr, 64)
+	if err != nil {
+		basehdd = 0
+	}
+
+	baseddStr := r.Form.Get("tr")
+	basedd, err := strconv.ParseFloat(baseddStr, 64)
+	if err != nil {
+		basedd = 0
+	}
+
+	avg, err := strconv.Atoi(r.Form.Get("avg"))
+	if err != nil {
+		avg = 0
+	}
+
+	WeekStart := common.StrDayToWeekday(r.Form.Get("week_start"))
+
+	key := r.Form.Get("key")
+	start := r.Form.Get("start")
+	end := utils.WordToTime(r.Form.Get("end"))
+	output := vars[Method]
+	breakdown := r.Form.Get("breakdown")
+	dayCalc := vars[DayCalc]
+	format := r.Form.Get("format")
+
+	stsSrc := r.Form.Get("station")
+	var sts []string
+	if single {
+		sts = []string{stsSrc}
+	} else {
+		sts = common.StringToSlice(stsSrc)
+	}
+
+	prms := make([]Params, len(sts))
+	for i, v := range sts {
+		prms[i] = Params{
+			Key:       key,
+			Station:   v,
+			Start:     start,
+			End:       utils.WordToTime(end),
+			Tb:        basehdd,
+			Tr:        basedd,
+			Output:    output,
+			Breakdown: breakdown,
+			DayCalc:   dayCalc,
+			Avg:       avg,
+			WeekStart: WeekStart,
+			Format:    format,
+		}
+	}
+
+	return prms
+}
+
+func writeCSV(data *DDResponse, w http.ResponseWriter) error {
+	filename := utils.GetCSVName(data.Params.Output, data.Params.Station, data.Params.Tb, data.Params.Tr)
+	d := getCSVData(data)
+
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename="+filename)
+	wr := csv.NewWriter(w)
+	wr.Comma = ';'
+	err := wr.WriteAll(d)
+	wr.Flush()
+	if err != nil {
+		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
+	}
+	return err
+}
+
+func writeJSON(data *DDResponse, w http.ResponseWriter) error {
+	filename := utils.GetJSONName(data.Params.Output, data.Params.Station, data.Params.Tb, data.Params.Tr)
+	d := getJSONData(data)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Disposition", "attachment;filename="+filename)
+	json.NewEncoder(w).Encode(d)
+	return nil
+}
+
+func writeZIP(data []*DDResponse, format string, w http.ResponseWriter) error {
+	if len(data) == 0 {
+		return errors.New("no data found")
+	}
+
+	filename := utils.GetZIPName(data[0].Params.Output)
+
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	zipW := zip.NewWriter(w)
+	defer zipW.Close()
+	var name string
+	var err error
+	for _, v := range data {
+		if v == nil {
+			continue
+		}
+		//Write JSON
+		if format == common.FormatJSON {
+			name = utils.GetJSONName(v.Params.Output, v.Params.Station, v.Params.Tb, v.Params.Tr)
+			d := getJSONData(v)
+
+			f, err := zipW.Create(name)
+			if err != nil {
+				return err
+			}
+			b, err := json.Marshal(d)
+
+			_, err = f.Write(b)
+			if err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		//Write CSV
+		name = utils.GetJSONName(v.Params.Output, v.Params.Station, v.Params.Tb, v.Params.Tr)
+		d := getCSVData(v)
+
+		f, err := zipW.Create(name)
+		if err != nil {
+			return err
+		}
+		var buffer bytes.Buffer
+		writer := csv.NewWriter(&buffer)
+		writer.Comma = ';'
+		err = writer.WriteAll(d)
+		if err != nil {
+			return err
+		}
+		writer.Flush()
+
+		_, err = f.Write(buffer.Bytes())
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return err
+}
+
+func getJSONData(data *DDResponse) *utils.JSONData {
+	if len(data.Average) > 0 {
+		return utils.GenerateAvgJSON(data.Temps, data.Average, data.Params, data.Autocomplete)
+	} else {
+		return utils.GenerateJSON(data.Temps, data.Params, data.Autocomplete)
+	}
+}
+
+func getCSVData(data *DDResponse) [][]string {
+	if len(data.Average) > 0 {
+		return utils.GenerateAvgCSV(data.Temps, data.Average, data.Params, data.Autocomplete)
+	} else {
+		return utils.GenerateCSV(data.Temps, data.Params, data.Autocomplete)
+	}
 }

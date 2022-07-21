@@ -1,5 +1,14 @@
 package apisvc
 
+type GetDataRequest struct {
+	Params []Params `json:"params"`
+}
+
+type GetDataResponse struct {
+	Data   []*DDResponse `json:"data"`
+	Format string        `json:"format"`
+}
+
 type GetHDDRequest struct {
 	Params Params `json:"params"`
 }
@@ -13,8 +22,8 @@ type GetHDDCSVRequest struct {
 }
 
 type GetHDDCSVResponse struct {
-	Data CSVData `json:"data"`
-	FileName string `json:"fileName"`
+	Data     CSVData `json:"data"`
+	FileName string  `json:"fileName"`
 }
 
 type GetZIPRequest struct {
@@ -22,8 +31,8 @@ type GetZIPRequest struct {
 }
 
 type GetZIPResponse struct {
-	Files []CSVDataFile `json:"files"`
-	FileName string `json:"fileName"`
+	Files    []CSVDataFile `json:"files"`
+	FileName string        `json:"fileName"`
 }
 
 type GetSourceDataRequest struct {
@@ -31,8 +40,8 @@ type GetSourceDataRequest struct {
 }
 
 type GetSourceDataResponse struct {
-	Data CSVData `json:"data"`
-	FileName string `json:"fileName"`
+	Data     CSVData `json:"data"`
+	FileName string  `json:"fileName"`
 }
 
 type SearchRequest struct {
@@ -64,7 +73,7 @@ type WoocommerceResponse struct {
 }
 
 type ServiceRequest struct {
-	Name string `json:"name"`
+	Name   string            `json:"name"`
 	Params map[string]string `json:"params"`
 }
 

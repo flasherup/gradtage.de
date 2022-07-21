@@ -24,63 +24,87 @@ import (
 )
 
 type APISVC struct {
-	logger  			log.Logger
-	alert 				alertsvc.Client
-	daydegree			daydegreesvc.Client
-	weatherbit			weatherbitsvc.Client
-	autocomplete 		autocompletesvc.Client
-	user 				usersvc.Client
-	stations			stationssvc.Client
-	metrics				metricssvc.Client
-	woocommerce			*utils.Woocommerce
-	counter 			ktprom.Gauge
+	logger       log.Logger
+	alert        alertsvc.Client
+	daydegree    daydegreesvc.Client
+	weatherbit   weatherbitsvc.Client
+	autocomplete autocompletesvc.Client
+	user         usersvc.Client
+	stations     stationssvc.Client
+	metrics      metricssvc.Client
+	woocommerce  *utils.Woocommerce
+	counter      ktprom.Gauge
 }
 
 const (
-	Hourly 	= "hourly"
-	Daily 	= "daily"
-	Noaa 	= "noaa"
+	Hourly = "hourly"
+	Daily  = "daily"
+	Noaa   = "noaa"
 )
 
 func NewAPISVC(
-		logger 			log.Logger,
-		daydegree		daydegreesvc.Client,
-		weatherbit		weatherbitsvc.Client,
-		autocomplete 	autocompletesvc.Client,
-		user 			usersvc.Client,
-		alert 			alertsvc.Client,
-		stations    	stationssvc.Client,
-		metrics 		metricssvc.Client,
-		woocommerce 	*utils.Woocommerce,
-	) *APISVC {
+	logger log.Logger,
+	daydegree daydegreesvc.Client,
+	weatherbit weatherbitsvc.Client,
+	autocomplete autocompletesvc.Client,
+	user usersvc.Client,
+	alert alertsvc.Client,
+	stations stationssvc.Client,
+	metrics metricssvc.Client,
+	woocommerce *utils.Woocommerce,
+) *APISVC {
 	options := prometheus.Opts{
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
 	}
-	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
+	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{"stations"})
 	st := APISVC{
-		logger:  		logger,
-		daydegree:	 	daydegree,
-		weatherbit: 	weatherbit,
-		autocomplete: 	autocomplete,
-		user: 			user,
-		alert:   		alert,
-		stations:		stations,
-		metrics: 		metrics,
-		counter: 		*guage,
-		woocommerce: 	woocommerce,
+		logger:       logger,
+		daydegree:    daydegree,
+		weatherbit:   weatherbit,
+		autocomplete: autocomplete,
+		user:         user,
+		alert:        alert,
+		stations:     stations,
+		metrics:      metrics,
+		counter:      *guage,
+		woocommerce:  woocommerce,
 	}
 	return &st
 }
 
-func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data apisvc.CSVData, err error) {
-	return as.processDayDegree(params)
+func (as APISVC) GetData(ctx context.Context, params []apisvc.Params) (data []*apisvc.DDResponse, err error) {
+	for _, v := range params {
+		dd, err := as.processDayDegree(v)
+		name := utils.GetCSVName(v.Output, v.Station, v.Tb, v.Tr)
+		if err != nil {
+			name = "error-" + name
+		}
+
+		data = append(data, dd)
+	}
+
+	return
 }
 
-func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data apisvc.CSVData, fileName string, err error) {
-	res, err := as.processDayDegree(params)
+// Deprecated
+func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data apisvc.CSVData, err error) {
+	dd, err := as.processDayDegree(params)
+
 	if err != nil {
-		return res, "error", err
+		return
+	}
+
+	data = utils.GenerateCSV(dd.Temps, dd.Params, dd.Autocomplete)
+
+	return
+}
+
+// Deprecated
+func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data apisvc.CSVData, fileName string, err error) {
+	dd, err := as.processDayDegree(params)
+	if err != nil {
+		return data, "error", err
 	}
 	if params.Output == common.DDType {
 		fileName = fmt.Sprintf("%s_DD_%gC_%gC.csv",
@@ -98,20 +122,26 @@ func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data apis
 			params.Station,
 			params.Tb)
 	}
-	return res,fileName,err
+
+	data = utils.GenerateCSV(dd.Temps, dd.Params, dd.Autocomplete)
+
+	return data, fileName, err
 }
 
+// Deprecated
 func (as APISVC) GetZIP(ctx context.Context, params []apisvc.Params) (data []apisvc.CSVDataFile, fileName string, err error) {
-	for _,v := range params {
-		file, err := as.processDayDegree(v)
+	for _, v := range params {
+		dd, err := as.processDayDegree(v)
 		name := utils.GetCSVName(v.Output, v.Station, v.Tb, v.Tr)
 		if err != nil {
 			name = "error-" + name
 		}
 
+		d := utils.GenerateCSV(dd.Temps, dd.Params, dd.Autocomplete)
+
 		data = append(data, apisvc.CSVDataFile{
 			Name: name,
-			Data: file,
+			Data: d,
 		})
 	}
 
@@ -121,28 +151,27 @@ func (as APISVC) GetZIP(ctx context.Context, params []apisvc.Params) (data []api
 	}
 
 	fileName = utils.GetZIPName(o)
-	return data,fileName,err
+	return data, fileName, err
 }
 
-func (as APISVC) processDayDegree(params apisvc.Params) (data apisvc.CSVData, err error) {
+func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse, err error) {
 	err = as.validateRequest(params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "User validation error", "err", err)
-		return utils.CSVError(err), err
+		return nil, err
 	}
 
 	autoComplete, err := as.getAutocomplete(params.Station)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "err", err)
-		return [][]string{}, err
+		return nil, err
 	}
 
 	if autoComplete.ID == "" {
 		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "station", params.Station)
-		return [][]string{}, errors.New("station id  not found, station:" + params.Station)
+		return nil, errors.New("station id  not found, station:" + params.Station)
 	}
 	params.Station = autoComplete.ID
-
 
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 	ddParams := daydegreesvc.Params{
@@ -170,17 +199,36 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data apisvc.CSVData, er
 		level.Error(as.logger).Log("msg", "Get day degree data error", "err", err)
 	}
 
-
 	//Process Average
 	if params.Avg > 0 {
 		degreeAvg, err := as.daydegree.GetAverageDegree(ddParams, params.Avg)
 		if err != nil {
 			level.Error(as.logger).Log("msg", "Get day degree average data error", "err", err)
 		}
-		return utils.GenerateAvgCSV(degree, degreeAvg, ddParams, autoComplete), nil
+		return &apisvc.DDResponse{
+			Temps:        degree,
+			Average:      degreeAvg,
+			Params:       ddParams,
+			Autocomplete: autoComplete,
+		}, nil
 	}
 
-	return utils.GenerateCSV(degree, ddParams, autoComplete), nil
+	/*//Process Average
+	if params.Avg > 0 {
+		degreeAvg, err := as.daydegree.GetAverageDegree(ddParams, params.Avg)
+		if err != nil {
+			level.Error(as.logger).Log("msg", "Get day degree average data error", "err", err)
+		}
+		return utils.GenerateAvgCSV(degree, degreeAvg, ddParams, autoComplete), nil
+	}*/
+
+	return &apisvc.DDResponse{
+		Temps:        degree,
+		Params:       ddParams,
+		Autocomplete: autoComplete,
+	}, nil
+
+	//return utils.GenerateCSV(degree, ddParams, autoComplete), nil
 }
 
 func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceData) (data apisvc.CSVData, fileName string, err error) {
@@ -199,11 +247,11 @@ func (as APISVC) GetSourceData(ctx context.Context, params apisvc.ParamsSourceDa
 
 	t := (*temps)[params.Station]
 
-	headerCSV := []string{ "ID","Date","Temperature" }
+	headerCSV := []string{"ID", "Date", "Temperature"}
 
 	csv := as.generateSourceCSV(headerCSV, t, params)
 	fileName = fmt.Sprintf("source_%s_%s%s%s.csv", params.Station, params.Start, params.End)
-	return csv,fileName,err
+	return csv, fileName, err
 }
 
 func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data apisvc.CSVData, err error) {
@@ -220,7 +268,7 @@ func (as APISVC) Search(ctx context.Context, params apisvc.ParamsSearch) (data a
 		as.sendAlert(NewErrorAlert(err))
 	}
 
-	headerCSV := []string{ "FoundIn", "ID","ICAO","WMO","DWD", "Name" }
+	headerCSV := []string{"FoundIn", "ID", "ICAO", "WMO", "DWD", "Name"}
 	csv := as.generateSearchCSV(headerCSV, sources)
 	return csv, err
 }
@@ -276,13 +324,13 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 		} else {
 			updateError := UpdateWoocommerceOrder(as.user, event.UpdateEvent.Status, email, productId, order)
 			if updateError != nil {
-				level.Error(as.logger).Log("msg", "Subscription update error", "email", email, "orderId", orderId, "productId", productId,  "err", updateError)
+				level.Error(as.logger).Log("msg", "Subscription update error", "email", email, "orderId", orderId, "productId", productId, "err", updateError)
 			} else {
 				level.Info(as.logger).Log("msg", "Subscription update success", "orderId", orderId, "email", email, "productId", productId)
 			}
 		}
 	} else if event.Type == common.WCDeleteEvent {
-		deleteError := as.user.DeleteOrder( event.DeleteEvent.ID)
+		deleteError := as.user.DeleteOrder(event.DeleteEvent.ID)
 		if deleteError != nil {
 			level.Error(as.logger).Log("msg", "Delete order error", "orderId", event.DeleteEvent.ID, "err", err)
 		}
@@ -296,8 +344,8 @@ func (as APISVC) Service(ctx context.Context, name string, params map[string]str
 	level.Info(as.logger).Log("msg", "Service", "Name", name)
 
 	resp := struct {
-		Status string `json:"status"`
-		Error string `json:"error"`
+		Status   string      `json:"status"`
+		Error    string      `json:"error"`
 		Response interface{} `json:"response"`
 	}{}
 
@@ -337,14 +385,14 @@ func (as APISVC) getStationID(text string) (string, error) {
 		return "", err
 	}
 
-	for _,v := range sources {
+	for _, v := range sources {
 		if len(v) == 0 {
 			return "", errors.New("stations not found")
 		}
 		return v[0].ID, nil
 	}
 
-	return text,nil
+	return text, nil
 }
 
 func (as APISVC) getAutocomplete(text string) (autocompletesvc.Autocomplete, error) {
@@ -354,19 +402,18 @@ func (as APISVC) getAutocomplete(text string) (autocompletesvc.Autocomplete, err
 		return autocompletesvc.Autocomplete{}, err
 	}
 
-	for _,v := range sources {
+	for _, v := range sources {
 		if len(v) == 0 {
 			return autocompletesvc.Autocomplete{}, errors.New("stations not found")
 		}
 		return v[0], nil
 	}
 
-	return autocompletesvc.Autocomplete{},nil
+	return autocompletesvc.Autocomplete{}, nil
 }
 
-
-func (as APISVC)generateSourceCSV(names []string, temps []common.Temperature, params apisvc.ParamsSourceData) [][]string {
-	res := [][]string{ names }
+func (as APISVC) generateSourceCSV(names []string, temps []common.Temperature, params apisvc.ParamsSourceData) [][]string {
+	res := [][]string{names}
 	var line []string
 	for _, v := range temps {
 		line = []string{
@@ -380,11 +427,11 @@ func (as APISVC)generateSourceCSV(names []string, temps []common.Temperature, pa
 	return res
 }
 
-func (as APISVC)generateSearchCSV(names []string, sources map[string][]autocompletesvc.Autocomplete) [][]string {
-	res := [][]string{ names }
+func (as APISVC) generateSearchCSV(names []string, sources map[string][]autocompletesvc.Autocomplete) [][]string {
+	res := [][]string{names}
 	var line []string
 	for k, v := range sources {
-		for _,s := range v {
+		for _, s := range v {
 			line = []string{
 				k,
 				s.ID,
@@ -430,35 +477,32 @@ func calculateHDD(baseHDD float64, value float64) float64 {
 }
 
 func calculateDD(baseHDD float64, baseDD float64, value float64) float64 {
-	if value >= baseHDD || value >= baseDD{
+	if value >= baseHDD || value >= baseDD {
 		return 0
 	}
 
 	return baseDD - value
 }
 
-
 func calculateCDD(baseCDD float64, value float64) float64 {
 	if value < baseCDD {
 		return 0
 	}
-	return value-baseCDD
+	return value - baseCDD
 }
 
-
-func (as APISVC)sendAlert(alert alertsvc.Alert) {
+func (as APISVC) sendAlert(alert alertsvc.Alert) {
 	err := as.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "SendAlert Alert Error", "err", err)
 	}
 }
 
-
-func (as APISVC)validateUser(key string) (usersvc.Order, usersvc.Plan, error) {
+func (as APISVC) validateUser(key string) (usersvc.Order, usersvc.Plan, error) {
 	return as.user.ValidateKey(key)
 }
 
-func (as APISVC)validateRequest(params apisvc.Params) error {
+func (as APISVC) validateRequest(params apisvc.Params) error {
 	start, err := time.Parse(common.TimeLayoutWBH, params.Start)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Start time validation error", "err", err)
@@ -484,13 +528,10 @@ func (as APISVC)validateRequest(params apisvc.Params) error {
 	return as.user.ValidateSelection(selection)
 }
 
-
-
-
 func getLeapSafeDOY(t time.Time) int {
 	doy := t.YearDay()
 	if isLeap(t.Year()) && doy >= 60 {
-		return doy -1
+		return doy - 1
 	}
 
 	return doy
@@ -499,6 +540,3 @@ func getLeapSafeDOY(t time.Time) int {
 func isLeap(year int) bool {
 	return year%400 == 0 || year%4 == 0 && year%100 != 0
 }
-
-
-
