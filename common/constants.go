@@ -51,6 +51,11 @@ const (
 )
 
 const (
+	UnitCelsius = "celsius"
+	UnitFahrenheit = "fahrenheit"
+)
+
+const (
 	BreakdownDaily     = "daily"
 	BreakdownWeeklyISO = "weeklyISO"
 	BreakdownWeekly    = "weekly"

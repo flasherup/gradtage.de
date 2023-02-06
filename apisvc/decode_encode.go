@@ -68,63 +68,6 @@ func encodeGetHDDResponse(ctx context.Context, w http.ResponseWriter, response i
 	return err
 }
 
-func decodeGetHDDCSVRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	prms := getParams(r, true)
-
-	req := GetHDDCSVRequest{prms[0]}
-	return req, nil
-}
-
-func encodeGetHDDCSVResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(GetHDDCSVResponse)
-	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment;filename="+resp.FileName)
-	wr := csv.NewWriter(w)
-	wr.Comma = ';'
-	err := wr.WriteAll(resp.Data)
-	wr.Flush()
-	if err != nil {
-		http.Error(w, "Error sending csv: "+err.Error(), http.StatusInternalServerError)
-	}
-	return err
-}
-
-func decodeGetZIPRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	prm := getParams(r, false)
-	req := GetZIPRequest{prm}
-	return req, nil
-}
-
-func encodeGetZIPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) (err error) {
-	resp := response.(GetZIPResponse)
-	w.Header().Set("Content-Type", "application/zip")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", resp.FileName))
-
-	zipW := zip.NewWriter(w)
-	defer zipW.Close()
-	for _, v := range resp.Files {
-		f, err := zipW.Create(v.Name)
-		if err != nil {
-			return err
-		}
-		var buffer bytes.Buffer
-		writer := csv.NewWriter(&buffer)
-		writer.Comma = ';'
-		err = writer.WriteAll(v.Data)
-		if err != nil {
-			return err
-		}
-		writer.Flush()
-
-		_, err = f.Write(buffer.Bytes())
-		if err != nil {
-			return err
-		}
-	}
-
-	return err
-}
-
 func decodeGetSourceDataRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 	r.ParseForm()
 
@@ -298,6 +241,7 @@ func getParams(r *http.Request, single bool) []Params {
 	breakdown := r.Form.Get("breakdown")
 	dayCalc := vars[DayCalc]
 	format := r.Form.Get("format")
+	unit := r.Form.Get("unit")
 
 	stsSrc := r.Form.Get("station")
 	sts := common.ParseStations(stsSrc)
@@ -317,6 +261,7 @@ func getParams(r *http.Request, single bool) []Params {
 			Avg:       avg,
 			WeekStart: WeekStart,
 			Format:    format,
+			Unit:      unit,
 		}
 	}
 

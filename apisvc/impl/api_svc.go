@@ -18,7 +18,6 @@ import (
 	"github.com/go-kit/kit/log/level"
 	ktprom "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
-	"math"
 	"strconv"
 	"time"
 )
@@ -100,60 +99,6 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data apisvc.
 	return
 }
 
-// Deprecated
-func (as APISVC) GetHDDCSV(ctx context.Context, params apisvc.Params) (data apisvc.CSVData, fileName string, err error) {
-	dd, err := as.processDayDegree(params)
-	if err != nil {
-		return data, "error", err
-	}
-	if params.Output == common.DDType {
-		fileName = fmt.Sprintf("%s_DD_%gC_%gC.csv",
-			params.Station,
-			params.Tb,
-			params.Tr)
-	}
-	if params.Output == common.HDDType {
-		fileName = fmt.Sprintf("%s_HDD_%gC.csv",
-			params.Station,
-			params.Tb)
-	}
-	if params.Output == common.CDDType {
-		fileName = fmt.Sprintf("%s_CDD_%gC.csv",
-			params.Station,
-			params.Tb)
-	}
-
-	data = utils.GenerateCSV(dd.Temps, dd.Params, dd.Autocomplete)
-
-	return data, fileName, err
-}
-
-// Deprecated
-func (as APISVC) GetZIP(ctx context.Context, params []apisvc.Params) (data []apisvc.CSVDataFile, fileName string, err error) {
-	for _, v := range params {
-		dd, err := as.processDayDegree(v)
-		name := utils.GetCSVName(v.Output, v.Station, v.Tb, v.Tr)
-		if err != nil {
-			name = "error-" + name
-		}
-
-		d := utils.GenerateCSV(dd.Temps, dd.Params, dd.Autocomplete)
-
-		data = append(data, apisvc.CSVDataFile{
-			Name: name,
-			Data: d,
-		})
-	}
-
-	o := ""
-	if len(params) > 0 {
-		o = params[0].Output
-	}
-
-	fileName = utils.GetZIPName(o)
-	return data, fileName, err
-}
-
 func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse, err error) {
 	err = as.validateRequest(params)
 	if err != nil {
@@ -174,6 +119,14 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse
 	params.Station = autoComplete.ID
 
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
+
+	tb := params.Tb
+	tr := params.Tr
+	if params.Unit == common.UnitFahrenheit {
+		tb = toCelsius(tb)
+		tr = toCelsius(tr)
+	}
+
 	ddParams := daydegreesvc.Params{
 		Station:   params.Station,
 		Start:     params.Start,
@@ -184,6 +137,7 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse
 		Output:    params.Output,
 		DayCalc:   params.DayCalc,
 		WeekStart: params.WeekStart,
+		Unit:      params.Unit,
 	}
 
 	if params.Breakdown == "" {
@@ -212,15 +166,6 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse
 			Autocomplete: autoComplete,
 		}, nil
 	}
-
-	/*//Process Average
-	if params.Avg > 0 {
-		degreeAvg, err := as.daydegree.GetAverageDegree(ddParams, params.Avg)
-		if err != nil {
-			level.Error(as.logger).Log("msg", "Get day degree average data error", "err", err)
-		}
-		return utils.GenerateAvgCSV(degree, degreeAvg, ddParams, autoComplete), nil
-	}*/
 
 	return &apisvc.DDResponse{
 		Temps:        degree,
@@ -357,13 +302,6 @@ func (as APISVC) Service(ctx context.Context, name string, params map[string]str
 		return resp, err
 	}
 
-	/*if !order.Admin {
-		level.Error(as.logger).Log("msg", "Run command error", "err", "User validation error")
-		resp.Status = "error"
-		resp.Error = "Not enough rights to run commands"
-		return resp, nil
-	}*/
-
 	r, err := RunService(&as, name, params)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "Run service error", "err", err.Error())
@@ -464,33 +402,6 @@ func (as APISVC) generateSearchCSV(names []string, sources map[string][]autocomp
 	return res
 }
 
-func ToFixed(x float64) float64 {
-	unit := 10.0
-	return math.Round(x*unit) / unit
-}
-
-func calculateHDD(baseHDD float64, value float64) float64 {
-	if value >= baseHDD {
-		return 0
-	}
-	return baseHDD - value
-}
-
-func calculateDD(baseHDD float64, baseDD float64, value float64) float64 {
-	if value >= baseHDD || value >= baseDD {
-		return 0
-	}
-
-	return baseDD - value
-}
-
-func calculateCDD(baseCDD float64, value float64) float64 {
-	if value < baseCDD {
-		return 0
-	}
-	return value - baseCDD
-}
-
 func (as APISVC) sendAlert(alert alertsvc.Alert) {
 	err := as.alert.SendAlert(alert)
 	if err != nil {
@@ -528,15 +439,10 @@ func (as APISVC) validateRequest(params apisvc.Params) error {
 	return as.user.ValidateSelection(selection)
 }
 
-func getLeapSafeDOY(t time.Time) int {
-	doy := t.YearDay()
-	if isLeap(t.Year()) && doy >= 60 {
-		return doy - 1
-	}
-
-	return doy
-}
-
 func isLeap(year int) bool {
 	return year%400 == 0 || year%4 == 0 && year%100 != 0
+}
+
+func toCelsius(src float64) float64 {
+	return 5 / 9 * (src - 32)
 }

@@ -59,6 +59,10 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 	}
 
 	res := toDegree(degrees)
+	if params.Unit == common.UnitFahrenheit {
+		d := ToFahrenheit(*res)
+		res = &d
+	}
 	return *res, nil
 }
 
@@ -140,7 +144,14 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 		initialDate = addPeriod(initialDate, params.Breakdown)
 	}
 
-	return *toDegree(&res), nil
+	resDegree := toDegree(&res)
+
+	if params.Unit == common.UnitFahrenheit {
+		d := ToFahrenheit(*resDegree)
+		resDegree = &d
+	}
+
+	return *resDegree, nil
 }
 
 
@@ -158,6 +169,7 @@ func toDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
 	}
 	return &res
 }
+
 
 func getDates(initial time.Time, years int, breakdown string) (string, string, error) {
 	end := getEndDate(initial, breakdown)
@@ -202,4 +214,12 @@ func getEndDate(initial time.Time, breakdown string) time.Time {
 	}
 
 	return initial
+}
+
+func ToFahrenheit(src []daydegreesvc.Degree) []daydegreesvc.Degree {
+	for i,v := range src {
+		src[i].Temp =  common.ToFixedFloat64((v.Temp * 9 / 5 ) + 32, 2)
+	}
+
+	return src
 }

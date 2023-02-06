@@ -47,7 +47,8 @@ func ToGRPCParams(params *Params) *ddgrpc.Params {
 		Tr:         params.Tr,
 		Method:     params.Output,
 		DayCalc:    params.DayCalc,
-		WeekStart: int32(params.WeekStart),
+		WeekStart:  int32(params.WeekStart),
+		Unit: 		params.Unit,
 	}
 }
 
@@ -62,6 +63,7 @@ func ToParams(params *ddgrpc.Params) *Params {
 		Output:    params.Method,
 		DayCalc:   params.DayCalc,
 		WeekStart: time.Weekday(params.WeekStart),
+		Unit: 	   params.Unit,
 	}
 }
 

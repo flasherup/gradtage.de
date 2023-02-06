@@ -36,6 +36,7 @@ type Params struct {
 	Avg       int          `json:"avg"`
 	WeekStart time.Weekday `json:"week_start"`
 	Format    string       `json:"format"`
+	Unit      string       `json:"format"`
 }
 
 type ParamsSourceData struct {
@@ -89,8 +90,6 @@ type WoocommerceEvent struct {
 type Service interface {
 	GetData(ctx context.Context, params []Params) (data []*DDResponse, format string, err error)
 	GetHDD(ctx context.Context, params Params) (data CSVData, err error)
-	GetHDDCSV(cts context.Context, params Params) (data CSVData, fileName string, err error)
-	GetZIP(cts context.Context, params []Params) (data []CSVDataFile, fileName string, err error)
 	GetSourceData(ctx context.Context, params ParamsSourceData) (data CSVData, fileName string, err error)
 	Search(ctx context.Context, params ParamsSearch) (data CSVData, err error)
 	User(ctx context.Context, params ParamsUser) (data CSVData, err error)

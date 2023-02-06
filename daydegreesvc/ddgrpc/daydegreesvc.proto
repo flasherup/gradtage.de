@@ -13,6 +13,7 @@ message Params {
     string  Method = 7;
     string  DayCalc = 8;
     int32   WeekStart = 9;
+    string Unit = 10;
 }
 
 message Degree {

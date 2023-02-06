@@ -34,8 +34,10 @@ func (wb WeatherBitSVCClient) GetPeriod(ids []string, start string, end string) 
 	resp, err := client.GetPeriod(context.Background(), &weathergrpc.GetPeriodRequest{ Ids: ids, Start:start, End:end })
 	if err != nil {
 		level.Error(wb.logger).Log("msg", "Failed to get period", "err", err)
+		return nil, err
 	}else if resp.Err != "nil" {
 		err = errors.New(resp.Err)
+		return nil, err
 	}
 
 	temps := weatherbitsvc.ToCommonTemps(resp.Temps)

@@ -18,24 +18,6 @@ type GetHDDResponse struct {
 	Data CSVData `json:"data"`
 }
 
-type GetHDDCSVRequest struct {
-	Params Params `json:"params"`
-}
-
-type GetHDDCSVResponse struct {
-	Data     CSVData `json:"data"`
-	FileName string  `json:"fileName"`
-}
-
-type GetZIPRequest struct {
-	Params []Params `json:"params"`
-}
-
-type GetZIPResponse struct {
-	Files    []CSVDataFile `json:"files"`
-	FileName string        `json:"fileName"`
-}
-
 type GetSourceDataRequest struct {
 	Params ParamsSourceData `json:"params"`
 }
