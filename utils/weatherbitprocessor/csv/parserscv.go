@@ -99,3 +99,54 @@ func CSVToTempsData(filepath string) (*[]TempData, error) {
 
 	return &rows, nil
 }
+
+func CSVDailyToHourlyTempsData(filepath string) (*[]TempData, error) {
+
+	csvFile, err := os.Open(filepath)
+	if err != nil {
+		return nil, err
+	}
+
+	defer csvFile.Close()
+
+
+	r := csv.NewReader(bufio.NewReader(csvFile))
+	r.Comma = ','
+	rows := make([]TempData, 0)
+
+	index := 0
+	for {
+		index++
+		line, err := r.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			fmt.Println("err", err)
+			return nil, err
+		}
+		if index == 1 {
+			fmt.Println("line", line)
+			continue
+		}
+
+		t := strings.Replace(line[1], ",", ".", 1)
+		temp, err := strconv.ParseFloat(t, 10)
+		if err != nil {
+			fmt.Println("temp parse err", err)
+			continue
+		}
+
+		date := line[0]
+		for d:=0; d<24; d++{
+			time := fmt.Sprintf("%d%d:00",d/10, d%10)
+			rows = append(rows, TempData{
+				date + " " + time,
+				temp,
+				"GMT-5",
+			})
+		}
+
+	}
+
+	return &rows, nil
+}
