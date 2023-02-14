@@ -120,13 +120,6 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse
 
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 
-	tb := params.Tb
-	tr := params.Tr
-	if params.Unit == common.UnitFahrenheit {
-		tb = toCelsius(tb)
-		tr = toCelsius(tr)
-	}
-
 	ddParams := daydegreesvc.Params{
 		Station:   params.Station,
 		Start:     params.Start,
@@ -137,7 +130,7 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse
 		Output:    params.Output,
 		DayCalc:   params.DayCalc,
 		WeekStart: params.WeekStart,
-		Unit:      params.Unit,
+		Metric:    params.Metric,
 	}
 
 	if params.Breakdown == "" {
@@ -441,8 +434,4 @@ func (as APISVC) validateRequest(params apisvc.Params) error {
 
 func isLeap(year int) bool {
 	return year%400 == 0 || year%4 == 0 && year%100 != 0
-}
-
-func toCelsius(src float64) float64 {
-	return 5 / 9 * (src - 32)
 }

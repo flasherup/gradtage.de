@@ -15,7 +15,7 @@ type Params struct {
 	Output    string
 	DayCalc   string
 	WeekStart time.Weekday
-	Unit 	  string
+	Metric    bool
 }
 
 type Degree struct {

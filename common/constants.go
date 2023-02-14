@@ -50,10 +50,10 @@ const (
 	FormatJSON = "json"
 )
 
-const (
+/*const (
 	UnitCelsius = "celsius"
 	UnitFahrenheit = "fahrenheit"
-)
+)*/
 
 const (
 	BreakdownDaily     = "daily"

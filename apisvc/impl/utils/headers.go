@@ -41,40 +41,69 @@ func getMethod(dayCalc string) string {
 	return ""
 }
 
-func getTR(tr float64, output string) string{
+func getTB(tb float64, metric bool) string {
+	if metric {
+		return fmt.Sprintf("%gC",tb)
+	}
+
+	return fmt.Sprintf("%gF",tb)
+}
+
+func getTR(tr float64, output string, metric bool) string{
 	if output != common.DDType {
 		return "---"
 	}
-	return fmt.Sprintf("%gC",tr)
+
+	if metric {
+		return fmt.Sprintf("%gC",tr)
+	}
+
+	return fmt.Sprintf("%gF",tr)
+}
+
+func getUnits(metric bool) string{
+	if metric {
+		return "celsius"
+	}
+
+	return "fahrenheit"
 }
 
 func getStation(autocomplete autocompletesvc.Autocomplete) string {
 	return fmt.Sprintf("%s, %s, %s", autocomplete.ID, autocomplete.CityNameNative, autocomplete.CountryNameNative)
 }
 
-func getDescription(params daydegreesvc.Params ) string {
+func getDescription(params daydegreesvc.Params) string {
 	method := getMethodDescription(params.DayCalc)
+	unit := "F"
+	if params.Metric {
+		unit = "C"
+	}
 	if params.Output == common.HDDType {
 		return fmt.Sprintf(
-			"Heating Degree Days with a base temperature of %gC based on %s",
+			"Heating Degree Days with a base temperature of %g%s based on %s",
 			params.Tb,
+			unit,
 			method,
 		)
 	}
 
 	if params.Output == common.CDDType {
 		return fmt.Sprintf(
-			"Cooling Degree Days with a base temperature of %gC based on %s",
+			"Cooling Degree Days with a base temperature of %g%s based on %s",
 			params.Tb,
+			unit,
 			method,
 		)
 	}
 
 	if params.Output == common.DDType {
 		return fmt.Sprintf(
-			"Room Heating Degree Days (Gradtagzahl) with a base temperature of %gC and a room temperature of %gC based on %s",
+			"Room Heating Degree Days (Gradtagzahl) with a base temperature of %g%s and a room temperature of %g%s based on %s",
 			params.Tb,
+			unit,
 			params.Tr,
+			unit,
 			method,
 		)
 	}

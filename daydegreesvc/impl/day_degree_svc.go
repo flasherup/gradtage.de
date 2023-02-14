@@ -48,18 +48,25 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 
 	fmt.Println("params", params.WeekStart)
 
+	tb := params.Tb
+	tr := params.Tr
+	if !params.Metric {
+		tb = common.ToCelsius(tb)
+		tr = common.ToCelsius(tr)
+	}
+
 	var degrees *[]common.Temperature
 	t := (*temps)[params.Station]
 	if params.Output == common.HDDType {
-		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
+		degrees = common.CalculateHDDDegree(t, tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.DDType {
-		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStart)
+		degrees = common.CalculateDDegree(t, tb, tr, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.CDDType {
-		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
+		degrees = common.CalculateCDDegree(t, tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	}
 
 	res := toDegree(degrees)
-	if params.Unit == common.UnitFahrenheit {
+	if !params.Metric {
 		d := ToFahrenheit(*res)
 		res = &d
 	}
@@ -88,14 +95,21 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 		return []daydegreesvc.Degree{}, err
 	}
 
+	tb := params.Tb
+	tr := params.Tr
+	if !params.Metric {
+		tb = common.ToCelsius(tb)
+		tr = common.ToCelsius(tr)
+	}
+
 	var degrees *[]common.Temperature
 	t := (*temps)[params.Station]
 	if params.Output == common.HDDType {
-		degrees = common.CalculateHDDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
+		degrees = common.CalculateHDDDegree(t, tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.DDType {
-		degrees = common.CalculateDDegree(t, params.Tb, params.Tr, params.Breakdown, params.DayCalc, params.WeekStart)
+		degrees = common.CalculateDDegree(t, tb, tr, params.Breakdown, params.DayCalc, params.WeekStart)
 	} else if params.Output == common.CDDType {
-		degrees = common.CalculateCDDegree(t, params.Tb, params.Breakdown, params.DayCalc, params.WeekStart)
+		degrees = common.CalculateCDDegree(t, tb, params.Breakdown, params.DayCalc, params.WeekStart)
 	}
 
 	days := make(map[string][]float64)
@@ -146,7 +160,7 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 
 	resDegree := toDegree(&res)
 
-	if params.Unit == common.UnitFahrenheit {
+	if !params.Metric {
 		d := ToFahrenheit(*resDegree)
 		resDegree = &d
 	}

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/daydegreesvc"
@@ -75,8 +74,8 @@ func generateJSONHeader(params daydegreesvc.Params, autocomplete autocompletesvc
 	res := JSONData{
 		Indicator: getIndicator(params.Output),
 		Method: getMethod(params.DayCalc),
-		BaseTemperature: fmt.Sprintf("%gC",params.Tb),
-		Unit: "Celsius",
+		BaseTemperature: getTB(params.Tb, params.Metric),
+		Unit: getUnits(params.Metric),
 		Station:  getStation(autocomplete),
 		Coordinates: JSONDataCoordinates{autocomplete.Latitude, autocomplete.Longitude},
 		Description: getDescription(params),
@@ -84,7 +83,7 @@ func generateJSONHeader(params daydegreesvc.Params, autocomplete autocompletesvc
 	}
 
 	if params.Output == common.DDType {
-		res.RoomTemperature = getTR(params.Tr, params.Output)
+		res.RoomTemperature = getTR(params.Tr, params.Output, params.Metric)
 	}
 
 	return &res;

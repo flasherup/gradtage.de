@@ -69,11 +69,11 @@ func generateCSVHeader(params daydegreesvc.Params, autocomplete autocompletesvc.
 	res := [][]string{}
 	res = append(res, []string{"Indicator", getIndicator(params.Output)})
 	res = append(res, []string{"Method", getMethod(params.DayCalc)})
-	res = append(res, []string{"Base Temperature", fmt.Sprintf("%gC",params.Tb)})
+	res = append(res, []string{"Base Temperature", getTB(params.Tb, params.Metric)})
 	if params.Output == common.DDType {
-		res = append(res, []string{"Room Temperature", getTR(params.Tr, params.Output)})
+		res = append(res, []string{"Room Temperature", getTR(params.Tr, params.Output, params.Metric)})
 	}
-	res = append(res, []string{"Unit", "Celsius"})
+	res = append(res, []string{"Unit", getUnits(params.Metric)})
 	res = append(res, []string{"Station", getStation(autocomplete)})
 	res = append(res, []string{"Coordinates", fmt.Sprintf("%g, %g",autocomplete.Latitude, autocomplete.Longitude)})
 	res = append(res, []string{"Description", getDescription(params)})

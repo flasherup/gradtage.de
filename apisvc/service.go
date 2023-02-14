@@ -36,7 +36,7 @@ type Params struct {
 	Avg       int          `json:"avg"`
 	WeekStart time.Weekday `json:"week_start"`
 	Format    string       `json:"format"`
-	Unit      string       `json:"format"`
+	Metric    bool       `json:"metric"`
 }
 
 type ParamsSourceData struct {

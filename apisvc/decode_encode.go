@@ -241,7 +241,7 @@ func getParams(r *http.Request, single bool) []Params {
 	breakdown := r.Form.Get("breakdown")
 	dayCalc := vars[DayCalc]
 	format := r.Form.Get("format")
-	unit := r.Form.Get("unit")
+	metric := parseMetric(r.Form.Get("metric"))
 
 	stsSrc := r.Form.Get("station")
 	sts := common.ParseStations(stsSrc)
@@ -261,7 +261,7 @@ func getParams(r *http.Request, single bool) []Params {
 			Avg:       avg,
 			WeekStart: WeekStart,
 			Format:    format,
-			Unit:      unit,
+			Metric:    metric,
 		}
 	}
 
@@ -371,4 +371,11 @@ func getCSVData(data *DDResponse) [][]string {
 	} else {
 		return utils.GenerateCSV(data.Temps, data.Params, data.Autocomplete)
 	}
+}
+
+func parseMetric(metric string) bool {
+	if metric == "" || metric == "true"{
+		return true
+	}
+	return false
 }
