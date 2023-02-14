@@ -133,7 +133,7 @@ func (pg *Postgres) PushData(stID string, wbd *parser.WeatherBitData) error {
 }
 
 func (pg *Postgres) GetWBData(name string, start string, end string) (wbd []weatherbitsvc.WBData, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date <= '%s' ORDER BY date::timestamp ASC;",
+	query := fmt.Sprintf("SELECT * FROM %s WHERE DATE(date) >= '%s' AND DATE(date) <= '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
 
 	rows, err := pg.db.Query(query)
@@ -244,7 +244,7 @@ func (pg *Postgres) PushWBData(stID string, wbd []weatherbitsvc.WBData) (err err
 
 //GetPeriod get a list of temperatures form table @name (station Id)
 func (pg *Postgres) GetPeriod(name string, start string, end string) (temps []common.Temperature, err error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE date >= '%s' AND date <= '%s' ORDER BY date::timestamp ASC;",
+	query := fmt.Sprintf("SELECT * FROM %s WHERE DATE(date) >= '%s' AND DATE(date) <= '%s' ORDER BY date::timestamp ASC;",
 		name, start, end)
 
 	rows, err := pg.db.Query(query)
