@@ -7,17 +7,18 @@ import (
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/acrpc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/config"
+	"github.com/flasherup/gradtage.de/common"
 	_ "github.com/lib/pq"
 )
 
-//Postgres database
+// Postgres database
 type Postgres struct {
 	db *sql.DB
 }
 
 const tableName = "autocomplete"
 
-//NewPostgres create and initialize database and return it or error
+// NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
@@ -37,7 +38,7 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 	return
 }
 
-//AddSources
+// AddSources
 func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.Autocomplete, error) {
 	result := make(map[string][]autocompletesvc.Autocomplete)
 	query := "(SELECT *, 'icao' as column " +
@@ -138,7 +139,7 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 	}{}
 
 	for rows.Next() {
-			err = rows.Scan(
+		err = rows.Scan(
 			&row.ID,
 			&row.SourceID,
 			&row.Latitude,
@@ -175,8 +176,8 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 	return result, err
 }
 
-//GetAllStations get a list of station
-func (pg Postgres) GetAllStations() (map[string]*acrpc.Source,error) {
+// GetAllStations get a list of station
+func (pg Postgres) GetAllStations() (map[string]*acrpc.Source, error) {
 	sts := make(map[string]*acrpc.Source)
 	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
 
@@ -187,7 +188,7 @@ func (pg Postgres) GetAllStations() (map[string]*acrpc.Source,error) {
 	}
 
 	for rows.Next() {
-		st,err := parseSourceRow(rows)
+		st, err := parseSourceRow(rows)
 		if err != nil {
 			return sts, err
 		}
@@ -196,37 +197,36 @@ func (pg Postgres) GetAllStations() (map[string]*acrpc.Source,error) {
 	return sts, nil
 }
 
-
 func parseSourceRow(rows *sql.Rows) (source acrpc.Source, err error) {
 	err = rows.Scan(
-			&source.ID,
-			&source.SourceID,
-			&source.Latitude,
-			&source.Longitude,
-			&source.Source,
-			&source.Reports,
-			&source.ISO2Country,
-			&source.ISO3Country,
-			&source.Prio,
-			&source.CityNameEnglish,
-			&source.CityNameNative,
-			&source.CountryNameEnglish,
-			&source.CountryNameNative,
-			&source.ICAO,
-			&source.WMO,
-			&source.CWOP,
-			&source.Maslib,
-			&source.National_ID,
-			&source.IATA,
-			&source.USAF_WBAN,
-			&source.GHCN,
-			&source.NWSLI,
-			&source.Elevation,
-		)
+		&source.ID,
+		&source.SourceID,
+		&source.Latitude,
+		&source.Longitude,
+		&source.Source,
+		&source.Reports,
+		&source.ISO2Country,
+		&source.ISO3Country,
+		&source.Prio,
+		&source.CityNameEnglish,
+		&source.CityNameNative,
+		&source.CountryNameEnglish,
+		&source.CountryNameNative,
+		&source.ICAO,
+		&source.WMO,
+		&source.CWOP,
+		&source.Maslib,
+		&source.National_ID,
+		&source.IATA,
+		&source.USAF_WBAN,
+		&source.GHCN,
+		&source.NWSLI,
+		&source.Elevation,
+	)
 	return
 }
 
-//AddSources
+// AddSources
 func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err error) {
 	length := len(sources)
 	if length == 0 {
@@ -235,8 +235,8 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 
 	var query string
 	iterationStep := 100
-	for i:=0; i<length; i++ {
-		if i%iterationStep == 0  {
+	for i := 0; i < length; i++ {
+		if i%iterationStep == 0 {
 			query = fmt.Sprintf("INSERT INTO %s ("+
 				"id,"+
 				"source_id,"+
@@ -274,10 +274,10 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 		query += fmt.Sprintf("'%s',", v.ISO2Country)
 		query += fmt.Sprintf("'%s',", v.ISO3Country)
 		query += fmt.Sprintf("'%s',", v.Prio)
-		query += fmt.Sprintf("'%s',", v.CityNameEnglish)
-		query += fmt.Sprintf("'%s',", v.CityNameNative)
-		query += fmt.Sprintf("'%s',", v.CountryNameEnglish)
-		query += fmt.Sprintf("'%s',", v.CountryNameNative)
+		query += fmt.Sprintf("'%s',", common.FixSingleQuote(v.CityNameEnglish))
+		query += fmt.Sprintf("'%s',", common.FixSingleQuote(v.CityNameNative))
+		query += fmt.Sprintf("'%s',", common.FixSingleQuote(v.CountryNameEnglish))
+		query += fmt.Sprintf("'%s',", common.FixSingleQuote(v.CountryNameNative))
 		query += fmt.Sprintf("'%s',", v.ICAO)
 		query += fmt.Sprintf("'%s',", v.WMO)
 		query += fmt.Sprintf("'%s',", v.CWOP)
@@ -290,57 +290,57 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 		query += fmt.Sprintf("'%g'", v.Elevation)
 		query += ")"
 
-		if (i+1)%iterationStep != 0 && i < length -1 {
+		if (i+1)%iterationStep != 0 && i < length-1 {
 			query += ","
 		} else {
 			query += " ON CONFLICT (id) DO NOTHING;"
 			/*query += ` ON CONFLICT (id) DO UPDATE SET (
-					source_id,
-					latitude,
-					longitude,
-					source,
-					reports,
-					iso_2_country,
-					iso_3_country,
-					prio,
-					city_name_english,
-					city_name_native,
-					country_name_english,
-					country_name_native,
-					icao,
-					wmo,
-					cwop,
-					maslib,
-					national_id,
-					iata,
-					usaf_wban,
-					ghcn,
-					nwsli,
-					elevation
-				) = (
-					excluded.source_id,
-					excluded.latitude,
-					excluded.longitude,
-					excluded.source,
-					excluded.reports,
-					excluded.iso_2_country,
-					excluded.iso_3_country,
-					excluded.prio,
-					excluded.city_name_english,
-					excluded.city_name_native,
-					excluded.country_name_english,
-					excluded.country_name_native,
-					excluded.icao,
-					excluded.wmo,
-					excluded.cwop,
-					excluded.maslib,
-					excluded.national_id,
-					excluded.iata,
-					excluded.usaf_wban,
-					excluded.ghcn,
-					excluded.nwsli,
-					excluded.elevation
-				);`*/
+				source_id,
+				latitude,
+				longitude,
+				source,
+				reports,
+				iso_2_country,
+				iso_3_country,
+				prio,
+				city_name_english,
+				city_name_native,
+				country_name_english,
+				country_name_native,
+				icao,
+				wmo,
+				cwop,
+				maslib,
+				national_id,
+				iata,
+				usaf_wban,
+				ghcn,
+				nwsli,
+				elevation
+			) = (
+				excluded.source_id,
+				excluded.latitude,
+				excluded.longitude,
+				excluded.source,
+				excluded.reports,
+				excluded.iso_2_country,
+				excluded.iso_3_country,
+				excluded.prio,
+				excluded.city_name_english,
+				excluded.city_name_native,
+				excluded.country_name_english,
+				excluded.country_name_native,
+				excluded.icao,
+				excluded.wmo,
+				excluded.cwop,
+				excluded.maslib,
+				excluded.national_id,
+				excluded.iata,
+				excluded.usaf_wban,
+				excluded.ghcn,
+				excluded.nwsli,
+				excluded.elevation
+			);`*/
 			err := writeToDB(pg.db, query)
 			if err != nil {
 				return err
@@ -350,13 +350,13 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 	return nil
 }
 
-//Dispose and disconnect
+// Dispose and disconnect
 func (pg *Postgres) Dispose() {
 	pg.db.Close()
 	pg.db = nil
 }
 
-//CreateTable create a "Stations" table if not exist
+// CreateTable create a "Stations" table if not exist
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 			id varchar(15) UNIQUE,  
@@ -386,7 +386,7 @@ func (pg Postgres) CreateTable() error {
 	return writeToDB(pg.db, query)
 }
 
-//RemoveTable remove stations table from BD
+// RemoveTable remove stations table from BD
 func (pg *Postgres) RemoveTable() error {
 	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", tableName)
 	return writeToDB(pg.db, query)

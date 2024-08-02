@@ -4,20 +4,21 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/flasherup/gradtage.de/common"
 	"github.com/flasherup/gradtage.de/stationssvc"
 	"github.com/flasherup/gradtage.de/stationssvc/config"
 	_ "github.com/lib/pq"
 )
 
-//Postgres database
+// Postgres database
 type Postgres struct {
 	db *sql.DB
 }
 
 const tableName = "stations"
 
-//NewPostgres create and initialize database and return it or error
-func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
+// NewPostgres create and initialize database and return it or error
+func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		config.Host,
@@ -31,22 +32,21 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	}
 
 	pg = &Postgres{
-		db:db,
+		db: db,
 	}
 	return
 }
 
-
-//AddStation write single line of temperature in to DB
+// AddStation write single line of temperature in to DB
 func (pg Postgres) AddStation(station stationssvc.Station) error {
 	query := fmt.Sprintf(`INSERT INTO %s 
 		(id, name, timezone, source_type, source_id) 
 		VALUES ( '%s', '%s', '%s', '%s', '%s') `,
-		tableName, station.ID, station.Name, station.Timezone, station.SourceType, station.SourceID)
+		tableName, station.ID, common.FixSingleQuote(station.Name), station.Timezone, station.SourceType, station.SourceID)
 	return writeToDB(pg.db, query)
 }
 
-//AddStations write stations data into DB
+// AddStations write stations data into DB
 func (pg Postgres) AddStations(stations []stationssvc.Station) error {
 	length := len(stations)
 	if length == 0 {
@@ -58,7 +58,7 @@ func (pg Postgres) AddStations(stations []stationssvc.Station) error {
 	for i, v := range stations {
 		query += fmt.Sprintf(
 			"( '%s', '%s', '%s', '%s', '%s') ",
-			v.ID, v.Name, v.Timezone, v.SourceType, v.SourceID)
+			v.ID, common.FixSingleQuote(v.Name), v.Timezone, v.SourceType, v.SourceID)
 		if i < length-1 {
 			query += ","
 		}
@@ -68,22 +68,22 @@ func (pg Postgres) AddStations(stations []stationssvc.Station) error {
 	return writeToDB(pg.db, query)
 }
 
-//DeleteStation remove station by icao ID
+// DeleteStation remove station by icao ID
 func (pg Postgres) DeleteStation(id string) error {
-	query := fmt.Sprintf(	`DELETE FROM %s 
+	query := fmt.Sprintf(`DELETE FROM %s 
 									WHERE id = '%s'`,
-									tableName, id)
+		tableName, id)
 	return writeToDB(pg.db, query)
 }
 
-//GetStations get a list of station
-func (pg Postgres) GetStations(ids []string) ([]stationssvc.Station,error) {
+// GetStations get a list of station
+func (pg Postgres) GetStations(ids []string) ([]stationssvc.Station, error) {
 	sts := make([]stationssvc.Station, 0)
 	query := fmt.Sprintf(`SELECT * FROM %s
 								 WHERE id IN ( `, tableName)
 	length := len(ids)
 	for i, v := range ids {
-		query += fmt.Sprintf("'%s'",v)
+		query += fmt.Sprintf("'%s'", v)
 		if i < length-1 {
 			query += ","
 		}
@@ -92,23 +92,22 @@ func (pg Postgres) GetStations(ids []string) ([]stationssvc.Station,error) {
 
 	rows, err := pg.db.Query(query)
 	if err != nil {
-		return sts,err
+		return sts, err
 	}
 	defer rows.Close()
 
-
 	for rows.Next() {
-		st,err := parseRow(rows)
+		st, err := parseRow(rows)
 		if err != nil {
 			return sts, err
 		}
 		sts = append(sts, st)
 	}
-	return sts,err
+	return sts, err
 }
 
-//GetAllStations get a list of station
-func (pg Postgres) GetAllStations() ([]stationssvc.Station,error) {
+// GetAllStations get a list of station
+func (pg Postgres) GetAllStations() ([]stationssvc.Station, error) {
 	sts := make([]stationssvc.Station, 0)
 	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
 
@@ -119,23 +118,23 @@ func (pg Postgres) GetAllStations() ([]stationssvc.Station,error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		st,err := parseRow(rows)
+		st, err := parseRow(rows)
 		if err != nil {
 			return sts, err
 		}
 		sts = append(sts, st)
 	}
-	return sts,err
+	return sts, err
 }
 
-//GetAllStations get a list of station
-func (pg Postgres) GetStationsBySrcType(types []string) ([]stationssvc.Station,error) {
+// GetAllStations get a list of station
+func (pg Postgres) GetStationsBySrcType(types []string) ([]stationssvc.Station, error) {
 	sts := make([]stationssvc.Station, 0)
 	query := fmt.Sprintf("SELECT * FROM %s WHERE ", tableName)
 
 	length := len(types)
 	for i, v := range types {
-		query += fmt.Sprintf("source_type='%s' ",v)
+		query += fmt.Sprintf("source_type='%s' ", v)
 		if i < length-1 {
 			query += "OR "
 		}
@@ -149,16 +148,16 @@ func (pg Postgres) GetStationsBySrcType(types []string) ([]stationssvc.Station,e
 	defer rows.Close()
 
 	for rows.Next() {
-		st,err := parseRow(rows)
+		st, err := parseRow(rows)
 		if err != nil {
 			return sts, err
 		}
 		sts = append(sts, st)
 	}
-	return sts,err
+	return sts, err
 }
 
-//GetCount return number of stored stations
+// GetCount return number of stored stations
 func (pg Postgres) GetCount() (int, error) {
 	query := fmt.Sprintf("SELECT COUNT(*) FROM %s;", tableName)
 	rows, err := pg.db.Query(query)
@@ -175,13 +174,13 @@ func (pg Postgres) GetCount() (int, error) {
 	return count, err
 }
 
-//Dispose and disconnect
+// Dispose and disconnect
 func (pg *Postgres) Dispose() {
 	pg.db.Close()
 	pg.db = nil
 }
 
-//CreateTable create a "Stations" table if not exist
+// CreateTable create a "Stations" table if not exist
 func (pg Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 			id varchar(15) UNIQUE,
@@ -193,12 +192,11 @@ func (pg Postgres) CreateTable() error {
 	return writeToDB(pg.db, query)
 }
 
-//RemoveTable remove stations table from BD
+// RemoveTable remove stations table from BD
 func (pg *Postgres) RemoveTable() error {
 	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", tableName)
 	return writeToDB(pg.db, query)
 }
-
 
 func parseRow(rows *sql.Rows) (row stationssvc.Station, err error) {
 	err = rows.Scan(
@@ -211,7 +209,7 @@ func parseRow(rows *sql.Rows) (row stationssvc.Station, err error) {
 	return
 }
 
-func writeToDB(db *sql.DB, query string) (err error){
+func writeToDB(db *sql.DB, query string) (err error) {
 	rows, err := db.Query(query)
 	if err != nil {
 		return

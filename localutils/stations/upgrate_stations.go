@@ -11,8 +11,6 @@ import (
 	stations "github.com/flasherup/gradtage.de/stationssvc/impl"
 )
 
-
-
 func main() {
 	//addNewToLocal(data.MeteastatStation)
 	//fromLocalToRemote()
@@ -38,14 +36,14 @@ func addNewToLocal(sts []stationssvc.Station) {
 	}
 
 	stationsLocal := stations.NewStationsSCVClient("localhost:8102", logger)
-	_,err := stationsLocal.AddStations(sts)
+	_, err := stationsLocal.AddStations(sts)
 	if err != nil {
 		level.Error(logger).Log("msg", "ResetStations error", "err", err)
 	}
 }
 
 func filterLocal() {
-	filterIds := []string {
+	filterIds := []string{
 		"DE06256",
 		"DE06245",
 		"WMO10500",
@@ -58,7 +56,6 @@ func filterLocal() {
 		"DE00396",
 		"DE06243",
 	}
-
 
 	var logger log.Logger
 	{
@@ -83,54 +80,30 @@ func filterLocal() {
 
 	nsts := make([]stationssvc.Station, 0)
 
-	for k,v := range sts.Sts {
+	for k, v := range sts.Sts {
 		if indexOf(k, filterIds) > -1 {
 			level.Info(logger).Log("msg", "Filtered station", "id", k)
 			continue
 		}
 		nsts = append(nsts,
 			stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:v.SourceType,
-				SourceID:v.SourceId,
+				ID:         k,
+				Name:       v.Name,
+				Timezone:   v.Timezone,
+				SourceType: v.SourceType,
+				SourceID:   v.SourceId,
 			})
 	}
 
 	level.Info(logger).Log("msg", "Filtered number of stations", "num", len(nsts))
 
-	_,err = stations.ResetStations(nsts)
+	_, err = stations.ResetStations(nsts)
 	if err != nil {
 		level.Error(logger).Log("msg", "ResetStations error", "err", err)
 	}
 }
 
 func fromRemoteToLocal() {
-	stationsSourceId := map[string]string{
-		"EKCH":"06180",
-		"LIRA":"16239",
-		"LHBP":"12839",
-		"LIME":"16076",
-		"LEMD":"08221",
-		"EGLL":"03772",
-		"LPMT":"08534",
-		"EPWA":"12375",
-		"LRBS":"15420",
-		"UKKK":"33345",
-		"ULLI":"26063",
-		"LEBL":"08181",
-		"CXTO":"71508",
-		"LFML":"07650",
-		"LFPG":"07157",
-		"LKPR":"11518",
-		"LTBA":"17060",
-		"EHAM":"06240",
-		"ESSB":"02464",
-		"EBBR":"06451",
-		"LOWW":"11036",
-	}
-
 	var logger log.Logger
 	{
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
@@ -142,7 +115,7 @@ func fromRemoteToLocal() {
 		)
 	}
 
-	stationsRemout := stations.NewStationsSCVClient("82.165.18.228:8102", logger)
+	stationsRemout := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
 
 	sts, err := stationsRemout.GetAllStations()
 	if err != nil {
@@ -153,61 +126,32 @@ func fromRemoteToLocal() {
 	stsl := make([]stationssvc.Station, len(sts.Sts))
 
 	i := 0
-	for k,v := range sts.Sts {
-		fmt.Println(k,v)
-		/*if v.SourceType == common.SrcTypeCheckWX{
-			stsl[i] = stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:common.SrcTypeMeteostat,
-				SourceID:v.SourceId,
-			}
-		} else {
-			stsl[i] = stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:v.SourceType,
-				SourceID:v.SourceId,
-			}
-		}*/
-		if id, ok:= stationsSourceId[k]; ok {
-			stsl[i] = stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:common.SrcTypeMeteostat,
-				SourceID:id,
-			}
-
-		} else {
-			stsl[i] = stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:v.SourceType,
-				SourceID:v.SourceId,
-			}
+	for k, v := range sts.Sts {
+		stsl[i] = stationssvc.Station{
+			ID:         k,
+			Name:       v.Name,
+			Timezone:   v.Timezone,
+			SourceType: v.SourceType,
+			SourceID:   v.SourceId,
 		}
 		i++
 	}
 
-
-	for k,v := range stsl {
-		fmt.Println(k,v)
+	for k, v := range stsl {
+		fmt.Println(k, v)
 	}
 
 	stationsLocal := stations.NewStationsSCVClient("localhost:8102", logger)
-	_,err = stationsLocal.ResetStations(stsl)
+	_, err = stationsLocal.ResetStations(stsl)
 	if err != nil {
 		level.Error(logger).Log("msg", "AddStations error", "err", err)
 	}
+
+	level.Info(logger).Log("msg", "Stations updated")
 }
 
 func fromLocalToRemote() {
-	stationsDWD := map[string]string{
-	}
+	stationsDWD := map[string]string{}
 
 	var logger log.Logger
 	{
@@ -231,42 +175,41 @@ func fromLocalToRemote() {
 	stsl := make([]stationssvc.Station, len(sts.Sts))
 
 	i := 0
-	for k,v := range sts.Sts {
-		fmt.Println(k,v)
-		if id, ok:= stationsDWD[k]; ok {
+	for k, v := range sts.Sts {
+		fmt.Println(k, v)
+		if id, ok := stationsDWD[k]; ok {
 			stsl[i] = stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:common.SrcTypeDWD,
-				SourceID:id,
+				ID:         k,
+				Name:       v.Name,
+				Timezone:   v.Timezone,
+				SourceType: common.SrcTypeDWD,
+				SourceID:   id,
 			}
 
 		} else {
 			stsl[i] = stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:v.SourceType,
-				SourceID:v.SourceId,
+				ID:         k,
+				Name:       v.Name,
+				Timezone:   v.Timezone,
+				SourceType: v.SourceType,
+				SourceID:   v.SourceId,
 			}
 		}
 		i++
 	}
 
-
-	for k,v := range stsl {
-		fmt.Println(k,v)
+	for k, v := range stsl {
+		fmt.Println(k, v)
 	}
 
 	stationsLocal := stations.NewStationsSCVClient("82.165.18.228:8102", logger)
-	_,err = stationsLocal.ResetStations(stsl)
+	_, err = stationsLocal.ResetStations(stsl)
 	if err != nil {
 		level.Error(logger).Log("msg", "AddStations error", "err", err)
 	}
 }
 
-func indexOf(element string, data []string) int{
+func indexOf(element string, data []string) int {
 	for k, v := range data {
 		if element == v {
 			return k

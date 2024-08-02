@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+option  go_package = "github.com/flasherup/gradtage.de/alertsvc/grpcalt;grpcalt";
 package grpcalt;
 
 message Alert {

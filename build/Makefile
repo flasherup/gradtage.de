@@ -154,6 +154,7 @@ deploy_cloud_all:
 	make deploy_cloud_daydegree
 
 update_grpcs:
+	make -C ../alertsvc/grpcalt/ regenerate
 	make -C ../autocompletesvc/acrpc/ regenerate
 	make -C ../daydegreesvc/ddgrpc/ regenerate
 	make -C ../stationssvc/stsgrpc regenerate

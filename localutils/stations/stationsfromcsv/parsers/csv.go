@@ -13,29 +13,30 @@ import (
 )
 
 type Station struct {
-	ID string
-	SourceID string
-	Latitude float64
-	Longitude float64
-	Source string
-	Reports string
-	ISO2Country string
-	ISO3Country string
-	Prio string
-	CityNameEnglish string
-	CityNameNative string
+	ID                 string
+	SourceID           string
+	Latitude           float64
+	Longitude          float64
+	Source             string
+	Reports            string
+	ISO2Country        string
+	ISO3Country        string
+	Prio               string
+	CityNameEnglish    string
+	CityNameNative     string
 	CountryNameEnglish string
-	CountryNameNative string
-	ICAO string
-	WMO string
-	CWOP string
-	Maslib string
-	National_ID string
-	IATA string
-	USAF_WBAN string
-	GHCN string
-	NWSLI string
-	Elevation float64
+	CountryNameNative  string
+	ICAO               string
+	WMO                string
+	CWOP               string
+	Maslib             string
+	National_ID        string
+	IATA               string
+	USAF_WBAN          string
+	GHCN               string
+	NWSLI              string
+	Elevation          float64
+	ZIPCode            string
 }
 
 func ParseStationsCSV(filepath string) ([]Station, error) {
@@ -50,7 +51,6 @@ func ParseStationsCSV(filepath string) ([]Station, error) {
 	r.Comma = ','
 	stations := make([]Station, 0)
 
-
 	index := 0
 	for {
 		index++
@@ -64,35 +64,36 @@ func ParseStationsCSV(filepath string) ([]Station, error) {
 			continue
 		}
 		stations = append(stations, Station{
-			ID:line[0],
-			SourceID:line[1],
-			Latitude:prepareFloat64(line[2]),
-			Longitude:prepareFloat64(line[3]),
-			Source:line[4],
-			Reports:line[5],
-			ISO2Country:line[6],
-			ISO3Country:line[7],
-			Prio:line[8],
-			CityNameEnglish:prepareName(line[9]),
-			CityNameNative:prepareName(line[10]),
-			CountryNameEnglish:prepareName(line[11]),
-			CountryNameNative:prepareName(line[12]),
-			ICAO:line[13],
-			WMO:line[14],
-			CWOP:line[15],
-			Maslib:line[16],
-			National_ID:line[17],
-			IATA:line[18],
-			USAF_WBAN:line[19],
-			GHCN:line[20],
-			NWSLI:line[21],
-			Elevation:prepareFloat64(line[22]),
+			ID:                 line[0],
+			SourceID:           line[1],
+			Latitude:           prepareFloat64(line[2]),
+			Longitude:          prepareFloat64(line[3]),
+			Source:             line[4],
+			Reports:            line[5],
+			ISO2Country:        line[6],
+			ISO3Country:        line[7],
+			Prio:               line[8],
+			CityNameEnglish:    prepareName(line[9]),
+			CityNameNative:     prepareName(line[10]),
+			CountryNameEnglish: prepareName(line[11]),
+			CountryNameNative:  prepareName(line[12]),
+			ICAO:               line[13],
+			WMO:                line[14],
+			CWOP:               line[15],
+			Maslib:             line[16],
+			National_ID:        line[17],
+			IATA:               line[18],
+			USAF_WBAN:          line[19],
+			GHCN:               line[20],
+			NWSLI:              line[21],
+			Elevation:          prepareFloat64(line[22]),
+			ZIPCode:            line[23],
 		})
 	}
 	return stations, nil
 }
 
-func prepareName(name string) string  {
+func prepareName(name string) string {
 	n := fromWindows1252(name)
 	if len(name) < 2 {
 		return name
@@ -105,7 +106,7 @@ func fromWindows1252(str string) string {
 	var buf bytes.Buffer
 	var r rune
 
-	for _, b := range(arr) {
+	for _, b := range arr {
 		switch b {
 		case 0x80:
 			r = 0x20AC
@@ -180,7 +181,6 @@ func prepareFloat64(num string) float64 {
 	return f
 }
 
-
 func CSVToStationsList(filepath string) ([]stationssvc.Station, error) {
 	fmt.Println("filepath", filepath)
 	csvFile, err := os.Open(filepath)
@@ -190,11 +190,9 @@ func CSVToStationsList(filepath string) ([]stationssvc.Station, error) {
 
 	defer csvFile.Close()
 
-
 	r := csv.NewReader(bufio.NewReader(csvFile))
 	r.Comma = ','
 	stations := make([]stationssvc.Station, 0)
-
 
 	index := 0
 	for {
@@ -213,8 +211,8 @@ func CSVToStationsList(filepath string) ([]stationssvc.Station, error) {
 		cityName := line[9]
 		cityName = strings.Replace(cityName, "'", "''", -1)
 		stations = append(stations, stationssvc.Station{
-			ID:innerID,
-			Name:cityName,
+			ID:       innerID,
+			Name:     cityName,
 			SourceID: weatherBitID,
 		})
 	}
