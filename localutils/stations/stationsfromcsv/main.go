@@ -28,48 +28,16 @@ func main() {
 	}
 
 	filesList := []string{
-		//"stations_V2_20210831.csv",
 		"EDG_Stationlist_Masterfile.csv",
-		/*"PrioD.csv",
-		"addon_icao_prioa.csv",
-		"addon_icao_priob.csv",
-		"addon_icao_prioc.csv",
-		"prioa_ch.csv",
-		"prioa_es.csv",
-		"prioa_fr.csv",
-		"prioa_gb.csv",
-		"prioa_it.csv",
-		"prioa_li.csv",
-		"prioa_lu.csv",
-		"prioa_nl.csv",
-		"Prioa_no.csv",
-		"prioa_pl.csv",
-		"prioa_pt.csv",
-		"prioa_se.csv",
-		"priob_at.csv",
-		"priob_au.csv",
-		"priob_be.csv",
-		"priob_by.csv",
-		"priob_ca.csv",
-		"priob_de.csv",
-		"priob_dk.csv",
-		"priob_fi.csv",
-		"priob_gr.csv",
-		"priob_ie.csv",
-		"prioc_us.csv",*/
-	}
-
-	fillters := map[string]bool{
-		"DE_EDDT": true,
 	}
 
 	s := stations.NewStationsSCVClient("212.227.215.17:8102", logger)
-	//stations := stations.NewStationsSCVClient("localhost:8102", logger)
-	fromCSVListToStations("data", filesList, s, logger, fillters)
+	//s := stations.NewStationsSCVClient("localhost:8102", logger)
+	fromCSVListToStations("data", filesList, s, logger, nil)
 
-	//autocomplete := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
+	//a := autocomplete.NewAutocompleteSCVClient("localhost:8109", logger)
 	a := autocomplete.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
-	fromCSVListToAutocomplete("data", filesList, a, logger, fillters)
+	fromCSVListToAutocomplete("data", filesList, a, logger, nil)
 	//fromCSVToList("./data", filesList, logger)
 
 }
@@ -124,7 +92,7 @@ func fromCSVListToAutocomplete(path string, filesList []string, autocompleteLoca
 			continue
 		}
 
-		sts := make([]autocompletesvc.Autocomplete, len(stsl))
+		sts := make([]autocompletesvc.Autocomplete, 0, len(stsl))
 
 		for _, v := range stsl {
 			sts = append(sts, autocompletesvc.Autocomplete{
@@ -151,6 +119,7 @@ func fromCSVListToAutocomplete(path string, filesList []string, autocompleteLoca
 				GHCN:               v.GHCN,
 				NWSLI:              v.NWSLI,
 				Elevation:          v.Elevation,
+				ZipCode:            v.ZIPCode,
 			})
 		}
 		err = autocompleteLocal.ResetSources(sts)

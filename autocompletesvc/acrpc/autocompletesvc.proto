@@ -28,6 +28,7 @@ message Source {
     string GHCN = 21;
     string NWSLI = 22;
     double Elevation = 23;
+    string ZipCode = 24;
 }
 
 message Sources {

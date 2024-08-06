@@ -29,6 +29,7 @@ type Autocomplete struct {
 	GHCN               string  `json:"ghcn"`
 	NWSLI              string  `json:"nwsli"`
 	Elevation          float64 `json:"elevation"`
+	ZipCode            string  `json:"zip_code"`
 }
 
 type Service interface {

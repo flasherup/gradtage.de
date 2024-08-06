@@ -1,5 +1,4 @@
 utils/weatherbitHistorical/station.csv
-utils/weatherbitHistorical/station.csv
 builds/Makefile
 .idea/
 localutils/
@@ -14,7 +13,6 @@ utils/weatherbitcheck/stationsAll_filter.xls
 utils/weatherbithistorical/build/weatherbithistory
 build/apisvc
 build/usersvc
-*.pb.go
 build/autocompletesvc
 build/daydegreesvc
 build/stationssvc

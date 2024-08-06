@@ -41,21 +41,22 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 // AddSources
 func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.Autocomplete, error) {
 	result := make(map[string][]autocompletesvc.Autocomplete)
-	query := "(SELECT *, 'icao' as column " +
+	query := "(SELECT " + rowsCommaSeparated() + ", 'icao' as column " +
 		"FROM " + tableName + " " +
 		"WHERE icao ILIKE '%" + text + "%') " +
 		"UNION ALL " +
-		"(SELECT *, 'id' as column " +
+		"(SELECT " + rowsCommaSeparated() + ", 'id' as column " +
 		"FROM " + tableName + " " +
 		"WHERE city_name_english ILIKE '%" + text + "%') " +
 		"UNION ALL " +
-		"(SELECT *, 'wmo' as column " +
+		"(SELECT " + rowsCommaSeparated() + ", 'wmo' as column " +
 		"FROM " + tableName + " " +
 		"WHERE wmo ILIKE '%" + text + "%')" +
 		"UNION ALL " +
-		"(SELECT *, 'cwop' as column " +
+		"(SELECT " + rowsCommaSeparated() + ", 'cwop' as column " +
 		"FROM " + tableName + " " +
 		"WHERE cwop ILIKE '%" + text + "%');"
+	fmt.Println(query)
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return result, err
@@ -107,23 +108,23 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.A
 
 func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Autocomplete, error) {
 	result := make(map[string][]autocompletesvc.Autocomplete)
-	query := "(SELECT *, 'id' as column " +
+	query := "(SELECT " + rowsCommaSeparated() + ", 'id' as column " +
 		"FROM " + tableName + " " +
 		"WHERE id ILIKE '" + text + "') " +
 		"UNION ALL " +
-		"(SELECT *, 'icao' as column " +
+		"(SELECT " + rowsCommaSeparated() + ", 'icao' as column " +
 		"FROM " + tableName + " " +
 		"WHERE icao ILIKE '" + text + "') " +
 		"UNION ALL " +
-		"(SELECT *, 'station' as column " +
+		"(SELECT " + rowsCommaSeparated() + ", 'station' as column " +
 		"FROM " + tableName + " " +
 		"WHERE city_name_english ILIKE '" + text + "') " +
 		"UNION ALL " +
-		"(SELECT *, 'wmo' as column " +
+		"(SELECT " + rowsCommaSeparated() + ", 'wmo' as column " +
 		"FROM " + tableName + " " +
 		"WHERE wmo ILIKE '" + text + "')" +
 		"UNION ALL " +
-		"(SELECT *, 'cwop' as column " +
+		"(SELECT " + rowsCommaSeparated() + ", 'cwop' as column " +
 		"FROM " + tableName + " " +
 		"WHERE cwop ILIKE '" + text + "');"
 
@@ -179,7 +180,7 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 // GetAllStations get a list of station
 func (pg Postgres) GetAllStations() (map[string]*acrpc.Source, error) {
 	sts := make(map[string]*acrpc.Source)
-	query := fmt.Sprintf("SELECT * FROM %s;", tableName)
+	query := fmt.Sprintf("SELECT "+rowsCommaSeparated()+" FROM %s;", tableName)
 
 	rows, err := pg.db.Query(query)
 	defer rows.Close()
@@ -260,7 +261,8 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 				"usaf_wban,"+
 				"ghcn,"+
 				"nwsli,"+
-				"elevation"+
+				"elevation,"+
+				"zip_code"+
 				") VALUES", tableName)
 		}
 		v := sources[i]
@@ -287,60 +289,15 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 		query += fmt.Sprintf("'%s',", v.USAF_WBAN)
 		query += fmt.Sprintf("'%s',", v.GHCN)
 		query += fmt.Sprintf("'%s',", v.NWSLI)
-		query += fmt.Sprintf("'%g'", v.Elevation)
+		query += fmt.Sprintf("'%g',", v.Elevation)
+		query += fmt.Sprintf("'%s'", v.ZipCode)
 		query += ")"
 
 		if (i+1)%iterationStep != 0 && i < length-1 {
 			query += ","
 		} else {
 			query += " ON CONFLICT (id) DO NOTHING;"
-			/*query += ` ON CONFLICT (id) DO UPDATE SET (
-				source_id,
-				latitude,
-				longitude,
-				source,
-				reports,
-				iso_2_country,
-				iso_3_country,
-				prio,
-				city_name_english,
-				city_name_native,
-				country_name_english,
-				country_name_native,
-				icao,
-				wmo,
-				cwop,
-				maslib,
-				national_id,
-				iata,
-				usaf_wban,
-				ghcn,
-				nwsli,
-				elevation
-			) = (
-				excluded.source_id,
-				excluded.latitude,
-				excluded.longitude,
-				excluded.source,
-				excluded.reports,
-				excluded.iso_2_country,
-				excluded.iso_3_country,
-				excluded.prio,
-				excluded.city_name_english,
-				excluded.city_name_native,
-				excluded.country_name_english,
-				excluded.country_name_native,
-				excluded.icao,
-				excluded.wmo,
-				excluded.cwop,
-				excluded.maslib,
-				excluded.national_id,
-				excluded.iata,
-				excluded.usaf_wban,
-				excluded.ghcn,
-				excluded.nwsli,
-				excluded.elevation
-			);`*/
+			fmt.Println(query)
 			err := writeToDB(pg.db, query)
 			if err != nil {
 				return err
@@ -348,6 +305,34 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 		}
 	}
 	return nil
+}
+
+func rowsCommaSeparated() string {
+	res := "id," +
+		"source_id," +
+		"latitude," +
+		"longitude," +
+		"source," +
+		"reports," +
+		"iso_2_country," +
+		"iso_3_country," +
+		"prio," +
+		"city_name_english," +
+		"city_name_native," +
+		"country_name_english," +
+		"country_name_native," +
+		"icao," +
+		"wmo," +
+		"cwop," +
+		"maslib," +
+		"national_id," +
+		"iata," +
+		"usaf_wban," +
+		"ghcn," +
+		"nwsli," +
+		"elevation"
+
+	return res
 }
 
 // Dispose and disconnect
@@ -381,7 +366,8 @@ func (pg Postgres) CreateTable() error {
 			usaf_wban varchar(15),  
 			ghcn varchar(15),  
 			nwsli varchar(8),  
-			elevation real 
+			elevation real,
+    		zip_code varchar(10)
 		);`, tableName)
 	return writeToDB(pg.db, query)
 }

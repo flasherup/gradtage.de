@@ -1,27 +1,27 @@
 build_weatherbit:
-	env GOOS=linux GOARCH=amd64 go build -o weatherbitsvc github.com\flasherup\gradtage.de\weatherbitsvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o weatherbitsvc ./../weatherbitsvc/cmd/server
 
 build_weatherbitupdate:
-	env GOOS=linux GOARCH=amd64 go build -o weatherbitupdatesvc github.com\flasherup\gradtage.de\weathrbitupdatesvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o weatherbitupdatesvc ./../weathrbitupdatesvc/cmd/server
 
 build_api:
-	env GOOS=linux GOARCH=amd64 go build -o apisvc github.com\flasherup\gradtage.de\apisvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o apisvc ./../apisvc/cmd/server
 
 build_users:
-	env GOOS=linux GOARCH=amd64 go build -o usersvc github.com\flasherup\gradtage.de\usersvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o usersvc ./../usersvc/cmd/server
 
 build_autocomplete:
-	env GOOS=linux GOARCH=amd64 go build -o autocompletesvc github.com\flasherup\gradtage.de\autocompletesvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o autocompletesvc ./../autocompletesvc/cmd/server
 
 build_daydegree:
-	env GOOS=linux GOARCH=amd64 go build -o daydegreesvc github.com\flasherup\gradtage.de\daydegreesvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o daydegreesvc ./../daydegreesvc/cmd/server
 
 
 build_stations:
-	env GOOS=linux GOARCH=amd64 go build -o stationssvc github.com\flasherup\gradtage.de\stationssvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o stationssvc ./../stationssvc/cmd/server
 
 build_metrics:
-	env GOOS=linux GOARCH=amd64 go build -o metricssvc github.com\flasherup\gradtage.de\metricssvc\cmd\server
+	env GOOS=linux GOARCH=amd64 go build -o metricssvc ./../metricssvc/cmd/server
 
 build_all:
 	make build_weatherbit
@@ -43,13 +43,13 @@ upload_api:
 	pscp apisvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_users:
-	pscp usersvc flasherup@212.227.215.17:/home/flasherup/app
+	scp usersvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_autocomplete:
-	pscp autocompletesvc flasherup@212.227.215.17:/home/flasherup/app
+	scp autocompletesvc flasherup@212.227.215.17:/home/flasherup/app
 
 upload_stations:
-	pscp stationssvc flasherup@212.227.215.17:/home/flasherup/app
+	scp stationssvc flasherup@212.227.215.17:/home/flasherup/app
 
 update_weatherbit:
 	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && make update_weatherbitsvc $*"
@@ -103,16 +103,16 @@ deploy_all:
 	#make deploy_weatherbit
 
 upload_cloud_weatherbit:
-	pscp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app
+	scp weatherbitsvc flasherup@82.165.119.83:/home/flasherup/app
 
 upload_cloud_weatherbitupdate:
-	pscp weatherbitupdatesvc flasherup@82.165.119.83:/home/flasherup/app
+	scp weatherbitupdatesvc flasherup@82.165.119.83:/home/flasherup/app
 
 upload_cloud_daydegree:
-	pscp daydegreesvc flasherup@82.165.119.83:/home/flasherup/app
+	scp daydegreesvc flasherup@82.165.119.83:/home/flasherup/app
 
 upload_cloud_metrics:
-	pscp metricssvc flasherup@82.165.119.83:/home/flasherup/app
+	scp metricssvc flasherup@82.165.119.83:/home/flasherup/app
 
 
 update_cloud_weatherbit:
@@ -167,7 +167,7 @@ update_grpcs:
 setup_services:
 	7z a -tzip setup.zip setup
 	ssh flasherup@212.227.215.17 "rm -f /home/flasherup/app/setup.zip && rm -f -r /home/flasherup/app/setup"
-	pscp setup.zip flasherup@212.227.215.17:/home/flasherup/app
+	scp setup.zip flasherup@212.227.215.17:/home/flasherup/app
 	rm setup.zip
 	ssh flasherup@212.227.215.17 "cd /home/flasherup/app && unzip setup.zip"
 	ssh flasherup@212.227.215.17 "find . -type f | xargs -n 5 touch && make clean"
@@ -175,7 +175,7 @@ setup_services:
 setup_services_dc:
 	7z a -tzip setup.zip setup_dc
 	ssh flasherup@82.165.119.83 "rm -f /home/flasherup/app/setup.zip && rm -f -r /home/flasherup/app/setup"
-	pscp setup.zip flasherup@82.165.119.83:/home/flasherup/app
+	scp setup.zip flasherup@82.165.119.83:/home/flasherup/app
 	ssh flasherup@82.165.119.83 "cd /home/flasherup/app && unzip setup.zip && mv setup_dc setup"
 	rm setup.zip
 	ssh flasherup@82.165.119.83 "find . -type f | xargs -n 5 touch && make clean"
