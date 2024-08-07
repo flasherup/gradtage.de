@@ -100,12 +100,6 @@ func (as APISVC) GetHDD(ctx context.Context, params apisvc.Params) (data apisvc.
 }
 
 func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse, err error) {
-	err = as.validateRequest(params)
-	if err != nil {
-		level.Error(as.logger).Log("msg", "User validation error", "err", err)
-		return nil, err
-	}
-
 	autoComplete, err := as.getAutocomplete(params.Station)
 	if err != nil {
 		level.Error(as.logger).Log("msg", "GetHDD station id  not found", "err", err)
@@ -117,6 +111,12 @@ func (as APISVC) processDayDegree(params apisvc.Params) (data *apisvc.DDResponse
 		return nil, errors.New("station id  not found, station:" + params.Station)
 	}
 	params.Station = autoComplete.ID
+
+	err = as.validateRequest(params)
+	if err != nil {
+		level.Error(as.logger).Log("msg", "User validation error", "err", err)
+		return nil, err
+	}
 
 	level.Info(as.logger).Log("msg", "GetHDD", "station", params.Station, "key", params.Key)
 

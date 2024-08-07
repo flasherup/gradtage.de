@@ -41,22 +41,23 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 // AddSources
 func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.Autocomplete, error) {
 	result := make(map[string][]autocompletesvc.Autocomplete)
-	query := "(SELECT " + rowsCommaSeparated() + ", 'icao' as column " +
+	query := "SELECT " + rowsCommaSeparated() + ", " +
+		"(CASE " +
+		"WHEN id = '" + text + "' THEN 'id' " +
+		"WHEN icao = '" + text + "' THEN 'icao' " +
+		"WHEN city_name_english = '" + text + "' THEN 'station' " +
+		"WHEN wmo = '" + text + "' THEN 'wmo' " +
+		"WHEN cwop = '" + text + "' THEN 'cwop' " +
+		"WHEN zip_code = '" + text + "' THEN 'zip_code' " +
+		"END) AS colum " +
 		"FROM " + tableName + " " +
-		"WHERE icao ILIKE '%" + text + "%') " +
-		"UNION ALL " +
-		"(SELECT " + rowsCommaSeparated() + ", 'id' as column " +
-		"FROM " + tableName + " " +
-		"WHERE city_name_english ILIKE '%" + text + "%') " +
-		"UNION ALL " +
-		"(SELECT " + rowsCommaSeparated() + ", 'wmo' as column " +
-		"FROM " + tableName + " " +
-		"WHERE wmo ILIKE '%" + text + "%')" +
-		"UNION ALL " +
-		"(SELECT " + rowsCommaSeparated() + ", 'cwop' as column " +
-		"FROM " + tableName + " " +
-		"WHERE cwop ILIKE '%" + text + "%');"
-	fmt.Println(query)
+		"WHERE id ILIKE '" + text + "' OR " +
+		"icao ILIKE '" + text + "' OR " +
+		"city_name_english ILIKE '" + text + "' OR " +
+		"wmo ILIKE '" + text + "' OR " +
+		"cwop ILIKE '" + text + "' OR " +
+		"zip_code = '" + text + "' " +
+		"LIMIT 10;"
 	rows, err := pg.db.Query(query)
 	if err != nil {
 		return result, err
@@ -93,6 +94,7 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.A
 			&row.GHCN,
 			&row.NWSLI,
 			&row.Elevation,
+			&row.ZipCode,
 			&row.Column,
 		)
 		if err == nil {
@@ -108,25 +110,23 @@ func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.A
 
 func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Autocomplete, error) {
 	result := make(map[string][]autocompletesvc.Autocomplete)
-	query := "(SELECT " + rowsCommaSeparated() + ", 'id' as column " +
+	query := "SELECT " + rowsCommaSeparated() + ", " +
+		"(CASE " +
+		"WHEN id = '" + text + "' THEN 'id' " +
+		"WHEN icao = '" + text + "' THEN 'icao' " +
+		"WHEN city_name_english = '" + text + "' THEN 'station' " +
+		"WHEN wmo = '" + text + "' THEN 'wmo' " +
+		"WHEN cwop = '" + text + "' THEN 'cwop' " +
+		"WHEN zip_code = '" + text + "' THEN 'zip_code' " +
+		"END) AS colum " +
 		"FROM " + tableName + " " +
-		"WHERE id ILIKE '" + text + "') " +
-		"UNION ALL " +
-		"(SELECT " + rowsCommaSeparated() + ", 'icao' as column " +
-		"FROM " + tableName + " " +
-		"WHERE icao ILIKE '" + text + "') " +
-		"UNION ALL " +
-		"(SELECT " + rowsCommaSeparated() + ", 'station' as column " +
-		"FROM " + tableName + " " +
-		"WHERE city_name_english ILIKE '" + text + "') " +
-		"UNION ALL " +
-		"(SELECT " + rowsCommaSeparated() + ", 'wmo' as column " +
-		"FROM " + tableName + " " +
-		"WHERE wmo ILIKE '" + text + "')" +
-		"UNION ALL " +
-		"(SELECT " + rowsCommaSeparated() + ", 'cwop' as column " +
-		"FROM " + tableName + " " +
-		"WHERE cwop ILIKE '" + text + "');"
+		"WHERE id ILIKE '" + text + "' OR " +
+		"icao ILIKE '" + text + "' OR " +
+		"city_name_english ILIKE '" + text + "' OR " +
+		"wmo ILIKE '" + text + "' OR " +
+		"cwop ILIKE '" + text + "' OR " +
+		"zip_code = '" + text + "' " +
+		"LIMIT 10;"
 
 	rows, err := pg.db.Query(query)
 	if err != nil {
@@ -164,6 +164,7 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 			&row.GHCN,
 			&row.NWSLI,
 			&row.Elevation,
+			&row.ZipCode,
 			&row.Column,
 		)
 		if err == nil {
@@ -223,6 +224,7 @@ func parseSourceRow(rows *sql.Rows) (source acrpc.Source, err error) {
 		&source.GHCN,
 		&source.NWSLI,
 		&source.Elevation,
+		&source.ZipCode,
 	)
 	return
 }
@@ -330,7 +332,8 @@ func rowsCommaSeparated() string {
 		"usaf_wban," +
 		"ghcn," +
 		"nwsli," +
-		"elevation"
+		"elevation," +
+		"zip_code"
 
 	return res
 }
