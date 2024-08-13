@@ -150,7 +150,8 @@ func stationsToAutocomplete(stations map[string]*acrpc.Source) []autocompletesvc
 }
 
 func zipFromFile(logger log.Logger) {
-	local := impl.NewAutocompleteSCVClient("localhost:8109", logger)
+	local := impl.NewAutocompleteSCVClient("212.227.215.17:8109", logger)
+	//local := impl.NewAutocompleteSCVClient("localhost:8109", logger)
 
 	deZips, err := internal.LoadZipcodes("data/zip_to_weather_station_mapping_de.csv")
 	if err != nil {
