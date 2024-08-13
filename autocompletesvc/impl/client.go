@@ -10,9 +10,9 @@ import (
 	googlerpc "google.golang.org/grpc"
 )
 
-type AutocompleteSVCClient struct{
-	logger     log.Logger
-	host string
+type AutocompleteSVCClient struct {
+	logger log.Logger
+	host   string
 }
 
 func NewAutocompleteSCVClient(host string, logger log.Logger) *AutocompleteSVCClient {
@@ -20,8 +20,8 @@ func NewAutocompleteSCVClient(host string, logger log.Logger) *AutocompleteSVCCl
 		"client", "autocomplete",
 	)
 	return &AutocompleteSVCClient{
-		logger:logger,
-		host: host,
+		logger: logger,
+		host:   host,
 	}
 }
 
@@ -30,7 +30,7 @@ func (acc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]auto
 	defer conn.Close()
 
 	client := acrpc.NewAutocompleteSVCClient(conn)
-	resp,err := client.GetAutocomplete(context.Background(), &acrpc.GetAutocompleteRequest{Text:text})
+	resp, err := client.GetAutocomplete(context.Background(), &acrpc.GetAutocompleteRequest{Text: text})
 	if err != nil {
 		level.Error(acc.logger).Log("msg", "Failed to get stations", "err", err)
 		return nil, err
@@ -39,14 +39,13 @@ func (acc AutocompleteSVCClient) GetAutocomplete(text string) (map[string][]auto
 	return res, common.ErrorFromString(resp.Err)
 }
 
-
 func (acc AutocompleteSVCClient) AddSources(source []autocompletesvc.Autocomplete) error {
 	conn := acc.openConn()
 	defer conn.Close()
 
 	client := acrpc.NewAutocompleteSVCClient(conn)
 	src := autocompletesvc.EncodeSources(source)
-	resp,err := client.AddSources(context.Background(), &acrpc.AddSourcesRequest{Sources:src})
+	resp, err := client.AddSources(context.Background(), &acrpc.AddSourcesRequest{Sources: src})
 	if err != nil {
 		level.Error(acc.logger).Log("msg", "Failed to add sources", "err", err)
 		return err
@@ -60,7 +59,7 @@ func (acc AutocompleteSVCClient) ResetSources(source []autocompletesvc.Autocompl
 
 	client := acrpc.NewAutocompleteSVCClient(conn)
 	src := autocompletesvc.EncodeSources(source)
-	resp,err := client.ResetSources(context.Background(), &acrpc.ResetSourcesRequest{Sources:src})
+	resp, err := client.ResetSources(context.Background(), &acrpc.ResetSourcesRequest{Sources: src})
 	if err != nil {
 		level.Error(acc.logger).Log("msg", "Failed to reset sources", "err", err)
 		return err
@@ -73,10 +72,10 @@ func (acc AutocompleteSVCClient) GetAllStations() (map[string]*acrpc.Source, err
 	defer conn.Close()
 
 	client := acrpc.NewAutocompleteSVCClient(conn)
-	resp,err := client.GetAllStations(context.Background(), &acrpc.GetAllStationsRequest{})
+	resp, err := client.GetAllStations(context.Background(), &acrpc.GetAllStationsRequest{})
 	if err != nil {
 		level.Error(acc.logger).Log("msg", "Failed to reset sources", "err", err)
-		return nil,err
+		return nil, err
 	}
 
 	if resp.Err != common.ErrorNilString {
@@ -85,6 +84,25 @@ func (acc AutocompleteSVCClient) GetAllStations() (map[string]*acrpc.Source, err
 	}
 
 	return resp.Stations, err
+}
+
+func (acc AutocompleteSVCClient) ResetZipCodes(zipCodes []autocompletesvc.ZipCode) error {
+	conn := acc.openConn()
+	defer conn.Close()
+
+	client := acrpc.NewAutocompleteSVCClient(conn)
+	codes := autocompletesvc.EncodeZipCodes(zipCodes)
+	resp, err := client.ResetZipCodes(context.Background(), &acrpc.ResetZipCodesRequest{ZipCodes: codes})
+	if err != nil {
+		level.Error(acc.logger).Log("msg", "Failed to reset zip codes", "err", err)
+		return err
+	}
+
+	if resp.Err != common.ErrorNilString {
+		err = common.ErrorFromString(resp.Err)
+		return err
+	}
+	return err
 }
 
 func (acc AutocompleteSVCClient) openConn() *googlerpc.ClientConn {

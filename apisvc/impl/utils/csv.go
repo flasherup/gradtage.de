@@ -18,11 +18,11 @@ func CSVError(err error) [][]string {
 func GenerateCSV(temps []daydegreesvc.Degree, params daydegreesvc.Params, autocomplete autocompletesvc.Autocomplete) [][]string {
 	res := generateCSVHeader(params, autocomplete)
 	if params.Output == common.DDType {
-		res = append(res, []string{"Date", fmt.Sprintf("DD (%g,%g)",params.Tb, params.Tr)})
-	} else if  params.Output ==  common.HDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("HDD (%g)",params.Tb)})
-	} else if  params.Output ==  common.CDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("CDD (%g)",params.Tb)})
+		res = append(res, []string{"Date", fmt.Sprintf("DD (%g,%g)", params.Tb, params.Tr)})
+	} else if params.Output == common.HDDType {
+		res = append(res, []string{"Date", fmt.Sprintf("HDD (%g)", params.Tb)})
+	} else if params.Output == common.CDDType {
+		res = append(res, []string{"Date", fmt.Sprintf("CDD (%g)", params.Tb)})
 	}
 
 	var line []string
@@ -39,11 +39,11 @@ func GenerateCSV(temps []daydegreesvc.Degree, params daydegreesvc.Params, autoco
 func GenerateAvgCSV(temps []daydegreesvc.Degree, average []daydegreesvc.Degree, params daydegreesvc.Params, autocomplete autocompletesvc.Autocomplete) [][]string {
 	res := generateCSVHeader(params, autocomplete)
 	if params.Output == common.DDType {
-		res = append(res, []string{"Date", fmt.Sprintf("DD (%g,%g)",params.Tb, params.Tr), "Average"})
-	} else if  params.Output ==  common.HDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("HDD (%g)",params.Tb), "Average"})
-	} else if  params.Output ==  common.CDDType {
-		res = append(res, []string{"Date",fmt.Sprintf("CDD (%g)",params.Tb), "Average"})
+		res = append(res, []string{"Date", fmt.Sprintf("DD (%g,%g)", params.Tb, params.Tr), "Average"})
+	} else if params.Output == common.HDDType {
+		res = append(res, []string{"Date", fmt.Sprintf("HDD (%g)", params.Tb), "Average"})
+	} else if params.Output == common.CDDType {
+		res = append(res, []string{"Date", fmt.Sprintf("CDD (%g)", params.Tb), "Average"})
 	}
 
 	var line []string
@@ -51,7 +51,7 @@ func GenerateAvgCSV(temps []daydegreesvc.Degree, average []daydegreesvc.Degree, 
 	for _, v := range temps {
 		doy := getAvgIndex(v.Date, params.Breakdown, params.WeekStart)
 		avg := "---"
-		if avgLen >= doy && doy > 0{
+		if avgLen >= doy && doy > 0 {
 			avg = getFormattedValue(average[doy-1].Temp)
 		}
 
@@ -75,9 +75,9 @@ func generateCSVHeader(params daydegreesvc.Params, autocomplete autocompletesvc.
 	}
 	res = append(res, []string{"Unit", getUnits(params.Metric)})
 	res = append(res, []string{"Station", getStation(autocomplete)})
-	res = append(res, []string{"Coordinates", fmt.Sprintf("%g, %g",autocomplete.Latitude, autocomplete.Longitude)})
+	res = append(res, []string{"Coordinates", fmt.Sprintf("%g, %g", autocomplete.Latitude, autocomplete.Longitude)})
 	res = append(res, []string{"Description", getDescription(params)})
 	res = append(res, []string{"Source", "https://energy-data.io/"})
 	res = append(res, []string{""})
-	return res;
+	return res
 }

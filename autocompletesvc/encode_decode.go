@@ -50,6 +50,21 @@ func DecodeResetSourcesRequest(_ context.Context, r interface{}) (interface{}, e
 	}, nil
 }
 
+func EncodeResetZipCodesResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(ResetZipCodesResponse)
+	return &acrpc.ResetZipCodesResponse{
+		Err: common.ErrorToString(res.Err),
+	}, nil
+}
+
+func DecodeResetZipCodesRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*acrpc.ResetZipCodesRequest)
+	encZipCodes := DecodeZipCodes(req.ZipCodes)
+	return ResetZipCodesRequest{
+		ZipCodes: encZipCodes,
+	}, nil
+}
+
 func StandardEncodeResponse(_ context.Context, r interface{}) (interface{}, error) {
 	return r, nil
 }
@@ -85,7 +100,6 @@ func EncodeSources(sources []Autocomplete) []*acrpc.Source {
 			GHCN:               v.GHCN,
 			NWSLI:              v.NWSLI,
 			Elevation:          v.Elevation,
-			ZipCode:            v.ZipCode,
 		}
 	}
 	return res
@@ -118,7 +132,6 @@ func DecodeSources(sources []*acrpc.Source) []Autocomplete {
 			GHCN:               v.GHCN,
 			NWSLI:              v.NWSLI,
 			Elevation:          v.Elevation,
-			ZipCode:            v.ZipCode,
 		}
 	}
 	return res
@@ -153,7 +166,6 @@ func EncodeSourcesMap(sources map[string][]Autocomplete) map[string]*acrpc.Sourc
 				GHCN:               v.GHCN,
 				NWSLI:              v.NWSLI,
 				Elevation:          v.Elevation,
-				ZipCode:            v.ZipCode,
 			}
 		}
 		res[k] = &acrpc.Sources{Sources: src}
@@ -190,10 +202,31 @@ func DecodeSourcesMap(sources map[string]*acrpc.Sources) map[string][]Autocomple
 				GHCN:               v.GHCN,
 				NWSLI:              v.NWSLI,
 				Elevation:          v.Elevation,
-				ZipCode:            v.ZipCode,
 			}
 		}
 		res[k] = src
+	}
+	return res
+}
+
+func EncodeZipCodes(zipCodes []ZipCode) []*acrpc.ZipCode {
+	res := make([]*acrpc.ZipCode, len(zipCodes))
+	for i, v := range zipCodes {
+		res[i] = &acrpc.ZipCode{
+			ZipCode:   v.ZipCode,
+			StationID: v.Station,
+		}
+	}
+	return res
+}
+
+func DecodeZipCodes(zipCodes []*acrpc.ZipCode) []ZipCode {
+	res := make([]ZipCode, len(zipCodes))
+	for i, v := range zipCodes {
+		res[i] = ZipCode{
+			ZipCode: v.ZipCode,
+			Station: v.StationID,
+		}
 	}
 	return res
 }

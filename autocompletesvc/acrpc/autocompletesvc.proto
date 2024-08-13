@@ -28,7 +28,11 @@ message Source {
     string GHCN = 21;
     string NWSLI = 22;
     double Elevation = 23;
-    string ZipCode = 24;
+}
+
+message ZipCode {
+    string ZipCode = 1;
+    string StationID = 2;
 }
 
 message Sources {
@@ -68,11 +72,20 @@ message GetAllStationsResponse {
     string err = 2;
 }
 
+message ResetZipCodesRequest {
+    repeated ZipCode zipCodes = 1;
+}
+
+message ResetZipCodesResponse {
+    string err = 1;
+}
+
 service AutocompleteSVC {
     rpc GetAutocomplete(GetAutocompleteRequest) returns (GetAutocompleteResponse) {}
     rpc AddSources(AddSourcesRequest) returns (AddSourcesResponse) {}
     rpc ResetSources(ResetSourcesRequest) returns (ResetSourcesResponse) {}
     rpc GetAllStations(GetAllStationsRequest) returns (GetAllStationsResponse) {}
+    rpc ResetZipCodes(ResetZipCodesRequest) returns (ResetZipCodesResponse) {}
 }
 
 

@@ -55,21 +55,15 @@ func runBackup() {
 		return
 	}
 
-
-
-
-
 	source := impl.NewWeatherBitSVCClient(conf.Clients.SRCAddr, logger)
 
 	level.Info(logger).Log("msg", "Data backup client start")
 	defer level.Info(logger).Log("msg", "client end")
 
-
-
 	moveData(db, source, logger)
 }
 
-func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Logger)  {
+func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Logger) {
 	level.Info(logger).Log("msg", "Getting data")
 	//currentTime := time.Now()
 	stations, err := source.GetStationsList()
@@ -96,13 +90,11 @@ func moveData(db *database.Postgres, source weatherbitsvc.Client, logger log.Log
 			level.Error(logger).Log("msg", "table create error", "err", err)
 		}
 
-
 		level.Info(logger).Log("msg", "Station: "+stationName+" data received", "count", len(*data))
 		err = db.PushWBData(stationName, *data)
 		if err != nil {
 			level.Error(logger).Log("msg", "Saving station data error", "station", stationName, "error", err.Error())
 		}
 	}
-
 
 }

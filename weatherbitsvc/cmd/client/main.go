@@ -23,7 +23,7 @@ func main() {
 		)
 	}
 	//client := impl.NewWeatherBitSVCClient("82.165.119.83:8111",logger)
-	client := impl.NewWeatherBitSVCClient("localhost:8111",logger)
+	client := impl.NewWeatherBitSVCClient("localhost:8111", logger)
 
 	level.Info(logger).Log("msg", "client started")
 	defer level.Info(logger).Log("msg", "client ended")
@@ -53,8 +53,6 @@ func main() {
 		level.Error(logger).Log("msg", "GetAverage Error", "err", err)
 	}
 
-
-
 }
 
 /*func getPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
@@ -83,7 +81,7 @@ func getWBPeriod(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	if err != nil {
 		return err
 	}
-	for _,v := range *temps {
+	for _, v := range *temps {
 		fmt.Println(v)
 	}
 
@@ -156,7 +154,7 @@ func getAverage(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 		return err
 	}
 
-	for i,v := range data {
+	for i, v := range data {
 		t, _ := time.Parse(common.TimeLayout, v.Date)
 		if t.Month() == 2 {
 			fmt.Println(i, v)
@@ -165,5 +163,3 @@ func getAverage(client *impl.WeatherBitSVCClient, logger log.Logger) error {
 	return nil
 
 }
-
-

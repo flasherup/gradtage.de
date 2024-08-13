@@ -9,4 +9,5 @@ type Client interface {
 	AddSources(sources []Autocomplete) error
 	ResetSources(sources []Autocomplete) error
 	GetAllStations() (map[string]*acrpc.Source, error)
+	ResetZipCodes(zipCodes []ZipCode) error
 }

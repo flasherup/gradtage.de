@@ -7,10 +7,12 @@ import (
 
 type AutocompleteDB interface {
 	GetAutocomplete(text string) (result map[string][]autocompletesvc.Autocomplete, err error)
-	GetStationId(text string) (result map[string][]autocompletesvc.Autocomplete, err error)
 	AddSources(sources []autocompletesvc.Autocomplete) (err error)
-	GetAllStations() (map[string]*acrpc.Source,error)
-	CreateTable() (err error)
-	RemoveTable() (err error)
+	GetAllStations() (map[string]*acrpc.Source, error)
+	CreateAutocompleteTable() (err error)
+	RemoveAutocompleteTable() (err error)
+	CreateZipCodeTable() error
+	RemoveZipCodeTable() error
+	AddZipCodes(zipCodes []autocompletesvc.ZipCode) (err error)
 	Dispose()
 }

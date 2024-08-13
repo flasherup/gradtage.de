@@ -11,13 +11,18 @@ import (
 )
 
 type AutocompleteSVC struct {
-	logger  	log.Logger
-	alert 		alertsvc.Client
-	db 			database.AutocompleteDB
+	logger log.Logger
+	alert  alertsvc.Client
+	db     database.AutocompleteDB
 }
 
 func NewAutocompleteSVC(logger log.Logger, db database.AutocompleteDB, alert alertsvc.Client) (*AutocompleteSVC, error) {
-	err := db.CreateTable()
+	err := db.CreateAutocompleteTable()
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.CreateZipCodeTable()
 	if err != nil {
 		return nil, err
 	}
@@ -25,18 +30,18 @@ func NewAutocompleteSVC(logger log.Logger, db database.AutocompleteDB, alert ale
 	st := AutocompleteSVC{
 		logger: logger,
 		alert:  alert,
-		db:		db,
+		db:     db,
 	}
-	return &st,nil
+	return &st, nil
 }
 
 func (ss AutocompleteSVC) GetAutocomplete(ctx context.Context, text string) (result map[string][]autocompletesvc.Autocomplete, err error) {
 	level.Info(ss.logger).Log("msg", "GetAutocomplete", "text", text)
-	result, err = ss.db.GetStationId(text)
+	result, err = ss.db.GetAutocomplete(text)
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "GetAutocomplete DB error", "err", err)
 		ss.sendAlert(NewErrorAlert(err))
-		return nil,err
+		return nil, err
 	}
 	return result, nil
 }
@@ -57,13 +62,13 @@ func (ss AutocompleteSVC) AddSources(ctx context.Context, sources []autocomplete
 
 func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocompletesvc.Autocomplete) (err error) {
 	level.Info(ss.logger).Log("msg", "ResetSource", "length", len(sources))
-	err = ss.db.RemoveTable()
+	err = ss.db.RemoveAutocompleteTable()
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "Remove Table DB error", "err", err)
 		return err
 	}
 
-	err = ss.db.CreateTable()
+	err = ss.db.CreateAutocompleteTable()
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "Create Table DB error", "err", err)
 		return err
@@ -82,7 +87,7 @@ func (ss AutocompleteSVC) ResetSources(ctx context.Context, sources []autocomple
 
 func (ss AutocompleteSVC) validateFields(sources *[]autocompletesvc.Autocomplete) *[]autocompletesvc.Autocomplete {
 	namesLength := 70
-	for i,v := range *sources {
+	for i, v := range *sources {
 		if len(v.CountryNameNative) > namesLength {
 			level.Warn(ss.logger).Log("msg", "CountryNameNative too long", "index", i, "value", v.CountryNameNative)
 			v.CountryNameNative = v.CountryNameNative[:namesLength]
@@ -107,7 +112,6 @@ func (ss AutocompleteSVC) validateFields(sources *[]autocompletesvc.Autocomplete
 	return sources
 }
 
-
 func (ss AutocompleteSVC) GetAllStations(ctx context.Context) (map[string]*acrpc.Source, error) {
 	level.Info(ss.logger).Log("msg", "GetAllStations")
 	sts, err := ss.db.GetAllStations()
@@ -118,7 +122,30 @@ func (ss AutocompleteSVC) GetAllStations(ctx context.Context) (map[string]*acrpc
 	return sts, nil
 }
 
-func (ss AutocompleteSVC)sendAlert(alert alertsvc.Alert) {
+func (ss AutocompleteSVC) ResetZipCodes(ctx context.Context, zipCodes []autocompletesvc.ZipCode) (err error) {
+	level.Info(ss.logger).Log("msg", "ResetZipCodes", "length", len(zipCodes))
+	err = ss.db.RemoveZipCodeTable()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "Remove Table DB error", "err", err)
+		return err
+	}
+
+	err = ss.db.CreateZipCodeTable()
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "Create Table DB error", "err", err)
+		return err
+	}
+
+	err = ss.db.AddZipCodes(zipCodes)
+	if err != nil {
+		level.Error(ss.logger).Log("msg", "AddZipCodes DB error", "err", err)
+		return err
+	}
+
+	return nil
+}
+
+func (ss AutocompleteSVC) sendAlert(alert alertsvc.Alert) {
 	err := ss.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(ss.logger).Log("msg", "SendAlert Alert Error", "err", err)

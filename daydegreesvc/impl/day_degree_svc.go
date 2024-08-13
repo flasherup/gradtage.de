@@ -14,28 +14,26 @@ import (
 )
 
 type DayDegreeSVC struct {
-	weatherBit    weatherbitsvc.Client
-	alert 		alertsvc.Client
-	logger  	log.Logger
-	conf		config.DayDegreeConfig
+	weatherBit weatherbitsvc.Client
+	alert      alertsvc.Client
+	logger     log.Logger
+	conf       config.DayDegreeConfig
 }
 
-
-
 func NewDayDegreeSVC(
-	logger 		log.Logger,
-	weatherBit 	weatherbitsvc.Client,
-	alert 		alertsvc.Client,
-	conf 		config.DayDegreeConfig,
+	logger log.Logger,
+	weatherBit weatherbitsvc.Client,
+	alert alertsvc.Client,
+	conf config.DayDegreeConfig,
 ) (*DayDegreeSVC, error) {
-	wb := DayDegreeSVC {
-		weatherBit:weatherBit,
-		alert:alert,
-		logger:logger,
-		conf:conf,
+	wb := DayDegreeSVC{
+		weatherBit: weatherBit,
+		alert:      alert,
+		logger:     logger,
+		conf:       conf,
 	}
 
-	return &wb,nil
+	return &wb, nil
 }
 
 func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Params) ([]daydegreesvc.Degree, error) {
@@ -76,15 +74,15 @@ func (dd *DayDegreeSVC) GetDegree(ctx context.Context, params daydegreesvc.Param
 func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesvc.Params, years int) ([]daydegreesvc.Degree, error) {
 	if years < 1 {
 		years = 1
-	}else if years > 10 {
+	} else if years > 10 {
 		years = 10
 	}
 
 	initial := time.Now()
 	start, end, err := getDates(initial, years, params.Breakdown)
-	level.Info(dd.logger).Log("msg", "Get Average Degree", "Station", params.Station, "Start", start, "End", end, "years", years);
+	level.Info(dd.logger).Log("msg", "Get Average Degree", "Station", params.Station, "Start", start, "End", end, "years", years)
 
-	if err != nil{
+	if err != nil {
 		level.Error(dd.logger).Log("msg", "Get WB Data start average date error", "err", err)
 		return []daydegreesvc.Degree{}, err
 	}
@@ -117,7 +115,7 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 
 	for _, v := range *degrees {
 		d, err := common.ParseTimeByBreakdown(v.Date, params.Breakdown)
-		if err != nil{
+		if err != nil {
 			level.Error(dd.logger).Log("msg", "Time Parse error", "err", err)
 			return []daydegreesvc.Degree{}, err
 		}
@@ -168,22 +166,19 @@ func (dd *DayDegreeSVC) GetAverageDegree(ctx context.Context, params daydegreesv
 	return *resDegree, nil
 }
 
-
-
 func toDegree(temps *[]common.Temperature) *[]daydegreesvc.Degree {
 	if temps == nil {
 		return &[]daydegreesvc.Degree{}
 	}
 	res := make([]daydegreesvc.Degree, len(*temps))
-	for i,v := range *temps {
-		res[i] =  daydegreesvc.Degree{
+	for i, v := range *temps {
+		res[i] = daydegreesvc.Degree{
 			Date: v.Date,
 			Temp: v.Temp,
 		}
 	}
 	return &res
 }
-
 
 func getDates(initial time.Time, years int, breakdown string) (string, string, error) {
 	end := getEndDate(initial, breakdown)
@@ -216,7 +211,7 @@ func getEndDate(initial time.Time, breakdown string) time.Time {
 		return time.Date(initial.Year(), initial.Month(), initial.Day(), 0, 0, 0, 0, initial.Location())
 	}
 
-	if breakdown == common.BreakdownWeekly || breakdown == common.BreakdownWeeklyISO{
+	if breakdown == common.BreakdownWeekly || breakdown == common.BreakdownWeeklyISO {
 		return time.Date(initial.Year(), initial.Month(), int(-initial.Weekday()), 0, 0, 0, 0, initial.Location())
 	}
 
@@ -231,8 +226,8 @@ func getEndDate(initial time.Time, breakdown string) time.Time {
 }
 
 func ToFahrenheit(src []daydegreesvc.Degree) []daydegreesvc.Degree {
-	for i,v := range src {
-		src[i].Temp =  common.ToFixedFloat64((v.Temp * 9 / 5 ) + 32, 2)
+	for i, v := range src {
+		src[i].Temp = common.ToFixedFloat64((v.Temp*9/5)+32, 2)
 	}
 
 	return src

@@ -36,7 +36,6 @@ type Station struct {
 	GHCN               string
 	NWSLI              string
 	Elevation          float64
-	ZIPCode            string
 }
 
 func ParseStationsCSV(filepath string) ([]Station, error) {
@@ -87,7 +86,6 @@ func ParseStationsCSV(filepath string) ([]Station, error) {
 			GHCN:               line[20],
 			NWSLI:              line[21],
 			Elevation:          prepareFloat64(line[22]),
-			ZIPCode:            line[23],
 		})
 	}
 	return stations, nil

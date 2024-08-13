@@ -5,16 +5,16 @@ type GetAutocompleteRequest struct {
 }
 
 type GetAutocompleteResponse struct {
-	Result 	map[string][]Autocomplete `json:"result"`
-	Err     error                       `json:"err"`
+	Result map[string][]Autocomplete `json:"result"`
+	Err    error                     `json:"err"`
 }
 
-type  AddSourcesRequest struct {
+type AddSourcesRequest struct {
 	Sources []Autocomplete `json:"sources"`
 }
 
 type AddSourcesResponse struct {
-	Err     error  `json:"err"`
+	Err error `json:"err"`
 }
 
 type ResetSourcesRequest struct {
@@ -22,5 +22,13 @@ type ResetSourcesRequest struct {
 }
 
 type ResetSourcesResponse struct {
-	Err     error  `json:"err"`
+	Err error `json:"err"`
+}
+
+type ResetZipCodesRequest struct {
+	ZipCodes []ZipCode `json:"zip_codes"`
+}
+
+type ResetZipCodesResponse struct {
+	Err error `json:"err"`
 }

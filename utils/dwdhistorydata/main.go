@@ -48,15 +48,15 @@ func main() {
 		return
 	}
 
-	sts, err := stations.GetStationsBySrcType([]string{ common.SrcTypeDWD })
+	sts, err := stations.GetStationsBySrcType([]string{common.SrcTypeDWD})
 	if err != nil {
 		level.Error(logger).Log("msg", "Get DWD Stations error", "err", err)
 		return
 	}
 
 	ids := make(map[string]string)
-	for k,v := range sts.Sts {
-		fileName,exist := fileNames[v.SourceId]
+	for k, v := range sts.Sts {
+		fileName, exist := fileNames[v.SourceId]
 		if !exist {
 			level.Warn(logger).Log("msg", "Station not found on DWD history data", "id", v.SourceId)
 		}
@@ -79,7 +79,7 @@ func main() {
 		if err != nil {
 			level.Error(logger).Log("msg", "PushPeriod Error", "err", err)
 		} else {
-			//updateAverage(pd.StationID, daily, logger)
+			//updateAverage(pd.Station, daily, logger)
 		}
 	}
 }
@@ -90,7 +90,7 @@ func getFileNames(url string, logger log.Logger) (map[string]string, error) {
 	wg := sync.WaitGroup{}
 	c := colly.NewCollector()
 	c.OnHTML("a", func(e *colly.HTMLElement) {
-		if strings.Index(e.Text,".zip") > -1 {
+		if strings.Index(e.Text, ".zip") > -1 {
 			bs := strings.Split(e.Text, "_")
 			if len(bs) > 2 {
 				res[bs[2]] = e.Text
@@ -114,7 +114,7 @@ func getFileNames(url string, logger log.Logger) (map[string]string, error) {
 }
 
 func updateAverage(id string, daily dailysvc.Client, logger log.Logger) {
-	for i := 0; i< 356; {
+	for i := 0; i < 356; {
 		_, err := daily.UpdateAvgForDOY(id, i)
 		if err != nil {
 			level.Error(logger).Log("msg", "Average Update Error", "err", err)

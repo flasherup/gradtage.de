@@ -29,7 +29,11 @@ type Autocomplete struct {
 	GHCN               string  `json:"ghcn"`
 	NWSLI              string  `json:"nwsli"`
 	Elevation          float64 `json:"elevation"`
-	ZipCode            string  `json:"zip_code"`
+}
+
+type ZipCode struct {
+	ZipCode string `json:"zip_code"`
+	Station string `json:"station"`
 }
 
 type Service interface {
@@ -37,4 +41,5 @@ type Service interface {
 	AddSources(ctx context.Context, sources []Autocomplete) (err error)
 	ResetSources(ctx context.Context, sources []Autocomplete) (err error)
 	GetAllStations(ctx context.Context) (map[string]*acrpc.Source, error)
+	ResetZipCodes(ctx context.Context, zipCodes []ZipCode) (err error)
 }

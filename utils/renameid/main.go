@@ -50,7 +50,7 @@ func renameHourly(logger log.Logger, url string, ids []config.Rename) {
 	hourlyService := hourly.NewHourlySCVClient(url, logger)
 	currentTime := time.Now().Format(veryFirstTime)
 	count := 0
-	for _,v := range ids {
+	for _, v := range ids {
 		level.Info(logger).Log("msg", "Rename Hourly ID", "current", v.CurrentID, "new", v.NewID)
 		temps, err := hourlyService.GetPeriod(v.CurrentID, veryFirstTime, currentTime)
 		if err != nil {
@@ -77,7 +77,7 @@ func renameDaily(logger log.Logger, url string, ids []config.Rename) {
 	dailyService := daily.NewDailySCVClient(url, logger)
 	currentTime := time.Now().Format(veryFirstTime)
 	count := 0
-	for _,v := range ids {
+	for _, v := range ids {
 		level.Info(logger).Log("msg", "Rename Daily ID", "current", v.CurrentID, "new", v.NewID)
 		temps, err := dailyService.GetPeriod(v.CurrentID, veryFirstTime, currentTime)
 		if err != nil {
@@ -111,39 +111,39 @@ func renameStations(logger log.Logger, url string, ids []config.Rename) {
 
 	stationsToRename := make(map[string]string)
 
-	for _,v := range ids {
+	for _, v := range ids {
 		stationsToRename[v.CurrentID] = v.NewID
 	}
 
 	stsl := make([]stationssvc.Station, len(sts.Sts))
 	i := 0
 	count := 0
-	for k,v := range sts.Sts {
-		if id, ok:= stationsToRename[k]; ok {
+	for k, v := range sts.Sts {
+		if id, ok := stationsToRename[k]; ok {
 			count++
 			level.Info(logger).Log("msg", "Rename Station ID", "current", k, "new", id)
 			stsl[i] = stationssvc.Station{
-				ID:id,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:v.SourceType,
-				SourceID:id,
+				ID:         id,
+				Name:       v.Name,
+				Timezone:   v.Timezone,
+				SourceType: v.SourceType,
+				SourceID:   id,
 			}
 
 		} else {
 			stsl[i] = stationssvc.Station{
-				ID:k,
-				Name:v.Name,
-				Timezone:v.Timezone,
-				SourceType:v.SourceType,
-				SourceID:v.SourceId,
+				ID:         k,
+				Name:       v.Name,
+				Timezone:   v.Timezone,
+				SourceType: v.SourceType,
+				SourceID:   v.SourceId,
 			}
 		}
 		i++
 	}
 
 	stationsLocal := stations.NewStationsSCVClient("localhost:8102", logger)
-	_,err = stationsLocal.ResetStations(stsl)
+	_, err = stationsLocal.ResetStations(stsl)
 	if err != nil {
 		level.Error(logger).Log("msg", "AddStations error", "err", err)
 	} else {

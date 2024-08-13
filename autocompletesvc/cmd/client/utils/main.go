@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/flasherup/gradtage.de/autocompletesvc"
 	"github.com/flasherup/gradtage.de/autocompletesvc/acrpc"
+	"github.com/flasherup/gradtage.de/autocompletesvc/cmd/client/utils/internal"
 	"os"
 	"strings"
 
@@ -18,6 +19,7 @@ import (
 const (
 	operationFromRemoteToLocal = "frtl"         // from remote to local
 	operationFromLocalToRemote = "fltr"         // from local to remote
+	operationZipFromFile       = "zff"          // zip form file
 	operationAutocomplete      = "autocomplete" // autocomplete operation
 	operationDefault           = "default"      // default operation
 )
@@ -52,6 +54,8 @@ func main() {
 		fromRemoteToLocal(logger)
 	case operationFromLocalToRemote:
 		fromLocalToRemote(logger)
+	case operationZipFromFile:
+		zipFromFile(logger)
 	case operationAutocomplete:
 		autocomplete(logger)
 	}
@@ -143,4 +147,32 @@ func stationsToAutocomplete(stations map[string]*acrpc.Source) []autocompletesvc
 		})
 	}
 	return res
+}
+
+func zipFromFile(logger log.Logger) {
+	local := impl.NewAutocompleteSCVClient("localhost:8109", logger)
+
+	deZips, err := internal.LoadZipcodes("data/zip_to_weather_station_mapping_de.csv")
+	if err != nil {
+		level.Error(logger).Log("msg", "Failed to load zip codes", "err", err)
+		return
+	}
+
+	internal.FormatZipCode(deZips)
+
+	useZips, err := internal.LoadZipcodes("data/zip_to_weather_station_mapping_us.csv")
+	if err != nil {
+		level.Error(logger).Log("msg", "Failed to load zip codes", "err", err)
+		return
+	}
+
+	internal.FormatZipCode(useZips)
+
+	all := append(deZips, useZips...)
+
+	err = local.ResetZipCodes(all)
+	if err != nil {
+		level.Error(logger).Log("msg", "Failed to reset zip codes", "err", err)
+		return
+	}
 }

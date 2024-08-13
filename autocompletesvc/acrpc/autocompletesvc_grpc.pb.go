@@ -23,6 +23,7 @@ const (
 	AutocompleteSVC_AddSources_FullMethodName      = "/acrpc.AutocompleteSVC/AddSources"
 	AutocompleteSVC_ResetSources_FullMethodName    = "/acrpc.AutocompleteSVC/ResetSources"
 	AutocompleteSVC_GetAllStations_FullMethodName  = "/acrpc.AutocompleteSVC/GetAllStations"
+	AutocompleteSVC_ResetZipCodes_FullMethodName   = "/acrpc.AutocompleteSVC/ResetZipCodes"
 )
 
 // AutocompleteSVCClient is the client API for AutocompleteSVC service.
@@ -33,6 +34,7 @@ type AutocompleteSVCClient interface {
 	AddSources(ctx context.Context, in *AddSourcesRequest, opts ...grpc.CallOption) (*AddSourcesResponse, error)
 	ResetSources(ctx context.Context, in *ResetSourcesRequest, opts ...grpc.CallOption) (*ResetSourcesResponse, error)
 	GetAllStations(ctx context.Context, in *GetAllStationsRequest, opts ...grpc.CallOption) (*GetAllStationsResponse, error)
+	ResetZipCodes(ctx context.Context, in *ResetZipCodesRequest, opts ...grpc.CallOption) (*ResetZipCodesResponse, error)
 }
 
 type autocompleteSVCClient struct {
@@ -83,6 +85,16 @@ func (c *autocompleteSVCClient) GetAllStations(ctx context.Context, in *GetAllSt
 	return out, nil
 }
 
+func (c *autocompleteSVCClient) ResetZipCodes(ctx context.Context, in *ResetZipCodesRequest, opts ...grpc.CallOption) (*ResetZipCodesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResetZipCodesResponse)
+	err := c.cc.Invoke(ctx, AutocompleteSVC_ResetZipCodes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AutocompleteSVCServer is the server API for AutocompleteSVC service.
 // All implementations should embed UnimplementedAutocompleteSVCServer
 // for forward compatibility.
@@ -91,6 +103,7 @@ type AutocompleteSVCServer interface {
 	AddSources(context.Context, *AddSourcesRequest) (*AddSourcesResponse, error)
 	ResetSources(context.Context, *ResetSourcesRequest) (*ResetSourcesResponse, error)
 	GetAllStations(context.Context, *GetAllStationsRequest) (*GetAllStationsResponse, error)
+	ResetZipCodes(context.Context, *ResetZipCodesRequest) (*ResetZipCodesResponse, error)
 }
 
 // UnimplementedAutocompleteSVCServer should be embedded to have
@@ -111,6 +124,9 @@ func (UnimplementedAutocompleteSVCServer) ResetSources(context.Context, *ResetSo
 }
 func (UnimplementedAutocompleteSVCServer) GetAllStations(context.Context, *GetAllStationsRequest) (*GetAllStationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllStations not implemented")
+}
+func (UnimplementedAutocompleteSVCServer) ResetZipCodes(context.Context, *ResetZipCodesRequest) (*ResetZipCodesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetZipCodes not implemented")
 }
 func (UnimplementedAutocompleteSVCServer) testEmbeddedByValue() {}
 
@@ -204,6 +220,24 @@ func _AutocompleteSVC_GetAllStations_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AutocompleteSVC_ResetZipCodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetZipCodesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AutocompleteSVCServer).ResetZipCodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AutocompleteSVC_ResetZipCodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AutocompleteSVCServer).ResetZipCodes(ctx, req.(*ResetZipCodesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AutocompleteSVC_ServiceDesc is the grpc.ServiceDesc for AutocompleteSVC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -226,6 +260,10 @@ var AutocompleteSVC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllStations",
 			Handler:    _AutocompleteSVC_GetAllStations_Handler,
+		},
+		{
+			MethodName: "ResetZipCodes",
+			Handler:    _AutocompleteSVC_ResetZipCodes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

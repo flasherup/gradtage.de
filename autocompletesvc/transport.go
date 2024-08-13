@@ -11,10 +11,11 @@ import (
 )
 
 type GRPCServer struct {
-	getAutocomplete    	gt.Handler
-	addSources    		gt.Handler
-	resetSources    	gt.Handler
-	getAllStations    	gt.Handler
+	getAutocomplete gt.Handler
+	addSources      gt.Handler
+	resetSources    gt.Handler
+	getAllStations  gt.Handler
+	resetZipCodes   gt.Handler
 }
 
 func (s *GRPCServer) GetAutocomplete(ctx context.Context, req *acrpc.GetAutocompleteRequest) (*acrpc.GetAutocompleteResponse, error) {
@@ -50,6 +51,14 @@ func (s *GRPCServer) GetAllStations(ctx context.Context, req *acrpc.GetAllStatio
 	return &r, nil
 }
 
+func (s *GRPCServer) ResetZipCodes(ctx context.Context, req *acrpc.ResetZipCodesRequest) (*acrpc.ResetZipCodesResponse, error) {
+	_, resp, err := s.resetZipCodes.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*acrpc.ResetZipCodesResponse), nil
+}
+
 func NewGRPCServer(_ context.Context, endpoint Endpoints) acrpc.AutocompleteSVCServer {
 	return &GRPCServer{
 		getAutocomplete: gt.NewServer(
@@ -72,10 +81,15 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) acrpc.AutocompleteSVCS
 			StandardDecodeRequest,
 			StandardEncodeResponse,
 		),
+		resetZipCodes: gt.NewServer(
+			endpoint.ResetZipCodesEndpoint,
+			DecodeResetZipCodesRequest,
+			EncodeResetZipCodesResponse,
+		),
 	}
 }
 
-func NewMetricsTransport(s Service, logger log.Logger,) http.Handler {
+func NewMetricsTransport(s Service, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 	return r

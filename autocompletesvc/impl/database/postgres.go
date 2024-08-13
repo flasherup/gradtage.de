@@ -16,7 +16,10 @@ type Postgres struct {
 	db *sql.DB
 }
 
-const tableName = "autocomplete"
+const (
+	tableAutocomplete = "autocomplete"
+	tableZipCode      = "zip_code"
+)
 
 // NewPostgres create and initialize database and return it or error
 func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
@@ -38,95 +41,29 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 	return
 }
 
-// AddSources
+// GetAutocomplete get stations by text
 func (pg *Postgres) GetAutocomplete(text string) (map[string][]autocompletesvc.Autocomplete, error) {
 	result := make(map[string][]autocompletesvc.Autocomplete)
 	query := "SELECT " + rowsCommaSeparated() + ", " +
 		"(CASE " +
-		"WHEN id = '" + text + "' THEN 'id' " +
-		"WHEN icao = '" + text + "' THEN 'icao' " +
-		"WHEN city_name_english = '" + text + "' THEN 'station' " +
-		"WHEN wmo = '" + text + "' THEN 'wmo' " +
-		"WHEN cwop = '" + text + "' THEN 'cwop' " +
-		"WHEN zip_code = '" + text + "' THEN 'zip_code' " +
+		"WHEN id ILIKE '" + text + "' THEN 'id' " +
+		"WHEN icao ILIKE '" + text + "' THEN 'icao' " +
+		"WHEN city_name_english ILIKE '" + text + "' THEN 'station' " +
+		"WHEN wmo ILIKE '" + text + "' THEN 'wmo' " +
+		"WHEN cwop ILIKE '" + text + "' THEN 'cwop' " +
+		"WHEN zc.zip_code = '" + text + "' THEN 'zip' " +
 		"END) AS colum " +
-		"FROM " + tableName + " " +
+		"FROM " + tableAutocomplete + " " +
+		"LEFT OUTER JOIN zip_code AS zc ON autocomplete.id = zc.station_id AND zc.zip_code = '" + text + "' " +
 		"WHERE id ILIKE '" + text + "' OR " +
 		"icao ILIKE '" + text + "' OR " +
 		"city_name_english ILIKE '" + text + "' OR " +
 		"wmo ILIKE '" + text + "' OR " +
 		"cwop ILIKE '" + text + "' OR " +
-		"zip_code = '" + text + "' " +
+		"zc.zip_code = '" + text + "' " +
 		"LIMIT 10;"
-	rows, err := pg.db.Query(query)
-	if err != nil {
-		return result, err
-	}
-	defer rows.Close()
 
-	row := struct {
-		autocompletesvc.Autocomplete
-		Column string
-	}{}
-
-	for rows.Next() {
-		err = rows.Scan(
-			&row.ID,
-			&row.SourceID,
-			&row.Latitude,
-			&row.Longitude,
-			&row.Source,
-			&row.Reports,
-			&row.ISO2Country,
-			&row.ISO3Country,
-			&row.Prio,
-			&row.CityNameEnglish,
-			&row.CityNameNative,
-			&row.CountryNameEnglish,
-			&row.CountryNameNative,
-			&row.ICAO,
-			&row.WMO,
-			&row.CWOP,
-			&row.Maslib,
-			&row.National_ID,
-			&row.IATA,
-			&row.USAF_WBAN,
-			&row.GHCN,
-			&row.NWSLI,
-			&row.Elevation,
-			&row.ZipCode,
-			&row.Column,
-		)
-		if err == nil {
-			_, ok := result[row.Column]
-			if !ok {
-				result[row.Column] = make([]autocompletesvc.Autocomplete, 0)
-			}
-			result[row.Column] = append(result[row.Column], row.Autocomplete)
-		}
-	}
-	return result, err
-}
-
-func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Autocomplete, error) {
-	result := make(map[string][]autocompletesvc.Autocomplete)
-	query := "SELECT " + rowsCommaSeparated() + ", " +
-		"(CASE " +
-		"WHEN id = '" + text + "' THEN 'id' " +
-		"WHEN icao = '" + text + "' THEN 'icao' " +
-		"WHEN city_name_english = '" + text + "' THEN 'station' " +
-		"WHEN wmo = '" + text + "' THEN 'wmo' " +
-		"WHEN cwop = '" + text + "' THEN 'cwop' " +
-		"WHEN zip_code = '" + text + "' THEN 'zip_code' " +
-		"END) AS colum " +
-		"FROM " + tableName + " " +
-		"WHERE id ILIKE '" + text + "' OR " +
-		"icao ILIKE '" + text + "' OR " +
-		"city_name_english ILIKE '" + text + "' OR " +
-		"wmo ILIKE '" + text + "' OR " +
-		"cwop ILIKE '" + text + "' OR " +
-		"zip_code = '" + text + "' " +
-		"LIMIT 10;"
+	fmt.Println(query)
 
 	rows, err := pg.db.Query(query)
 	if err != nil {
@@ -164,7 +101,6 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 			&row.GHCN,
 			&row.NWSLI,
 			&row.Elevation,
-			&row.ZipCode,
 			&row.Column,
 		)
 		if err == nil {
@@ -179,9 +115,9 @@ func (pg *Postgres) GetStationId(text string) (map[string][]autocompletesvc.Auto
 }
 
 // GetAllStations get a list of station
-func (pg Postgres) GetAllStations() (map[string]*acrpc.Source, error) {
+func (pg *Postgres) GetAllStations() (map[string]*acrpc.Source, error) {
 	sts := make(map[string]*acrpc.Source)
-	query := fmt.Sprintf("SELECT "+rowsCommaSeparated()+" FROM %s;", tableName)
+	query := fmt.Sprintf("SELECT "+rowsCommaSeparated()+" FROM %s;", tableAutocomplete)
 
 	rows, err := pg.db.Query(query)
 	defer rows.Close()
@@ -224,7 +160,6 @@ func parseSourceRow(rows *sql.Rows) (source acrpc.Source, err error) {
 		&source.GHCN,
 		&source.NWSLI,
 		&source.Elevation,
-		&source.ZipCode,
 	)
 	return
 }
@@ -263,9 +198,8 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 				"usaf_wban,"+
 				"ghcn,"+
 				"nwsli,"+
-				"elevation,"+
-				"zip_code"+
-				") VALUES", tableName)
+				"elevation"+
+				") VALUES", tableAutocomplete)
 		}
 		v := sources[i]
 		query += "("
@@ -291,8 +225,7 @@ func (pg *Postgres) AddSources(sources []autocompletesvc.Autocomplete) (err erro
 		query += fmt.Sprintf("'%s',", v.USAF_WBAN)
 		query += fmt.Sprintf("'%s',", v.GHCN)
 		query += fmt.Sprintf("'%s',", v.NWSLI)
-		query += fmt.Sprintf("'%g',", v.Elevation)
-		query += fmt.Sprintf("'%s'", v.ZipCode)
+		query += fmt.Sprintf("'%g'", v.Elevation)
 		query += ")"
 
 		if (i+1)%iterationStep != 0 && i < length-1 {
@@ -332,8 +265,7 @@ func rowsCommaSeparated() string {
 		"usaf_wban," +
 		"ghcn," +
 		"nwsli," +
-		"elevation," +
-		"zip_code"
+		"elevation"
 
 	return res
 }
@@ -344,8 +276,8 @@ func (pg *Postgres) Dispose() {
 	pg.db = nil
 }
 
-// CreateTable create a "Stations" table if not exist
-func (pg Postgres) CreateTable() error {
+// CreateAutocompleteTable create an "Autocomplete" table if not exist
+func (pg *Postgres) CreateAutocompleteTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 			id varchar(15) UNIQUE,  
 			source_id varchar(15),  
@@ -369,16 +301,62 @@ func (pg Postgres) CreateTable() error {
 			usaf_wban varchar(15),  
 			ghcn varchar(15),  
 			nwsli varchar(8),  
-			elevation real,
-    		zip_code varchar(10)
-		);`, tableName)
+			elevation real
+		);`, tableAutocomplete)
 	return writeToDB(pg.db, query)
 }
 
-// RemoveTable remove stations table from BD
-func (pg *Postgres) RemoveTable() error {
-	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", tableName)
+// RemoveAutocompleteTable remove stations table from BD
+func (pg *Postgres) RemoveAutocompleteTable() error {
+	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", tableAutocomplete)
 	return writeToDB(pg.db, query)
+}
+
+// CreateZipCodeTable create an "ZipCode" table if not exist
+func (pg *Postgres) CreateZipCodeTable() error {
+	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+			zip_code varchar(10) UNIQUE,
+			station_id varchar(15)
+		);`, tableZipCode)
+	return writeToDB(pg.db, query)
+}
+
+// RemoveZipCodeTable remove stations table from BD
+func (pg *Postgres) RemoveZipCodeTable() error {
+	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;", tableZipCode)
+	return writeToDB(pg.db, query)
+}
+
+// AddZipCodes add zip codes to the table
+func (pg *Postgres) AddZipCodes(zipCodes []autocompletesvc.ZipCode) (err error) {
+	length := len(zipCodes)
+	if length == 0 {
+		return errors.New("add zip codes error, zip codes list is empty")
+	}
+
+	var query string
+	iterationStep := 100
+	for i := 0; i < length; i++ {
+		if i%iterationStep == 0 {
+			query = fmt.Sprintf("INSERT INTO %s (zip_code, station_id) VALUES", tableZipCode)
+		}
+		v := zipCodes[i]
+		query += "("
+		query += fmt.Sprintf("'%s',", v.ZipCode)
+		query += fmt.Sprintf("'%s'", v.Station)
+		query += ")"
+
+		if (i+1)%iterationStep != 0 && i < length-1 {
+			query += ","
+		} else {
+			query += " ON CONFLICT (zip_code) DO NOTHING;"
+			err := writeToDB(pg.db, query)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func writeToDB(db *sql.DB, query string) (err error) {

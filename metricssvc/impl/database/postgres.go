@@ -11,13 +11,14 @@ import (
 )
 
 const metricsTable = "station_metrics"
-//HourlyDB main structure
+
+// HourlyDB main structure
 type Postgres struct {
-	db  *sql.DB
+	db *sql.DB
 }
 
-//NewPostgres create and initialize database and return it or error
-func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
+// NewPostgres create and initialize database and return it or error
+func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error) {
 	dataSourceName := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		config.Host,
@@ -31,27 +32,27 @@ func NewPostgres(config config.DatabaseConfig) (pg *Postgres, err error){
 	}
 
 	pg = &Postgres{
-		db:db,
+		db: db,
 	}
 	return
 }
 
-func (pg *Postgres)GetMetrics(ids []string) (map[string]*mtrgrpc.Metrics, error) {
+func (pg *Postgres) GetMetrics(ids []string) (map[string]*mtrgrpc.Metrics, error) {
 	length := len(ids)
 	if length == 0 {
 		return map[string]*mtrgrpc.Metrics{}, nil
 	}
 
 	idString := ""
-	for _,v := range ids {
-		idString += fmt.Sprintf("'%s',",v)
+	for _, v := range ids {
+		idString += fmt.Sprintf("'%s',", v)
 	}
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s);", metricsTable, idString[:len(idString)-1])
 
 	rows, err := pg.db.Query(query)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	defer rows.Close()
 	res := make(map[string]*mtrgrpc.Metrics)
@@ -63,10 +64,10 @@ func (pg *Postgres)GetMetrics(ids []string) (map[string]*mtrgrpc.Metrics, error)
 		}
 		res[metrics.Id] = &metrics.Metrics
 	}
-	return res,nil
+	return res, nil
 }
 
-func (pg *Postgres)PushMetrics(metrics map[string]*mtrgrpc.Metrics) error {
+func (pg *Postgres) PushMetrics(metrics map[string]*mtrgrpc.Metrics) error {
 	length := len(metrics)
 	if length == 0 {
 		return errors.New("metrics push error, data is empty")
@@ -74,15 +75,15 @@ func (pg *Postgres)PushMetrics(metrics map[string]*mtrgrpc.Metrics) error {
 
 	ids := make([]string, length)
 	i := 0
-	for k,_ := range metrics {
+	for k, _ := range metrics {
 		ids[i] = k
 		i++
 	}
 
 	iterationStep := 100
 	steps := int(math.Floor(float64(length/iterationStep))) + 1
-	left := length%iterationStep
-	for i:=0; i<steps; i++ {
+	left := length % iterationStep
+	for i := 0; i < steps; i++ {
 		query := fmt.Sprintf(`INSERT INTO %s (
 			id,
 			date,
@@ -97,15 +98,15 @@ func (pg *Postgres)PushMetrics(metrics map[string]*mtrgrpc.Metrics) error {
 			e = s + left
 		}
 		cId := ids[s:e]
-		for j,id := range  cId {
+		for j, id := range cId {
 			v := metrics[id]
 			query += "("
-			query += fmt.Sprintf( "'%s',", id)
-			query += fmt.Sprintf( "'%s',", v.Date)
-			query += fmt.Sprintf( "'%s',", v.LastUpdate)
-			query += fmt.Sprintf( "'%s',", v.FirstUpdate)
-			query += fmt.Sprintf( "%d,", v.RecordsAll)
-			query += fmt.Sprintf( "%d", v.RecordsClean)
+			query += fmt.Sprintf("'%s',", id)
+			query += fmt.Sprintf("'%s',", v.Date)
+			query += fmt.Sprintf("'%s',", v.LastUpdate)
+			query += fmt.Sprintf("'%s',", v.FirstUpdate)
+			query += fmt.Sprintf("%d,", v.RecordsAll)
+			query += fmt.Sprintf("%d", v.RecordsClean)
 			query += ")"
 
 			if s+j < length-1 {
@@ -127,14 +128,14 @@ func (pg *Postgres)PushMetrics(metrics map[string]*mtrgrpc.Metrics) error {
 					excluded.records_clean
 				);`
 		err := writeToDB(pg.db, query)
-		if err != nil{
+		if err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-//CreateTable create a table with name @icao + tPrefix if not exist
+// CreateAutocompleteTable create a table with name @icao + tPrefix if not exist
 func (pg *Postgres) CreateTable() error {
 	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
 		id varchar(15) UNIQUE,
@@ -148,21 +149,20 @@ func (pg *Postgres) CreateTable() error {
 	return writeToDB(pg.db, query)
 }
 
-//RemoveTable remove stations table from BD
+// RemoveAutocompleteTable remove stations table from BD
 func (pg *Postgres) RemoveTable() error {
 	query := fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE;",
 		metricsTable)
 	return writeToDB(pg.db, query)
 }
 
-
-//Dispose and disconnect
+// Dispose and disconnect
 func (pg *Postgres) Dispose() {
 	pg.db.Close()
 	pg.db = nil
 }
 
-func writeToDB(db *sql.DB, query string) (err error){
+func writeToDB(db *sql.DB, query string) (err error) {
 	row, err := db.Query(query)
 	if err != nil {
 		return
@@ -187,28 +187,3 @@ func parseRow(rows *sql.Rows) (row parsedRow, err error) {
 	)
 	return
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

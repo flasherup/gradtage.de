@@ -7,20 +7,21 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-
 type Endpoints struct {
-	GetAutocompleteEndpoint  		endpoint.Endpoint
-	AddSourcesEndpoint  			endpoint.Endpoint
-	ResetSourcesEndpoint  			endpoint.Endpoint
-	GetAllStationsEndpoint  		endpoint.Endpoint
+	GetAutocompleteEndpoint endpoint.Endpoint
+	AddSourcesEndpoint      endpoint.Endpoint
+	ResetSourcesEndpoint    endpoint.Endpoint
+	GetAllStationsEndpoint  endpoint.Endpoint
+	ResetZipCodesEndpoint   endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		GetAutocompleteEndpoint:   		MakeGetAutocompleteEndpoint(s),
-		AddSourcesEndpoint:   			MakeAddSourcesEndpoint(s),
-		ResetSourcesEndpoint:   		MakeResetSourcesEndpoint(s),
-		GetAllStationsEndpoint:   		MakeGetAllStationsEndpoint(s),
+		GetAutocompleteEndpoint: MakeGetAutocompleteEndpoint(s),
+		AddSourcesEndpoint:      MakeAddSourcesEndpoint(s),
+		ResetSourcesEndpoint:    MakeResetSourcesEndpoint(s),
+		GetAllStationsEndpoint:  MakeGetAllStationsEndpoint(s),
+		ResetZipCodesEndpoint:   MakeResetZipCodesEndpoint(s),
 	}
 }
 
@@ -51,6 +52,14 @@ func MakeResetSourcesEndpoint(s Service) endpoint.Endpoint {
 func MakeGetAllStationsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		stations, err := s.GetAllStations(ctx)
-		return acrpc.GetAllStationsResponse{Stations:stations, Err:common.ErrorToString(err)}, err
+		return acrpc.GetAllStationsResponse{Stations: stations, Err: common.ErrorToString(err)}, err
+	}
+}
+
+func MakeResetZipCodesEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ResetZipCodesRequest)
+		err := s.ResetZipCodes(ctx, req.ZipCodes)
+		return ResetZipCodesResponse{err}, err
 	}
 }
