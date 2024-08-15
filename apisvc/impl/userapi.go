@@ -6,30 +6,30 @@ import (
 )
 
 const (
-	CrateAction 	= "create"
+	CrateAction     = "create"
 	AutoCrateAction = "auto_create"
-	SetPLanAction 	= "set_plan"
-	RenewAction 	= "renew"
+	SetPLanAction   = "set_plan"
+	RenewAction     = "renew"
 )
 
-var productMapToPlan  = map[string]string{
+var productMapToPlan = map[string]string{
 	"1010": usersvc.PlanLite,
-	"25": usersvc.PlanLite,
+	"25":   usersvc.PlanLite,
 	"1286": usersvc.PlanLite,
 	"1299": usersvc.PlanProfessional,
-	"32": usersvc.PlanProfessional,
+	"32":   usersvc.PlanProfessional,
 	"1305": usersvc.PlanEnterprise,
-	"394": usersvc.PlanEnterprise,
+	"394":  usersvc.PlanEnterprise,
 	"1554": usersvc.PlanTrial,
 	"1567": usersvc.PlanTrial,
-//Translated
+	//Translated
 	"2796": usersvc.PlanTrial,
 	"2998": usersvc.PlanEnterprise,
 	"2303": usersvc.PlanProfessional,
 	"2287": usersvc.PlanLite,
 }
 
-func CreateWoocommerceOrder(client usersvc.Client, orderId int, email, key, planId string) error {
+func CreateWoocommerceOrder(client usersvc.Client, orderId, email, key, planId string) error {
 	plan, ok := productMapToPlan[planId]
 	if !ok {
 		plan = usersvc.PlanTrial

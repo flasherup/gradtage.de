@@ -80,7 +80,7 @@ func main() {
 		stationsService,
 		metricsService,
 		woocommerce)
-	hs := apisvc.NewHTTPTSransport(svc,logger, conf.Static.Folder)
+	hs := apisvc.NewHandler(svc, logger, conf.Static.Folder)
 
 	errs := make(chan error)
 	go func() {
@@ -123,15 +123,15 @@ func main() {
 		}
 
 		server := &http.Server{
-			Addr:    conf.GetHTTPSAddress(),
-			Handler: hs,
-			TLSConfig: cfg,
+			Addr:         conf.GetHTTPSAddress(),
+			Handler:      hs,
+			TLSConfig:    cfg,
 			TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 		}
 		errs <- server.ListenAndServeTLS("", "")
 	}()
 
-	h := apisvc.NewHTTPTransport(svc,logger)
+	h := apisvc.NewHTTPTransport(svc, logger)
 	go func() {
 		level.Info(logger).Log("transport", "HTTP", "addr", conf.GetHTTPAddress())
 		server := &http.Server{

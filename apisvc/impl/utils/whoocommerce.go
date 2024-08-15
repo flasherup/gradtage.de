@@ -13,7 +13,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
 type Woocommerce struct {
@@ -61,7 +60,7 @@ func genHMAC256(ciphertext, key []byte) []byte {
 	return hmac
 }
 
-func (wc Woocommerce) GenerateAPIKey(orderId int, email, productId string) (apiKey string, err error) {
+func (wc Woocommerce) GenerateAPIKey(orderId string, email, productId string) (apiKey string, err error) {
 	factory := client.Factory{}
 	c := factory.NewClient(options.Basic{
 		URL:    "https://energy-data.io",
@@ -80,24 +79,23 @@ func (wc Woocommerce) GenerateAPIKey(orderId int, email, productId string) (apiK
 	parameters.Add("secret_key", "123456789")
 	parameters.Add("email", email)
 	parameters.Add("product_id", productId)
-	parameters.Add("order_id", strconv.Itoa(orderId))
-
+	parameters.Add("order_id", orderId)
 
 	r, err := c.Get("woocommerce", parameters)
 	if err != nil {
 		return "", fmt.Errorf("generate api key error: %s", err.Error())
 	} else if r.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("generate api key error: unexpected statusCode: %v", r.StatusCode )
+		return "", fmt.Errorf("generate api key error: unexpected statusCode: %v", r.StatusCode)
 	} else {
 		defer r.Body.Close()
 		if bodyBytes, err := ioutil.ReadAll(r.Body); err != nil {
-			return  "", err
+			return "", err
 		} else {
 			jsonResponse := struct {
-				Key string `json:"key"`
-				KeyId int `json:"key_id""`
+				Key   string `json:"key"`
+				KeyId int    `json:"key_id""`
 			}{}
-			e := json.Unmarshal(bodyBytes, &jsonResponse);
+			e := json.Unmarshal(bodyBytes, &jsonResponse)
 			if e != nil {
 				return "", fmt.Errorf("generate api key error: %s", e.Error())
 			}
@@ -109,9 +107,9 @@ func (wc Woocommerce) GenerateAPIKey(orderId int, email, productId string) (apiK
 }
 
 func IsSubscriptionRenewal(metadata []common.WCMetaData) bool {
-	for _,v := range metadata {
+	for _, v := range metadata {
 		if *v.Key == "_subscription_renewal" {
-			return true;
+			return true
 		}
 	}
 	return false

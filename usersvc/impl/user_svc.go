@@ -16,13 +16,12 @@ import (
 	"time"
 )
 
-
 type UserSVC struct {
-	logger  	log.Logger
-	alert 		alertsvc.Client
-	db 			database.UserDB
-	counter 	*ktprom.Gauge
-	config 		config.UsersConfig
+	logger  log.Logger
+	alert   alertsvc.Client
+	db      database.UserDB
+	counter *ktprom.Gauge
+	config  config.UsersConfig
 }
 
 func NewUserSVC(logger log.Logger, db database.UserDB, alert alertsvc.Client, usersConfig config.UsersConfig) (*UserSVC, error) {
@@ -30,19 +29,18 @@ func NewUserSVC(logger log.Logger, db database.UserDB, alert alertsvc.Client, us
 		Name: "stations_count_total",
 		Help: "The total number oh stations",
 	}
-	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{ "stations" })
+	guage := ktprom.NewGaugeFrom(prometheus.GaugeOpts(options), []string{"stations"})
 	st := UserSVC{
 		logger:  logger,
 		alert:   alert,
-		db:		 db,
+		db:      db,
 		counter: guage,
-		config: usersConfig,
+		config:  usersConfig,
 	}
-	return &st,nil
+	return &st, nil
 }
 
-
-func (us UserSVC) CreateOrder(ctx context.Context, orderId int, email, plan, key string) (string, error) {
+func (us UserSVC) CreateOrder(ctx context.Context, orderId, email, plan, key string) (string, error) {
 	level.Info(us.logger).Log("msg", "Create Order", "id", orderId, "email", email, "plan", plan, "key", key)
 	var err error
 	if key == "" {
@@ -58,15 +56,15 @@ func (us UserSVC) CreateOrder(ctx context.Context, orderId int, email, plan, key
 		return o.Key, errors.New("order already exist")
 	}
 
-	order := usersvc.Order {
-		OrderId:		orderId,
-		Key: 			key,
-		Email:			email,
-		Plan:			plan,
-		Stations: 		us.getDefaultStations(plan),
-		RequestDate:	time.Now(),
-		Requests: 		0,
-		Admin:			false,
+	order := usersvc.Order{
+		OrderId:     orderId,
+		Key:         key,
+		Email:       email,
+		Plan:        plan,
+		Stations:    us.getDefaultStations(plan),
+		RequestDate: time.Now(),
+		Requests:    0,
+		Admin:       false,
 	}
 
 	err = us.db.SetOrder(order)
@@ -74,11 +72,11 @@ func (us UserSVC) CreateOrder(ctx context.Context, orderId int, email, plan, key
 		level.Error(us.logger).Log("msg", "Create order error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
 	}
-	return key,err
+	return key, err
 }
 
-func (us UserSVC) UpdateOrder(ctx context.Context, order usersvc.Order,) (string, error) {
-	level.Info(us.logger).Log("msg", "Update order", "id", order.OrderId,)
+func (us UserSVC) UpdateOrder(ctx context.Context, order usersvc.Order) (string, error) {
+	level.Info(us.logger).Log("msg", "Update order", "id", order.OrderId)
 
 	err := us.db.SetOrder(order)
 	if err != nil {
@@ -86,11 +84,11 @@ func (us UserSVC) UpdateOrder(ctx context.Context, order usersvc.Order,) (string
 		us.sendAlert(NewErrorAlert(err))
 	}
 
-	return order.Key,err
+	return order.Key, err
 }
 
-func (us UserSVC)  DeleteOrder(ctx context.Context, orderId int) error {
-	err := us.db.DeleteOrders([]int{orderId})
+func (us UserSVC) DeleteOrder(ctx context.Context, orderId string) error {
+	err := us.db.DeleteOrders([]string{orderId})
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Delete order error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
@@ -191,7 +189,7 @@ func (us UserSVC) ValidateKey(ctx context.Context, key string) (usersvc.Order, u
 	return order, plan, nil
 }
 
-func (us UserSVC) ValidateOrder(ctx context.Context, orderId int) (usersvc.Order, usersvc.Plan, error) {
+func (us UserSVC) ValidateOrder(ctx context.Context, orderId string) (usersvc.Order, usersvc.Plan, error) {
 	level.Info(us.logger).Log("msg", "Validate Order", "orderId", orderId)
 	order, err := us.db.GetOrderById(orderId)
 	if err != nil {
@@ -210,7 +208,7 @@ func (us UserSVC) ValidateOrder(ctx context.Context, orderId int) (usersvc.Order
 	return order, plan, nil
 }
 
-func (us UserSVC)validateUserParameters(order *usersvc.Order, plan *usersvc.Plan) error {
+func (us UserSVC) validateUserParameters(order *usersvc.Order, plan *usersvc.Plan) error {
 	if order.Admin {
 		return nil
 	}
@@ -235,14 +233,14 @@ func (us UserSVC)validateUserParameters(order *usersvc.Order, plan *usersvc.Plan
 	return nil
 }
 
-func (us UserSVC)sendAlert(alert alertsvc.Alert) {
+func (us UserSVC) sendAlert(alert alertsvc.Alert) {
 	err := us.alert.SendAlert(alert)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "SendAlert Alert Error", "err", err)
 	}
 }
 
-func (us UserSVC)getDefaultStations (sType string) []string {
+func (us UserSVC) getDefaultStations(sType string) []string {
 	if sType == usersvc.PlanTrial {
 		return []string{us.config.Plans.FreeDefault}
 	}

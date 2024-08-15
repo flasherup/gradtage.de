@@ -10,9 +10,9 @@ import (
 	"github.com/go-kit/kit/log/level"
 )
 
-type UsersSVCClient struct{
-	logger     	log.Logger
-	host 		string
+type UsersSVCClient struct {
+	logger log.Logger
+	host   string
 }
 
 func NewUsersSCVClient(host string, logger log.Logger) *UsersSVCClient {
@@ -20,25 +20,24 @@ func NewUsersSCVClient(host string, logger log.Logger) *UsersSVCClient {
 		"client", "users",
 	)
 	return &UsersSVCClient{
-		logger:logger,
-		host: host,
+		logger: logger,
+		host:   host,
 	}
 }
 
-func (us UsersSVCClient) CreateOrder(orderId int, email, plan, key string) (string, error) {
+func (us UsersSVCClient) CreateOrder(orderId string, email, plan, key string) (string, error) {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
-		return common.ErrorNilString,err
+		return common.ErrorNilString, err
 	}
 	defer conn.Close()
 
-
 	client := grpcusr.NewUserSVCClient(conn)
 	resp, err := client.CreateOrder(context.Background(), &grpcusr.CreateOrderRequest{
-		OrderId: int32(orderId),
-		Email: email,
-		Plan: plan,
-		Key: key,
+		OrderId: orderId,
+		Email:   email,
+		Plan:    plan,
+		Key:     key,
 	})
 
 	if err != nil {
@@ -56,26 +55,26 @@ func (us UsersSVCClient) CreateOrder(orderId int, email, plan, key string) (stri
 func (us UsersSVCClient) UpdateOrder(Order usersvc.Order) (string, error) {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
-		return common.ErrorNilString,err
+		return common.ErrorNilString, err
 	}
 	defer conn.Close()
 
 	client := grpcusr.NewUserSVCClient(conn)
 	u := usersvc.EncodeOrder(&Order)
 	resp, err := client.UpdateOrder(context.Background(), &grpcusr.UpdateOrderRequest{
-		Order:  u,
+		Order: u,
 	})
 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Failed to create Order", "err", err.Error())
-	}else if resp.Err != common.ErrorNilString {
+	} else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
 
 	return resp.Key, err
 }
 
-func (us UsersSVCClient) DeleteOrder(OrderId int) error {
+func (us UsersSVCClient) DeleteOrder(OrderId string) error {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
 		return err
@@ -84,19 +83,19 @@ func (us UsersSVCClient) DeleteOrder(OrderId int) error {
 
 	client := grpcusr.NewUserSVCClient(conn)
 	resp, err := client.DeleteOrder(context.Background(), &grpcusr.DeleteOrderRequest{
-		OrderId:  int32(OrderId),
+		OrderId: OrderId,
 	})
 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Failed to delete Order", "err", err.Error())
-	}else if resp.Err != common.ErrorNilString {
+	} else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
 
 	return err
 }
 
-//AddPlan(plan Plan) error
+// AddPlan(plan Plan) error
 func (us UsersSVCClient) AddPlan(plan usersvc.Plan) error {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
@@ -107,19 +106,19 @@ func (us UsersSVCClient) AddPlan(plan usersvc.Plan) error {
 	client := grpcusr.NewUserSVCClient(conn)
 	p := usersvc.EncodePlan(&plan)
 	resp, err := client.AddPlan(context.Background(), &grpcusr.AddPlanRequest{
-		Plan:  p,
+		Plan: p,
 	})
 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Failed to create user", "err", err.Error())
-	}else if resp.Err != common.ErrorNilString {
+	} else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
 
 	return err
 }
 
-//ValidateSelection(selection Selection) (bool, error)
+// ValidateSelection(selection Selection) (bool, error)
 func (us UsersSVCClient) ValidateSelection(selection usersvc.Selection) error {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
@@ -130,19 +129,19 @@ func (us UsersSVCClient) ValidateSelection(selection usersvc.Selection) error {
 	client := grpcusr.NewUserSVCClient(conn)
 	p := usersvc.EncodeSelection(&selection)
 	resp, err := client.ValidateSelection(context.Background(), &grpcusr.ValidateSelectionRequest{
-		Selection:  p,
+		Selection: p,
 	})
 
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Failed to validate selection", "err", err.Error())
-	}else if resp.Err != common.ErrorNilString {
+	} else if resp.Err != common.ErrorNilString {
 		err = errors.New(resp.Err)
 	}
 
 	return err
 }
 
-//ValidateKey(key string) (Parameters, error)
+// ValidateKey(key string) (Parameters, error)
 func (us UsersSVCClient) ValidateKey(key string) (usersvc.Order, usersvc.Plan, error) {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
@@ -152,7 +151,7 @@ func (us UsersSVCClient) ValidateKey(key string) (usersvc.Order, usersvc.Plan, e
 
 	client := grpcusr.NewUserSVCClient(conn)
 	resp, validateError := client.ValidateKey(context.Background(), &grpcusr.ValidateKeyRequest{
-		Key:  key,
+		Key: key,
 	})
 
 	if validateError != nil {
@@ -175,13 +174,11 @@ func (us UsersSVCClient) ValidateKey(key string) (usersvc.Order, usersvc.Plan, e
 		return *order, *plan, errors.New(resp.Err)
 	}
 
-
 	return *order, *plan, nil
 }
 
-
-//ValidateName(name string) (Parameters, error)
-func (us UsersSVCClient) ValidateOrder(orderId int) (usersvc.Order, usersvc.Plan, error) {
+// ValidateName(name string) (Parameters, error)
+func (us UsersSVCClient) ValidateOrder(orderId string) (usersvc.Order, usersvc.Plan, error) {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {
 		return usersvc.Order{}, usersvc.Plan{}, err
@@ -190,7 +187,7 @@ func (us UsersSVCClient) ValidateOrder(orderId int) (usersvc.Order, usersvc.Plan
 
 	client := grpcusr.NewUserSVCClient(conn)
 	resp, validateError := client.ValidateOrder(context.Background(), &grpcusr.ValidateOrderRequest{
-		OrderId:  int32(orderId),
+		OrderId: orderId,
 	})
 
 	if validateError != nil {
@@ -212,7 +209,6 @@ func (us UsersSVCClient) ValidateOrder(orderId int) (usersvc.Order, usersvc.Plan
 	if resp.Err != common.ErrorNilString {
 		return *order, *plan, errors.New(resp.Err)
 	}
-
 
 	return *order, *plan, nil
 }

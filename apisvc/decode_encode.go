@@ -212,6 +212,25 @@ func encodeServiceResponse(ctx context.Context, w http.ResponseWriter, response 
 	return err
 }
 
+func decodeOrderCreateRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	req := OrderCreateRequest{}
+	if e := json.NewDecoder(r.Body).Decode(&req); e != nil {
+		return nil, e
+	}
+	return req, nil
+}
+
+func encodeOrderCreateResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(OrderCreateResponse)
+	bt := new(bytes.Buffer)
+	err := json.NewEncoder(bt).Encode(resp)
+
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write(bt.Bytes())
+	return err
+
+}
+
 func getParams(r *http.Request, single bool) []Params {
 	vars := mux.Vars(r)
 	r.ParseForm()
@@ -374,7 +393,7 @@ func getCSVData(data *DDResponse) [][]string {
 }
 
 func parseMetric(metric string) bool {
-	if metric == "" || metric == "true"{
+	if metric == "" || metric == "true" {
 		return true
 	}
 	return false

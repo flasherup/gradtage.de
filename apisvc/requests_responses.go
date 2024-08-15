@@ -63,3 +63,15 @@ type ServiceRequest struct {
 type ServiceResponse struct {
 	Json interface{} `json:"json"`
 }
+
+type OrderCreateRequest struct {
+	OrderID string `json:"order_id"`
+	Key     string `json:"key"`
+	Email   string `json:"email"`
+	Plan    string `json:"plan"`
+}
+
+type OrderCreateResponse struct {
+	Status string `json:"status"`
+	Error  error  `json:"error,omitempty"`
+}

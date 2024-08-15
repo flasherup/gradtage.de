@@ -15,77 +15,97 @@ const DayCalc = "day_calc"
 const UserAction = "userAction"
 const ServiceName = "serviceType"
 
-func NewHTTPTSransport(s Service, logger log.Logger, staticFolder string) http.Handler {
+func NewHandler(s Service, logger log.Logger, staticFolder string) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
-	e := MakeServerEndpoints(s)
 
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 	}
 
-	r.Methods("POST").Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").Handler(kithttp.NewServer(
-		e.GetHDDEndpoint,
-		decodeGetHDDRequest,
-		encodeGetHDDResponse,
-		options...,
-	))
+	r.Methods("POST").
+		Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").
+		Handler(kithttp.NewServer(
+			MakeGetDataEndpoint(s),
+			decodeGetHDDRequest,
+			encodeGetHDDResponse,
+			options...,
+		))
 
+	r.Methods("GET").
+		Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").
+		Handler(kithttp.NewServer(
+			MakeGetDataEndpoint(s),
+			decodeGetDataRequest,
+			encodeGetDataResponse,
+			options...,
+		))
 
-	r.Methods("GET").Path("/degreedays/{" + Method + "}/{" + DayCalc + "}/").Handler(kithttp.NewServer(
-		e.GetDataEndpoint,
-		decodeGetDataRequest,
-		encodeGetDataResponse,
-		options...,
-	))
+	r.Methods("GET").
+		Path("/source/").
+		Handler(kithttp.NewServer(
+			MakeGetSourceDataEndpoint(s),
+			decodeGetSourceDataRequest,
+			encodeGetSourceDataResponse,
+			options...,
+		))
 
-	r.Methods("GET").Path("/source/").Handler(kithttp.NewServer(
-		e.GetSourceDataEndpoint,
-		decodeGetSourceDataRequest,
-		encodeGetSourceDataResponse,
-		options...,
-	))
+	r.Methods("GET").
+		Path("/search/").
+		Handler(kithttp.NewServer(
+			MakeGetDataEndpoint(s),
+			decodeSearchRequest,
+			encodeSearchResponse,
+			options...,
+		))
 
-	r.Methods("GET").Path("/search/").Handler(kithttp.NewServer(
-		e.SearchEndpoint,
-		decodeSearchRequest,
-		encodeSearchResponse,
-		options...,
-	))
+	r.Methods("GET").
+		Path("/user/{" + UserAction + "}").
+		Handler(kithttp.NewServer(
+			MakeUserEndpoint(s),
+			decodeUserRequest,
+			encodeUserResponse,
+			options...,
+		))
 
-	r.Methods("GET").Path("/user/{" + UserAction + "}").Handler(kithttp.NewServer(
-		e.UserEndpoint,
-		decodeUserRequest,
-		encodeUserResponse,
-		options...,
-	))
+	r.Methods("POST").
+		Path("/woocommerce").
+		Handler(kithttp.NewServer(
+			MakeWoocommerceEndpoint(s),
+			decodeWoocommerceRequest,
+			encodeWoocommerceResponse,
+			options...,
+		))
 
-	r.Methods("POST").Path("/woocommerce").Handler(kithttp.NewServer(
-		e.WoocommerceEndpoint,
-		decodeWoocommerceRequest,
-		encodeWoocommerceResponse,
-		options...,
-	))
+	r.Methods("GET").
+		Path("/service/{" + ServiceName + "}/").
+		Handler(kithttp.NewServer(
+			MakeServiceEndpoint(s),
+			decodeServiceRequest,
+			encodeServiceResponse,
+			options...,
+		))
 
-	r.Methods("GET").Path("/service/{" + ServiceName + "}/").Handler(kithttp.NewServer(
-		e.ServiceEndpoint,
-		decodeServiceRequest,
-		encodeServiceResponse,
-		options...,
-	))
+	r.Methods("POST").
+		Path("/orders").
+		Handler(kithttp.NewServer(
+			MakeOrderCreateEndpoint(s),
+			decodeOrderCreateRequest,
+			encodeOrderCreateResponse,
+			options...,
+		))
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(staticFolder)))
 
 	return r
 }
 
-func NewHTTPTransport(s Service, logger log.Logger,) http.Handler {
+func NewHTTPTransport(s Service, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
 	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 	return r
 }
-
 
 func commonMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

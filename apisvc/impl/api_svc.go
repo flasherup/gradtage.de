@@ -238,8 +238,8 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 		return json, err
 	}
 
+	orderId := strconv.Itoa(event.UpdateEvent.ID)
 	if event.Type == common.WCUpdateEvent {
-		orderId := event.UpdateEvent.ID
 		productId := strconv.Itoa(event.UpdateEvent.LineItems[0].ProductID)
 		email := *event.UpdateEvent.Billing.Email
 
@@ -268,7 +268,7 @@ func (as APISVC) Woocommerce(ctx context.Context, event apisvc.WoocommerceEvent)
 			}
 		}
 	} else if event.Type == common.WCDeleteEvent {
-		deleteError := as.user.DeleteOrder(event.DeleteEvent.ID)
+		deleteError := as.user.DeleteOrder(orderId)
 		if deleteError != nil {
 			level.Error(as.logger).Log("msg", "Delete order error", "orderId", event.DeleteEvent.ID, "err", err)
 		}
@@ -324,6 +324,11 @@ func (as APISVC) getStationID(text string) (string, error) {
 	}
 
 	return text, nil
+}
+
+func (as APISVC) OrderCreate(ctx context.Context, orderID, email, plan, key string) (string, error) {
+	level.Info(as.logger).Log("msg", "OrderCreate", "orderID", orderID, "email", email, "plan", plan, "key", key)
+	return as.user.CreateOrder(orderID, email, plan, key)
 }
 
 func (as APISVC) getAutocomplete(text string) (autocompletesvc.Autocomplete, error) {

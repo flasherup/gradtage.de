@@ -36,7 +36,7 @@ type Params struct {
 	Avg       int          `json:"avg"`
 	WeekStart time.Weekday `json:"week_start"`
 	Format    string       `json:"format"`
-	Metric    bool       `json:"metric"`
+	Metric    bool         `json:"metric"`
 }
 
 type ParamsSourceData struct {
@@ -95,4 +95,5 @@ type Service interface {
 	User(ctx context.Context, params ParamsUser) (data CSVData, err error)
 	Woocommerce(ctx context.Context, event WoocommerceEvent) (json string, err error)
 	Service(ctx context.Context, name string, params map[string]string) (json interface{}, err error)
+	OrderCreate(ctx context.Context, orderID string, email, plan, key string) (string, error)
 }
