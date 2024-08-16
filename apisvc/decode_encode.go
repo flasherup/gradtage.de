@@ -231,6 +231,65 @@ func encodeOrderCreateResponse(_ context.Context, w http.ResponseWriter, respons
 
 }
 
+func decodeOrderUpdateRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	req := OrderUpdateRequest{}
+	if e := json.NewDecoder(r.Body).Decode(&req); e != nil {
+		return nil, e
+	}
+
+	req.OrderID = mux.Vars(r)[OrderID]
+	return req, nil
+}
+
+func encodeOrderUpdateResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(OrderUpdateResponse)
+	bt := new(bytes.Buffer)
+	err := json.NewEncoder(bt).Encode(resp)
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write(bt.Bytes())
+	return err
+}
+
+func decodeOrderDeleteRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	req := OrderDeleteRequest{}
+	if e := json.NewDecoder(r.Body).Decode(&req); e != nil {
+		return nil, e
+	}
+
+	req.OrderID = mux.Vars(r)[OrderID]
+	return req, nil
+}
+
+func encodeOrderDeleteResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(OrderDeleteResponse)
+	bt := new(bytes.Buffer)
+	err := json.NewEncoder(bt).Encode(resp)
+
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write(bt.Bytes())
+	return err
+}
+
+func decodeOrderCancelRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	req := OrderCancelRequest{}
+	if e := json.NewDecoder(r.Body).Decode(&req); e != nil {
+		return nil, e
+	}
+
+	req.OrderID = mux.Vars(r)[OrderID]
+	return req, nil
+}
+
+func encodeOrderCancelResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	resp := response.(OrderCancelResponse)
+	bt := new(bytes.Buffer)
+	err := json.NewEncoder(bt).Encode(resp)
+
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	w.Write(bt.Bytes())
+	return err
+}
+
 func getParams(r *http.Request, single bool) []Params {
 	vars := mux.Vars(r)
 	r.ParseForm()

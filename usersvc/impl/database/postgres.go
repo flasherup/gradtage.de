@@ -99,14 +99,14 @@ func (pg *Postgres) GetOrderByKey(key string) (usersvc.Order, error) {
 // Delete orders
 func (pg *Postgres) DeleteOrders(orderIds []string) error {
 	o := ordersToString(orderIds)
-	query := fmt.Sprintf("DELETE FROM orders WHERE order_id = (%s);", o)
-	//fmt.Println(query)
+	query := fmt.Sprintf("DELETE FROM orders WHERE order_id IN (%s);", o)
+	fmt.Println(query)
 	_, err := pg.db.Query(query)
 	return err
 }
 
-// Set/update order
-func (pg *Postgres) SetOrder(order usersvc.Order) error {
+// UpdateOrder updates order
+func (pg *Postgres) UpdateOrder(order usersvc.Order) error {
 	station := stationsToString(order.Stations)
 	query := fmt.Sprintf("INSERT INTO orders "+
 		"(order_id, key, email, plan, stations, request, req_count, admin) VALUES "+
@@ -123,7 +123,6 @@ func (pg *Postgres) SetOrder(order usersvc.Order) error {
 
 	query += ` ON CONFLICT (order_id) DO UPDATE SET
 			 (	
-				order_id,
 				key,
 				email,
 				plan,
@@ -132,7 +131,6 @@ func (pg *Postgres) SetOrder(order usersvc.Order) error {
 				req_count,
 				admin
 			) = (
-				excluded.order_id,
 				excluded.key,
 				excluded.email,
 				excluded.plan,
@@ -143,6 +141,14 @@ func (pg *Postgres) SetOrder(order usersvc.Order) error {
 			);`
 	fmt.Println(query)
 	return writeToDB(pg.db, query)
+}
+
+// CancelOrder set order status to canceled
+func (pg *Postgres) CancelOrder(orderID string) error {
+	query := fmt.Sprintf("UPDATE orders SET plan = '%s' WHERE order_id = '%s';", usersvc.PlanCanceled, orderID)
+	//fmt.Println(query)
+	return writeToDB(pg.db, query)
+
 }
 
 // Create Orders Table
@@ -390,11 +396,13 @@ func writeToDB(db *sql.DB, query string) (err error) {
 
 func ordersToString(orders []string) string {
 	ordersCount := len(orders) - 1
-	res := ""
+	res := "'"
 	for i, v := range orders {
 		res += v
 		if i < ordersCount {
-			res += ","
+			res += "',"
+		} else {
+			res += "'"
 		}
 	}
 	return res

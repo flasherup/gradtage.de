@@ -67,7 +67,7 @@ func (us UserSVC) CreateOrder(ctx context.Context, orderId, email, plan, key str
 		Admin:       false,
 	}
 
-	err = us.db.SetOrder(order)
+	err = us.db.UpdateOrder(order)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Create order error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
@@ -78,13 +78,24 @@ func (us UserSVC) CreateOrder(ctx context.Context, orderId, email, plan, key str
 func (us UserSVC) UpdateOrder(ctx context.Context, order usersvc.Order) (string, error) {
 	level.Info(us.logger).Log("msg", "Update order", "id", order.OrderId)
 
-	err := us.db.SetOrder(order)
+	err := us.db.UpdateOrder(order)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Update order error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
 	}
 
 	return order.Key, err
+}
+
+func (us UserSVC) CancelOrder(ctx context.Context, orderId string) error {
+	level.Info(us.logger).Log("msg", "Cancel order", "id", orderId)
+
+	err := us.db.CancelOrder(orderId)
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Cancel order error", "err", err)
+		us.sendAlert(NewErrorAlert(err))
+	}
+	return err
 }
 
 func (us UserSVC) DeleteOrder(ctx context.Context, orderId string) error {
@@ -162,7 +173,7 @@ func (us UserSVC) ValidateSelection(ctx context.Context, selection usersvc.Selec
 	//Update user request time nad count
 	order.RequestDate = time.Now().UTC()
 	order.Requests = requests
-	err = us.db.SetOrder(order)
+	err = us.db.UpdateOrder(order)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Update order request time and count error", "err", err)
 		us.sendAlert(NewErrorAlert(err))
@@ -225,7 +236,7 @@ func (us UserSVC) validateUserParameters(order *usersvc.Order, plan *usersvc.Pla
 	//Update user request time nad count
 	order.RequestDate = time.Now().UTC()
 	order.Requests = requests
-	err = us.db.SetOrder(*order)
+	err = us.db.UpdateOrder(*order)
 	if err != nil {
 		level.Error(us.logger).Log("msg", "Update order request time and count error", "err", err)
 		us.sendAlert(NewErrorAlert(err))

@@ -56,12 +56,57 @@ func MakeServiceEndpoint(s Service) endpoint.Endpoint {
 func MakeOrderCreateEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(OrderCreateRequest)
-		_, err := s.OrderCreate(ctx, req.OrderID, req.Email, req.Plan, req.Key)
+		err := s.OrderCreate(ctx, req.OrderID, req.Email, req.Plan, req.Key)
 		if err == nil {
 			return OrderCreateResponse{Status: "success"}, err
 		}
 
 		return OrderCreateResponse{
+			Status: "error",
+			Error:  err,
+		}, err
+	}
+}
+
+func MakeOrderUpdateEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(OrderUpdateRequest)
+		err := s.OrderUpdate(ctx, req.OrderID, req.Email, req.Plan, req.Key)
+		if err == nil {
+			return OrderUpdateResponse{Status: "success"}, err
+		}
+
+		return OrderUpdateResponse{
+			Status: "error",
+			Error:  err,
+		}, err
+	}
+}
+
+func MakeOrderDeleteEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(OrderDeleteRequest)
+		err := s.OrderDelete(ctx, req.OrderID)
+		if err == nil {
+			return OrderDeleteResponse{Status: "success"}, err
+		}
+
+		return OrderDeleteResponse{
+			Status: "error",
+			Error:  err,
+		}, err
+	}
+}
+
+func MakeOrderCancelEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(OrderCancelRequest)
+		err := s.OrderCancel(ctx, req.OrderID)
+		if err == nil {
+			return OrderCancelResponse{Status: "success"}, err
+		}
+
+		return OrderCancelResponse{
 			Status: "error",
 			Error:  err,
 		}, err

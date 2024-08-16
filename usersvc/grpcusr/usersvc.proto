@@ -56,6 +56,14 @@ message UpdateOrderResponse {
     string Err = 2;
 }
 
+message CancelOrderRequest {
+    string    order_id   = 1;
+}
+
+message CancelOrderResponse {
+    string Err = 1;
+}
+
 message DeleteOrderRequest {
     string    order_id   = 1;
 }
@@ -103,6 +111,7 @@ message ValidateOrderResponse {
 service UserSVC {
     rpc CreateOrder(CreateOrderRequest)                 returns (CreateOrderResponse) {}
     rpc UpdateOrder(UpdateOrderRequest)                 returns (UpdateOrderResponse) {}
+    rpc CancelOrder(CancelOrderRequest)                 returns (CancelOrderResponse) {}
     rpc DeleteOrder(DeleteOrderRequest)                 returns (DeleteOrderResponse) {}
     rpc AddPlan(AddPlanRequest)                         returns (AddPlanResponse) {}
     rpc ValidateSelection(ValidateSelectionRequest)     returns (ValidateSelectionResponse) {}

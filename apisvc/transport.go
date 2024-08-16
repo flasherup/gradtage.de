@@ -14,6 +14,7 @@ const Method = "method"
 const DayCalc = "day_calc"
 const UserAction = "userAction"
 const ServiceName = "serviceType"
+const OrderID = "orderID"
 
 func NewHandler(s Service, logger log.Logger, staticFolder string) http.Handler {
 	r := mux.NewRouter()
@@ -92,6 +93,33 @@ func NewHandler(s Service, logger log.Logger, staticFolder string) http.Handler 
 			MakeOrderCreateEndpoint(s),
 			decodeOrderCreateRequest,
 			encodeOrderCreateResponse,
+			options...,
+		))
+
+	r.Methods("PUT").
+		Path("/orders/{" + OrderID + "}").
+		Handler(kithttp.NewServer(
+			MakeOrderUpdateEndpoint(s),
+			decodeOrderUpdateRequest,
+			encodeOrderUpdateResponse,
+			options...,
+		))
+
+	r.Methods("DELETE").
+		Path("/orders/{" + OrderID + "}").
+		Handler(kithttp.NewServer(
+			MakeOrderDeleteEndpoint(s),
+			decodeOrderDeleteRequest,
+			encodeOrderDeleteResponse,
+			options...,
+		))
+
+	r.Methods("POST").
+		Path("/orders/{" + OrderID + "}/cancel").
+		Handler(kithttp.NewServer(
+			MakeOrderCancelEndpoint(s),
+			decodeOrderCancelRequest,
+			encodeOrderCancelResponse,
 			options...,
 		))
 

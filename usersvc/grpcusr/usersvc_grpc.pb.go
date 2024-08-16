@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	UserSVC_CreateOrder_FullMethodName       = "/grpcusr.UserSVC/CreateOrder"
 	UserSVC_UpdateOrder_FullMethodName       = "/grpcusr.UserSVC/UpdateOrder"
+	UserSVC_CancelOrder_FullMethodName       = "/grpcusr.UserSVC/CancelOrder"
 	UserSVC_DeleteOrder_FullMethodName       = "/grpcusr.UserSVC/DeleteOrder"
 	UserSVC_AddPlan_FullMethodName           = "/grpcusr.UserSVC/AddPlan"
 	UserSVC_ValidateSelection_FullMethodName = "/grpcusr.UserSVC/ValidateSelection"
@@ -34,6 +35,7 @@ const (
 type UserSVCClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 	UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
+	CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error)
 	DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
 	AddPlan(ctx context.Context, in *AddPlanRequest, opts ...grpc.CallOption) (*AddPlanResponse, error)
 	ValidateSelection(ctx context.Context, in *ValidateSelectionRequest, opts ...grpc.CallOption) (*ValidateSelectionResponse, error)
@@ -63,6 +65,16 @@ func (c *userSVCClient) UpdateOrder(ctx context.Context, in *UpdateOrderRequest,
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateOrderResponse)
 	err := c.cc.Invoke(ctx, UserSVC_UpdateOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userSVCClient) CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelOrderResponse)
+	err := c.cc.Invoke(ctx, UserSVC_CancelOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +137,7 @@ func (c *userSVCClient) ValidateOrder(ctx context.Context, in *ValidateOrderRequ
 type UserSVCServer interface {
 	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
 	UpdateOrder(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error)
+	CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error)
 	DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error)
 	AddPlan(context.Context, *AddPlanRequest) (*AddPlanResponse, error)
 	ValidateSelection(context.Context, *ValidateSelectionRequest) (*ValidateSelectionResponse, error)
@@ -144,6 +157,9 @@ func (UnimplementedUserSVCServer) CreateOrder(context.Context, *CreateOrderReque
 }
 func (UnimplementedUserSVCServer) UpdateOrder(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrder not implemented")
+}
+func (UnimplementedUserSVCServer) CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
 }
 func (UnimplementedUserSVCServer) DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrder not implemented")
@@ -212,6 +228,24 @@ func _UserSVC_UpdateOrder_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserSVCServer).UpdateOrder(ctx, req.(*UpdateOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserSVC_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserSVCServer).CancelOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserSVC_CancelOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserSVCServer).CancelOrder(ctx, req.(*CancelOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -320,6 +354,10 @@ var UserSVC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateOrder",
 			Handler:    _UserSVC_UpdateOrder_Handler,
+		},
+		{
+			MethodName: "CancelOrder",
+			Handler:    _UserSVC_CancelOrder_Handler,
 		},
 		{
 			MethodName: "DeleteOrder",

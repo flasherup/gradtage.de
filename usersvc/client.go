@@ -3,6 +3,7 @@ package usersvc
 type Client interface {
 	CreateOrder(orderId string, email, plan, key string) (string, error)
 	UpdateOrder(order Order) (string, error)
+	CancelOrder(orderId string) error
 	DeleteOrder(orderId string) error
 	AddPlan(plan Plan) error
 	ValidateSelection(selection Selection) error

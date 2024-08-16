@@ -12,6 +12,7 @@ import (
 
 type GRPCServer struct {
 	createOrder       gt.Handler
+	cancelOrder       gt.Handler
 	updateOrder       gt.Handler
 	deleteOrder       gt.Handler
 	addPlan           gt.Handler
@@ -34,6 +35,14 @@ func (s *GRPCServer) UpdateOrder(ctx context.Context, req *grpcusr.UpdateOrderRe
 		return nil, err
 	}
 	return resp.(*grpcusr.UpdateOrderResponse), err
+}
+
+func (s *GRPCServer) CancelOrder(ctx context.Context, req *grpcusr.CancelOrderRequest) (*grpcusr.CancelOrderResponse, error) {
+	_, resp, err := s.cancelOrder.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.(*grpcusr.CancelOrderResponse), err
 }
 
 func (s *GRPCServer) DeleteOrder(ctx context.Context, req *grpcusr.DeleteOrderRequest) (*grpcusr.DeleteOrderResponse, error) {
@@ -76,7 +85,6 @@ func (s *GRPCServer) ValidateOrder(ctx context.Context, req *grpcusr.ValidateOrd
 	return resp.(*grpcusr.ValidateOrderResponse), err
 }
 
-
 func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer {
 	server := GRPCServer{
 		createOrder: gt.NewServer(
@@ -88,6 +96,11 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer 
 			endpoint.UpdateOrderEndpoint,
 			DecodeUpdateOrderRequest,
 			EncodeUpdateOrderResponse,
+		),
+		cancelOrder: gt.NewServer(
+			endpoint.CancelOrderEndpoint,
+			DecodeCancelOrderRequest,
+			EncodeCancelOrderResponse,
 		),
 		deleteOrder: gt.NewServer(
 			endpoint.DeleteOrderEndpoint,
@@ -118,7 +131,7 @@ func NewGRPCServer(_ context.Context, endpoint Endpoints) grpcusr.UserSVCServer 
 	return &server
 }
 
-func NewMetricsTransport(s Service, logger log.Logger,) http.Handler {
+func NewMetricsTransport(s Service, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 	return r

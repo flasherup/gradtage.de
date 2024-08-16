@@ -48,6 +48,7 @@ type Order struct {
 type Service interface {
 	CreateOrder(ctx context.Context, orderId string, email, plan, key string) (string, error)
 	UpdateOrder(ctx context.Context, order Order) (string, error)
+	CancelOrder(ctx context.Context, orderId string) error
 	DeleteOrder(ctx context.Context, orderId string) error
 	AddPlan(ctx context.Context, plan Plan) error
 	ValidateSelection(ctx context.Context, selection Selection) error

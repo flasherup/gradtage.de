@@ -74,6 +74,27 @@ func (us UsersSVCClient) UpdateOrder(Order usersvc.Order) (string, error) {
 	return resp.Key, err
 }
 
+func (us UsersSVCClient) CancelOrder(OrderId string) error {
+	conn, err := common.OpenGRPCConnection(us.host)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := grpcusr.NewUserSVCClient(conn)
+	resp, err := client.CancelOrder(context.Background(), &grpcusr.CancelOrderRequest{
+		OrderId: OrderId,
+	})
+
+	if err != nil {
+		level.Error(us.logger).Log("msg", "Failed to cancel Order", "err", err.Error())
+	} else if resp.Err != common.ErrorNilString {
+		err = errors.New(resp.Err)
+	}
+
+	return err
+}
+
 func (us UsersSVCClient) DeleteOrder(OrderId string) error {
 	conn, err := common.OpenGRPCConnection(us.host)
 	if err != nil {

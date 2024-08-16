@@ -326,9 +326,33 @@ func (as APISVC) getStationID(text string) (string, error) {
 	return text, nil
 }
 
-func (as APISVC) OrderCreate(ctx context.Context, orderID, email, plan, key string) (string, error) {
+func (as APISVC) OrderCreate(ctx context.Context, orderID, email, plan, key string) error {
 	level.Info(as.logger).Log("msg", "OrderCreate", "orderID", orderID, "email", email, "plan", plan, "key", key)
-	return as.user.CreateOrder(orderID, email, plan, key)
+	_, err := as.user.CreateOrder(orderID, email, plan, key)
+	return err
+}
+
+func (as APISVC) OrderUpdate(_ context.Context, orderID, email, plan, key string) error {
+	level.Info(as.logger).Log("msg", "OrderUpdate", "orderID", orderID, "email", email, "plan", plan, "key", key)
+	o := usersvc.Order{
+		OrderId: orderID,
+		Email:   email,
+		Plan:    plan,
+		Key:     key,
+	}
+	_, err := as.user.UpdateOrder(o)
+
+	return err
+}
+
+func (as APISVC) OrderCancel(_ context.Context, orderID string) error {
+	level.Info(as.logger).Log("msg", "OrderCancel", "orderID", orderID)
+	return as.user.CancelOrder(orderID)
+}
+
+func (as APISVC) OrderDelete(_ context.Context, orderID string) error {
+	level.Info(as.logger).Log("msg", "OrderDelete", "orderID", orderID)
+	return as.user.DeleteOrder(orderID)
 }
 
 func (as APISVC) getAutocomplete(text string) (autocompletesvc.Autocomplete, error) {

@@ -75,3 +75,33 @@ type OrderCreateResponse struct {
 	Status string `json:"status"`
 	Error  error  `json:"error,omitempty"`
 }
+
+type OrderUpdateRequest struct {
+	OrderID string `json:"order_id"`
+	Email   string `json:"email"`
+	Plan    string `json:"plan"`
+	Key     string `json:"key"`
+}
+
+type OrderUpdateResponse struct {
+	Status string `json:"status"`
+	Error  error  `json:"error,omitempty"`
+}
+
+type OrderDeleteRequest struct {
+	OrderID string `json:"order_id"`
+}
+
+type OrderDeleteResponse struct {
+	Status string `json:"status"`
+	Error  error  `json:"error,omitempty"`
+}
+
+type OrderCancelRequest struct {
+	OrderID string `json:"order_id"`
+}
+
+type OrderCancelResponse struct {
+	Status string `json:"status"`
+	Error  error  `json:"error,omitempty"`
+}

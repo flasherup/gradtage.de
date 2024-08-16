@@ -21,6 +21,14 @@ type UpdateOrderResponse struct {
 	Err error  `json:"err"`
 }
 
+type CancelOrderRequest struct {
+	OrderID string `json:"order_id"`
+}
+
+type CancelOrderResponse struct {
+	Err error `json:"err"`
+}
+
 type DeleteOrderRequest struct {
 	OrderId string `json:"order_id"`
 }

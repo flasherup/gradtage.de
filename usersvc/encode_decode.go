@@ -42,6 +42,18 @@ func DecodeUpdateOrderRequest(_ context.Context, r interface{}) (interface{}, er
 	return UpdateOrderRequest{*Order}, nil
 }
 
+func EncodeCancelOrderResponse(_ context.Context, r interface{}) (interface{}, error) {
+	res := r.(CancelOrderResponse)
+	return &grpcusr.CancelOrderResponse{
+		Err: errorToString(res.Err),
+	}, nil
+}
+
+func DecodeCancelOrderRequest(_ context.Context, r interface{}) (interface{}, error) {
+	req := r.(*grpcusr.CancelOrderRequest)
+	return CancelOrderRequest{req.OrderId}, nil
+}
+
 func EncodeDeleteOrderResponse(_ context.Context, r interface{}) (interface{}, error) {
 	res := r.(DeleteOrderResponse)
 	return &grpcusr.DeleteOrderResponse{

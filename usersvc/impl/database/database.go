@@ -9,7 +9,8 @@ type UserDB interface {
 	GetOrdersByUser(user string) ([]usersvc.Order, error)
 	GetOrderByKey(key string) (usersvc.Order, error)
 	DeleteOrders(orderIds []string) error
-	SetOrder(order usersvc.Order) error
+	CancelOrder(orderID string) error
+	UpdateOrder(order usersvc.Order) error
 	CreateOrdersTable() error
 	RemoveOrdersTable() error
 	SetPlan(plan usersvc.Plan) error
